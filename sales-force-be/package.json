@@ -18,6 +18,7 @@
     "docker:logs": "docker-compose logs -f app",
     "db:migrate": "node dist/utils/migrate.js",
     "db:seed": "node dist/utils/seed.js",
+    "start:dev": "nodemon --exec ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["sales-force", "automation", "crm", "api"],

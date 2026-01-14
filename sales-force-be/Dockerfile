@@ -1,3 +1,24 @@
+# Development stage
+FROM node:20-alpine AS development
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install all dependencies (including devDependencies)
+RUN npm ci
+
+# Copy source code
+COPY src ./src
+
+ENV NODE_ENV=development
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]
+
 # Build stage
 FROM node:20-alpine AS builder
 
