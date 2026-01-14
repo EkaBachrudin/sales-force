@@ -1,0 +1,57 @@
+# Development Override Configuration
+# Gunakan: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.9'
+
+services:
+  # ========================================
+  # FRONTEND - Development Mode
+  # ========================================
+  frontend:
+    build:
+      target: development
+    volumes:
+      - ./sales-force-fe:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    command: npm run dev
+
+  # ========================================
+  # BACKEND - Development Mode
+  # ========================================
+  backend:
+    build:
+      target: development
+    volumes:
+      - ./sales-force-be/src:/app/src
+      - /app/node_modules
+      - /app/dist
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "${BACKEND_PORT:-4000}:3000"
+    command: npm run start:dev
+
+  # ========================================
+  # DATABASE - Development Mode
+  # ========================================
+  postgres:
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+  # ========================================
+  # NGINX - Development Mode (Optional)
+  # ========================================
+  nginx:
+    ports:
+      - "${NGINX_HTTP_PORT:-8080}:80"
+    profiles:
+      - nginx  # Use --profile nginx to enable nginx in dev
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_cache:/var/cache/nginx

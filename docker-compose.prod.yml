@@ -1,0 +1,39 @@
+# Production Override Configuration
+# Gunakan: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+version: '3.9'
+
+services:
+  # ========================================
+  # FRONTEND - Production Mode
+  # ========================================
+  frontend:
+    environment:
+      - NODE_ENV=production
+
+  # ========================================
+  # BACKEND - Production Mode
+  # ========================================
+  backend:
+    environment:
+      - NODE_ENV=production
+
+  # ========================================
+  # DATABASE - Production Mode
+  # ========================================
+  postgres:
+    # No ports exposed in production, access via backend only
+
+  # ========================================
+  # NGINX - Production Mode with SSL
+  # ========================================
+  nginx:
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+      - ./docker/logs/nginx:/var/log/nginx
