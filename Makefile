@@ -70,28 +70,28 @@ prod-build:
 # Management Commands
 # ============================================
 up:
-	docker compose --env-file .env -f docker-compose.yml up -d
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 down:
-	docker compose --env-file .env -f docker-compose.yml down
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml down
 
 restart:
-	docker compose --env-file .env -f docker-compose.yml restart
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml restart
 
 logs:
-	docker compose --env-file .env -f docker-compose.yml logs -f
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml logs -f
 
 logs-logs:
-	docker compose --env-file .env -f docker-compose.yml logs -f frontend
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml logs -f frontend
 
 logs-be:
-	docker compose --env-file .env -f docker-compose.yml logs -f backend
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml logs -f backend
 
 logs-db:
-	docker compose --env-file .env -f docker-compose.yml logs -f postgres
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml logs -f postgres
 
 logs-nginx:
-	docker compose --env-file .env -f docker-compose.yml logs -f nginx
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml logs -f nginx
 
 # ============================================
 # Database Commands
@@ -109,8 +109,8 @@ db-reset:
 	@read -p "Are you sure? [y/N] " -n 1 -r; \
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		docker compose --env-file .env -f docker-compose.yml down -v; \
-		docker compose --env-file .env -f docker-compose.yml up -d; \
+		docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml down -v; \
+		docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml up -d; \
 	fi
 
 db-migrate:
@@ -126,11 +126,11 @@ db-migrate-rollback:
 # Maintenance Commands
 # ============================================
 build:
-	docker compose --env-file .env -f docker-compose.yml build --no-cache
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml build --no-cache
 
 clean:
 	@echo "Removing all containers, volumes, and images..."
-	docker compose --env-file .env -f docker-compose.yml down -v --rmi all
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml down -v --rmi all
 
 install:
 	@echo "Installing dependencies..."
