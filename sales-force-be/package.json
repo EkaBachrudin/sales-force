@@ -16,7 +16,10 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f app",
-    "db:migrate": "node dist/utils/migrate.js",
+    "db:migrate": "ts-node src/utils/migrate.ts run",
+    "db:migrate:status": "ts-node src/utils/migrate.ts status",
+    "db:migrate:rollback": "ts-node src/utils/migrate.ts rollback",
+    "db:migrate:build": "tsc && node dist/utils/migrate.js",
     "db:seed": "node dist/utils/seed.js",
     "start:dev": "nodemon --exec ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
