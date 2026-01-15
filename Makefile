@@ -28,6 +28,7 @@ help:
 	@echo "  make logs-nginx   - Show nginx logs"
 	@echo ""
 	@echo "Database:"
+	@echo "  make db-init            - Initialize database (create + migrate)"
 	@echo "  make db-connect         - Connect to PostgreSQL"
 	@echo "  make db-reset           - Reset database (WARNING: deletes data)"
 	@echo "  make db-migrate         - Run database migrations"
@@ -97,6 +98,11 @@ logs-nginx:
 # ============================================
 db-connect:
 	docker exec -it sales-force-db psql -U $${DB_USER:-postgres} -d $${DB_NAME:-salesforce}
+
+db-init:
+	@echo "Initializing database..."
+	docker exec -it sales-force-db psql -U $${DB_USER:-postgres} -c "CREATE DATABASE $${DB_NAME:-salesforce};" 2>/dev/null || true
+	docker exec -it sales-force-be npm run db:migrate
 
 db-reset:
 	@echo "WARNING: This will delete all data!"
