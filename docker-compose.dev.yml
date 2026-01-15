@@ -28,6 +28,7 @@ services:
       target: development
     volumes:
       - ./sales-force-be/src:/app/src
+      - ./sales-force-be/package.json:/app/package.json
       - /app/node_modules
       - /app/dist
     environment:
