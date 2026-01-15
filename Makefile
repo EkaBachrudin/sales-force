@@ -2,7 +2,7 @@
 # Sales Force - Docker Commands Helper
 # ============================================
 
-.PHONY: help dev dev-nginx prod up down restart logs build clean install db-connect
+.PHONY: help dev dev-nginx prod up down restart logs build clean install db-connect db-migrate db-migrate-status db-migrate-rollback
 
 # Default target
 help:
@@ -28,8 +28,11 @@ help:
 	@echo "  make logs-nginx   - Show nginx logs"
 	@echo ""
 	@echo "Database:"
-	@echo "  make db-connect   - Connect to PostgreSQL"
-	@echo "  make db-reset     - Reset database (WARNING: deletes data)"
+	@echo "  make db-connect         - Connect to PostgreSQL"
+	@echo "  make db-reset           - Reset database (WARNING: deletes data)"
+	@echo "  make db-migrate         - Run database migrations"
+	@echo "  make db-migrate-status  - Check migration status"
+	@echo "  make db-migrate-rollback - Rollback last migration"
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  make build        - Rebuild all containers"
@@ -103,6 +106,15 @@ db-reset:
 		docker compose --env-file .env -f docker-compose.yml down -v; \
 		docker compose --env-file .env -f docker-compose.yml up -d; \
 	fi
+
+db-migrate:
+	docker exec -it sales-force-be npm run db:migrate
+
+db-migrate-status:
+	docker exec -it sales-force-be npm run db:migrate:status
+
+db-migrate-rollback:
+	docker exec -it sales-force-be npm run db:migrate:rollback
 
 # ============================================
 # Maintenance Commands
