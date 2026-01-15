@@ -50,7 +50,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
   return (
     <aside
       className={cn(
-        'fixed top-0 h-screen bg-white border-r border-[var(--border)] transition-all duration-300 z-20',
+        'fixed top-0 h-screen bg-white border-r border-[var(--border)] transition-all duration-300 z-40 lg:z-20',
         // Desktop behavior
         'lg:translate-x-0',
         collapsed ? 'lg:w-20' : 'lg:w-64',
