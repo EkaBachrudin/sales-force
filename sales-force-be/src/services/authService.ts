@@ -217,13 +217,12 @@ export const login = async (dto: LoginDto, ipAddress: string, userAgent: string)
  * Refresh access token using refresh token
  */
 export const refresh = async (refreshToken: string, ipAddress: string, userAgent: string): Promise<AuthTokens> => {
-  // Find active session with this refresh token
+  // Get all active sessions (we need to verify hash since it's one-way)
   const sessionResult = await pool.query(
-    `SELECT s.*, u.id as user_id, u.email, u.role
+    `SELECT s.*, u.id as user_id, u.email
      FROM user_sessions s
      JOIN users u ON s.user_id = u.id
-     WHERE s.is_active = true AND s.expires_at > NOW()`,
-    []
+     WHERE s.is_active = true AND s.expires_at > NOW()`
   );
 
   // Find matching session by verifying refresh token hash
@@ -264,7 +263,7 @@ export const refresh = async (refreshToken: string, ipAddress: string, userAgent
   const newAccessToken = generateAccessToken({
     sub: matchedSession.user_id,
     email: matchedSession.email,
-    role: matchedSession.role,
+    role: UserRole.SALES, // Default role since it's not in DB
     session_id: matchedSession.id, // Include session_id in JWT
   });
 

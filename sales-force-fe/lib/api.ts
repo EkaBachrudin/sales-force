@@ -13,15 +13,84 @@ class ApiError extends Error {
   }
 }
 
-// Interceptor function untuk handle request
-const fetchWithInterceptor = async (input: RequestInfo | URL, init?: RequestInit) => {
-  const response = await fetch(input, init);
+// Flag untuk mencegah multiple refresh requests
+let isRefreshing = false;
+// Queue untuk menahan requests yang pending selama refresh
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
 
-  // Auto redirect ke login jika 401 Unauthorized
+const processQueue = (error: unknown | null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+  failedQueue = [];
+};
+
+// Refresh token function
+const refreshToken = async (): Promise<void> => {
+  const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new ApiError(data.message || 'Failed to refresh token', response.status);
+  }
+
+  return response.json();
+};
+
+// Interceptor function untuk handle request dengan auto-refresh
+const fetchWithInterceptor = async (input: RequestInfo | URL, init?: RequestInit) => {
+  let response = await fetch(input, init);
+
+  // Jika 401, coba refresh token
   if (response.status === 401 && typeof window !== 'undefined') {
-    // Hapus user state dan redirect ke login
-    if (!window.location.pathname.includes('/login')) {
-      window.location.href = '/login';
+    // Jika sedang refreshing, queue request ini
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then(() => fetch(input, init))
+        .catch((err) => {
+          throw err;
+        });
+    }
+
+    // Mulai proses refresh
+    isRefreshing = true;
+
+    try {
+      // Coba refresh token
+      await refreshToken();
+
+      // Process queue yang pending
+      processQueue(null);
+
+      // Retry request original dengan token baru
+      response = await fetch(input, init);
+    } catch (error) {
+      // Refresh gagal, process queue dengan error
+      processQueue(error);
+
+      // Redirect ke login jika refresh juga gagal
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+
+      throw error;
+    } finally {
+      isRefreshing = false;
     }
   }
 
@@ -86,6 +155,21 @@ export const api = {
 
     if (!response.ok) {
       throw new ApiError(data.message || 'Logout failed', response.status);
+    }
+
+    return data;
+  },
+
+  refresh: async () => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to refresh token', response.status);
     }
 
     return data;
