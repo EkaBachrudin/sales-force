@@ -1,3 +1,21 @@
+// API Response Types
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 // User Types
 export enum UserRole {
   ADMIN = 'admin',
@@ -16,6 +34,7 @@ export interface User {
   last_login_at?: Date;
   created_at: Date;
   updated_at: Date;
+  password_hash?: string;
 }
 
 export interface CreateUserDto {
@@ -142,6 +161,7 @@ export interface CreateTaskDto {
 
 // JWT Payload
 export interface JwtPayload {
+  jti: string;
   sub: string;
   email: string;
   role: UserRole;
@@ -149,20 +169,56 @@ export interface JwtPayload {
   exp: number;
 }
 
-// API Response Types
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  message?: string;
-  data?: T;
-  error?: string;
+// Auth Types
+export interface DeviceInfo {
+  type: string;
+  os: string;
+  browser: string;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
+export interface UserSession {
+  id: string;
+  user_id: string;
+  refresh_token_hash: string;
+  device_info: DeviceInfo;
+  ip_address: string;
+  user_agent: string;
+  is_active: boolean;
+  expires_at: Date;
+  last_activity_at: Date;
+  created_at: Date;
+}
+
+export interface LoginResponse {
+  user: {
+    id: string;
+    full_name: string;
+    email: string;
+    role: UserRole;
   };
+  session: {
+    id: string;
+    device_info: DeviceInfo;
+    expires_at: string;
+  };
+}
+
+export interface RefreshTokenResponse {
+  csrf_token: string;
+}
+
+export interface AuthResponse extends ApiResponse<LoginResponse | RefreshTokenResponse> {}
+
+// Auth DTOs
+export interface RegisterDto {
+  email: string;
+  password: string;
+  full_name: string;
+  phone?: string;
+}
+
+export interface LoginResponseDto {
+  success: boolean;
+  message: string;
+  data: LoginResponse;
 }

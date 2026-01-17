@@ -8,12 +8,14 @@ import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { AppError } from './utils/AppError';
 import { testConnection, closePool } from './config/database';
+import authRoutes from './routes/authRoutes';
 
 // Load environment variables
 dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.APP_PORT || 3000;
+const API_VERSION = '/api/v1';
 
 // Trust proxy for rate limiting behind reverse proxy
 app.set('trust proxy', 1);
@@ -60,6 +62,9 @@ app.get('/', (_req: Request, res: Response) => {
     docs: '/api/docs',
   });
 });
+
+// API routes
+app.use(`${API_VERSION}/auth`, authRoutes);
 
 // 404 handler
 app.use((_req: Request, _res: Response, next) => {
