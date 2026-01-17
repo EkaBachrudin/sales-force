@@ -33,10 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Failed to fetch user:', error);
       setUser(null);
-      // If unauthorized, redirect to login
-      if (error instanceof Error && error.message.includes('401')) {
-        router.push('/login');
-      }
+      // 401 is handled by API interceptor (auto-redirect to login)
     } finally {
       setIsLoading(false);
     }
