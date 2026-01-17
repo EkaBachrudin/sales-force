@@ -5,3 +5,4 @@
 - UISD: https://www.notion.so/UI-Specification-Dashboard-Penjualan-Personal-CRM-2e5b2c42720c8194b8b1c3ab372365fe
 
 - API Design Leads: https://www.notion.so/API-Design-Leads-2e6b2c42720c81049249fe6f831ec771
+- API Design Authentication & Session Management: https://www.notion.so/API-Design-Authentication-Session-Management-2e7b2c42720c81a78f8aed7caba631db
