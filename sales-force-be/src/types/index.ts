@@ -223,3 +223,208 @@ export interface LoginResponseDto {
   message: string;
   data: LoginResponse;
 }
+
+// Lead Management Types (Sales Force CRM)
+export enum CrmLeadStatus {
+  NEW = 'new',
+  CONTACTED = 'contacted',
+  SURVEYED = 'surveyed',
+  NEGOTIATING = 'negotiating',
+  CLOSED = 'closed',
+  CANCELLED = 'cancelled',
+}
+
+export enum CrmLeadSource {
+  LANDING_PAGE = 'landing_page',
+  WHATSAPP = 'whatsapp',
+  MANUAL = 'manual',
+}
+
+export enum CrmActivityType {
+  STATUS_CHANGE = 'status_change',
+  NOTE_ADDED = 'note_added',
+  CALL = 'call',
+  WHATSAPP = 'whatsapp',
+  LEAD_CREATED = 'lead_created',
+}
+
+export interface BudgetRange {
+  min: number;
+  max: number;
+}
+
+export interface KPRSimulation {
+  property_price: number;
+  down_payment_percentage: number;
+  down_payment?: number;
+  interest_rate: number;
+  loan_term_years: number;
+  estimated_monthly_payment?: number;
+}
+
+export interface Reminder {
+  id?: string;
+  remind_at: Date;
+  message?: string;
+  is_completed?: boolean;
+}
+
+export interface CrmLead {
+  id: string;
+  name: string;
+  nik?: string;
+  npwp?: string;
+  phone: string;
+  email?: string;
+  status: CrmLeadStatus;
+  source: CrmLeadSource;
+  property_id?: string;
+  property_url?: string;
+  property?: {
+    id: string;
+    name: string;
+    property_type: string;
+    price: number;
+    city: string;
+    province?: string;
+    developer?: string;
+  };
+  property_price?: number;
+  budget_range?: BudgetRange;
+  kpr_simulation?: KPRSimulation;
+  down_payment_percentage?: number;
+  interest_rate?: number;
+  loan_term_years?: number;
+  estimated_monthly_payment?: number;
+  assigned_to?: string;
+  assigned_to_name?: string;
+  notes?: string;
+  next_follow_up_at?: Date;
+  last_followed_up_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CrmLeadActivity {
+  id: string;
+  lead_id: string;
+  user_id: string;
+  user_name?: string;
+  activity_type: CrmActivityType;
+  old_status?: CrmLeadStatus;
+  new_status?: CrmLeadStatus;
+  notes?: string;
+  metadata?: Record<string, any>;
+  created_at: Date;
+}
+
+export interface CrmWhatsAppMessage {
+  id: string;
+  lead_id: string;
+  message_type: 'incoming' | 'outgoing';
+  content: string;
+  sent_at: Date;
+  created_at: Date;
+}
+
+export interface CrmReminderSchedule {
+  id: string;
+  user_id: string;
+  lead_id: string;
+  remind_at: Date;
+  message?: string;
+  is_completed: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CrmProperty {
+  id: string;
+  name: string;
+  property_type: string;
+  price: number;
+  city: string;
+  province?: string;
+  developer?: string;
+}
+
+// List Leads Query Parameters
+export interface GetLeadsQuery {
+  page?: number;
+  limit?: number;
+  status?: CrmLeadStatus;
+  search?: string;
+  start_date?: string;
+  end_date?: string;
+  property_id?: string;
+  source?: CrmLeadSource;
+  sort_by?: 'created_at' | 'name' | 'status' | 'next_follow_up_at';
+  sort_order?: 'asc' | 'desc';
+}
+
+export interface GetLeadsResponse {
+  leads: CrmLead[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+// Get Lead Detail Response
+export interface CrmLeadDetailResponse {
+  lead: CrmLead;
+  activities: CrmLeadActivity[];
+  whatsapp_messages: CrmWhatsAppMessage[];
+  reminders: CrmReminderSchedule[];
+}
+
+// Create Lead DTO
+export interface CrmCreateLeadDto {
+  name: string;
+  phone: string;
+  email?: string;
+  nik?: string;
+  npwp?: string;
+  source?: CrmLeadSource;
+  property_id?: string;
+  property_url?: string;
+  budget_range?: BudgetRange;
+  status?: CrmLeadStatus;
+  notes?: string;
+  kpr_simulation?: KPRSimulation;
+  reminder?: Omit<Reminder, 'id'>;
+}
+
+// Update Lead DTO
+export interface CrmUpdateLeadDto {
+  name?: string;
+  phone?: string;
+  email?: string;
+  nik?: string;
+  npwp?: string;
+  property_id?: string;
+  property_url?: string;
+  budget_range?: BudgetRange;
+  status?: CrmLeadStatus;
+  notes?: string;
+  last_followed_up_at?: Date;
+  next_follow_up_at?: Date;
+  kpr_simulation?: KPRSimulation;
+  reminder?: Reminder;
+}
+
+// Add Activity DTO
+export interface CrmAddActivityDto {
+  activity_type: CrmActivityType;
+  old_status?: CrmLeadStatus;
+  new_status?: CrmLeadStatus;
+  notes?: string;
+  metadata?: Record<string, any>;
+}
+
+// Get Properties Query
+export interface GetPropertiesQuery {
+  assigned_to?: string;
+}

@@ -12,6 +12,7 @@ import { AppError } from './utils/AppError';
 import { testConnection, closePool } from './config/database';
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
+import leadsRoutes from './routes/leadsRoutes';
 import { runCleanupJob } from './jobs/cleanupSessions';
 
 // Load environment variables
@@ -91,6 +92,7 @@ app.get('/', (_req: Request, res: Response) => {
 // API routes
 app.use(`${API_VERSION}/auth`, authRoutes);
 app.use(`${API_VERSION}/admin`, adminRoutes);
+app.use(`${API_VERSION}/leads`, leadsRoutes);
 
 // 404 handler
 app.use((_req: Request, _res: Response, next) => {
