@@ -5,6 +5,7 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,24 +42,14 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await api.login(email, password);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        router.push('/dashboard');
-      } else {
-        setErrors({ password: data.message || 'Invalid credentials' });
-      }
+      // Store user data and session info
+      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem('session', JSON.stringify(data.data.session));
+      router.push('/dashboard');
     } catch (error) {
-      setErrors({ password: 'Something went wrong. Please try again.' });
+      setErrors({ password: error instanceof Error ? error.message : 'Invalid credentials' });
     } finally {
       setIsLoading(false);
     }
