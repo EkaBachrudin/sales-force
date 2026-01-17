@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { AppError } from './utils/AppError';
+import { testConnection, closePool } from './config/database';
 
 // Load environment variables
 dotenv.config();
@@ -68,9 +69,34 @@ app.use((_req: Request, _res: Response, next) => {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+// Test database connection before starting server
+const startServer = async () => {
+  const dbConnected = await testConnection();
+
+  if (!dbConnected) {
+    console.error('Failed to connect to database. Server will not start.');
+    process.exit(1);
+  }
+
+  // Start server
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
+};
+
+startServer();
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\nShutting down gracefully...');
+  await closePool();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('\nShutting down gracefully...');
+  await closePool();
+  process.exit(0);
 });
 
 export default app;
