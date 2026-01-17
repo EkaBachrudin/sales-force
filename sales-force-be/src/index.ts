@@ -13,6 +13,7 @@ import { testConnection, closePool } from './config/database';
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import leadsRoutes from './routes/leadsRoutes';
+import propertiesRoutes from './routes/propertiesRoutes';
 import { runCleanupJob } from './jobs/cleanupSessions';
 
 // Load environment variables
@@ -93,6 +94,7 @@ app.get('/', (_req: Request, res: Response) => {
 app.use(`${API_VERSION}/auth`, authRoutes);
 app.use(`${API_VERSION}/admin`, adminRoutes);
 app.use(`${API_VERSION}/leads`, leadsRoutes);
+app.use(`${API_VERSION}/properties`, propertiesRoutes);
 
 // 404 handler
 app.use((_req: Request, _res: Response, next) => {

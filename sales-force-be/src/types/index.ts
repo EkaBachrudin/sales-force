@@ -428,3 +428,25 @@ export interface CrmAddActivityDto {
 export interface GetPropertiesQuery {
   assigned_to?: string;
 }
+
+// Properties Module Types
+export interface Property {
+  id: string;
+  name: string;
+  property_type: string;
+  created_at: Date;
+}
+
+export interface GetPropertiesQueryV2 {
+  search?: string;
+}
+
+export interface CreatePropertyDto {
+  name: string;
+  property_type: string;
+}
+
+export interface UpdatePropertyDto {
+  name?: string;
+  property_type?: string;
+}
