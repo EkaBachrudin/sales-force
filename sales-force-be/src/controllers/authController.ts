@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { register, login, refresh, logout, revokeAllSessions, getCurrentUser, isTokenRevoked } from '../services/authService';
+import { register, login, refresh, logout, revokeAllSessions, getCurrentUser } from '../services/authService';
 import { LoginDto, RegisterDto } from '../types';
 
 /**
@@ -171,16 +171,6 @@ export const meController = async (req: Request, res: Response): Promise<void> =
     res.status(401).json({
       success: false,
       message: 'Authentication required',
-    });
-    return;
-  }
-
-  // Check if token is revoked
-  const isRevoked = await isTokenRevoked(req.user.jti);
-  if (isRevoked) {
-    res.status(401).json({
-      success: false,
-      message: 'Token has been revoked. Please login again.',
     });
     return;
   }

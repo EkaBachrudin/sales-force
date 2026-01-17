@@ -336,3 +336,26 @@ export const isTokenRevoked = async (jti: string): Promise<boolean> => {
   const result = await pool.query('SELECT id FROM revoked_tokens WHERE jti = $1 AND expires_at > NOW()', [jti]);
   return result.rows.length > 0;
 };
+
+/**
+ * Check if user's session is still active (for single session enforcement)
+ * @param userId - User ID from JWT
+ * @param userAgent - User-Agent header to identify specific browser/device
+ */
+export const isSessionActive = async (userId: string, userAgent?: string): Promise<boolean> => {
+  // If user_agent provided, check for specific session (browser/device)
+  if (userAgent) {
+    const result = await pool.query(
+      'SELECT id FROM user_sessions WHERE user_id = $1 AND user_agent = $2 AND is_active = true AND expires_at > NOW()',
+      [userId, userAgent]
+    );
+    return result.rows.length > 0;
+  }
+
+  // Fallback: check if user has any active session
+  const result = await pool.query(
+    'SELECT id FROM user_sessions WHERE user_id = $1 AND is_active = true AND expires_at > NOW()',
+    [userId]
+  );
+  return result.rows.length > 0;
+};

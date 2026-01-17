@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../../utils/auth/jwt';
 import { JwtPayload } from '../../types';
 import { AppError } from '../../utils/AppError';
+import { isTokenRevoked, isSessionActive } from '../../services/authService';
 
 // Extend Express Request type to include user
 declare global {
@@ -13,7 +14,7 @@ declare global {
 }
 
 /**
- * Authentication middleware - verifies JWT access token
+ * Authentication middleware - verifies JWT access token and active session
  */
 export const authenticate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -29,6 +30,19 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
 
     if (!payload) {
       throw new AppError('Invalid or expired token. Please login again.', 401);
+    }
+
+    // Check if token is revoked
+    const revoked = await isTokenRevoked(payload.jti);
+    if (revoked) {
+      throw new AppError('Token has been revoked. Please login again.', 401);
+    }
+
+    // Check if this specific browser/device session is still active
+    const userAgent = req.headers['user-agent'];
+    const hasActive = await isSessionActive(payload.sub, userAgent);
+    if (!hasActive) {
+      throw new AppError('Session expired. Please login again.', 401);
     }
 
     // Attach user to request
