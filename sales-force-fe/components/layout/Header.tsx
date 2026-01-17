@@ -1,8 +1,14 @@
 'use client';
 
-import React from 'react';
-import { Bell, Menu } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import React, { useState, useRef, useEffect } from 'react';
+import { Bell, Menu, LogOut, User, ChevronDown } from 'lucide-react';
+
+export interface User {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+}
 
 export interface HeaderProps {
   title?: string;
@@ -10,9 +16,53 @@ export interface HeaderProps {
   action?: React.ReactNode;
   onMenuClick?: () => void;
   showMenuButton?: boolean;
+  user?: User | null;
+  onLogout?: () => void;
 }
 
-export function Header({ title, subtitle, action, onMenuClick, showMenuButton = false }: HeaderProps) {
+export function Header({
+  title,
+  subtitle,
+  action,
+  onMenuClick,
+  showMenuButton = false,
+  user,
+  onLogout
+}: HeaderProps) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
+
+  const handleLogout = () => {
+    setUserMenuOpen(false);
+    onLogout?.();
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <header className="bg-white border-b border-[var(--border)] sticky top-0 z-30">
       <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-2.5 md:px-6">
@@ -50,6 +100,69 @@ export function Header({ title, subtitle, action, onMenuClick, showMenuButton = 
             <Bell className="w-5 h-5 text-gray-600" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--danger)] rounded-full" />
           </button>
+
+          {/* User Menu */}
+          {user && (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                {/* User Avatar */}
+                <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-white text-sm font-medium">
+                  {getInitials(user.full_name)}
+                </div>
+
+                {/* User Info - Desktop only */}
+                <div className="hidden md:block text-left">
+                  <p className="text-sm font-medium text-[var(--text-primary)] truncate max-w-[120px]">
+                    {user.full_name}
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)] truncate max-w-[120px]">
+                    {user.email}
+                  </p>
+                </div>
+
+                <ChevronDown
+                  className={`w-4 h-4 text-gray-500 transition-transform ${
+                    userMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* Dropdown Menu */}
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[var(--border)] py-1 z-50">
+                  {/* User Info - Mobile only in menu */}
+                  <div className="md:hidden px-4 py-3 border-b border-[var(--border)]">
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{user.full_name}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">{user.email}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
+                      {user.role}
+                    </span>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="py-1">
+                    <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-gray-50 transition-colors">
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span>Profile</span>
+                    </button>
+
+                    <div className="border-t border-[var(--border)] my-1" />
+
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Custom Action */}
           {action && (

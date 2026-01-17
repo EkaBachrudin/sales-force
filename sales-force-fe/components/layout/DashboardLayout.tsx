@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
-import { Header, HeaderProps } from './Header';
+import { Header, HeaderProps, User } from './Header';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
-export interface DashboardLayoutProps extends HeaderProps {
+export interface DashboardLayoutProps extends Omit<HeaderProps, 'user' | 'onLogout'> {
   children: React.ReactNode;
 }
 
@@ -13,6 +14,7 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout, isLoading } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,6 +29,15 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Don't render layout while loading auth state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--primary)]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -57,6 +68,8 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
       >
         <Header
           {...headerProps}
+          user={user}
+          onLogout={logout}
           onMenuClick={() => setSidebarOpen(true)}
           showMenuButton={isMobile}
         />
