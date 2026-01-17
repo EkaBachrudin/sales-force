@@ -152,31 +152,38 @@ export const login = async (dto: LoginDto, ipAddress: string, userAgent: string)
     // Deactivate existing sessions for this user (single device login)
     await client.query('UPDATE user_sessions SET is_active = false WHERE user_id = $1 AND is_active = true', [user.id]);
 
-    // Generate tokens
-    const accessToken = generateAccessToken({
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    });
-
-    const plainRefreshToken = generateRefreshToken();
-    const refreshTokenHash = await hashRefreshToken(plainRefreshToken);
-    const csrfToken = generateCsrfToken();
-
     // Calculate expiration
     const expiresAt = new Date(Date.now() + getRefreshTokenMaxAge());
 
-    // Create new session
+    // Create new session first
     const sessionResult = await client.query(
       `INSERT INTO user_sessions (user_id, refresh_token_hash, device_info, ip_address, user_agent, expires_at)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, expires_at`,
-      [user.id, refreshTokenHash, JSON.stringify(deviceInfo), ipAddress, userAgent, expiresAt]
+      [user.id, '', JSON.stringify(deviceInfo), ipAddress, userAgent, expiresAt]
+    );
+
+    const session = sessionResult.rows[0];
+
+    // Generate tokens with session_id
+    const plainRefreshToken = generateRefreshToken();
+    const refreshTokenHash = await hashRefreshToken(plainRefreshToken);
+    const csrfToken = generateCsrfToken();
+
+    const accessToken = generateAccessToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      session_id: session.id, // Include session_id in JWT
+    });
+
+    // Update session with refresh token hash
+    await client.query(
+      'UPDATE user_sessions SET refresh_token_hash = $1 WHERE id = $2',
+      [refreshTokenHash, session.id]
     );
 
     await client.query('COMMIT');
-
-    const session = sessionResult.rows[0];
 
     return {
       user: {
@@ -237,13 +244,7 @@ export const refresh = async (refreshToken: string, ipAddress: string, userAgent
     throw new AppError('Session was revoked. Please login again.', 403);
   }
 
-  // Generate new tokens
-  const accessToken = generateAccessToken({
-    sub: matchedSession.user_id,
-    email: matchedSession.email,
-    role: matchedSession.role,
-  });
-
+  // Generate new refresh token and CSRF token
   const plainRefreshToken = generateRefreshToken();
   const refreshTokenHash = await hashRefreshToken(plainRefreshToken);
   const csrfToken = generateCsrfToken();
@@ -259,8 +260,16 @@ export const refresh = async (refreshToken: string, ipAddress: string, userAgent
     [refreshTokenHash, JSON.stringify(deviceInfo), ipAddress, userAgent, expiresAt, matchedSession.id]
   );
 
+  // Generate new access token with session_id
+  const newAccessToken = generateAccessToken({
+    sub: matchedSession.user_id,
+    email: matchedSession.email,
+    role: matchedSession.role,
+    session_id: matchedSession.id, // Include session_id in JWT
+  });
+
   return {
-    accessToken,
+    accessToken: newAccessToken,
     refreshToken: plainRefreshToken,
     csrfToken,
     accessTokenMaxAge: getAccessTokenMaxAge(),
@@ -340,22 +349,13 @@ export const isTokenRevoked = async (jti: string): Promise<boolean> => {
 /**
  * Check if user's session is still active (for single session enforcement)
  * @param userId - User ID from JWT
- * @param userAgent - User-Agent header to identify specific browser/device
+ * @param sessionId - Session ID from JWT (user_sessions.id) - cannot be manipulated by client
  */
-export const isSessionActive = async (userId: string, userAgent?: string): Promise<boolean> => {
-  // If user_agent provided, check for specific session (browser/device)
-  if (userAgent) {
-    const result = await pool.query(
-      'SELECT id FROM user_sessions WHERE user_id = $1 AND user_agent = $2 AND is_active = true AND expires_at > NOW()',
-      [userId, userAgent]
-    );
-    return result.rows.length > 0;
-  }
-
-  // Fallback: check if user has any active session
+export const isSessionActive = async (userId: string, sessionId: string): Promise<boolean> => {
+  // Validate session using session_id from JWT (cannot be manipulated by client)
   const result = await pool.query(
-    'SELECT id FROM user_sessions WHERE user_id = $1 AND is_active = true AND expires_at > NOW()',
-    [userId]
+    'SELECT id FROM user_sessions WHERE user_id = $1 AND id = $2 AND is_active = true AND expires_at > NOW()',
+    [userId, sessionId]
   );
   return result.rows.length > 0;
 };

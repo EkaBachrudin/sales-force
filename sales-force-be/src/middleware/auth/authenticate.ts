@@ -38,9 +38,13 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
       throw new AppError('Token has been revoked. Please login again.', 401);
     }
 
-    // Check if this specific browser/device session is still active
-    const userAgent = req.headers['user-agent'];
-    const hasActive = await isSessionActive(payload.sub, userAgent);
+    // Check if session is still active using session_id from JWT
+    // session_id is from user_sessions table and cannot be manipulated by client
+    if (!payload.session_id) {
+      throw new AppError('Invalid token format. Please login again.', 401);
+    }
+
+    const hasActive = await isSessionActive(payload.sub, payload.session_id);
     if (!hasActive) {
       throw new AppError('Session expired. Please login again.', 401);
     }

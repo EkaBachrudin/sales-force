@@ -7,7 +7,7 @@ const JWT_REFRESH_EXPIRY_DAYS = 7; // 7 days
 
 /**
  * Generate an access token (JWT)
- * @param payload - User data to encode in token
+ * @param payload - User data to encode in token (must include session_id)
  * @returns JWT access token
  */
 export const generateAccessToken = (payload: Omit<JwtPayload, 'iat' | 'exp' | 'jti'>): string => {

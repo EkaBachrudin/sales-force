@@ -165,6 +165,7 @@ export interface JwtPayload {
   sub: string;
   email: string;
   role: UserRole;
+  session_id: string; // Session ID from user_sessions table for secure session validation
   iat: number;
   exp: number;
 }
