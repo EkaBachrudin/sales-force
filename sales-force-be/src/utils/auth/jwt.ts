@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { JwtPayload } from '../../types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change-this-secret-key';
-const JWT_ACCESS_EXPIRY = '15m'; // 15 minutes
+// const JWT_ACCESS_EXPIRY = '15m'; // 15 minutes
 const JWT_REFRESH_EXPIRY_DAYS = 7; // 7 days
 
 /**

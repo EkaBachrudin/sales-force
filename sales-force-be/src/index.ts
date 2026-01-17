@@ -20,15 +20,33 @@ const API_VERSION = '/api/v1';
 // Trust proxy for rate limiting behind reverse proxy
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet());
+// CORS configuration (must be before helmet)
+const getAllowedOrigins = (): string | string[] => {
+  const corsOrigin = process.env.CORS_ORIGIN;
 
-// CORS configuration
+  if (!corsOrigin) {
+    // Production: allow only same-origin if not specified
+    return process.env.NODE_ENV === 'production' ? [] : 'http://localhost:3000';
+  }
+
+  // Support multiple origins separated by comma
+  return corsOrigin.split(',').map((origin) => origin.trim());
+};
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: getAllowedOrigins(),
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions));
+
+// Security middleware (configured to allow CORS)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

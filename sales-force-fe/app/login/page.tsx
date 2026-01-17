@@ -44,9 +44,6 @@ export default function LoginPage() {
     try {
       const data = await api.login(email, password);
 
-      // Store user data and session info
-      localStorage.setItem('user', JSON.stringify(data.data.user));
-      localStorage.setItem('session', JSON.stringify(data.data.session));
       router.push('/dashboard');
     } catch (error) {
       setErrors({ password: error instanceof Error ? error.message : 'Invalid credentials' });

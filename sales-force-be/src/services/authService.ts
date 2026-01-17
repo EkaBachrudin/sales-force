@@ -9,7 +9,7 @@ import {
 } from '../utils/auth/password';
 import { generateAccessToken, getRefreshTokenMaxAge, getAccessTokenMaxAge } from '../utils/auth/jwt';
 import { generateCsrfToken } from '../utils/auth/csrf';
-import { User, LoginDto, RegisterDto, UserRole, DeviceInfo, JwtPayload } from '../types';
+import { User, LoginDto, RegisterDto, UserRole, DeviceInfo } from '../types';
 
 export interface AuthTokens {
   accessToken: string;
