@@ -41,9 +41,22 @@ export const api = {
   },
 
   logout: async () => {
+    // Get CSRF token from cookie
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
     const response = await fetch(`${API_URL}/api/v1/auth/logout`, {
       method: 'POST',
       credentials: 'include',
+      headers: csrfToken ? {
+        'x-csrf-token': csrfToken,
+      } : {},
     });
 
     const data = await response.json();

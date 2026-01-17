@@ -29,13 +29,14 @@ services:
     volumes:
       - ./sales-force-be/src:/app/src
       - ./sales-force-be/package.json:/app/package.json
+      - ./sales-force-be/package-lock.json:/app/package-lock.json
       - /app/node_modules
       - /app/dist
     environment:
       - NODE_ENV=development
     ports:
       - "${BACKEND_PORT:-4000}:3000"
-    command: npm run start:dev
+    command: sh -c "npm ci && npm run start:dev"
 
   # ========================================
   # DATABASE - Development Mode

@@ -280,7 +280,10 @@ export const logout = async (userId: string, jti: string): Promise<void> => {
     await client.query('UPDATE user_sessions SET is_active = false WHERE user_id = $1 AND is_active = true', [userId]);
 
     // Add JWT to blacklist
-    const expiresAt = new Date((jti.split('-')[0] as unknown as number) + 15 * 60 * 1000);
+    const jtiParts = jti.split('-');
+    const timestamp = parseInt(jtiParts[0] || '0', 10);
+    const expiresAt = new Date(timestamp + 15 * 60 * 1000);
+
     await client.query('INSERT INTO revoked_tokens (jti, user_id, expires_at) VALUES ($1, $2, $3)', [jti, userId, expiresAt]);
 
     await client.query('COMMIT');

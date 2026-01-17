@@ -17,10 +17,6 @@ declare global {
  */
 export const authenticate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
-    // Debug: log cookies
-    console.log('[authenticate] Cookies:', req.cookies);
-    console.log('[authenticate] Cookie header:', req.get('cookie'));
-
     // Get access token from httpOnly cookie
     const accessToken = req.cookies?.access_token;
 

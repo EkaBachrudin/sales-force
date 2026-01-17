@@ -53,7 +53,7 @@ dev-nginx:
 
 dev-build:
 	@echo "Building development containers..."
-	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml build
+	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml build --no-cache
 
 # ============================================
 # Production Commands

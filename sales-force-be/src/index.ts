@@ -4,12 +4,15 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import cron from 'node-cron';
 import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { AppError } from './utils/AppError';
 import { testConnection, closePool } from './config/database';
 import authRoutes from './routes/authRoutes';
+import adminRoutes from './routes/adminRoutes';
+import { runCleanupJob } from './jobs/cleanupSessions';
 
 // Load environment variables
 dotenv.config();
@@ -38,7 +41,7 @@ const corsOptions = {
   origin: getAllowedOrigins(),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
 };
 app.use(cors(corsOptions));
 
@@ -87,6 +90,7 @@ app.get('/', (_req: Request, res: Response) => {
 
 // API routes
 app.use(`${API_VERSION}/auth`, authRoutes);
+app.use(`${API_VERSION}/admin`, adminRoutes);
 
 // 404 handler
 app.use((_req: Request, _res: Response, next) => {
@@ -105,9 +109,16 @@ const startServer = async () => {
     process.exit(1);
   }
 
+  // Schedule cleanup job - runs daily at 2 AM
+  cron.schedule('0 2 * * *', async () => {
+    console.log('[Scheduler] Running daily cleanup job...');
+    await runCleanupJob();
+  });
+
   // Start server
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+    console.log('[Scheduler] Cleanup job scheduled to run daily at 2:00 AM');
   });
 };
 
