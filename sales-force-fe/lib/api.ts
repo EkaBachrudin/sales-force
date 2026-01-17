@@ -174,4 +174,76 @@ export const api = {
 
     return data;
   },
+
+  // Properties API
+  getProperties: async (search?: string) => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties${params.toString() ? `?${params.toString()}` : ''}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch properties', response.status);
+    }
+
+    return data;
+  },
+
+  createProperty: async (propertyData: { name: string; property_type: string }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(propertyData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to create property', response.status);
+    }
+
+    return data;
+  },
+
+  updateProperty: async (id: string, propertyData: { name?: string; property_type?: string }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(propertyData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update property', response.status);
+    }
+
+    return data;
+  },
+
+  deleteProperty: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to delete property', response.status);
+    }
+
+    return data;
+  },
 };

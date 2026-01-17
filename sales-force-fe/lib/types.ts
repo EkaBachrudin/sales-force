@@ -56,3 +56,21 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
+// Property Types
+export interface Property {
+  id: string;
+  name: string;
+  property_type: string;
+  created_at: string;
+}
+
+export interface CreatePropertyDto {
+  name: string;
+  property_type: string;
+}
+
+export interface UpdatePropertyDto {
+  name?: string;
+  property_type?: string;
+}

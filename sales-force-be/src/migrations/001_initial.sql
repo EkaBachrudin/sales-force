@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS properties (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     assigned_to UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
-    property_type VARCHAR(50) NOT NULL CHECK (property_type IN ('Rumah', 'Apartemen', 'Ruko', 'Tanah')),
+    property_type VARCHAR(50) NOT NULL,
     address TEXT,
     city VARCHAR(100),
     province VARCHAR(100),

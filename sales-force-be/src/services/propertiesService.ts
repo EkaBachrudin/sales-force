@@ -8,7 +8,7 @@ import { Property, GetPropertiesQueryV2, CreatePropertyDto, UpdatePropertyDto } 
 export const getProperties = async (query: GetPropertiesQueryV2, userId: string): Promise<Property[]> => {
   const { search } = query;
 
-  const conditions: string[] = ['created_by = $1', 'deleted_at IS NULL'];
+  const conditions: string[] = ['assigned_to = $1'];
   const params: any[] = [userId];
   let paramIndex = 2;
 
@@ -63,7 +63,7 @@ export const createProperty = async (dto: CreatePropertyDto, userId: string): Pr
 
   // Check if property name already exists for this user
   const existingProperty = await pool.query(
-    'SELECT id FROM properties WHERE created_by = $1 AND name = $2 AND deleted_at IS NULL',
+    'SELECT id FROM properties WHERE assigned_to = $1 AND name = $2',
     [userId, dto.name.trim()]
   );
 
@@ -74,7 +74,7 @@ export const createProperty = async (dto: CreatePropertyDto, userId: string): Pr
   // Insert property
   const queryStr = `
     INSERT INTO properties (
-      id, name, property_type, created_by, created_at, updated_at
+      id, name, property_type, assigned_to, created_at, updated_at
     ) VALUES (
       gen_random_uuid(), $1, $2, $3, NOW(), NOW()
     ) RETURNING *
@@ -97,7 +97,7 @@ export const createProperty = async (dto: CreatePropertyDto, userId: string): Pr
 export const updateProperty = async (propertyId: string, dto: UpdatePropertyDto, userId: string): Promise<Property> => {
   // Check if property exists and belongs to user
   const existingProperty = await pool.query(
-    'SELECT * FROM properties WHERE id = $1 AND created_by = $2 AND deleted_at IS NULL',
+    'SELECT * FROM properties WHERE id = $1 AND assigned_to = $2',
     [propertyId, userId]
   );
 
@@ -117,7 +117,7 @@ export const updateProperty = async (propertyId: string, dto: UpdatePropertyDto,
 
     // Check if property name already exists for this user (excluding current property)
     const nameCheck = await pool.query(
-      'SELECT id FROM properties WHERE created_by = $1 AND name = $2 AND id != $3 AND deleted_at IS NULL',
+      'SELECT id FROM properties WHERE assigned_to = $1 AND name = $2 AND id != $3',
       [userId, dto.name.trim(), propertyId]
     );
 
@@ -144,8 +144,7 @@ export const updateProperty = async (propertyId: string, dto: UpdatePropertyDto,
         property_type = COALESCE($3, property_type),
         updated_at = NOW()
     WHERE id = $1
-      AND created_by = $4
-      AND deleted_at IS NULL
+      AND assigned_to = $4
     RETURNING *
   `;
 
@@ -167,12 +166,12 @@ export const updateProperty = async (propertyId: string, dto: UpdatePropertyDto,
 };
 
 /**
- * DELETE /api/v1/properties/:id - Delete Property (Soft Delete)
+ * DELETE /api/v1/properties/:id - Delete Property
  */
 export const deleteProperty = async (propertyId: string, userId: string): Promise<void> => {
   // Check if property exists and belongs to user
   const existingProperty = await pool.query(
-    'SELECT id FROM properties WHERE id = $1 AND created_by = $2 AND deleted_at IS NULL',
+    'SELECT id FROM properties WHERE id = $1 AND assigned_to = $2',
     [propertyId, userId]
   );
 
@@ -180,9 +179,9 @@ export const deleteProperty = async (propertyId: string, userId: string): Promis
     throw new AppError('Property not found', 404);
   }
 
-  // Soft delete property
+  // Delete property
   await pool.query(
-    'UPDATE properties SET deleted_at = NOW(), updated_at = NOW() WHERE id = $1',
+    'DELETE FROM properties WHERE id = $1',
     [propertyId]
   );
 };

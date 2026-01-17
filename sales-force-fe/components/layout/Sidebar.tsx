@@ -9,6 +9,7 @@ import {
   Kanban,
   BarChart2,
   Settings,
+  Building2,
   ChevronLeft,
   ChevronRight,
   X,
@@ -27,6 +28,7 @@ const navItems: NavItem[] = [
   { label: 'Leads', icon: Users, route: '/leads' },
   { label: 'Pipeline', icon: Kanban, route: '/pipeline' },
   { label: 'Analytics', icon: BarChart2, route: '/analytics' },
+  { label: 'Properties', icon: Building2, route: '/properties' },
   { label: 'Settings', icon: Settings, route: '/settings' },
 ];
 
