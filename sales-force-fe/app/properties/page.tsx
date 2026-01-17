@@ -10,12 +10,12 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 const propertyTypeExamples = [
-  'Rumah Tapak',
+  'Rumah',
+  'Rumah 1/2 Lantai',
   'Rumah 2 Lantai',
   'Apartemen',
   'Ruko',
-  'Tanah Kavling',
-  'Vila',
+  'Tanah Kavling'
 ];
 
 interface PropertyModalProps {

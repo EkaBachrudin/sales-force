@@ -46,7 +46,7 @@ const defaultFilters: LeadsFilters = {
 
 export default function LeadsPage() {
   const [leadsData, setLeadsData] = useState<PaginatedResponse<Lead> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
@@ -62,36 +62,7 @@ export default function LeadsPage() {
   const [showDateRange, setShowDateRange] = useState(false);
 
   // Fetch leads with filters and pagination
-  const fetchLeads = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: pageSize.toString(),
-      });
 
-      if (filters.stage && filters.stage !== 'all') params.append('stage', filters.stage);
-      if (filters.search) params.append('search', filters.search);
-      if (filters.propertyType && filters.propertyType !== 'all') params.append('propertyType', filters.propertyType);
-      if (filters.source && filters.source !== 'all') params.append('source', filters.source);
-      if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
-      if (filters.dateTo) params.append('dateTo', filters.dateTo);
-
-      const response = await fetch(`/api/leads?${params.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch leads');
-
-      const data = await response.json();
-      setLeadsData(data);
-    } catch (error) {
-      console.error('Error fetching leads:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentPage, pageSize, filters]);
-
-  useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
 
   // Reset to first page when filters change
   const updateFilter = (key: keyof LeadsFilters, value: string) => {
@@ -106,7 +77,6 @@ export default function LeadsPage() {
 
   const handleNewLead = (data: any) => {
     // After creating a new lead, refetch the current page
-    fetchLeads();
     setIsNewLeadModalOpen(false);
   };
 
@@ -131,9 +101,6 @@ export default function LeadsPage() {
 
       // Update the selected lead with new data
       setSelectedLead({ ...selectedLead, ...data });
-
-      // Refetch leads to update the table
-      fetchLeads();
 
       setIsEditModalOpen(false);
     } catch (error) {
