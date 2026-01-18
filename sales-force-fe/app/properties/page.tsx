@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Property, CreatePropertyDto, UpdatePropertyDto } from '@/lib/types';
-import { api } from '@/lib/api';
+import { useProperties, usePropertyMutations } from '@/hooks/useProperties';
 import { cn } from '@/lib/utils';
 
 const propertyTypeExamples = [
@@ -63,13 +63,14 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
       return;
     }
 
-    await onSubmit({
-      name: name.trim(),
-      property_type: finalPropertyType,
-    });
-
-    if (!isLoading) {
-      handleClose();
+    try {
+      await onSubmit({
+        name: name.trim(),
+        property_type: finalPropertyType,
+      });
+    } catch (err) {
+      // Error is handled by the mutation onError
+      throw err;
     }
   };
 
@@ -249,79 +250,51 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, propertyName, isLoadin
 }
 
 export default function PropertiesPage() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | undefined>();
   const [deletingProperty, setDeletingProperty] = useState<Property | undefined>();
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProperties = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await api.getProperties(search);
-      setProperties(response.data.properties);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch properties');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [search]);
+  // Fetch properties with custom hook
+  const { data: properties = [], isLoading } = useProperties(search);
 
-  useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+  // Mutations with custom hook
+  const { createProperty, updateProperty, deleteProperty, isCreating, isUpdating, isDeleting } =
+    usePropertyMutations({
+      onCreateSuccess: () => {
+        setIsModalOpen(false);
+        setEditingProperty(undefined);
+        setError(null);
+      },
+      onUpdateSuccess: () => {
+        setIsModalOpen(false);
+        setEditingProperty(undefined);
+        setError(null);
+      },
+      onDeleteSuccess: () => {
+        setIsDeleteModalOpen(false);
+        setDeletingProperty(undefined);
+        setError(null);
+      },
+      onError: (err: any) => {
+        setError(err.message || 'An error occurred');
+      },
+    });
 
   const handleCreateProperty = async (data: CreatePropertyDto) => {
-    setIsSaving(true);
-    setError(null);
-    try {
-      await api.createProperty(data);
-      await fetchProperties();
-    } catch (err: any) {
-      setError(err.message || 'Failed to create property');
-      throw err;
-    } finally {
-      setIsSaving(false);
-    }
+    await createProperty(data);
   };
 
   const handleUpdateProperty = async (data: UpdatePropertyDto) => {
     if (!editingProperty) return;
-
-    setIsSaving(true);
-    setError(null);
-    try {
-      await api.updateProperty(editingProperty.id, data);
-      await fetchProperties();
-      setEditingProperty(undefined);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update property');
-      throw err;
-    } finally {
-      setIsSaving(false);
-    }
+    await updateProperty({ id: editingProperty.id, data });
   };
 
   const handleDeleteProperty = async () => {
     if (!deletingProperty) return;
-
-    setIsSaving(true);
-    setError(null);
-    try {
-      await api.deleteProperty(deletingProperty.id);
-      await fetchProperties();
-      setDeletingProperty(undefined);
-      setIsDeleteModalOpen(false);
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete property');
-    } finally {
-      setIsSaving(false);
-    }
+    await deleteProperty(deletingProperty.id);
   };
 
   const openEditModal = (property: Property) => {
@@ -432,7 +405,7 @@ export default function PropertiesPage() {
         onClose={closeModal}
         onSubmit={editingProperty ? handleUpdateProperty : handleCreateProperty}
         property={editingProperty}
-        isLoading={isSaving}
+        isLoading={isCreating || isUpdating}
       />
 
       <DeleteConfirmModal
@@ -440,7 +413,7 @@ export default function PropertiesPage() {
         onClose={closeDeleteModal}
         onConfirm={handleDeleteProperty}
         propertyName={deletingProperty?.name || ''}
-        isLoading={isSaving}
+        isLoading={isDeleting}
       />
     </>
   );
