@@ -100,8 +100,8 @@ export function LeadDetailPanel({
   const propertyPrice = (lead.budget_range.min + lead.budget_range.max) / 2;
   const downPayment = propertyPrice * 0.2;
   const loanAmount = propertyPrice - downPayment;
-  const interestRate = 5.5;
-  const termYears = 15;
+  const interestRate = lead.interest_rate || 0;
+  const termYears = lead.loan_term_years || 0;
   const monthlyPayment =
     (loanAmount * (interestRate / 100 / 12) * Math.pow(1 + interestRate / 100 / 12, termYears * 12)) /
     (Math.pow(1 + interestRate / 100 / 12, termYears * 12) - 1);

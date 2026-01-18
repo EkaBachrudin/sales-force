@@ -33,8 +33,8 @@ export interface Lead {
   reminder?: ReminderData;
   kprPrice?: number;
   kprDownPayment?: number;
-  kprInterestRate?: number;
-  kprTerm?: number;
+  interest_rate?: number;
+  loan_term_years?: number;
 }
 
 export interface LeadCardProps {
