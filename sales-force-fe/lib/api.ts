@@ -261,13 +261,13 @@ export const api = {
     const queryParams = new URLSearchParams();
 
     if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
-    if (params?.stage && params.stage !== 'all') queryParams.append('stage', params.stage);
+    if (params?.pageSize) queryParams.append('limit', params.pageSize.toString());
+    if (params?.stage && params.stage !== 'all') queryParams.append('status', params.stage);
     if (params?.search) queryParams.append('search', params.search);
-    if (params?.propertyType && params.propertyType !== 'all') queryParams.append('propertyType', params.propertyType);
+    if (params?.propertyType && params.propertyType !== 'all') queryParams.append('property_id', params.propertyType);
     if (params?.source && params.source !== 'all') queryParams.append('source', params.source);
-    if (params?.dateFrom) queryParams.append('dateFrom', params.dateFrom);
-    if (params?.dateTo) queryParams.append('dateTo', params.dateTo);
+    if (params?.dateFrom) queryParams.append('start_date', params.dateFrom);
+    if (params?.dateTo) queryParams.append('end_date', params.dateTo);
 
     const response = await fetchWithInterceptor(
       `${API_URL}/api/v1/leads${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,

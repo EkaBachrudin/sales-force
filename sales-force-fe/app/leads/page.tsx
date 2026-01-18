@@ -98,7 +98,7 @@ export default function LeadsPage() {
     <>
       <DashboardLayout
         title="Leads"
-        subtitle={leadsData ? `Total ${leadsData.total} leads` : 'Loading...'}
+        subtitle={leadsData ? `Total ${leadsData.total || 0} leads` : 'Loading...'}
         action={
           <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)}>
             Add Lead
@@ -213,7 +213,7 @@ export default function LeadsPage() {
               <div className="block lg:hidden">
                 {/* Mobile/Tablet Card View */}
                 <div className="divide-y divide-[var(--border)]">
-                  {!leadsData || leadsData.data.length === 0 ? (
+                  {!leadsData?.data || leadsData.data.length === 0 ? (
                     <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
                       No leads found
                     </div>
@@ -304,7 +304,7 @@ export default function LeadsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--border)]">
-                    {!leadsData || leadsData.data.length === 0 ? (
+                    {!leadsData?.data || leadsData.data.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
                           No leads found
@@ -387,11 +387,11 @@ export default function LeadsPage() {
               </div>
 
               {/* Pagination */}
-              {leadsData && leadsData.totalPages > 1 && (
+              {leadsData && leadsData.totalPages && leadsData.totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border)]">
                   <div className="text-xs sm:text-sm text-[var(--text-secondary)] text-center sm:text-left">
-                    Showing {Math.min((currentPage - 1) * pageSize + 1, leadsData.total)} to{' '}
-                    {Math.min(currentPage * pageSize, leadsData.total)} of {leadsData.total} leads
+                    Showing {Math.min((currentPage - 1) * pageSize + 1, leadsData.total || 0)} to{' '}
+                    {Math.min(currentPage * pageSize, leadsData.total || 0)} of {leadsData.total || 0} leads
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -406,7 +406,7 @@ export default function LeadsPage() {
                       {currentPage} / {leadsData.totalPages}
                     </span>
                     <button
-                      onClick={() => setCurrentPage((prev) => Math.min(leadsData.totalPages, prev + 1))}
+                      onClick={() => setCurrentPage((prev) => Math.min(leadsData.totalPages || 1, prev + 1))}
                       disabled={currentPage === leadsData.totalPages}
                       className="p-2 rounded-lg border border-[var(--border)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Next page"

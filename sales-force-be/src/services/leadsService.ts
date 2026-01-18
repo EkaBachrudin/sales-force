@@ -452,7 +452,7 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
         property_price, down_payment_percentage, interest_rate, loan_term_years,
         estimated_monthly_payment
       ) VALUES (
-        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
       )
       RETURNING *
     `;
@@ -483,7 +483,7 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
     await client.query(
       `INSERT INTO lead_activities (id, lead_id, user_id, activity_type, new_status, notes)
        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)`,
-      [newLead.id, userId || null, ActivityTypeEnum.LEAD_CREATED, dto.status || LeadStatusEnum.NEW, `Lead created via ${dto.source || LeadSourceEnum.MANUAL}`]
+      [newLead.id, userId || null, ActivityTypeEnum.NOTE_ADDED, dto.status || LeadStatusEnum.NEW, `Lead created via ${dto.source || LeadSourceEnum.MANUAL}`]
     );
 
     // Insert reminder if provided
