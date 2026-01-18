@@ -97,7 +97,7 @@ export function LeadDetailPanel({
   if (!lead) return null;
 
   // Calculate KPR simulation
-  const propertyPrice = (lead.budgetMin + lead.budgetMax) / 2;
+  const propertyPrice = (lead.budget_range.min + lead.budget_range.max) / 2;
   const downPayment = propertyPrice * 0.2;
   const loanAmount = propertyPrice - downPayment;
   const interestRate = 5.5;
@@ -256,7 +256,7 @@ export function LeadDetailPanel({
                 <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                   <span className="text-xs sm:text-sm text-slate-500">Budget:</span>
                   <span className="text-sm sm:text-base font-bold text-emerald-600">
-                    {formatCurrency(lead.budgetMin)} - {formatCurrency(lead.budgetMax)}
+                    {formatCurrency(lead.budget_range.min)} - {formatCurrency(lead.budget_range.max)}
                   </span>
                 </div>
               </div>

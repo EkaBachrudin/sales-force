@@ -69,11 +69,23 @@ export function useLeadMutations(options?: {
       name: string;
       phone: string;
       email?: string;
-      propertyType: string;
+      nik?: string;
+      npwp?: string;
+      property_id: string;
       source?: string;
-      budget?: number;
-      stage?: string;
-      notes?: string;
+      sourceOther?: string;
+      budget_range?: { min: number; max: number };
+      kpr_simulation?: {
+        property_price: number;
+        down_payment_percentage: number;
+        interest_rate: number;
+        loan_term_years: number;
+      };
+      note?: string;
+      reminder?: {
+        scheduledFor: string;
+        notes?: string;
+      };
     }) => api.createLead(leadData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });

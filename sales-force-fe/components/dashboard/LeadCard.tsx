@@ -18,8 +18,10 @@ export interface Lead {
   nik?: string;
   npwp?: string;
   propertyType: string;
-  budgetMin: number;
-  budgetMax: number;
+  budget_range: {
+    max: number;
+    min: number;
+  }
   stage: string;
   followUpDate?: Date | string;
   createdAt: Date | string;

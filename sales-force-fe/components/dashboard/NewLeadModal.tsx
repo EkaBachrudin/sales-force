@@ -14,7 +14,8 @@ export interface ReminderData {
   notes?: string;
 }
 
-export interface NewLeadData {
+// Internal form state type
+export interface LeadFormData {
   name: string;
   phone: string;
   email?: string;
@@ -29,6 +30,27 @@ export interface NewLeadData {
   kprDownPayment?: number;
   kprInterestRate?: number;
   kprTerm?: number;
+  note?: string;
+  reminder?: ReminderData;
+}
+
+// Type submitted to backend (matches NewLeadData in props)
+export interface NewLeadData {
+  name: string;
+  phone: string;
+  email?: string;
+  nik?: string;
+  npwp?: string;
+  source: string;
+  sourceOther?: string;
+  property_id: string;
+  budget_range: { min: number; max: number };
+  kpr_simulation?: {
+    property_price: number;
+    down_payment_percentage: number;
+    interest_rate: number;
+    loan_term_years: number;
+  };
   note?: string;
   reminder?: ReminderData;
 }
@@ -74,7 +96,7 @@ export function NewLeadModal({
   const { data: properties, isLoading: isLoadingProperties } = useProperties();
   const propertyOptions = properties ? propertyService.toPropertyOptions(properties) : [];
 
-  const [formData, setFormData] = useState<NewLeadData>({
+  const [formData, setFormData] = useState<LeadFormData>({
     name: '',
     phone: '',
     email: '',
@@ -96,7 +118,7 @@ export function NewLeadModal({
   const [kprResult, setKprResult] = useState<number | null>(null);
   const [showReminderForm, setShowReminderForm] = useState(false);
 
-  const handleInputChange = (field: keyof NewLeadData, value: string | number) => {
+  const handleInputChange = (field: keyof LeadFormData, value: string | number) => {
     console.log('[field]', field, '[value]', value)
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -131,7 +153,36 @@ export function NewLeadModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit?.(formData);
+
+    // Transform formData to match backend API format
+    const submitData: NewLeadData = {
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      nik: formData.nik,
+      npwp: formData.npwp,
+      property_id: formData.property_id,
+      source: formData.source,
+      sourceOther: formData.sourceOther,
+      budget_range: {
+        min: formData.budgetMin,
+        max: formData.budgetMax,
+      },
+      note: formData.note,
+      reminder: formData.reminder,
+    };
+
+    // Only include kpr_simulation if values are present
+    if (formData.kprPrice && formData.kprDownPayment && formData.kprInterestRate && formData.kprTerm) {
+      submitData.kpr_simulation = {
+        property_price: formData.kprPrice,
+        down_payment_percentage: formData.kprDownPayment,
+        interest_rate: formData.kprInterestRate,
+        loan_term_years: formData.kprTerm,
+      };
+    }
+
+    onSubmit?.(submitData);
   };
 
   const formatCurrencyInput = (value: number) => {

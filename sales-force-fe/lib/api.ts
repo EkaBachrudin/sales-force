@@ -305,19 +305,59 @@ export const api = {
     name: string;
     phone: string;
     email?: string;
-    propertyType: string;
+    nik?: string;
+    npwp?: string;
+    property_id: string;
     source?: string;
-    budget?: number;
-    stage?: string;
-    notes?: string;
+    sourceOther?: string;
+    budget_range?: { min: number; max: number };
+    kpr_simulation?: {
+      property_price: number;
+      down_payment_percentage: number;
+      interest_rate: number;
+      loan_term_years: number;
+    };
+    note?: string;
+    reminder?: {
+      scheduledFor: string;
+      notes?: string;
+    };
   }) => {
+    // Transform frontend payload to backend format
+    const payload: Record<string, any> = {
+      name: leadData.name,
+      phone: leadData.phone,
+      property_id: leadData.property_id,
+    };
+
+    if (leadData.email) payload.email = leadData.email;
+    if (leadData.nik) payload.nik = leadData.nik;
+    if (leadData.npwp) payload.npwp = leadData.npwp;
+    if (leadData.source) payload.source = leadData.source;
+    if (leadData.budget_range) payload.budget_range = leadData.budget_range;
+    if (leadData.note) payload.notes = leadData.note;
+    if (leadData.kpr_simulation) {
+      payload.kpr_simulation = {
+        property_price: leadData.kpr_simulation.property_price,
+        down_payment_percentage: leadData.kpr_simulation.down_payment_percentage,
+        interest_rate: leadData.kpr_simulation.interest_rate,
+        loan_term_years: leadData.kpr_simulation.loan_term_years,
+      };
+    }
+    if (leadData.reminder) {
+      payload.reminder = {
+        remind_at: leadData.reminder.scheduledFor,
+        message: leadData.reminder.notes,
+      };
+    }
+
     const response = await fetchWithInterceptor(`${API_URL}/api/v1/leads`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify(leadData),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
