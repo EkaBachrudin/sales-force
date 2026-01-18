@@ -16,10 +16,10 @@ export function useLeads(
   pageSize: number,
   filters: LeadsFilters,
   enabled = true
-) {
+): ReturnType<typeof useQuery<PaginatedResponse<Lead>>> {
   return useQuery<PaginatedResponse<Lead>>({
     queryKey: ['leads', page, pageSize, filters],
-    queryFn: async () => {
+    queryFn: async (): Promise<PaginatedResponse<Lead>> => {
       const response = await api.getLeads({
         page,
         pageSize,
@@ -36,6 +36,8 @@ export function useLeads(
         data: backendData.leads,
         total: backendData.pagination.total,
         totalPages: backendData.pagination.pages,
+        page,
+        limit: pageSize,
       };
     },
     staleTime: 1000 * 60 * 2, // 2 minutes

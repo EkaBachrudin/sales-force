@@ -250,12 +250,12 @@ export default function LeadsPage() {
                             </a>
                             <div className="space-y-1">
                               <p className="text-sm text-[var(--text-primary)]">
-                                <span className="text-[var(--text-secondary)]">Property:</span> {lead.propertyType}
+                                <span className="text-[var(--text-secondary)]">Property:</span> {lead.property.name}
                               </p>
                               {lead.source && (
                                 <p className="text-xs text-[var(--text-secondary)]">via {lead.source}</p>
                               )}
-                              <p className="text-xs text-[var(--text-secondary)]">{formatRelativeTime(lead.createdAt)}</p>
+                              <p className="text-xs text-[var(--text-secondary)]">{formatRelativeTime(lead.created_at)}</p>
                             </div>
                           </div>
                           <div className="flex flex-col gap-1">
@@ -341,7 +341,7 @@ export default function LeadsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-primary)]">{lead.propertyType}</p>
+                            <p className="text-sm text-[var(--text-primary)]">{lead.property.name}</p>
                             {lead.source && (
                               <p className="text-xs text-[var(--text-secondary)] mt-0.5">via {lead.source}</p>
                             )}

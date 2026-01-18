@@ -17,14 +17,17 @@ export interface Lead {
   email?: string;
   nik?: string;
   npwp?: string;
-  propertyType: string;
+  property: {
+    name: string;
+    property_type: string;
+  };
   budget_range: {
     max: number;
     min: number;
   }
   status: string;
   followUpDate?: Date | string;
-  createdAt: Date | string;
+  created_at: Date | string;
   source?: string;
   note?: string;
   reminder?: ReminderData;
@@ -62,10 +65,10 @@ export function LeadCard({ lead, onClick, isDragging, className }: LeadCardProps
       {/* Header - Property Type & Timestamp */}
       <div className="flex items-center justify-between mb-3">
         <Badge variant="blue" size="sm">
-          {lead.propertyType}
+          {lead.property.name}
         </Badge>
         <span className="text-[11px] text-[var(--text-secondary)]">
-          {formatRelativeTime(lead.createdAt)}
+          {formatRelativeTime(lead.created_at)}
         </span>
       </div>
 

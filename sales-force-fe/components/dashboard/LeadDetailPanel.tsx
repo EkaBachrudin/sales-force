@@ -234,7 +234,7 @@ export function LeadDetailPanel({
 
             <div className="flex items-center gap-1.5 text-xs text-slate-500">
               <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true" />
-              <span className="text-xs">Dibuat sejak {formatDate(lead.createdAt)}</span>
+              <span className="text-xs">Dibuat sejak {formatDate(lead.created_at)}</span>
             </div>
           </section>
 
@@ -249,7 +249,7 @@ export function LeadDetailPanel({
                   <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-sm sm:text-base font-semibold text-slate-800 truncate block">{lead.propertyType}</span>
+                  <span className="text-sm sm:text-base font-semibold text-slate-800 truncate block">{lead.property.name} {lead.property.property_type}</span>
                 </div>
               </div>
               <div className="pl-11 sm:pl-13">
@@ -374,8 +374,8 @@ export function LeadDetailPanel({
               <h3 id="stage-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide">
                 Tahap Pipeline
               </h3>
-              <Badge variant={stageVariantMap[lead.stage as PipelineStage]} size="md" className="shadow-sm">
-                {stageOptions.find((s) => s.value === lead.stage)?.label}
+              <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="md" className="shadow-sm">
+                {stageOptions.find((s) => s.value === lead.status)?.label}
               </Badge>
             </div>
           </section>
