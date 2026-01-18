@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:4000'; // Hardcode for now
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 // Debug: log API URL to console
 if (typeof window !== 'undefined') {
