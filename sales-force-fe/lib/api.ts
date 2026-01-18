@@ -246,4 +246,136 @@ export const api = {
 
     return data;
   },
+
+  // Leads API
+  getLeads: async (params?: {
+    page?: number;
+    pageSize?: number;
+    stage?: string;
+    search?: string;
+    propertyType?: string;
+    source?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
+    if (params?.stage && params.stage !== 'all') queryParams.append('stage', params.stage);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.propertyType && params.propertyType !== 'all') queryParams.append('propertyType', params.propertyType);
+    if (params?.source && params.source !== 'all') queryParams.append('source', params.source);
+    if (params?.dateFrom) queryParams.append('dateFrom', params.dateFrom);
+    if (params?.dateTo) queryParams.append('dateTo', params.dateTo);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/leads${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch leads', response.status);
+    }
+
+    return data;
+  },
+
+  getLeadDetail: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/leads/${id}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch lead detail', response.status);
+    }
+
+    return data;
+  },
+
+  createLead: async (leadData: {
+    name: string;
+    phone: string;
+    email?: string;
+    propertyType: string;
+    source?: string;
+    budget?: number;
+    stage?: string;
+    notes?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/leads`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(leadData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to create lead', response.status);
+    }
+
+    return data;
+  },
+
+  updateLead: async (id: string, leadData: {
+    name?: string;
+    phone?: string;
+    email?: string;
+    propertyType?: string;
+    source?: string;
+    budget?: number;
+    stage?: string;
+    notes?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/leads/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(leadData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update lead', response.status);
+    }
+
+    return data;
+  },
+
+  addLeadActivity: async (id: string, activityData: {
+    type: 'call' | 'email' | 'whatsapp' | 'meeting' | 'other';
+    notes: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/leads/${id}/activities`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(activityData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to add activity', response.status);
+    }
+
+    return data;
+  },
 };

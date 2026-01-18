@@ -1,0 +1,118 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/lib/api';
+import { Lead, PaginatedResponse } from '@/lib/types';
+
+export interface LeadsFilters {
+  stage: string;
+  search: string;
+  propertyType: string;
+  source: string;
+  dateFrom: string;
+  dateTo: string;
+}
+
+export function useLeads(
+  page: number,
+  pageSize: number,
+  filters: LeadsFilters,
+  enabled = true
+) {
+  return useQuery<PaginatedResponse<Lead>>({
+    queryKey: ['leads', page, pageSize, filters],
+    queryFn: async () => {
+      const response = await api.getLeads({
+        page,
+        pageSize,
+        stage: filters.stage,
+        search: filters.search || undefined,
+        propertyType: filters.propertyType,
+        source: filters.source,
+        dateFrom: filters.dateFrom,
+        dateTo: filters.dateTo,
+      });
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    enabled,
+  });
+}
+
+export function useLeadDetail(id: string | null, enabled = true) {
+  return useQuery<Lead>({
+    queryKey: ['lead', id],
+    queryFn: async () => {
+      if (!id) throw new Error('Lead ID is required');
+      const response = await api.getLeadDetail(id);
+      return response.data;
+    },
+    enabled: enabled && !!id,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+}
+
+export function useLeadMutations(options?: {
+  onCreateSuccess?: () => void;
+  onUpdateSuccess?: () => void;
+  onAddActivitySuccess?: () => void;
+  onError?: (error: Error) => void;
+}) {
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: (leadData: {
+      name: string;
+      phone: string;
+      email?: string;
+      propertyType: string;
+      source?: string;
+      budget?: number;
+      stage?: string;
+      notes?: string;
+    }) => api.createLead(leadData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      options?.onCreateSuccess?.();
+    },
+    onError: (err: any) => {
+      options?.onError?.(err);
+      throw err;
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Lead> }) =>
+      api.updateLead(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
+      options?.onUpdateSuccess?.();
+    },
+    onError: (err: any) => {
+      options?.onError?.(err);
+      throw err;
+    },
+  });
+
+  const addActivityMutation = useMutation({
+    mutationFn: ({ id, activityData }: { id: string; activityData: { type: 'call' | 'email' | 'whatsapp' | 'meeting' | 'other'; notes: string } }) =>
+      api.addLeadActivity(id, activityData),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      options?.onAddActivitySuccess?.();
+    },
+    onError: (err: any) => {
+      options?.onError?.(err);
+      throw err;
+    },
+  });
+
+  return {
+    createLead: createMutation.mutateAsync,
+    updateLead: updateMutation.mutateAsync,
+    addActivity: addActivityMutation.mutateAsync,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isAddingActivity: addActivityMutation.isPending,
+  };
+}

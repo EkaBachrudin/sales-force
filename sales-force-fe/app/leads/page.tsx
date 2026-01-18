@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Search, Plus, Phone, MoreVertical, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
@@ -10,9 +10,10 @@ import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
 import { NewLeadModal } from '@/components/dashboard/NewLeadModal';
 import { EditLeadModal } from '@/components/dashboard/EditLeadModal';
 import { stageLabels, stageColors } from '@/lib/mockData';
-import { Lead, PipelineStage, PaginatedResponse } from '@/lib/types';
+import { Lead, PipelineStage } from '@/lib/types';
 import { cn, formatCurrency, formatPhone, formatRelativeTime } from '@/lib/utils';
 import { useProperties } from '@/hooks/useProperties';
+import { useLeads, useLeadMutations, LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
 
 const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
   new: 'gray',
@@ -26,16 +27,7 @@ const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'g
 // Get unique property types and sources from mock data
 const sources = ['Website', 'Instagram', 'Facebook', 'WhatsApp', 'Referral', 'Other'];
 
-interface LeadsFilters {
-  stage: string;
-  search: string;
-  propertyType: string;
-  source: string;
-  dateFrom: string;
-  dateTo: string;
-}
-
-const defaultFilters: LeadsFilters = {
+const defaultFilters: UseLeadsFilters = {
   stage: 'all',
   search: '',
   propertyType: 'all',
@@ -47,28 +39,35 @@ const defaultFilters: LeadsFilters = {
 export default function LeadsPage() {
   const { data: properties, isLoading: isLoadingProperties } = useProperties();
 
-  const [leadsData, setLeadsData] = useState<PaginatedResponse<Lead> | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(50);
 
   // Filter state
-  const [filters, setFilters] = useState<LeadsFilters>(defaultFilters);
+  const [filters, setFilters] = useState<UseLeadsFilters>(defaultFilters);
   const [showDateRange, setShowDateRange] = useState(false);
 
   // Fetch leads with filters and pagination
+  const { data: leadsData, isLoading: isLoadingLeads } = useLeads(currentPage, pageSize, filters);
 
+  // Mutations
+  const { updateLead, createLead, isUpdating, isCreating } = useLeadMutations({
+    onUpdateSuccess: () => {
+      setIsEditModalOpen(false);
+    },
+    onCreateSuccess: () => {
+      setIsNewLeadModalOpen(false);
+    },
+  });
 
   // Reset to first page when filters change
-  const updateFilter = (key: keyof LeadsFilters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+  const updateFilter = (key: keyof UseLeadsFilters, value: string) => {
+    setFilters((prev: UseLeadsFilters) => ({ ...prev, [key]: value }));
     setCurrentPage(1);
   };
 
@@ -77,9 +76,8 @@ export default function LeadsPage() {
     setIsPanelOpen(true);
   };
 
-  const handleNewLead = (data: any) => {
-    // After creating a new lead, refetch the current page
-    setIsNewLeadModalOpen(false);
+  const handleNewLead = async (data: any) => {
+    await createLead(data);
   };
 
   const handleEditClick = () => {
@@ -88,28 +86,7 @@ export default function LeadsPage() {
 
   const handleEditLead = async (data: Partial<Lead>) => {
     if (!selectedLead) return;
-
-    setIsSaving(true);
-    try {
-      const response = await fetch(`/api/leads/${selectedLead.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error('Failed to update lead');
-
-      // Update the selected lead with new data
-      setSelectedLead({ ...selectedLead, ...data });
-
-      setIsEditModalOpen(false);
-    } catch (error) {
-      console.error('Error updating lead:', error);
-    } finally {
-      setIsSaving(false);
-    }
+    await updateLead({ id: selectedLead.id, data });
   };
 
   const formatDateForInput = (dateString: string) => {
@@ -226,7 +203,7 @@ export default function LeadsPage() {
 
         {/* Leads Table */}
         <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
-          {isLoading ? (
+          {isLoadingLeads ? (
             <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
               Loading leads...
             </div>
@@ -468,7 +445,7 @@ export default function LeadsPage() {
         onClose={() => setIsEditModalOpen(false)}
         onSubmit={handleEditLead}
         lead={selectedLead}
-        isLoading={isSaving}
+        isLoading={isUpdating}
       />
     </>
   );
