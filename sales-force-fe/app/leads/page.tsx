@@ -12,6 +12,7 @@ import { EditLeadModal } from '@/components/dashboard/EditLeadModal';
 import { stageLabels, stageColors } from '@/lib/mockData';
 import { Lead, PipelineStage, PaginatedResponse } from '@/lib/types';
 import { cn, formatCurrency, formatPhone, formatRelativeTime } from '@/lib/utils';
+import { useProperties } from '@/hooks/useProperties';
 
 const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
   new: 'gray',
@@ -23,7 +24,6 @@ const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'g
 };
 
 // Get unique property types and sources from mock data
-const propertyTypes = ['Cluster A', 'Cluster B', 'Cluster C', 'Cluster D'];
 const sources = ['Website', 'Instagram', 'Facebook', 'WhatsApp', 'Referral', 'Other'];
 
 interface LeadsFilters {
@@ -45,6 +45,8 @@ const defaultFilters: LeadsFilters = {
 };
 
 export default function LeadsPage() {
+  const { data: properties, isLoading: isLoadingProperties } = useProperties();
+
   const [leadsData, setLeadsData] = useState<PaginatedResponse<Lead> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -159,11 +161,12 @@ export default function LeadsPage() {
               value={filters.propertyType}
               onChange={(e) => updateFilter('propertyType', e.target.value)}
               className="w-full px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+              disabled={isLoadingProperties}
             >
               <option value="all">All Properties</option>
-              {propertyTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
+              {properties?.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.name}
                 </option>
               ))}
             </select>

@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { cn } from '@/lib/utils';
+import { useProperties } from '@/hooks/useProperties';
+import { propertyService } from '@/services/propertyService';
 
 export interface ReminderData {
   scheduledFor?: string;
@@ -69,6 +71,9 @@ export function NewLeadModal({
   onSubmit,
   isLoading = false,
 }: NewLeadModalProps) {
+  const { data: properties, isLoading: isLoadingProperties } = useProperties();
+  const propertyOptions = properties ? propertyService.toPropertyOptions(properties) : [];
+
   const [formData, setFormData] = useState<NewLeadData>({
     name: '',
     phone: '',
@@ -255,10 +260,11 @@ export function NewLeadModal({
                 <div className="space-y-4">
                   <Select
                     label="Property Type *"
-                    options={propertyTypes}
+                    options={propertyOptions}
                     value={formData.propertyType}
                     onChange={(e) => handleInputChange('propertyType', e.target.value)}
                     required
+                    disabled={isLoadingProperties}
                   />
                 </div>
               </div>
