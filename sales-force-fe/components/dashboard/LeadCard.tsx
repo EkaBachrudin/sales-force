@@ -22,7 +22,7 @@ export interface Lead {
     max: number;
     min: number;
   }
-  stage: string;
+  status: string;
   followUpDate?: Date | string;
   createdAt: Date | string;
   source?: string;

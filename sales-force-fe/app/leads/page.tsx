@@ -236,8 +236,8 @@ export default function LeadsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">{lead.name}</h3>
-                              <Badge variant={stageVariantMap[lead.stage]} size="sm">
-                                {stageLabels[lead.stage as PipelineStage]}
+                              <Badge variant={stageVariantMap[lead.status]} size="sm">
+                                {stageLabels[lead.status as PipelineStage]}
                               </Badge>
                             </div>
                             <a
@@ -347,12 +347,12 @@ export default function LeadsPage() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <Badge variant={stageVariantMap[lead.stage]} size="sm">
-                              {stageLabels[lead.stage as PipelineStage]}
+                            <Badge variant={stageVariantMap[lead.status]} size="sm">
+                              {stageLabels[lead.status as PipelineStage]}
                             </Badge>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-secondary)]">{formatRelativeTime(lead.createdAt)}</p>
+                            <p className="text-sm text-[var(--text-secondary)]">{formatRelativeTime(lead.created_at)}</p>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-end gap-1">

@@ -172,8 +172,8 @@ export function LeadDetailPanel({
                   <span className="font-medium text-sm">{formatPhone(lead.phone)}</span>
                 </a>
               </div>
-              <Badge variant={stageVariantMap[lead.stage as PipelineStage]} size="sm" className="shadow-sm">
-                {stageOptions.find((s) => s.value === lead.stage)?.label}
+              <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="sm" className="shadow-sm">
+                {stageOptions.find((s) => s.value === lead.status)?.label}
               </Badge>
             </div>
 
