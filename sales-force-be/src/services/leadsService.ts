@@ -100,8 +100,8 @@ export const getLeads = async (query: GetLeadsQuery): Promise<GetLeadsResponse> 
   const defaultStartDate = new Date();
   defaultStartDate.setFullYear(defaultStartDate.getFullYear() - 1);
 
-  const startDate = start_date ? new Date(start_date) : defaultStartDate;
-  const endDate = end_date ? new Date(end_date) : new Date();
+  const startDate = start_date ? new Date(start_date + 'T00:00:00') : defaultStartDate;
+  const endDate = end_date ? new Date(end_date + 'T23:59:59') : new Date();
 
   conditions.push(`l.created_at >= $${paramIndex++}`);
   params.push(startDate);

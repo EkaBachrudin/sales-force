@@ -27,13 +27,21 @@ const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'g
 // Get unique property types and sources from mock data
 const sources = ['Website', 'Instagram', 'Facebook', 'WhatsApp', 'Referral', 'Other'];
 
+// Helper function to format date as YYYY-MM-DD in local timezone
+const formatDateLocal = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const defaultFilters: UseLeadsFilters = {
   stage: 'all',
   search: '',
   propertyType: 'all',
   source: 'all',
-  dateFrom: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year ago
-  dateTo: new Date().toISOString().split('T')[0], // today
+  dateFrom: formatDateLocal(new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)), // 1 year ago
+  dateTo: formatDateLocal(new Date()), // today
 };
 
 export default function LeadsPage() {

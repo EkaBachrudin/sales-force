@@ -30,7 +30,13 @@ export function useLeads(
         dateFrom: filters.dateFrom,
         dateTo: filters.dateTo,
       });
-      return response.data;
+      // Transform backend response to frontend format
+      const backendData = response.data as { leads: Lead[]; pagination: { total: number; pages: number } };
+      return {
+        data: backendData.leads,
+        total: backendData.pagination.total,
+        totalPages: backendData.pagination.pages,
+      };
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled,

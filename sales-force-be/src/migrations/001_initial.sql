@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS leads (
     npwp VARCHAR(20) CHECK (npwp ~ '^[0-9]{15,20}$' OR npwp IS NULL),
     phone VARCHAR(20) NOT NULL,
     email VARCHAR(255),
-    source VARCHAR(50) DEFAULT 'manual' CHECK (source IN ('landing_page', 'whatsapp', 'manual')),
+    source VARCHAR(50) DEFAULT 'visit',
     budget_range JSONB,
     property_price NUMERIC(15, 2),
     down_payment NUMERIC(15, 2),

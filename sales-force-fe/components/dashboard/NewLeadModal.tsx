@@ -22,7 +22,7 @@ export interface NewLeadData {
   npwp?: string;
   source: string;
   sourceOther?: string;
-  propertyType: string;
+  property_id: string;
   budgetMin: number;
   budgetMax: number;
   kprPrice?: number;
@@ -82,7 +82,7 @@ export function NewLeadModal({
     npwp: '',
     source: '',
     sourceOther: '',
-    propertyType: '',
+    property_id: '',
     budgetMin: 100000000,
     budgetMax: 5000000000,
     kprPrice: 500000000,
@@ -97,6 +97,7 @@ export function NewLeadModal({
   const [showReminderForm, setShowReminderForm] = useState(false);
 
   const handleInputChange = (field: keyof NewLeadData, value: string | number) => {
+    console.log('[field]', field, '[value]', value)
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -261,8 +262,8 @@ export function NewLeadModal({
                   <Select
                     label="Property Type *"
                     options={propertyOptions}
-                    value={formData.propertyType}
-                    onChange={(e) => handleInputChange('propertyType', e.target.value)}
+                    value={formData.property_id}
+                    onChange={(e) => handleInputChange('property_id', e.target.value)}
                     required
                     disabled={isLoadingProperties}
                   />
