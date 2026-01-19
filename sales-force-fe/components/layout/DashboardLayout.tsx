@@ -54,6 +54,8 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         mobileOpen={sidebarOpen}
         onCloseMobile={() => setSidebarOpen(false)}
+        user={user}
+        onLogout={logout}
       />
 
       <main

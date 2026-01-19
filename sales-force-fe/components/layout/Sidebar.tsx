@@ -13,8 +13,11 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  LogOut,
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { User as UserType } from './Header';
 
 interface NavItem {
   label: string;
@@ -37,9 +40,11 @@ export interface SidebarProps {
   onToggle?: () => void;
   mobileOpen?: boolean;
   onCloseMobile?: () => void;
+  user?: UserType | null;
+  onLogout?: () => void;
 }
 
-export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onCloseMobile }: SidebarProps) {
+export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onCloseMobile, user, onLogout }: SidebarProps) {
   const pathname = usePathname();
 
   // Close mobile sidebar when a link is clicked
@@ -47,6 +52,15 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
     if (mobileOpen && onCloseMobile) {
       onCloseMobile();
     }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -121,6 +135,56 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
           );
         })}
       </nav>
+
+      {/* User Profile Section - Mobile only */}
+      {user && mobileOpen && (
+        <div className="lg:hidden absolute bottom-16 left-0 right-0 px-4">
+          <div className="border-t border-[var(--border)] pt-4">
+            {/* User Info */}
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center text-white text-sm font-medium">
+                {getInitials(user.full_name)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                  {user.full_name}
+                </p>
+                <p className="text-xs text-[var(--text-secondary)] truncate">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+
+            {/* Role Badge */}
+            <div className="mb-3">
+              <span className="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
+                {user.role}
+              </span>
+            </div>
+
+            {/* Profile & Logout Buttons */}
+            <div className="space-y-1">
+              <button
+                onClick={handleLinkClick}
+                className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-[var(--text-primary)] hover:bg-gray-50 transition-colors"
+              >
+                <User className="w-4 h-4 text-gray-500" />
+                <span>Profile</span>
+              </button>
+              <button
+                onClick={() => {
+                  onLogout?.();
+                  onCloseMobile?.();
+                }}
+                className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Collapse Toggle - Desktop only */}
       <button

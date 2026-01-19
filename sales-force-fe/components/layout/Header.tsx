@@ -101,9 +101,9 @@ export function Header({
             <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--danger)] rounded-full" />
           </button>
 
-          {/* User Menu */}
+          {/* User Menu - Desktop only (hidden on mobile since profile is in sidebar) */}
           {user && (
-            <div className="relative" ref={userMenuRef}>
+            <div className="relative hidden md:block" ref={userMenuRef}>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
@@ -130,18 +130,9 @@ export function Header({
                 />
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu - Desktop only */}
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[var(--border)] py-1 z-50">
-                  {/* User Info - Mobile only in menu */}
-                  <div className="md:hidden px-4 py-3 border-b border-[var(--border)]">
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{user.full_name}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">{user.email}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
-                      {user.role}
-                    </span>
-                  </div>
-
                   {/* Menu Items */}
                   <div className="py-1">
                     <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-gray-50 transition-colors">
@@ -166,7 +157,7 @@ export function Header({
 
           {/* Custom Action */}
           {action && (
-            <div className="hidden sm:block ml-0 sm:ml-2">
+            <div className=" ml-0 sm:ml-2">
               {action}
             </div>
           )}
