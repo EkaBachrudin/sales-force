@@ -239,7 +239,7 @@ export function LeadDetailPanel({
           </section>
 
           {/* Property Interest */}
-          {(lead.property || (lead.budget_range?.min && lead.budget_range?.max)) && (
+          {(lead.property || ((lead.budget_range?.min ?? 0) > 0 && (lead.budget_range?.max ?? 0) > 0)) && (
             <section aria-labelledby="property-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
               <h3 id="property-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
                 Property Interest
@@ -257,7 +257,7 @@ export function LeadDetailPanel({
                 <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                   <span className="text-xs sm:text-sm text-slate-500">Budget:</span>
                   <span className="text-sm sm:text-base font-bold text-emerald-600">
-                    {formatCurrency(lead.budget_range.min)} - {formatCurrency(lead.budget_range.max)}
+                    {formatCurrency(lead.budget_range?.min ?? 0)} - {formatCurrency(lead.budget_range?.max ?? 0)}
                   </span>
                 </div>
               </div>

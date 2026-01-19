@@ -109,7 +109,7 @@ export default function LeadsPage() {
     <>
       <DashboardLayout
         title="Leads"
-        subtitle={leadsData ? `Total ${leadsData.total || 0} leads` : 'Loading...'}
+        subtitle={leadsData ? `Total ${leadsData.total ?? 0} leads` : 'Loading...'}
         action={
           <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)}>
             Add Lead
@@ -398,11 +398,11 @@ export default function LeadsPage() {
               </div>
 
               {/* Pagination */}
-              {leadsData && leadsData.totalPages && leadsData.totalPages > 1 && (
+              {leadsData && (leadsData.total ?? 0) > 0 && leadsData.totalPages && leadsData.totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border)]">
                   <div className="text-xs sm:text-sm text-[var(--text-secondary)] text-center sm:text-left">
-                    Showing {Math.min((currentPage - 1) * pageSize + 1, leadsData.total || 0)} to{' '}
-                    {Math.min(currentPage * pageSize, leadsData.total || 0)} of {leadsData.total || 0} leads
+                    Showing {Math.min((currentPage - 1) * pageSize + 1, leadsData.total ?? 0)} to{' '}
+                    {Math.min(currentPage * pageSize, leadsData.total ?? 0)} of {leadsData.total ?? 0} leads
                   </div>
                   <div className="flex items-center gap-2">
                     <button
