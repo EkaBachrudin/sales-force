@@ -350,7 +350,7 @@ export default function LeadsPage() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <Badge variant={stageVariantMap[lead.status]} size="sm">
+                            <Badge variant={stageVariantMap[lead.status]} size="lg">
                               {stageLabels[lead.status as PipelineStage]}
                             </Badge>
                           </td>

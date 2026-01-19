@@ -403,6 +403,7 @@ export interface CrmUpdateLeadDto {
   email?: string;
   nik?: string;
   npwp?: string;
+  source?: CrmLeadSource;
   property_id?: string;
   property_url?: string;
   budget_range?: BudgetRange;

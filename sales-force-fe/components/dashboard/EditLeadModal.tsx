@@ -96,7 +96,7 @@ export function EditLeadModal({
         nik: lead.nik || '',
         npwp: lead.npwp || '',
         source: lead.source || '',
-        property_id: lead.property_id,
+        property_id: lead.property_id || '',
         budgetMin: lead.budget_range?.min || 0,
         budgetMax: lead.budget_range?.max || 0,
         kprPrice: lead.kpr_simulation?.property_price || 0,
