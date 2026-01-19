@@ -46,8 +46,8 @@ export interface Lead {
 }
 
 export interface KprSimulation {
-  property_price: string;
-  down_payment_percentage: string;
+  property_price: number;
+  down_payment_percentage: number;
   down_payment: number;
   interest_rate: number;
   loan_term_years: number;

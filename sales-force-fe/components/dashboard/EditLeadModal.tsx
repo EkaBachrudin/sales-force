@@ -84,9 +84,9 @@ export function EditLeadModal({
   // Initialize form data when lead changes - map API fields to form fields
   useEffect(() => {
     if (lead) {
-      const hasKprData = (lead.kprPrice ?? 0) > 0 ||
-                         (lead.interest_rate ?? 0) > 0 ||
-                         (lead.loan_term_years ?? 0) > 0;
+      const hasKprData = (lead.kpr_simulation?.property_price ?? 0) > 0 ||
+                         (lead.kpr_simulation?.interest_rate ?? 0) > 0 ||
+                         (lead.kpr_simulation?.loan_term_years ?? 0) > 0;
       const hasReminder = lead.reminders && lead.reminders.length > 0;
 
       setFormData({
@@ -100,7 +100,7 @@ export function EditLeadModal({
         budgetMin: lead.budget_range?.min || 0,
         budgetMax: lead.budget_range?.max || 0,
         kprPrice: lead.kpr_simulation?.property_price || 0,
-        kprDownPayment: lead.kpr_simulation?.down_payment_percentage, // Default value, API doesn't provide this separately
+        kprDownPayment: lead.kpr_simulation?.down_payment_percentage || 0, // Default value, API doesn't provide this separately
         kprInterestRate: lead.kpr_simulation?.interest_rate || 0,
         kprTerm: lead.kpr_simulation?.loan_term_years || 15,
         notes: lead.notes || '',
@@ -154,10 +154,7 @@ export function EditLeadModal({
         max: formData.budgetMax,
       },
       notes: formData.notes || undefined,
-      status: formData.stage,
-      kprPrice: formData.kprPrice || undefined,
-      interest_rate: formData.kprInterestRate || undefined,
-      loan_term_years: formData.kprTerm || undefined,
+      status: formData.stage
     };
 
     // Handle property_id - send null if empty string to clear the property, otherwise send the value
@@ -166,6 +163,16 @@ export function EditLeadModal({
       submitData.property_id = null;
     } else if (formData.property_id) {
       submitData.property_id = formData.property_id;
+    }
+
+     // Only include kpr_simulation if values are present
+    if (formData.kprPrice && formData.kprDownPayment && formData.kprInterestRate && formData.kprTerm) {
+      submitData.kpr_simulation = {
+        property_price: formData.kprPrice,
+        down_payment_percentage: formData.kprDownPayment,
+        interest_rate: formData.kprInterestRate,
+        loan_term_years: formData.kprTerm,
+      };
     }
 
     // Include reminder if set

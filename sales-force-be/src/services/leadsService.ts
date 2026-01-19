@@ -575,8 +575,8 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
     if (!kpr.property_price || kpr.property_price <= 0) {
       throw new AppError('Property price must be greater than 0', 400);
     }
-    if (!kpr.down_payment_percentage || kpr.down_payment_percentage < 10 || kpr.down_payment_percentage > 50) {
-      throw new AppError('Down payment percentage must be between 10 and 50', 400);
+    if (!kpr.down_payment_percentage || kpr.down_payment_percentage < 1 || kpr.down_payment_percentage > 100) {
+      throw new AppError('Down payment percentage must be between 1 and 100', 400);
     }
     if (!kpr.interest_rate || kpr.interest_rate <= 0) {
       throw new AppError('Interest rate must be greater than 0', 400);
