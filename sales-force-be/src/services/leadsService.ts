@@ -683,8 +683,7 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
           `UPDATE reminder_schedules SET
             remind_at = COALESCE($2, remind_at),
             message = COALESCE($3, message),
-            is_completed = COALESCE($4, is_completed),
-            updated_at = NOW()
+            is_completed = COALESCE($4, is_completed)
           WHERE id = $1 AND lead_id = $5`,
           [
             dto.reminder.id,

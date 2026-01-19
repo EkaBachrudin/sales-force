@@ -170,7 +170,7 @@ export function EditLeadModal({
 
     // Include reminder if set
     if (showReminderForm && formData.reminderScheduledFor) {
-      submitData.reminders = [{
+      submitData.reminder = {
         id: lead?.reminders?.[0]?.id || '',
         remind_at: new Date(formData.reminderScheduledFor).toISOString(),
         message: formData.reminderNotes,
@@ -179,7 +179,7 @@ export function EditLeadModal({
         user_id: '',
         created_at: '',
         notes: formData.reminderNotes,
-      }];
+      };
     }
 
     onSubmit?.(submitData);
