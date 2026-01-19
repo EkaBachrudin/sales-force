@@ -108,12 +108,12 @@ export function NewLeadModal({
     source: '',
     sourceOther: '',
     property_id: '',
-    budgetMin: 100000000,
-    budgetMax: 5000000000,
-    kprPrice: 500000000,
-    kprDownPayment: 20,
-    kprInterestRate: 5.5,
-    kprTerm: 15,
+    budgetMin: 0,
+    budgetMax: 0,
+    kprPrice: 0,
+    kprDownPayment: 0,
+    kprInterestRate: 0,
+    kprTerm: 0,
     note: '',
   });
 
