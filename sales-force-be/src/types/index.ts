@@ -465,3 +465,73 @@ export interface UpdatePropertyDto {
   name?: string;
   property_type?: string;
 }
+
+// Dashboard Types
+export interface DashboardOverviewMetrics {
+  total_leads: {
+    value: number;
+    trend_value: number;
+    trend_label: string;
+    trend_period: string;
+  };
+  new_leads_this_month: {
+    value: number;
+    trend_value: number;
+    trend_label: string;
+    trend_percentage: boolean;
+  };
+  surveyed: {
+    value: number;
+    trend_value: number;
+    trend_label: string;
+  };
+  closed: {
+    value: number;
+    trend_value: number;
+    trend_label: string;
+  };
+}
+
+// Reminder Types
+export interface ReminderLeadInfo {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  property?: {
+    id: string;
+    name: string;
+    property_type: string;
+    price: number;
+  };
+}
+
+export interface ReminderItem {
+  id: string;
+  remind_at: Date;
+  remind_at_formatted: string;
+  message?: string;
+  is_completed: boolean;
+  lead: ReminderLeadInfo;
+}
+
+export interface UpcomingRemindersResponse {
+  reminders: ReminderItem[];
+  meta: {
+    total: number;
+    limit: number;
+    hours_ahead: number;
+  };
+}
+
+export interface CreateReminderDto {
+  lead_id: string;
+  remind_at: Date;
+  message?: string;
+}
+
+export interface UpdateReminderDto {
+  is_completed?: boolean;
+  remind_at?: Date;
+  message?: string;
+}

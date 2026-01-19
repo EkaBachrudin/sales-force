@@ -432,4 +432,104 @@ export const api = {
 
     return data;
   },
+
+  // Dashboard API
+  getDashboardOverview: async () => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/dashboard/overview`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch dashboard overview', response.status);
+    }
+
+    return data;
+  },
+
+  // Reminders API
+  getUpcomingReminders: async (params?: { limit?: number; hours_ahead?: number }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.hours_ahead) queryParams.append('hours_ahead', params.hours_ahead.toString());
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/reminders/upcoming${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch reminders', response.status);
+    }
+
+    return data;
+  },
+
+  createReminder: async (reminderData: {
+    lead_id: string;
+    remind_at: string;
+    message?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/reminders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(reminderData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to create reminder', response.status);
+    }
+
+    return data;
+  },
+
+  updateReminder: async (reminderId: string, reminderData: {
+    is_completed?: boolean;
+    remind_at?: string;
+    message?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/reminders/${reminderId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(reminderData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update reminder', response.status);
+    }
+
+    return data;
+  },
+
+  deleteReminder: async (reminderId: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/reminders/${reminderId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to delete reminder', response.status);
+    }
+
+    return data;
+  },
 };

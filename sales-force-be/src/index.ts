@@ -14,6 +14,8 @@ import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import leadsRoutes from './routes/leadsRoutes';
 import propertiesRoutes from './routes/propertiesRoutes';
+import dashboardRoutes from './routes/dashboardRoutes';
+import remindersRoutes from './routes/remindersRoutes';
 import { runCleanupJob } from './jobs/cleanupSessions';
 
 // Load environment variables
@@ -95,6 +97,8 @@ app.use(`${API_VERSION}/auth`, authRoutes);
 app.use(`${API_VERSION}/admin`, adminRoutes);
 app.use(`${API_VERSION}/leads`, leadsRoutes);
 app.use(`${API_VERSION}/properties`, propertiesRoutes);
+app.use(`${API_VERSION}/dashboard`, dashboardRoutes);
+app.use(`${API_VERSION}/reminders`, remindersRoutes);
 
 // 404 handler
 app.use((_req: Request, _res: Response, next) => {
