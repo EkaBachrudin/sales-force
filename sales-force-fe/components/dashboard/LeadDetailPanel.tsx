@@ -267,30 +267,59 @@ export function LeadDetailPanel({
           </section>
 
           {/* Property Interest */}
-          {(lead.property || ((lead.budget_range?.min ?? 0) > 0 && (lead.budget_range?.max ?? 0) > 0)) && (
+          {lead.property && (
             <section aria-labelledby="property-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
               <h3 id="property-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
                 Property Interest
               </h3>
-            <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-100">
-              <div className="flex items-center gap-2.5 sm:gap-3 mb-2 sm:mb-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-sm sm:text-base font-semibold text-slate-800 truncate block">{lead.property ? lead.property.name : '-'} {lead.property ? lead.property.property_type : '-'}</span>
-                </div>
-              </div>
-              <div className="pl-11 sm:pl-13">
-                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                  <span className="text-xs sm:text-sm text-slate-500">Budget:</span>
-                  <span className="text-sm sm:text-base font-bold text-emerald-600">
-                    {formatCurrency(lead.budget_range?.min ?? 0)} - {formatCurrency(lead.budget_range?.max ?? 0)}
-                  </span>
+              <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-sm sm:text-base font-semibold text-slate-800 truncate block">
+                      {lead.property.name}
+                    </span>
+                    <span className="text-xs text-slate-500 truncate block">
+                      {lead.property.property_type}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
+
+          {/* Budget Range */}
+          {((lead.budget_range?.min ?? 0) > 0 || (lead.budget_range?.max ?? 0) > 0) && (
+            <section aria-labelledby="budget-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
+              <h3 id="budget-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
+                Budget Range
+              </h3>
+              <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                    <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                      <div>
+                        <span className="block text-xs text-slate-500 mb-1">Minimum</span>
+                        <span className="block text-sm sm:text-base font-bold text-blue-600">
+                          {formatCurrency(lead.budget_range?.min ?? 0)}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="block text-xs text-slate-500 mb-1">Maksimum</span>
+                        <span className="block text-sm sm:text-base font-bold text-blue-600">
+                          {formatCurrency(lead.budget_range?.max ?? 0)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
           )}
 
           {/* Source & Pipeline Stage */}
