@@ -51,7 +51,6 @@ export function useLeadDetail(id: string | null, enabled = true) {
     queryFn: async () => {
       if (!id) throw new Error('Lead ID is required');
       const response = await api.getLeadDetail(id);
-      // Backend returns { success: true, data: { lead, activities, whatsapp_messages, reminders } }
       const backendData = response.data as { lead: Lead; activities: any[]; whatsapp_messages: any[]; reminders: any[] };
       return backendData.lead;
     },

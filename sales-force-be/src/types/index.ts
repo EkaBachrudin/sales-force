@@ -288,7 +288,6 @@ export interface CrmLead {
     price: number;
     city: string;
     province?: string;
-    developer?: string;
   };
   property_price?: number;
   budget_range?: BudgetRange;
@@ -346,7 +345,6 @@ export interface CrmProperty {
   price: number;
   city: string;
   province?: string;
-  developer?: string;
 }
 
 // List Leads Query Parameters

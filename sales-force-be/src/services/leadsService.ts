@@ -242,8 +242,7 @@ export const getLeadDetail = async (leadId: string): Promise<LeadDetailResponse>
       p.property_type,
       p.price as property_price_detail,
       p.city,
-      p.province,
-      p.developer
+      p.province
     FROM leads l
     LEFT JOIN users u ON l.assigned_to = u.id
     LEFT JOIN properties p ON l.property_id = p.id
@@ -266,7 +265,6 @@ export const getLeadDetail = async (leadId: string): Promise<LeadDetailResponse>
         price: row.property_price_detail,
         city: row.city,
         province: row.province,
-        developer: row.developer,
       }
     : undefined;
 
@@ -828,8 +826,7 @@ export const getProperties = async (query: GetPropertiesQuery): Promise<Property
       p.property_type,
       p.price,
       p.city,
-      p.province,
-      p.developer
+      p.province
     FROM properties p
     ${whereClause}
     ORDER BY p.name ASC
@@ -844,6 +841,5 @@ export const getProperties = async (query: GetPropertiesQuery): Promise<Property
     price: row.price,
     city: row.city,
     province: row.province,
-    developer: row.developer,
   }));
 };
