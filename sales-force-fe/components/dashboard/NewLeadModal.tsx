@@ -62,14 +62,6 @@ export interface NewLeadModalProps {
   isLoading?: boolean;
 }
 
-const propertyTypes = [
-  { value: 'cluster-a', label: 'Cluster A - Type 36/60' },
-  { value: 'cluster-b', label: 'Cluster B - Type 45/72' },
-  { value: 'cluster-c', label: 'Cluster C - Type 54/90' },
-  { value: 'cluster-d', label: 'Cluster D - Type 70/120' },
-  { value: 'other', label: 'Other / Custom' },
-];
-
 const termOptions = [
   { value: '5', label: '5 years' },
   { value: '10', label: '10 years' },

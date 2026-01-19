@@ -25,7 +25,14 @@ const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'g
 };
 
 // Get unique property types and sources from mock data
-const sources = ['Website', 'Instagram', 'Facebook', 'WhatsApp', 'Referral', 'Other'];
+const sourceOptions = [
+  { value: 'visit', label: 'Visit' },
+  { value: 'referral', label: 'Referral' },
+  { value: 'tiktok', label: 'TikTok' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'other', label: 'Other' },
+];
 
 // Helper function to format date as YYYY-MM-DD in local timezone
 const formatDateLocal = (date: Date): string => {
@@ -165,9 +172,9 @@ export default function LeadsPage() {
               className="w-full px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
             >
               <option value="all">All Sources</option>
-              {sources.map((source) => (
-                <option key={source} value={source}>
-                  {source}
+              {sourceOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
