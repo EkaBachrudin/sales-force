@@ -334,7 +334,7 @@ export function LeadDetailPanel({
                     </div>
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Sumber</span>
                   </div>
-                  <span className={`text-sm sm:text-base font-bold ${sourceConfig[lead.source]?.color || 'text-slate-700'}`}>
+                  <span className={`text-lg sm:text-base font-bold ${sourceConfig[lead.source]?.color || 'text-slate-700'}`}>
                     {sourceConfig[lead.source]?.label || lead.source}
                   </span>
                 </div>
@@ -348,7 +348,7 @@ export function LeadDetailPanel({
                   </div>
                   <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Tahap</span>
                 </div>
-                <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="sm" className="shadow-sm">
+                <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="lg" className="shadow-sm">
                   {stageOptions.find((s) => s.value === lead.status)?.label}
                 </Badge>
               </div>
@@ -462,16 +462,6 @@ export function LeadDetailPanel({
                 disabled={!lead.email}
               >
                 Email
-              </Button>
-              <Button
-                variant="secondary"
-                size="md"
-                leftIcon={<Clock className="w-4 h-4 text-amber-600" />}
-                onClick={onEdit}
-                className="bg-white hover:bg-amber-50 hover:border-amber-300 border-slate-200 shadow-sm transition-all justify-start text-xs sm:text-sm"
-                aria-label="Jadwalkan follow-up"
-              >
-                Jadwalkan
               </Button>
             </div>
           </section>
