@@ -118,12 +118,12 @@ body {
 }
 
 /* Typography Scale */
-h1 {
+/* h1 {
   font-size: 32px;
   font-weight: 700;
   line-height: 40px;
   letter-spacing: -0.02em;
-}
+} */
 
 h2 {
   font-size: 24px;
@@ -138,11 +138,6 @@ h3 {
   line-height: 28px;
 }
 
-p {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-}
 
 small {
   font-size: 12px;

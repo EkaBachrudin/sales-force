@@ -29,55 +29,62 @@ export function MetricsCard({
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border border-[var(--border)] p-3 sm:p-4 md:p-5 hover:shadow-md transition-shadow duration-200',
+        'bg-white rounded-xl border border-[var(--border)] p-4 sm:p-5 hover:shadow-lg transition-all duration-200',
         className
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        {/* Icon Container */}
+      {/* Header: Label + Icon */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <p className="text-sm sm:text-base font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+          {label}
+        </p>
+
+        {/* Icon with subtle background */}
         <div
-          className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: `${iconColor}15` }}
+          className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: `${iconColor}12` }}
         >
           <span style={{ color: iconColor }}>
             <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
           </span>
         </div>
+      </div>
 
+      {/* Main Value */}
+      <div className="mb-3">
+        <p className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-tight">
+          {value}
+        </p>
+      </div>
+
+      {/* Footer: Trend + Secondary Info */}
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border)]">
         {/* Trend Indicator */}
-        {trend && (
+        {trend ? (
           <div
             className={cn(
-              'flex items-center gap-1 text-xs font-medium flex-shrink-0',
+              'flex items-center gap-1.5 text-sm sm:text-base font-semibold',
               trend.isPositive ? 'text-[var(--success)]' : 'text-[var(--danger)]'
             )}
           >
             {trend.isPositive ? (
-              <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <TrendingDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
-            <span className="hidden xs:inline">{trend.value}</span>
+            <span>{trend.value}</span>
           </div>
+        ) : (
+          <div />
+        )}
+
+        {/* Secondary Info */}
+        {secondaryInfo && (
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-right line-clamp-1 max-w-[60%]">
+            {secondaryInfo}
+          </p>
         )}
       </div>
-
-      {/* Value */}
-      <div className="mt-3 sm:mt-4">
-        <p className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
-          {value}
-        </p>
-        <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
-          {label}
-        </p>
-      </div>
-
-      {/* Secondary Info */}
-      {secondaryInfo && (
-        <p className="text-xs text-[var(--text-secondary)] mt-2 line-clamp-1">
-          {secondaryInfo}
-        </p>
-      )}
     </div>
   );
 }
