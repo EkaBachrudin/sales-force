@@ -32,6 +32,33 @@ const stageVariantMap: Record<PipelineStage, 'gray' | 'blue' | 'purple' | 'orang
   cancelled: 'red',
 };
 
+const stageGradientMap: Record<PipelineStage, string> = {
+  new: 'from-slate-100 to-gray-100',
+  contacted: 'from-blue-100 to-indigo-100',
+  surveyed: 'from-purple-100 to-violet-100',
+  negotiating: 'from-orange-100 to-amber-100',
+  closed: 'from-emerald-100 to-green-100',
+  cancelled: 'from-red-100 to-rose-100',
+};
+
+const stageColorMap: Record<PipelineStage, string> = {
+  new: 'text-slate-600',
+  contacted: 'text-blue-600',
+  surveyed: 'text-purple-600',
+  negotiating: 'text-orange-600',
+  closed: 'text-emerald-600',
+  cancelled: 'text-red-600',
+};
+
+const sourceConfig: Record<string, { icon: string; color: string; bgGradient: string; label: string }> = {
+  'Website': { icon: '🌐', color: 'text-blue-600', bgGradient: 'from-blue-50 to-cyan-50', label: 'Website' },
+  'Instagram': { icon: '📸', color: 'text-pink-600', bgGradient: 'from-pink-50 to-rose-50', label: 'Instagram' },
+  'Facebook': { icon: '👥', color: 'text-blue-700', bgGradient: 'from-blue-50 to-indigo-50', label: 'Facebook' },
+  'WhatsApp': { icon: '💬', color: 'text-green-600', bgGradient: 'from-green-50 to-emerald-50', label: 'WhatsApp' },
+  'Referral': { icon: '🤝', color: 'text-purple-600', bgGradient: 'from-purple-50 to-violet-50', label: 'Referral' },
+  'Other': { icon: '📌', color: 'text-slate-600', bgGradient: 'from-slate-50 to-gray-50', label: 'Lainnya' },
+};
+
 export function LeadDetailPanel({
   lead,
   isOpen = false,
@@ -265,6 +292,39 @@ export function LeadDetailPanel({
           </section>
           )}
 
+          {/* Source & Pipeline Stage */}
+          <section className="p-4 sm:p-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-gray-50">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {/* Source */}
+              {lead.source && (
+                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br ${sourceConfig[lead.source]?.bgGradient || 'from-slate-100 to-gray-100'} flex items-center justify-center flex-shrink-0`}>
+                      <span className="text-lg sm:text-xl">{sourceConfig[lead.source]?.icon || '📌'}</span>
+                    </div>
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Sumber</span>
+                  </div>
+                  <span className={`text-sm sm:text-base font-bold ${sourceConfig[lead.source]?.color || 'text-slate-700'}`}>
+                    {sourceConfig[lead.source]?.label || lead.source}
+                  </span>
+                </div>
+              )}
+
+              {/* Pipeline Stage */}
+              <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br ${stageGradientMap[lead.status as PipelineStage]} flex items-center justify-center flex-shrink-0`}>
+                    <User className={`w-4 h-4 sm:w-5 sm:h-5 ${stageColorMap[lead.status as PipelineStage]}`} />
+                  </div>
+                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Tahap</span>
+                </div>
+                <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="sm" className="shadow-sm">
+                  {stageOptions.find((s) => s.value === lead.status)?.label}
+                </Badge>
+              </div>
+            </div>
+          </section>
+
           {/* KPR Simulation */}
           {((lead.interest_rate ?? 0) > 0 || (lead.loan_term_years ?? 0) > 0) && (
             <section aria-labelledby="kpr-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
@@ -336,18 +396,6 @@ export function LeadDetailPanel({
           </section>
           )}
 
-          {/* Pipeline Stage */}
-          <section aria-labelledby="stage-heading" className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-white">
-            <div className="flex items-center justify-between">
-              <h3 id="stage-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide">
-                Tahap Pipeline
-              </h3>
-              <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="md" className="shadow-sm">
-                {stageOptions.find((s) => s.value === lead.status)?.label}
-              </Badge>
-            </div>
-          </section>
-
           {/* Quick Actions */}
           <section aria-labelledby="actions-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
             <h3 id="actions-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
@@ -398,9 +446,21 @@ export function LeadDetailPanel({
             </div>
           </section>
 
+          {/* Notes Section */}
+          {lead.notes && (
+            <section aria-labelledby="notes-heading" className="p-4 sm:p-6 bg-white">
+              <h3 id="notes-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
+                Catatan
+              </h3>
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 sm:p-5 border border-slate-200">
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{lead.notes}</p>
+              </div>
+            </section>
+          )}
+
            {/* Reminder */}
           {lead.reminders && lead.reminders.length > 0 && (
-            <section aria-labelledby="reminder-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+            <section aria-labelledby="reminder-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 mb-10">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
                   <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
@@ -434,18 +494,6 @@ export function LeadDetailPanel({
                     )}
                   </div>
                 ))}
-              </div>
-            </section>
-          )}
-
-          {/* Notes Section */}
-          {lead.note && (
-            <section aria-labelledby="notes-heading" className="p-4 sm:p-6 bg-white">
-              <h3 id="notes-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
-                Catatan
-              </h3>
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 sm:p-5 border border-slate-200">
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{lead.note}</p>
               </div>
             </section>
           )}

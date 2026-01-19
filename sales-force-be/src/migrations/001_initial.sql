@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS leads (
     budget_range JSONB,
     property_price NUMERIC(15, 2),
     down_payment NUMERIC(15, 2),
-    down_payment_percentage NUMERIC(5, 2) CHECK (down_payment_percentage >= 10 AND down_payment_percentage <= 50),
+    down_payment_percentage NUMERIC(5, 2) CHECK (down_payment_percentage >= 1 AND down_payment_percentage <= 100),
     interest_rate NUMERIC(5, 2) DEFAULT 5.5 CHECK (interest_rate > 0),
     loan_term_years INTEGER DEFAULT 15 CHECK (loan_term_years IN (5, 10, 15, 20, 25)),
     estimated_monthly_payment NUMERIC(15, 2),

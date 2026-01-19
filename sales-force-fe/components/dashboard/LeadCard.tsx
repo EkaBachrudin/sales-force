@@ -35,7 +35,7 @@ export interface Lead {
   followUpDate?: Date | string;
   created_at: Date | string;
   source?: string;
-  note?: string;
+  notes?: string;
   reminders?: ReminderData[];
   kprPrice?: number;
   kprDownPayment?: number;
