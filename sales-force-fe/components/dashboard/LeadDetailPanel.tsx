@@ -70,6 +70,19 @@ export function LeadDetailPanel({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Disable body scroll when panel is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const handleCopy = async (value: string, field: 'nik' | 'npwp') => {
     await navigator.clipboard.writeText(value);
     setCopiedField(field);
