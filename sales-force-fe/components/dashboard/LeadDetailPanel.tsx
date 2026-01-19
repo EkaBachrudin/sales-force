@@ -239,10 +239,11 @@ export function LeadDetailPanel({
           </section>
 
           {/* Property Interest */}
-          <section aria-labelledby="property-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
-            <h3 id="property-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
-              Property Interest
-            </h3>
+          {(lead.property || (lead.budget_range?.min && lead.budget_range?.max)) && (
+            <section aria-labelledby="property-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
+              <h3 id="property-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
+                Property Interest
+              </h3>
             <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-100">
               <div className="flex items-center gap-2.5 sm:gap-3 mb-2 sm:mb-3">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
@@ -262,6 +263,7 @@ export function LeadDetailPanel({
               </div>
             </div>
           </section>
+          )}
 
           {/* Reminder */}
           {lead.reminder?.scheduledFor && (
@@ -300,8 +302,9 @@ export function LeadDetailPanel({
           )}
 
           {/* KPR Simulation */}
-          <section aria-labelledby="kpr-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
-            <button
+          {((lead.interest_rate ?? 0) > 0 || (lead.loan_term_years ?? 0) > 0) && (
+            <section aria-labelledby="kpr-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
+              <button
               onClick={() => setShowKprCalculator(!showKprCalculator)}
               className="flex items-center justify-between w-full mb-3 sm:mb-4 group focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg"
               aria-expanded={showKprCalculator}
@@ -367,6 +370,7 @@ export function LeadDetailPanel({
               </div>
             )}
           </section>
+          )}
 
           {/* Pipeline Stage */}
           <section aria-labelledby="stage-heading" className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-white">
