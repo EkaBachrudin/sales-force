@@ -64,7 +64,7 @@ export default function LeadsPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(50);
+  const [pageSize] = useState(20);
 
   // Filter state
   const [filters, setFilters] = useState<UseLeadsFilters>(defaultFilters);

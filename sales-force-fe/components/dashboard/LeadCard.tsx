@@ -49,7 +49,7 @@ export interface KprSimulation {
   property_price: string;
   down_payment_percentage: string;
   down_payment: number;
-  interest_rate: string;
+  interest_rate: number;
   loan_term_years: number;
   estimated_monthly_payment: string;
 }

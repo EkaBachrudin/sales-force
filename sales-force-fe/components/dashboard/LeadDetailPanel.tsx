@@ -140,7 +140,7 @@ export function LeadDetailPanel({
   const propertyPrice = parseFloat(lead.kpr_simulation?.property_price || '0');
   const downPayment = lead.kpr_simulation?.down_payment || 0;
   const loanAmount = propertyPrice - downPayment;
-  const interestRate = parseFloat(lead.kpr_simulation?.interest_rate || '0');
+  const interestRate = lead.kpr_simulation ? lead.kpr_simulation?.interest_rate : 0;
   const termYears = lead.kpr_simulation?.loan_term_years || 0;
   const monthlyPayment = loanAmount > 0 && interestRate > 0 && termYears > 0
     ? (loanAmount * (interestRate / 100 / 12) * Math.pow(1 + interestRate / 100 / 12, termYears * 12)) /
@@ -369,7 +369,7 @@ export function LeadDetailPanel({
           </section>
 
           {/* KPR Simulation */}
-          {((lead.interest_rate ?? 0) > 0 || (lead.loan_term_years ?? 0) > 0) && (
+          {((lead.kpr_simulation?.interest_rate ?? 0) > 0 || (lead.kpr_simulation?.loan_term_years ?? 0) > 0) && (
             <section aria-labelledby="kpr-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
               <button
               onClick={() => setShowKprCalculator(!showKprCalculator)}
