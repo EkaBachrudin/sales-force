@@ -238,6 +238,7 @@ export enum CrmLeadSource {
   LANDING_PAGE = 'landing_page',
   WHATSAPP = 'whatsapp',
   MANUAL = 'manual',
+  VISIT = 'visit'
 }
 
 export enum CrmActivityType {

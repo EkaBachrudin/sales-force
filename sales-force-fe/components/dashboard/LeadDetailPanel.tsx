@@ -249,7 +249,7 @@ export function LeadDetailPanel({
                   <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-sm sm:text-base font-semibold text-slate-800 truncate block">{lead.property.name} {lead.property.property_type}</span>
+                  <span className="text-sm sm:text-base font-semibold text-slate-800 truncate block">{lead.property ? lead.property.name : '-'} {lead.property ? lead.property.property_type : '-'}</span>
                 </div>
               </div>
               <div className="pl-11 sm:pl-13">

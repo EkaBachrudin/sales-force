@@ -43,7 +43,7 @@ export interface NewLeadData {
   npwp?: string;
   source: string;
   sourceOther?: string;
-  property_id: string;
+  property_id?: string;
   budget_range: { min: number; max: number };
   kpr_simulation?: {
     property_price: number;
@@ -94,7 +94,10 @@ export function NewLeadModal({
   isLoading = false,
 }: NewLeadModalProps) {
   const { data: properties, isLoading: isLoadingProperties } = useProperties();
-  const propertyOptions = properties ? propertyService.toPropertyOptions(properties) : [];
+  const propertyOptions = [
+    { value: '', label: 'No Property Selected' },
+    ...(properties ? propertyService.toPropertyOptions(properties) : []),
+  ];
 
   const [formData, setFormData] = useState<LeadFormData>({
     name: '',
@@ -161,7 +164,6 @@ export function NewLeadModal({
       email: formData.email,
       nik: formData.nik,
       npwp: formData.npwp,
-      property_id: formData.property_id,
       source: formData.source,
       sourceOther: formData.sourceOther,
       budget_range: {
@@ -171,6 +173,11 @@ export function NewLeadModal({
       note: formData.note,
       reminder: formData.reminder,
     };
+
+    // Only include property_id if selected
+    if (formData.property_id) {
+      submitData.property_id = formData.property_id;
+    }
 
     // Only include kpr_simulation if values are present
     if (formData.kprPrice && formData.kprDownPayment && formData.kprInterestRate && formData.kprTerm) {
@@ -311,11 +318,10 @@ export function NewLeadModal({
                 </h3>
                 <div className="space-y-4">
                   <Select
-                    label="Property Type *"
+                    label="Property Type"
                     options={propertyOptions}
                     value={formData.property_id}
                     onChange={(e) => handleInputChange('property_id', e.target.value)}
-                    required
                     disabled={isLoadingProperties}
                   />
                 </div>

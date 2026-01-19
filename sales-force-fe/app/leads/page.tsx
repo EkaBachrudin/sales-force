@@ -13,7 +13,7 @@ import { stageLabels, stageColors } from '@/lib/mockData';
 import { Lead, PipelineStage } from '@/lib/types';
 import { cn, formatCurrency, formatPhone, formatRelativeTime } from '@/lib/utils';
 import { useProperties } from '@/hooks/useProperties';
-import { useLeads, useLeadMutations, LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
+import { useLeads, useLeadMutations, useLeadDetail, LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
 
 const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
   new: 'gray',
@@ -47,10 +47,13 @@ const defaultFilters: UseLeadsFilters = {
 export default function LeadsPage() {
   const { data: properties, isLoading: isLoadingProperties } = useProperties();
 
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Fetch lead detail when selectedLeadId changes
+  const { data: selectedLead, isLoading: isLoadingLeadDetail } = useLeadDetail(selectedLeadId, isPanelOpen);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,7 +83,7 @@ export default function LeadsPage() {
   };
 
   const handleLeadClick = (lead: Lead) => {
-    setSelectedLead(lead);
+    setSelectedLeadId(lead.id);
     setIsPanelOpen(true);
   };
 
@@ -250,7 +253,7 @@ export default function LeadsPage() {
                             </a>
                             <div className="space-y-1">
                               <p className="text-sm text-[var(--text-primary)]">
-                                <span className="text-[var(--text-secondary)]">Property:</span> {lead.property.name}
+                                <span className="text-[var(--text-secondary)]">Property:</span> {lead.property ? lead.property.name : '-'}
                               </p>
                               {lead.source && (
                                 <p className="text-xs text-[var(--text-secondary)]">via {lead.source}</p>
@@ -341,7 +344,7 @@ export default function LeadsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-primary)]">{lead.property.name}</p>
+                            <p className="text-sm text-[var(--text-primary)]">{lead.property ? lead.property.name : '-'}</p>
                             {lead.source && (
                               <p className="text-xs text-[var(--text-secondary)] mt-0.5">via {lead.source}</p>
                             )}
@@ -435,7 +438,7 @@ export default function LeadsPage() {
         isOpen={isPanelOpen}
         onClose={() => {
           setIsPanelOpen(false);
-          setSelectedLead(null);
+          setSelectedLeadId(null);
         }}
         onEdit={handleEditClick}
       />

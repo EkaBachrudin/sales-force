@@ -464,7 +464,7 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
       dto.npwp || null,
       dto.phone,
       dto.email || null,
-      dto.source || LeadSourceEnum.MANUAL,
+      dto.source || LeadSourceEnum.VISIT,
       dto.property_id || null,
       dto.budget_range ? JSON.stringify(dto.budget_range) : null,
       dto.status || LeadStatusEnum.NEW,
