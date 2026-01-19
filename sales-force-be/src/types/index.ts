@@ -361,8 +361,26 @@ export interface GetLeadsQuery {
   sort_order?: 'asc' | 'desc';
 }
 
+// Simplified Lead for list view
+export interface CrmLeadListItem {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  status: CrmLeadStatus;
+  source: CrmLeadSource;
+  property?: {
+    id: string;
+    name: string;
+    property_type: string;
+    price: number;
+    city: string;
+  };
+  created_at: Date;
+}
+
 export interface GetLeadsResponse {
-  leads: CrmLead[];
+  leads: CrmLeadListItem[];
   pagination: {
     page: number;
     limit: number;

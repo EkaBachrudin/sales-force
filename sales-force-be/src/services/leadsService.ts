@@ -2,13 +2,13 @@ import { pool } from '../config/database';
 import { AppError } from '../utils/AppError';
 import {
   CrmLead as Lead,
+  CrmLeadListItem,
   CrmLeadActivity as LeadActivity,
   CrmWhatsAppMessage as WhatsAppMessage,
   CrmReminderSchedule as ReminderSchedule,
   CrmProperty as Property,
   CrmLeadDetailResponse as LeadDetailResponse,
   GetLeadsQuery,
-  GetLeadsResponse,
   CrmCreateLeadDto as CreateLeadDto,
   CrmUpdateLeadDto as UpdateLeadDto,
   CrmAddActivityDto as AddActivityDto,
@@ -77,7 +77,15 @@ const validateNPWP = (npwp?: string): boolean => {
 /**
  * GET /api/v1/leads - List Leads with Pagination & Filters
  */
-export const getLeads = async (query: GetLeadsQuery): Promise<GetLeadsResponse> => {
+export const getLeads = async (query: GetLeadsQuery): Promise<{
+  leads: CrmLeadListItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}> => {
   const {
     page = 1,
     limit = 50,
@@ -183,7 +191,7 @@ export const getLeads = async (query: GetLeadsQuery): Promise<GetLeadsResponse> 
   params.push(limit, offset);
   const leadsResult = await pool.query(leadsQuery, params);
 
-  const leads: Lead[] = leadsResult.rows.map((row) => {
+  const leads: CrmLeadListItem[] = leadsResult.rows.map((row) => {
     const property = row.property_detail_id
       ? {
           id: row.property_detail_id,
@@ -201,19 +209,8 @@ export const getLeads = async (query: GetLeadsQuery): Promise<GetLeadsResponse> 
       email: row.email,
       status: row.status,
       source: row.source,
-      property_id: row.property_id,
-      property_price: row.property_price,
-      budget_range: row.budget_range,
-      assigned_to: row.assigned_to,
-      assigned_to_name: row.assigned_to_name,
-      next_follow_up_at: row.next_follow_up_at,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
       property,
-      down_payment_percentage: row.down_payment_percentage,
-      interest_rate: row.interest_rate,
-      loan_term_years: row.loan_term_years,
-      estimated_monthly_payment: row.estimated_monthly_payment,
+      created_at: row.created_at,
     };
   });
 
@@ -290,13 +287,8 @@ export const getLeadDetail = async (leadId: string): Promise<LeadDetailResponse>
     status: row.status,
     source: row.source,
     property_id: row.property_id,
-    property_price: row.property_price,
     budget_range: row.budget_range,
     kpr_simulation,
-    down_payment_percentage: row.down_payment_percentage,
-    interest_rate: row.interest_rate,
-    loan_term_years: row.loan_term_years,
-    estimated_monthly_payment: row.estimated_monthly_payment,
     assigned_to: row.assigned_to,
     assigned_to_name: row.assigned_to_name,
     notes: row.notes,
