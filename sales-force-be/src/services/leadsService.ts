@@ -195,10 +195,7 @@ export const getLeads = async (query: GetLeadsQuery): Promise<{
     const property = row.property_detail_id
       ? {
           id: row.property_detail_id,
-          name: row.property_name,
-          property_type: row.property_type,
-          price: row.property_detail_price,
-          city: row.city,
+          name: row.property_name
         }
       : undefined;
 
@@ -206,7 +203,6 @@ export const getLeads = async (query: GetLeadsQuery): Promise<{
       id: row.id,
       name: row.name,
       phone: row.phone,
-      email: row.email,
       status: row.status,
       source: row.source,
       property,

@@ -372,9 +372,6 @@ export interface CrmLeadListItem {
   property?: {
     id: string;
     name: string;
-    property_type: string;
-    price: number;
-    city: string;
   };
   created_at: Date;
 }
