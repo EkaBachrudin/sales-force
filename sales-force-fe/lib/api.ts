@@ -373,11 +373,25 @@ export const api = {
     name?: string;
     phone?: string;
     email?: string;
-    propertyType?: string;
-    source?: string;
-    budget?: number;
-    stage?: string;
+    nik?: string;
+    npwp?: string;
+    property_id?: string;
+    budget_range?: { min: number; max: number };
+    status?: string;
     notes?: string;
+    kprPrice?: number;
+    interest_rate?: number;
+    loan_term_years?: number;
+    reminders?: Array<{
+      id?: string;
+      remind_at: string;
+      message: string;
+      is_completed: string;
+      lead_id: string;
+      user_id: string;
+      created_at: string;
+      notes?: string;
+    }>;
   }) => {
     const response = await fetchWithInterceptor(`${API_URL}/api/v1/leads/${id}`, {
       method: 'PUT',

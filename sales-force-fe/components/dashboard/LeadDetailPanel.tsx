@@ -124,14 +124,15 @@ export function LeadDetailPanel({
   if (!lead) return null;
 
   // Calculate KPR simulation
-  const propertyPrice = (lead.budget_range.min + lead.budget_range.max) / 2;
-  const downPayment = propertyPrice * 0.2;
+  const propertyPrice = parseFloat(lead.kpr_simulation?.property_price || '0');
+  const downPayment = lead.kpr_simulation?.down_payment || 0;
   const loanAmount = propertyPrice - downPayment;
-  const interestRate = lead.interest_rate || 0;
-  const termYears = lead.loan_term_years || 0;
-  const monthlyPayment =
-    (loanAmount * (interestRate / 100 / 12) * Math.pow(1 + interestRate / 100 / 12, termYears * 12)) /
-    (Math.pow(1 + interestRate / 100 / 12, termYears * 12) - 1);
+  const interestRate = parseFloat(lead.kpr_simulation?.interest_rate || '0');
+  const termYears = lead.kpr_simulation?.loan_term_years || 0;
+  const monthlyPayment = loanAmount > 0 && interestRate > 0 && termYears > 0
+    ? (loanAmount * (interestRate / 100 / 12) * Math.pow(1 + interestRate / 100 / 12, termYears * 12)) /
+      (Math.pow(1 + interestRate / 100 / 12, termYears * 12) - 1)
+    : 0;
 
   return (
     <>
@@ -365,7 +366,7 @@ export function LeadDetailPanel({
                     <span className="font-semibold text-slate-900 text-xs sm:text-sm">{formatCurrency(propertyPrice)}</span>
                   </div>
                   <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-slate-100">
-                    <span className="text-slate-600">Uang Muka (20%):</span>
+                    <span className="text-slate-600">Uang Muka ({lead.kpr_simulation?.down_payment_percentage}%):</span>
                     <span className="font-semibold text-slate-900 text-xs sm:text-sm">{formatCurrency(downPayment)}</span>
                   </div>
                   <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-slate-100">

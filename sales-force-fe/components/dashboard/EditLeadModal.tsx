@@ -5,8 +5,10 @@ import { X, Calculator, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Lead } from './LeadCard';
+import { useProperties } from '@/hooks/useProperties';
+import { propertyService } from '@/services/propertyService';
 
 export interface EditLeadModalProps {
   isOpen?: boolean;
@@ -15,13 +17,6 @@ export interface EditLeadModalProps {
   lead?: Lead | null;
   isLoading?: boolean;
 }
-
-const propertyTypes = [
-  { value: 'Cluster A', label: 'Cluster A - Type 36/60' },
-  { value: 'Cluster B', label: 'Cluster B - Type 45/72' },
-  { value: 'Cluster C', label: 'Cluster C - Type 54/90' },
-  { value: 'Cluster D', label: 'Cluster D - Type 70/120' },
-];
 
 const stageOptions = [
   { value: 'new', label: 'Baru Masuk' },
@@ -33,12 +28,20 @@ const stageOptions = [
 ];
 
 const sourceOptions = [
-  { value: 'Website', label: 'Website' },
-  { value: 'Instagram', label: 'Instagram' },
-  { value: 'Facebook', label: 'Facebook' },
-  { value: 'WhatsApp', label: 'WhatsApp' },
-  { value: 'Referral', label: 'Referral' },
-  { value: 'Other', label: 'Other' },
+  { value: 'visit', label: 'Visit' },
+  { value: 'referral', label: 'Referral' },
+  { value: 'tiktok', label: 'TikTok' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'other', label: 'Other' },
+];
+
+const termOptions = [
+  { value: '5', label: '5 years' },
+  { value: '10', label: '10 years' },
+  { value: '15', label: '15 years' },
+  { value: '20', label: '20 years' },
+  { value: '25', label: '25 years' },
 ];
 
 export function EditLeadModal({
@@ -48,21 +51,71 @@ export function EditLeadModal({
   lead,
   isLoading = false,
 }: EditLeadModalProps) {
-  const [formData, setFormData] = useState<Partial<Lead>>({});
+  const { data: properties, isLoading: isLoadingProperties } = useProperties();
+  const propertyOptions = [
+    { value: '', label: 'No Property Selected' },
+    ...(properties ? propertyService.toPropertyOptions(properties) : []),
+  ];
+
+  // Form state with proper initialization from API data
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    nik: '',
+    npwp: '',
+    source: '',
+    property_id: '',
+    budgetMin: 0,
+    budgetMax: 0,
+    kprPrice: 0,
+    kprDownPayment: 20,
+    kprInterestRate: 5.5,
+    kprTerm: 15,
+    notes: '',
+    stage: '',
+    reminderScheduledFor: '',
+    reminderNotes: '',
+  });
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [showKprCalculator, setShowKprCalculator] = useState(false);
   const [kprResult, setKprResult] = useState<number | null>(null);
 
-  // Initialize form data when lead changes
+  // Initialize form data when lead changes - map API fields to form fields
   useEffect(() => {
     if (lead) {
-      setFormData({ ...lead });
-      setShowReminderForm(!!lead.reminder?.scheduledFor);
-      setShowKprCalculator(!!lead.kprPrice);
+      const hasKprData = (lead.kprPrice ?? 0) > 0 ||
+                         (lead.interest_rate ?? 0) > 0 ||
+                         (lead.loan_term_years ?? 0) > 0;
+      const hasReminder = lead.reminders && lead.reminders.length > 0;
+
+      setFormData({
+        name: lead.name || '',
+        phone: lead.phone || '',
+        email: lead.email || '',
+        nik: lead.nik || '',
+        npwp: lead.npwp || '',
+        source: lead.source || '',
+        property_id: lead.property_id,
+        budgetMin: lead.budget_range?.min || 0,
+        budgetMax: lead.budget_range?.max || 0,
+        kprPrice: lead.kpr_simulation?.property_price || 0,
+        kprDownPayment: lead.kpr_simulation?.down_payment_percentage, // Default value, API doesn't provide this separately
+        kprInterestRate: lead.kpr_simulation?.interest_rate || 0,
+        kprTerm: lead.kpr_simulation?.loan_term_years || 15,
+        notes: lead.notes || '',
+        stage: lead.status || '',
+        reminderScheduledFor: hasReminder && lead.reminders?.[0]?.remind_at
+          ? new Date(lead.reminders[0].remind_at).toISOString().slice(0, 16)
+          : '',
+        reminderNotes: hasReminder ? (lead.reminders?.[0]?.message || '') : '',
+      });
+      setShowReminderForm(!!hasReminder);
+      setShowKprCalculator(hasKprData);
     }
   }, [lead]);
 
-  const handleInputChange = (field: keyof Lead, value: string | number) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -84,19 +137,49 @@ export function EditLeadModal({
     setKprResult(Math.round(monthlyPayment));
   };
 
-  const handleReminderChange = (field: 'scheduledFor' | 'notes', value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      reminder: {
-        ...prev.reminder,
-        [field]: value,
-      },
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit?.(formData);
+
+    // Transform form data back to API format - use 'any' to bypass Lead interface limitations
+    // The actual API supports more fields than the Lead interface defines
+    const submitData: any = {
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email || undefined,
+      nik: formData.nik || undefined,
+      npwp: formData.npwp || undefined,
+      source: formData.source,
+      budget_range: {
+        min: formData.budgetMin,
+        max: formData.budgetMax,
+      },
+      notes: formData.notes || undefined,
+      status: formData.stage,
+      kprPrice: formData.kprPrice || undefined,
+      interest_rate: formData.kprInterestRate || undefined,
+      loan_term_years: formData.kprTerm || undefined,
+    };
+
+    // Only include property_id if a property is selected
+    if (formData.property_id) {
+      submitData.property_id = formData.property_id;
+    }
+
+    // Include reminder if set
+    if (showReminderForm && formData.reminderScheduledFor) {
+      submitData.reminders = [{
+        id: lead?.reminders?.[0]?.id || '',
+        remind_at: new Date(formData.reminderScheduledFor).toISOString(),
+        message: formData.reminderNotes,
+        is_completed: lead?.reminders?.[0]?.is_completed || 'false',
+        lead_id: lead?.id || '',
+        user_id: '',
+        created_at: '',
+        notes: formData.reminderNotes,
+      }];
+    }
+
+    onSubmit?.(submitData);
   };
 
   const formatCurrencyInput = (value: number) => {
@@ -141,7 +224,7 @@ export function EditLeadModal({
                   <Input
                     label="Name *"
                     placeholder="Enter lead name"
-                    value={formData.name || ''}
+                    value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     required
                   />
@@ -149,7 +232,7 @@ export function EditLeadModal({
                   <Input
                     label="Phone *"
                     placeholder="+62 812-3456-7890"
-                    value={formData.phone || ''}
+                    value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     required
                   />
@@ -158,7 +241,7 @@ export function EditLeadModal({
                     label="NIK"
                     type="text"
                     placeholder="16 digit NIK number"
-                    value={formData.nik || ''}
+                    value={formData.nik}
                     onChange={(e) => handleInputChange('nik', e.target.value)}
                     maxLength={16}
                   />
@@ -167,7 +250,7 @@ export function EditLeadModal({
                     label="NPWP"
                     type="text"
                     placeholder="15 digit NPWP number"
-                    value={formData.npwp || ''}
+                    value={formData.npwp}
                     onChange={(e) => handleInputChange('npwp', e.target.value)}
                     maxLength={15}
                   />
@@ -176,31 +259,31 @@ export function EditLeadModal({
                     label="Email"
                     type="email"
                     placeholder="email@example.com"
-                    value={formData.email || ''}
+                    value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                   />
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                      Note
+                      Notes
                     </label>
                     <textarea
                       placeholder="Add any notes about this lead..."
                       className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] resize-none"
                       rows={4}
                       maxLength={500}
-                      value={formData.note || ''}
-                      onChange={(e) => handleInputChange('note', e.target.value)}
+                      value={formData.notes}
+                      onChange={(e) => handleInputChange('notes', e.target.value)}
                     />
                     <p className="text-xs text-[var(--text-secondary)] mt-1 text-right">
-                      {formData.note?.length || 0}/500
+                      {formData.notes.length}/500
                     </p>
                   </div>
 
                   <Select
                     label="Source"
                     options={sourceOptions}
-                    value={formData.source || ''}
+                    value={formData.source}
                     onChange={(e) => handleInputChange('source', e.target.value)}
                   />
                 </div>
@@ -214,16 +297,17 @@ export function EditLeadModal({
                 <div className="space-y-4">
                   <Select
                     label="Property Type *"
-                    options={propertyTypes}
-                    value={formData.propertyType || ''}
-                    onChange={(e) => handleInputChange('propertyType', e.target.value)}
+                    options={propertyOptions}
+                    value={formData.property_id}
+                    onChange={(e) => handleInputChange('property_id', e.target.value)}
+                    disabled={isLoadingProperties}
                     required
                   />
 
                   <Select
                     label="Stage *"
                     options={stageOptions}
-                    value={formData.stage || ''}
+                    value={formData.stage}
                     onChange={(e) => handleInputChange('stage', e.target.value)}
                     required
                   />
@@ -247,7 +331,7 @@ export function EditLeadModal({
                       <input
                         type="text"
                         className="w-full pl-10 pr-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
-                        value={formatCurrencyInput(formData.budgetMin || 0)}
+                        value={formatCurrencyInput(formData.budgetMin)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
                           handleInputChange('budgetMin', value);
@@ -266,7 +350,7 @@ export function EditLeadModal({
                       <input
                         type="text"
                         className="w-full pl-10 pr-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
-                        value={formatCurrencyInput(formData.budgetMax || 0)}
+                        value={formatCurrencyInput(formData.budgetMax)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
                           handleInputChange('budgetMax', value);
@@ -302,7 +386,7 @@ export function EditLeadModal({
                           <input
                             type="text"
                             className="w-full pl-10 pr-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)]"
-                            value={formatCurrencyInput(formData.kprPrice || 0)}
+                            value={formatCurrencyInput(formData.kprPrice)}
                             onChange={(e) => {
                               const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
                               handleInputChange('kprPrice', value);
@@ -317,7 +401,7 @@ export function EditLeadModal({
                         <input
                           type="number"
                           className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)]"
-                          value={formData.kprDownPayment || 20}
+                          value={formData.kprDownPayment}
                           onChange={(e) => handleInputChange('kprDownPayment', parseFloat(e.target.value))}
                           min="0"
                           max="100"
@@ -334,7 +418,7 @@ export function EditLeadModal({
                         <input
                           type="number"
                           className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)]"
-                          value={formData.kprInterestRate || 5.5}
+                          value={formData.kprInterestRate}
                           onChange={(e) => handleInputChange('kprInterestRate', parseFloat(e.target.value))}
                           min="0"
                           max="20"
@@ -346,14 +430,8 @@ export function EditLeadModal({
                           Term
                         </label>
                         <Select
-                          options={[
-                            { value: '5', label: '5 years' },
-                            { value: '10', label: '10 years' },
-                            { value: '15', label: '15 years' },
-                            { value: '20', label: '20 years' },
-                            { value: '25', label: '25 years' },
-                          ]}
-                          value={String(formData.kprTerm || 15)}
+                          options={termOptions}
+                          value={String(formData.kprTerm)}
                           onChange={(e) => handleInputChange('kprTerm', parseInt(e.target.value))}
                         />
                       </div>
@@ -401,8 +479,8 @@ export function EditLeadModal({
                       <input
                         type="datetime-local"
                         className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
-                        value={formData.reminder?.scheduledFor?.substring(0, 16) || ''}
-                        onChange={(e) => handleReminderChange('scheduledFor', e.target.value)}
+                        value={formData.reminderScheduledFor}
+                        onChange={(e) => handleInputChange('reminderScheduledFor', e.target.value)}
                       />
                     </div>
 
@@ -415,11 +493,11 @@ export function EditLeadModal({
                         className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] resize-none"
                         rows={3}
                         maxLength={200}
-                        value={formData.reminder?.notes || ''}
-                        onChange={(e) => handleReminderChange('notes', e.target.value)}
+                        value={formData.reminderNotes}
+                        onChange={(e) => handleInputChange('reminderNotes', e.target.value)}
                       />
                       <p className="text-xs text-[var(--text-secondary)] mt-1 text-right">
-                        {formData.reminder?.notes?.length || 0}/200
+                        {formData.reminderNotes.length}/200
                       </p>
                     </div>
                   </div>

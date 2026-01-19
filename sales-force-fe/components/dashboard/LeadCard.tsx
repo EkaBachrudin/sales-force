@@ -31,16 +31,27 @@ export interface Lead {
     max: number;
     min: number;
   }
+  kpr_simulation?: KprSimulation;
   status: string;
   followUpDate?: Date | string;
   created_at: Date | string;
   source?: string;
   notes?: string;
   reminders?: ReminderData[];
-  kprPrice?: number;
+  kprPrice?: number | string;
   kprDownPayment?: number;
   interest_rate?: number;
   loan_term_years?: number;
+  property_id: string;
+}
+
+export interface KprSimulation {
+  property_price: string;
+  down_payment_percentage: string;
+  down_payment: number;
+  interest_rate: string;
+  loan_term_years: number;
+  estimated_monthly_payment: string;
 }
 
 export interface LeadCardProps {
