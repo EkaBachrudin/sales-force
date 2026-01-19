@@ -160,8 +160,11 @@ export function EditLeadModal({
       loan_term_years: formData.kprTerm || undefined,
     };
 
-    // Only include property_id if a property is selected
-    if (formData.property_id) {
+    // Handle property_id - send null if empty string to clear the property, otherwise send the value
+    // This allows users to select "No Property Selected" to remove the property association
+    if (formData.property_id === '') {
+      submitData.property_id = null;
+    } else if (formData.property_id) {
       submitData.property_id = formData.property_id;
     }
 
@@ -296,12 +299,11 @@ export function EditLeadModal({
                 </h3>
                 <div className="space-y-4">
                   <Select
-                    label="Property Type *"
+                    label="Property Type"
                     options={propertyOptions}
                     value={formData.property_id}
                     onChange={(e) => handleInputChange('property_id', e.target.value)}
                     disabled={isLoadingProperties}
-                    required
                   />
 
                   <Select

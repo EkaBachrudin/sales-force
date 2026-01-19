@@ -606,6 +606,8 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
     await client.query('BEGIN');
 
     // Update lead
+    // Special handling for property_id: if explicitly null/undefined, allow clearing it
+    // Otherwise use COALESCE to keep existing value if not provided
     const updateQuery = `
       UPDATE leads SET
         name = COALESCE($2, name),
@@ -614,7 +616,10 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
         nik = COALESCE($5, nik),
         npwp = COALESCE($6, npwp),
         source = COALESCE($7, source),
-        property_id = COALESCE($8, property_id),
+        property_id = CASE
+          WHEN $8::uuid IS NULL THEN NULL
+          ELSE COALESCE($8::uuid, property_id)
+        END,
         budget_range = COALESCE($9, budget_range),
         status = COALESCE($10, status),
         notes = COALESCE($11, notes),
