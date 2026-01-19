@@ -172,7 +172,7 @@ export function LeadDetailPanel({
                   <span className="font-medium text-sm">{formatPhone(lead.phone)}</span>
                 </a>
               </div>
-              <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="sm" className="shadow-sm">
+              <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="lg" className="shadow-sm">
                 {stageOptions.find((s) => s.value === lead.status)?.label}
               </Badge>
             </div>
@@ -263,42 +263,6 @@ export function LeadDetailPanel({
               </div>
             </div>
           </section>
-          )}
-
-          {/* Reminder */}
-          {lead.reminder?.scheduledFor && (
-            <section aria-labelledby="reminder-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
-              <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
-                </div>
-                <h3 id="reminder-heading" className="text-sm sm:text-base font-semibold text-amber-900">
-                  Reminder
-                </h3>
-              </div>
-              <div className="bg-white/80 backdrop-blur rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                  <span className="text-xs sm:text-sm text-slate-600">Dijadwalkan:</span>
-                  <time
-                    className="text-xs sm:text-sm font-semibold text-slate-900 bg-amber-100 px-2 sm:px-3 py-1 rounded-full"
-                    dateTime={lead.reminder.scheduledFor}
-                  >
-                    {new Date(lead.reminder.scheduledFor).toLocaleString('id-ID', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </time>
-                </div>
-                {lead.reminder.notes && (
-                  <div className="pt-2 sm:pt-3 border-t border-amber-200">
-                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{lead.reminder.notes}</p>
-                  </div>
-                )}
-              </div>
-            </section>
           )}
 
           {/* KPR Simulation */}
@@ -433,6 +397,46 @@ export function LeadDetailPanel({
               </Button>
             </div>
           </section>
+
+           {/* Reminder */}
+          {lead.reminders && lead.reminders.length > 0 && (
+            <section aria-labelledby="reminder-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+                </div>
+                <h3 id="reminder-heading" className="text-sm sm:text-base font-semibold text-amber-900">
+                  Reminder
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {lead.reminders.map((reminder, index) => (
+                  <div key={reminder.id || index} className="bg-white/80 backdrop-blur rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                      <span className="text-xs sm:text-sm text-slate-600">Dijadwalkan:</span>
+                      <time
+                        className="text-xs sm:text-sm font-semibold text-slate-900 bg-amber-100 px-2 sm:px-3 py-1 rounded-full"
+                        dateTime={reminder.remind_at}
+                      >
+                        {new Date(reminder.remind_at).toLocaleString('id-ID', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </time>
+                    </div>
+                    {reminder.message && (
+                      <div className="pt-2 sm:pt-3 border-t border-amber-200">
+                        <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{reminder.message}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Notes Section */}
           {lead.note && (

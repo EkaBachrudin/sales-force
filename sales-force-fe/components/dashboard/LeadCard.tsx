@@ -6,7 +6,13 @@ import { Badge } from '@/components/ui/Badge';
 import { cn, formatCurrency, formatPhone, formatRelativeTime } from '@/lib/utils';
 
 export interface ReminderData {
-  scheduledFor?: string;
+  id: string;
+  user_id: string;
+  lead_id: string;
+  remind_at: string;
+  message: string;
+  is_completed: string;
+  created_at: string;
   notes?: string;
 }
 
@@ -30,7 +36,7 @@ export interface Lead {
   created_at: Date | string;
   source?: string;
   note?: string;
-  reminder?: ReminderData;
+  reminders?: ReminderData[];
   kprPrice?: number;
   kprDownPayment?: number;
   interest_rate?: number;
