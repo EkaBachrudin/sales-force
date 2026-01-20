@@ -94,6 +94,12 @@ export default function AnalyticsPage() {
             isPositive: metrics.conversion_rate.trend.is_positive,
             label: metrics.conversion_rate.trend.label,
           }}
+          tooltip={{
+            title: 'Conversion Rate',
+            description: 'Persentase lead yang berhasil closing dari total lead yang masuk.',
+            meaning: `Dari ${funnel.total} lead, hanya ${Math.round((metrics.conversion_rate.value / 100) * funnel.total)} yang closing (${metrics.conversion_rate.value}%)`,
+            benefit: 'Mengukur efektivitas tim sales dalam mengubah lead menjadi customer',
+          }}
         />
         <ConversionMetricCard
           label="Avg Time to Close"
@@ -103,6 +109,12 @@ export default function AnalyticsPage() {
             value: metrics.avg_time_to_close.trend.value,
             isPositive: metrics.avg_time_to_close.trend.is_positive,
             label: metrics.avg_time_to_close.trend.label,
+          }}
+          tooltip={{
+            title: 'Average Time to Close',
+            description: 'Rata-rata waktu yang dibutuhkan dari lead pertama kali masuk sampai closing.',
+            meaning: `Butuh ~${metrics.avg_time_to_close.value} hari untuk mengubah lead menjadi customer`,
+            benefit: 'Semakin cepat = semakin efisien proses sales. Bisa identifikasi bottleneck di funnel',
           }}
         />
         <ConversionMetricCard
@@ -114,6 +126,12 @@ export default function AnalyticsPage() {
             isPositive: metrics.response_time.trend.is_positive,
             label: metrics.response_time.trend.label,
           }}
+          tooltip={{
+            title: 'Response Time',
+            description: 'Rata-rata waktu respons tim sales setelah lead masuk.',
+            meaning: `Berapa jam tim sales merespon lead baru: ${metrics.response_time.value} jam`,
+            benefit: 'Respons cepat = peluang closing lebih tinggi. SLA untuk tim sales',
+          }}
         />
         <ConversionMetricCard
           label="Follow-up Rate"
@@ -123,6 +141,12 @@ export default function AnalyticsPage() {
             value: metrics.follow_up_rate.trend.value,
             isPositive: metrics.follow_up_rate.trend.is_positive,
             label: metrics.follow_up_rate.trend.label,
+          }}
+          tooltip={{
+            title: 'Follow-up Rate',
+            description: 'Persentase lead yang di-follow up oleh tim sales.',
+            meaning: `Dari ${funnel.total} lead, ${Math.round((metrics.follow_up_rate.value / 100) * funnel.total)} lead sudah dikontak`,
+            benefit: 'Mengukur keaktifan tim sales dalam menghubungi prospek',
           }}
         />
       </div>
