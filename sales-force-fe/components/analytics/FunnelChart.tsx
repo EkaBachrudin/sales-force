@@ -31,7 +31,7 @@ export function FunnelChart({ data, total, className }: FunnelChartProps) {
 
       <div className="h-64 w-full">
         <RechartsBarChart
-          width={800}
+          width="100%"
           height={256}
           data={chartData}
           layout="vertical"
