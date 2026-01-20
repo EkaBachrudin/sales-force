@@ -27,11 +27,8 @@ INSERT INTO leads (
     updated_at
 )
 SELECT
-    -- assigned_to: 70% memiliki assigned_to, 30% null
-    CASE
-        WHEN RANDOM() < 0.7 THEN (SELECT id FROM users ORDER BY RANDOM() LIMIT 1)
-        ELSE NULL
-    END,
+    -- assigned_to: 100% memiliki assigned_to
+    (SELECT id FROM users ORDER BY RANDOM() LIMIT 1),
     -- property_id: sesuai request, antara 3 UUID yang diberikan atau null
     CASE
         WHEN RANDOM() < 0.25 THEN '01c85fce-ebb4-46f0-8a7f-d8eaf0beeee1'::UUID
