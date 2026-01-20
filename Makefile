@@ -51,7 +51,7 @@ dev:
 
 dev-nginx:
 	@echo "Starting development with nginx..."
-	docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml --profile nginx up
+	docker compose --env-file .env.devnginx -f docker-compose.yml -f docker-compose.dev.yml --profile nginx up
 
 dev-build:
 	@echo "Building development containers..."
