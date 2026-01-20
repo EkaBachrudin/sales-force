@@ -535,3 +535,65 @@ export interface UpdateReminderDto {
   remind_at?: Date;
   message?: string;
 }
+
+// Analytics Types
+export type AnalyticsPeriod = 'today' | 'week' | 'month' | 'year';
+export type AnalyticsCompareWith = 'previous_period' | 'last_year';
+
+export interface MetricTrend {
+  value: string;
+  is_positive: boolean;
+  label: string;
+}
+
+export interface Metric {
+  value: number;
+  unit: string;
+  trend: MetricTrend;
+}
+
+export interface AnalyticsMetricsResponse {
+  conversion_rate: Metric;
+  avg_time_to_close: Metric;
+  response_time: Metric;
+  follow_up_rate: Metric;
+}
+
+export interface FunnelStage {
+  stage: string;
+  count: number;
+  label: string;
+  color: string;
+}
+
+export interface AnalyticsFunnelResponse {
+  funnel: FunnelStage[];
+  total: number;
+}
+
+export interface TrendDataPoint {
+  month: string;
+  closings: number;
+}
+
+export interface AnalyticsTrendResponse {
+  trend: TrendDataPoint[];
+}
+
+export interface SourceBreakdown {
+  source: string;
+  count: number;
+  color: string;
+}
+
+export interface AnalyticsSourcesResponse {
+  sources: SourceBreakdown[];
+  total: number;
+}
+
+export interface AnalyticsDashboardResponse {
+  metrics: AnalyticsMetricsResponse;
+  funnel: AnalyticsFunnelResponse;
+  trend: AnalyticsTrendResponse;
+  sources: AnalyticsSourcesResponse;
+}
