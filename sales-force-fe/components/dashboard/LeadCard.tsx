@@ -38,7 +38,7 @@ export interface Lead {
   source?: string;
   notes?: string;
   reminders?: ReminderData[];
-  kprPrice?: number | string;
+  kprPrice?: number;
   kprDownPayment?: number;
   interest_rate?: number;
   loan_term_years?: number;

@@ -3,6 +3,7 @@ import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  turbopack: {}, // Silences the Turbopack warning
 };
 
 export default withPWA({

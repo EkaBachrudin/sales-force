@@ -137,7 +137,7 @@ export function LeadDetailPanel({
   if (!lead) return null;
 
   // Calculate KPR simulation
-  const propertyPrice = parseFloat(lead.kpr_simulation?.property_price || '0');
+  const propertyPrice = lead.kpr_simulation?.property_price || 0;
   const downPayment = lead.kpr_simulation?.down_payment || 0;
   const loanAmount = propertyPrice - downPayment;
   const interestRate = lead.kpr_simulation ? lead.kpr_simulation?.interest_rate : 0;

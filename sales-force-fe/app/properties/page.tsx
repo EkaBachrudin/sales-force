@@ -5,7 +5,7 @@ import { Search, Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Property, CreatePropertyDto, UpdatePropertyDto } from '@/lib/types';
+import { Property, CreatePropertyDto } from '@/lib/types';
 import { useProperties, usePropertyMutations } from '@/hooks/useProperties';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +21,7 @@ const propertyTypeExamples = [
 interface PropertyModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreatePropertyDto | UpdatePropertyDto) => Promise<void>;
+  onSubmit: (data: { name: string; property_type: string }) => Promise<void>;
   property?: Property;
   isLoading: boolean;
 }
@@ -179,7 +179,6 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
           <div className="flex gap-3 pt-4">
             <Button
               type="button"
-              variant="outline"
               onClick={handleClose}
               className="flex-1"
               disabled={isLoading}
@@ -229,7 +228,6 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, propertyName, isLoadin
 
         <div className="flex gap-3">
           <Button
-            variant="outline"
             onClick={onClose}
             className="flex-1"
             disabled={isLoading}
@@ -287,7 +285,7 @@ export default function PropertiesPage() {
     await createProperty(data);
   };
 
-  const handleUpdateProperty = async (data: UpdatePropertyDto) => {
+  const handleUpdateProperty = async (data: { name: string; property_type: string }) => {
     if (!editingProperty) return;
     await updateProperty({ id: editingProperty.id, data });
   };

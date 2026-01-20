@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation';
 // import { KanbanBoard } from '@/components/dashboard/KanbanBoard';
 // import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
 // import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { mockLeads } from '@/lib/mockData';
 import { Lead } from '@/lib/types';
 
 export default function PipelinePage() {

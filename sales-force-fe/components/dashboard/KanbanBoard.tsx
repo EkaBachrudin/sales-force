@@ -57,7 +57,7 @@ export function KanbanBoard({ leads, onLeadClick, className }: KanbanBoardProps)
     id: stage as PipelineStage,
     label: config.label,
     color: config.color,
-    leads: leads.filter((lead) => lead.stage === stage),
+    leads: leads.filter((lead) => lead.status === stage),
   }));
 
   const handleDragStart = (lead: Lead) => {
