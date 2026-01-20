@@ -21,7 +21,6 @@ export interface AuthTokens {
 
 export interface LoginResult {
   user: {
-    id: string;
     full_name: string;
     email: string;
     role: UserRole;
@@ -187,7 +186,6 @@ export const login = async (dto: LoginDto, ipAddress: string, userAgent: string)
 
     return {
       user: {
-        id: user.id,
         full_name: user.full_name,
         email: user.email,
         role: user.role,
