@@ -23,6 +23,19 @@ export function TrendChart({
   className,
 }: TrendChartProps) {
   const getValue = (d: TrendDataPoint) => d.value ?? d.closings ?? 0;
+
+  // Handle edge case: empty or single-point data
+  if (data.length === 0) {
+    return (
+      <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
+        <h3 className="text-base font-semibold text-[var(--text-primary)] mb-6">
+          {title}
+        </h3>
+        <p className="text-sm text-[var(--text-secondary)]">No data available</p>
+      </div>
+    );
+  }
+
   const maxValue = Math.max(...data.map((d) => getValue(d)));
   const minValue = Math.min(...data.map((d) => getValue(d)));
   const range = maxValue - minValue || 1;
@@ -33,7 +46,8 @@ export function TrendChart({
   const padding = 5;
 
   const points = data.map((point, index) => {
-    const x = (index / (data.length - 1)) * (width - 2 * padding) + padding;
+    // Handle single data point case
+    const x = data.length === 1 ? width / 2 : (index / (data.length - 1)) * (width - 2 * padding) + padding;
     const normalizedValue = (getValue(point) - minValue) / range;
     const y = height - padding - normalizedValue * (height - 2 * padding);
     return { x, y, value: getValue(point), month: point.month };
@@ -71,32 +85,38 @@ export function TrendChart({
           ))}
 
           {/* Area under the line */}
-          <path
-            d={`${pathD} L ${points[points.length - 1].x} 100 L ${points[0].x} 100 Z`}
-            fill={color}
-            fillOpacity="0.1"
-          />
+          {points.length > 0 && (
+            <path
+              d={`${pathD} L ${points[points.length - 1].x} 100 L ${points[0].x} 100 Z`}
+              fill={color}
+              fillOpacity="0.1"
+            />
+          )}
 
           {/* Line */}
-          <path
-            d={pathD}
-            fill="none"
-            stroke={color}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          {points.length > 1 && (
+            <path
+              d={pathD}
+              fill="none"
+              stroke={color}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          )}
 
           {/* Data points */}
           {points.map((point, index) => (
             <g key={index}>
-              <circle
-                cx={point.x}
-                cy={point.y}
-                r="2.5"
-                fill={color}
-                className="hover:r-3 transition-all cursor-pointer"
-              />
+              {!isNaN(point.x) && !isNaN(point.y) && (
+                <circle
+                  cx={point.x}
+                  cy={point.y}
+                  r="2.5"
+                  fill={color}
+                  className="hover:r-3 transition-all cursor-pointer"
+                />
+              )}
               {/* Tooltip on hover would be implemented here */}
             </g>
           ))}
