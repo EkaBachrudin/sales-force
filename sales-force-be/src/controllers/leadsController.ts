@@ -33,8 +33,17 @@ export const getLeadsController = async (req: Request, res: Response): Promise<v
     sort_by: req.query.sort_by as any,
     sort_order: req.query.sort_order as any,
   };
+  const userId = req.user?.sub;
 
-  const result = await getLeads(query);
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+    });
+    return;
+  }
+
+  const result = await getLeads(query, userId);
 
   res.status(200).json({
     success: true,
@@ -47,8 +56,17 @@ export const getLeadsController = async (req: Request, res: Response): Promise<v
  */
 export const getLeadDetailController = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
+  const userId = req.user?.sub;
 
-  const result = await getLeadDetail(id as string);
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+    });
+    return;
+  }
+
+  const result = await getLeadDetail(id as string, userId);
 
   res.status(200).json({
     success: true,

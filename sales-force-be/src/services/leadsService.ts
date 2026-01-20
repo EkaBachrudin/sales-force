@@ -76,8 +76,10 @@ const validateNPWP = (npwp?: string): boolean => {
 
 /**
  * GET /api/v1/leads - List Leads with Pagination & Filters
+ * @param query - Query parameters for filtering and pagination
+ * @param userId - The ID of the user to get leads for
  */
-export const getLeads = async (query: GetLeadsQuery): Promise<{
+export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
   leads: CrmLeadListItem[];
   pagination: {
     page: number;
@@ -99,10 +101,10 @@ export const getLeads = async (query: GetLeadsQuery): Promise<{
     sort_order = 'desc',
   } = query;
 
-  // Build WHERE conditions
-  const conditions: string[] = [];
-  const params: any[] = [];
-  let paramIndex = 1;
+  // Build WHERE conditions - always filter by assigned user
+  const params: any[] = [userId];
+  let paramIndex = 2;
+  const conditions: string[] = [`l.assigned_to = $1`];
 
   // Default date range: 1 year ago to today
   const defaultStartDate = new Date();
@@ -223,9 +225,11 @@ export const getLeads = async (query: GetLeadsQuery): Promise<{
 
 /**
  * GET /api/v1/leads/:id - Get Lead Detail
+ * @param leadId - The ID of the lead to get details for
+ * @param userId - The ID of the user requesting the lead details
  */
-export const getLeadDetail = async (leadId: string): Promise<LeadDetailResponse> => {
-  // Get lead details
+export const getLeadDetail = async (leadId: string, userId: string): Promise<LeadDetailResponse> => {
+  // Get lead details - also filter by assigned user
   const leadQuery = `
     SELECT
       l.*,
@@ -239,10 +243,10 @@ export const getLeadDetail = async (leadId: string): Promise<LeadDetailResponse>
     FROM leads l
     LEFT JOIN users u ON l.assigned_to = u.id
     LEFT JOIN properties p ON l.property_id = p.id
-    WHERE l.id = $1
+    WHERE l.id = $1 AND l.assigned_to = $2
   `;
 
-  const leadResult = await pool.query(leadQuery, [leadId]);
+  const leadResult = await pool.query(leadQuery, [leadId, userId]);
 
   if (leadResult.rows.length === 0) {
     throw new AppError('Lead not found', 404);
