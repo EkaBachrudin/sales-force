@@ -6,26 +6,77 @@ import { ConversionMetricCard } from '@/components/analytics/ConversionMetricCar
 import { FunnelChart } from '@/components/analytics/FunnelChart';
 import { TrendChart } from '@/components/analytics/TrendChart';
 import { DoughnutChart } from '@/components/analytics/DoughnutChart';
-import {
-  mockMetrics,
-  mockFunnelData,
-  mockTrendData,
-  mockSourceData,
-  stageColors,
-  stageLabels,
-} from '@/lib/mockData';
+import { useAnalyticsDashboard } from '@/hooks/useAnalytics';
 
 export default function AnalyticsPage() {
-  // Calculate funnel data with colors
-  const funnelData = mockFunnelData.map((item) => ({
-    label: stageLabels[item.stage],
+  const { data: dashboardData, isLoading, error } = useAnalyticsDashboard(
+    {
+      period: 'month',
+      trend_months: 6,
+    },
+    true
+  );
+
+  if (isLoading) {
+    return (
+      <DashboardLayout
+        title="Analytics"
+        subtitle="Track your sales performance and metrics"
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout
+        title="Analytics"
+        subtitle="Track your sales performance and metrics"
+      >
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">Failed to load analytics data. Please try again later.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <DashboardLayout
+        title="Analytics"
+        subtitle="Track your sales performance and metrics"
+      >
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <p className="text-gray-800">No analytics data available.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const { metrics, funnel, trend, sources } = dashboardData;
+
+  // Transform funnel data for chart
+  const funnelData = funnel.funnel.map((item) => ({
+    label: item.label,
     count: item.count,
-    color: stageColors[item.stage],
+    color: item.color,
   }));
 
-  // Calculate total conversions
-  const totalLeads = funnelData.reduce((sum, item) => sum + item.count, 0);
-  const conversionRate = ((funnelData[4].count / totalLeads) * 100).toFixed(1);
+  // Transform trend data for chart
+  const trendData = trend.trend.map((item) => ({
+    month: item.month,
+    closings: item.closings,
+  }));
+
+  // Transform sources data for chart
+  const sourceData = sources.sources.map((item) => ({
+    source: item.source,
+    count: item.count,
+    color: item.color,
+  }));
 
   return (
     <DashboardLayout
@@ -36,46 +87,59 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <ConversionMetricCard
           label="Conversion Rate"
-          value={conversionRate}
-          unit="%"
-          trend={{ value: '2.3', isPositive: true, label: 'vs last month' }}
+          value={metrics.conversion_rate.value.toString()}
+          unit={metrics.conversion_rate.unit}
+          trend={{
+            value: metrics.conversion_rate.trend.value,
+            isPositive: metrics.conversion_rate.trend.is_positive,
+            label: metrics.conversion_rate.trend.label,
+          }}
         />
         <ConversionMetricCard
           label="Avg Time to Close"
-          value="18"
-          unit="days"
-          trend={{ value: '3', isPositive: true, label: 'days faster' }}
+          value={metrics.avg_time_to_close.value.toString()}
+          unit={metrics.avg_time_to_close.unit}
+          trend={{
+            value: metrics.avg_time_to_close.trend.value,
+            isPositive: metrics.avg_time_to_close.trend.is_positive,
+            label: metrics.avg_time_to_close.trend.label,
+          }}
         />
         <ConversionMetricCard
           label="Response Time"
-          value="4.2"
-          unit="hrs"
-          trend={{ value: '1.1', isPositive: true, label: 'hrs faster' }}
+          value={metrics.response_time.value.toString()}
+          unit={metrics.response_time.unit}
+          trend={{
+            value: metrics.response_time.trend.value,
+            isPositive: metrics.response_time.trend.is_positive,
+            label: metrics.response_time.trend.label,
+          }}
         />
         <ConversionMetricCard
           label="Follow-up Rate"
-          value="82"
-          unit="%"
-          trend={{ value: '5', isPositive: true, label: '% increase' }}
+          value={metrics.follow_up_rate.value.toString()}
+          unit={metrics.follow_up_rate.unit}
+          trend={{
+            value: metrics.follow_up_rate.trend.value,
+            isPositive: metrics.follow_up_rate.trend.is_positive,
+            label: metrics.follow_up_rate.trend.label,
+          }}
         />
       </div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Lead Funnel */}
-        <FunnelChart data={funnelData} total={totalLeads} />
+        <FunnelChart data={funnelData} total={funnel.total} />
 
         {/* Monthly Closing Trend */}
-        <TrendChart
-          data={mockTrendData}
-          title="Monthly Closing Trend"
-        />
+        <TrendChart data={trendData} title="Monthly Closing Trend" />
 
         {/* Source Breakdown */}
         <DoughnutChart
-          data={mockSourceData}
+          data={sourceData}
           title="Source Breakdown"
-          centerText={String(totalLeads)}
+          centerText={String(sources.total)}
           centerSubtext="Total Leads"
         />
       </div>

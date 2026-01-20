@@ -532,4 +532,124 @@ export const api = {
 
     return data;
   },
+
+  // Analytics API
+  getAnalyticsMetrics: async (params?: {
+    period?: 'today' | 'week' | 'month' | 'year';
+    compare_with?: 'previous_period' | 'last_year';
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.period) queryParams.append('period', params.period);
+    if (params?.compare_with) queryParams.append('compare_with', params.compare_with);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/analytics/metrics${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error || data.message || 'Failed to fetch analytics metrics', response.status);
+    }
+
+    return data;
+  },
+
+  getAnalyticsFunnel: async (params?: {
+    period?: 'today' | 'week' | 'month' | 'year';
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.period) queryParams.append('period', params.period);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/analytics/funnel${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error || data.message || 'Failed to fetch analytics funnel', response.status);
+    }
+
+    return data;
+  },
+
+  getAnalyticsTrend: async (params?: {
+    months?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.months) queryParams.append('months', params.months.toString());
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/analytics/trend${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error || data.message || 'Failed to fetch analytics trend', response.status);
+    }
+
+    return data;
+  },
+
+  getAnalyticsSources: async (params?: {
+    period?: 'today' | 'week' | 'month' | 'year';
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.period) queryParams.append('period', params.period);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/analytics/sources${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error || data.message || 'Failed to fetch analytics sources', response.status);
+    }
+
+    return data;
+  },
+
+  getAnalyticsDashboard: async (params?: {
+    period?: 'today' | 'week' | 'month' | 'year';
+    trend_months?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.period) queryParams.append('period', params.period);
+    if (params?.trend_months) queryParams.append('trend_months', params.trend_months.toString());
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/analytics/dashboard${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error || data.message || 'Failed to fetch analytics dashboard', response.status);
+    }
+
+    return data;
+  },
 };

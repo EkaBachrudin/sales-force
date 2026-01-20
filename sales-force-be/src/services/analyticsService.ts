@@ -3,7 +3,6 @@ import { AppError } from '../utils/AppError';
 import {
   AnalyticsPeriod,
   AnalyticsCompareWith,
-  Metric,
   MetricTrend,
   FunnelStage,
   TrendDataPoint,
@@ -13,6 +12,7 @@ import {
   AnalyticsTrendResponse,
   AnalyticsSourcesResponse,
   AnalyticsDashboardResponse,
+  CrmLeadStatus,
 } from '../types';
 
 // Color constants for funnel stages
@@ -55,11 +55,12 @@ const FUNNEL_LABELS: Record<string, string> = {
 function getDateRange(period: AnalyticsPeriod, compareWith?: AnalyticsCompareWith): { current: Date; previous?: Date } {
   const now = new Date();
   let currentStart: Date;
-  let previousStart?: Date;
+  let previousStart: Date | undefined;
 
   switch (period) {
     case 'today':
-      currentStart = new Date(now.setHours(0, 0, 0, 0));
+      currentStart = new Date();
+      currentStart.setHours(0, 0, 0, 0);
       if (compareWith === 'previous_period') {
         previousStart = new Date(currentStart);
         previousStart.setDate(previousStart.getDate() - 1);
@@ -110,7 +111,9 @@ function getDateRangeEnd(period: AnalyticsPeriod, startDate: Date): Date {
   const now = new Date();
   switch (period) {
     case 'today':
-      return new Date(now.setHours(23, 59, 59, 999));
+      const endOfDay = new Date(now);
+      endOfDay.setHours(23, 59, 59, 999);
+      return endOfDay;
     case 'week':
       const weekEnd = new Date(startDate);
       weekEnd.setDate(weekEnd.getDate() + 6);
@@ -297,7 +300,7 @@ export const getAnalyticsMetrics = async (
       value: Math.round(currentResponseTime * 10) / 10,
       unit: 'hrs',
       trend: {
-        value: Math.round(Math.abs(currentResponseTime - previousResponseTime) * 10) / 10.toString(),
+        value: (Math.round(Math.abs(currentResponseTime - previousResponseTime) * 10) / 10).toString(),
         is_positive: currentResponseTime <= previousResponseTime,
         label: `${Math.round(Math.abs(currentResponseTime - previousResponseTime) * 10) / 10} hrs faster`,
       },
@@ -355,7 +358,14 @@ export const getAnalyticsFunnel = async (
   }));
 
   // Ensure all stages are included even if count is 0
-  const allStages: CrmLeadStatus[] = ['new', 'contacted', 'surveyed', 'negotiating', 'closed', 'cancelled'];
+  const allStages: CrmLeadStatus[] = [
+    CrmLeadStatus.NEW,
+    CrmLeadStatus.CONTACTED,
+    CrmLeadStatus.SURVEYED,
+    CrmLeadStatus.NEGOTIATING,
+    CrmLeadStatus.CLOSED,
+    CrmLeadStatus.CANCELLED,
+  ];
   const completeFunnel: FunnelStage[] = allStages.map((stage) => {
     const existing = funnel.find((f) => f.stage === stage);
     return (
