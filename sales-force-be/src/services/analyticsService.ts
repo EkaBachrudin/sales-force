@@ -27,16 +27,15 @@ const FUNNEL_COLORS: Record<string, string> = {
 
 // Color constants for sources
 const SOURCE_COLORS: Record<string, string> = {
-  Website: '#2563EB',
-  Instagram: '#EC4899',
-  Facebook: '#3B82F6',
-  WhatsApp: '#10B981',
-  Referral: '#F59E0B',
-  landing_page: '#2563EB',
+  website: '#2563EB',
+  instagram: '#EC4899',
+  facebook: '#3B82F6',
   whatsapp: '#10B981',
+  referral: '#F59E0B',
+  landing_page: '#2563EB',
   manual: '#F59E0B',
   visit: '#8B5CF6',
-  Other: '#6B7280',
+  other: '#6B7280',
 };
 
 // Label constants for funnel stages
@@ -454,7 +453,7 @@ export const getAnalyticsSources = async (
   const sources: SourceBreakdown[] = sourcesResult.rows.map((row) => ({
     source: row.source.charAt(0).toUpperCase() + row.source.slice(1).toLowerCase(),
     count: parseInt(row.count, 10),
-    color: SOURCE_COLORS[row.source.toLowerCase()] || SOURCE_COLORS['Other'] || '#6B7280',
+    color: SOURCE_COLORS[row.source.toLowerCase()] || SOURCE_COLORS['other'] || '#6B7280',
   }));
 
   const total = sources.reduce((sum, source) => sum + source.count, 0);
