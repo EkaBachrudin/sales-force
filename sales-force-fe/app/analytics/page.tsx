@@ -78,29 +78,6 @@ export default function AnalyticsPage() {
           centerText={String(totalLeads)}
           centerSubtext="Total Leads"
         />
-
-        {/* Additional chart placeholder */}
-        <div className="bg-white rounded-xl border border-[var(--border)] p-6">
-          <h3 className="text-base font-semibold text-[var(--text-primary)] mb-4">
-            Stage Duration
-          </h3>
-          <div className="space-y-4">
-            {funnelData.slice(0, -1).map((stage, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: stage.color }}
-                  />
-                  <span className="text-sm text-[var(--text-primary)]">{stage.label}</span>
-                </div>
-                <span className="text-sm font-medium text-[var(--text-primary)]">
-                  {Math.floor(Math.random() * 5 + 2)} days avg
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </DashboardLayout>
   );
