@@ -144,7 +144,7 @@ export function EditLeadModal({
     // The actual API supports more fields than the Lead interface defines
     const submitData: any = {
       name: formData.name,
-      phone: formData.phone,
+      phone: formData.phone.replace(/\D/g, ''),
       email: formData.email || undefined,
       nik: formData.nik || undefined,
       npwp: formData.npwp || undefined,
@@ -196,6 +196,15 @@ export function EditLeadModal({
     return new Intl.NumberFormat('id-ID').format(value);
   };
 
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 4) return numbers;
+    if (numbers.length <= 8) return `${numbers.slice(0, 4)}-${numbers.slice(4)}`;
+    if (numbers.length <= 12) return `${numbers.slice(0, 4)}-${numbers.slice(4, 8)}-${numbers.slice(8, 12)}`;
+    if (numbers.length <= 16) return `${numbers.slice(0, 4)}-${numbers.slice(4, 8)}-${numbers.slice(8, 12)}-${numbers.slice(12, 16)}`;
+    return `${numbers.slice(0, 4)}-${numbers.slice(4, 8)}-${numbers.slice(8, 12)}-${numbers.slice(12, 16)}-${numbers.slice(16, 20)}`;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -241,9 +250,9 @@ export function EditLeadModal({
 
                   <Input
                     label="Phone *"
-                    placeholder="+62 812-3456-7890"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="0812-3456-7890"
+                    value={formatPhoneNumber(formData.phone)}
+                    onChange={(e) => handleInputChange('phone', e.target.value.replace(/\D/g, ''))}
                     required
                   />
 

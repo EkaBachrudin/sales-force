@@ -112,10 +112,15 @@ export function NewLeadModal({
   const [showKprCalculator, setShowKprCalculator] = useState(false);
   const [kprResult, setKprResult] = useState<number | null>(null);
   const [showReminderForm, setShowReminderForm] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
 
   const handleInputChange = (field: keyof LeadFormData, value: string | number) => {
     console.log('[field]', field, '[value]', value)
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (field === 'name' || field === 'phone') {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const handleReminderChange = (field: keyof ReminderData, value: string) => {
@@ -149,10 +154,29 @@ export function NewLeadModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate mandatory fields
+    const newErrors: { name?: string; phone?: string } = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (!phoneDigits) {
+      newErrors.phone = 'Phone number is required';
+    } else if (phoneDigits.length < 10) {
+      newErrors.phone = 'Phone number must be at least 10 digits';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     // Transform formData to match backend API format
     const submitData: NewLeadData = {
       name: formData.name,
-      phone: formData.phone,
+      phone: formData.phone.replace(/\D/g, ''),
       email: formData.email,
       nik: formData.nik,
       npwp: formData.npwp,
@@ -186,6 +210,15 @@ export function NewLeadModal({
 
   const formatCurrencyInput = (value: number) => {
     return new Intl.NumberFormat('id-ID').format(value);
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 4) return numbers;
+    if (numbers.length <= 8) return `${numbers.slice(0, 4)}-${numbers.slice(4)}`;
+    if (numbers.length <= 12) return `${numbers.slice(0, 4)}-${numbers.slice(4, 8)}-${numbers.slice(8, 12)}`;
+    if (numbers.length <= 16) return `${numbers.slice(0, 4)}-${numbers.slice(4, 8)}-${numbers.slice(8, 12)}-${numbers.slice(12, 16)}`;
+    return `${numbers.slice(0, 4)}-${numbers.slice(4, 8)}-${numbers.slice(8, 12)}-${numbers.slice(12, 16)}-${numbers.slice(16, 20)}`;
   };
 
   if (!isOpen) return null;
@@ -228,15 +261,16 @@ export function NewLeadModal({
                     placeholder="Enter lead name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
+                    error={errors.name}
                     required
                   />
 
                   <Input
                     label="Phone *"
-                    placeholder="+62 812-3456-7890"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    leftIcon={<span className="text-sm text-gray-400">+62</span>}
+                    placeholder="0812-3456-7890"
+                    value={formatPhoneNumber(formData.phone)}
+                    onChange={(e) => handleInputChange('phone', e.target.value.replace(/\D/g, ''))}
+                    error={errors.phone}
                     required
                   />
 
