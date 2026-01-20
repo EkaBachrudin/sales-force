@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { Cell, Pie, PieChart as RechartsPieChart } from 'recharts';
 import { cn } from '@/lib/utils';
 
 export interface DoughnutSegment {
@@ -28,39 +28,12 @@ export function DoughnutChart({
 }: DoughnutChartProps) {
   const total = data.reduce((sum, segment) => sum + (segment.value ?? segment.count ?? 0), 0);
 
-  // Calculate SVG segments
-  let currentAngle = 0;
-  const segments = data.map((segment) => {
-    const segmentValue = segment.value ?? segment.count ?? 0;
-    const percentage = segmentValue / total;
-    const angle = percentage * 360;
-
-    // Convert to radians and calculate coordinates
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + angle;
-
-    const startX = 50 + 40 * Math.cos((startAngle - 90) * Math.PI / 180);
-    const startY = 50 + 40 * Math.sin((startAngle - 90) * Math.PI / 180);
-    const endX = 50 + 40 * Math.cos((endAngle - 90) * Math.PI / 180);
-    const endY = 50 + 40 * Math.sin((endAngle - 90) * Math.PI / 180);
-
-    const largeArcFlag = angle > 180 ? 1 : 0;
-
-    const pathData = `
-      M 50 50
-      L ${startX} ${startY}
-      A 40 40 0 ${largeArcFlag} 1 ${endX} ${endY}
-      Z
-    `;
-
-    currentAngle += angle;
-
-    return {
-      ...segment,
-      pathData,
-      percentage: (percentage * 100).toFixed(1),
-    };
-  });
+  // Transform data for Recharts
+  const chartData = data.map((segment, index) => ({
+    name: segment.label ?? segment.source ?? `source-${index}`,
+    value: segment.value ?? segment.count ?? 0,
+    color: segment.color,
+  }));
 
   return (
     <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
@@ -70,23 +43,28 @@ export function DoughnutChart({
 
       <div className="flex items-center gap-8">
         {/* Chart */}
-        <div className="relative flex-shrink-0">
-          <svg viewBox="0 0 100 100" className="w-48 h-48">
-            {segments.map((segment, index) => (
-              <path
-                key={index}
-                d={segment.pathData}
-                fill={segment.color}
-                className="hover:opacity-80 transition-opacity cursor-pointer"
-              />
-            ))}
-            {/* Center cutout */}
-            <circle cx="50" cy="50" r="25" fill="white" />
-          </svg>
+        <div className="relative flex-shrink-0 w-48 h-48">
+          <RechartsPieChart width={192} height={192} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={50}
+              outerRadius={80}
+              paddingAngle={2}
+              cornerRadius={4}
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+          </RechartsPieChart>
 
-          {/* Center text */}
+          {/* Center text - absolutely positioned */}
           {centerText && (
-            <div className="absolute inset-0 flex items-center justify-center flex-col">
+            <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
               <span className="text-xl font-bold text-[var(--text-primary)]">
                 {centerText}
               </span>
@@ -101,27 +79,32 @@ export function DoughnutChart({
 
         {/* Legend */}
         <div className="flex-1 space-y-3">
-          {segments.map((segment, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: segment.color }}
-                />
-                <span className="text-sm text-[var(--text-primary)]">
-                  {segment.label ?? segment.source}
-                </span>
+          {data.map((segment, index) => {
+            const segmentValue = segment.value ?? segment.count ?? 0;
+            const percentage = total > 0 ? ((segmentValue / total) * 100).toFixed(1) : '0.0';
+
+            return (
+              <div key={index} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: segment.color }}
+                  />
+                  <span className="text-sm text-[var(--text-primary)]">
+                    {segment.label ?? segment.source}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                    {segmentValue}
+                  </span>
+                  <span className="text-xs text-[var(--text-secondary)] ml-1">
+                    ({percentage}%)
+                  </span>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-sm font-medium text-[var(--text-primary)]">
-                  {segment.value ?? segment.count}
-                </span>
-                <span className="text-xs text-[var(--text-secondary)] ml-1">
-                  ({segment.percentage}%)
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

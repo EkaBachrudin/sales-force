@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { Line, LineChart as RechartsLineChart, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
 import { cn } from '@/lib/utils';
 
 export interface TrendDataPoint {
@@ -12,20 +12,22 @@ export interface TrendDataPoint {
 export interface TrendChartProps {
   data: TrendDataPoint[];
   title?: string;
-  color?: string;
   className?: string;
 }
 
-export function TrendChart({
-  data,
-  title = 'Monthly Closing Trend',
-  color = '#2563EB',
-  className,
-}: TrendChartProps) {
-  const getValue = (d: TrendDataPoint) => d.value ?? d.closings ?? 0;
+export function TrendChart(
+  {
+    data,
+    title = 'Monthly Closing Trend',
+    className,
+  }: TrendChartProps) {
+  // Transform data to ensure proper format
+  const chartData = data.map((item) => ({
+    month: item.month,
+    closings: item.value ?? item.closings ?? 0,
+  }));
 
-  // Handle edge case: empty or single-point data
-  if (data.length === 0) {
+  if (chartData.length === 0) {
     return (
       <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
         <h3 className="text-base font-semibold text-[var(--text-primary)] mb-6">
@@ -36,30 +38,7 @@ export function TrendChart({
     );
   }
 
-  const maxValue = Math.max(...data.map((d) => getValue(d)));
-  const minValue = Math.min(...data.map((d) => getValue(d)));
-  const range = maxValue - minValue || 1;
-
-  // Calculate points for the SVG path
-  const width = 100;
-  const height = 100;
-  const padding = 5;
-
-  const points = data.map((point, index) => {
-    // Handle single data point case
-    const x = data.length === 1 ? width / 2 : (index / (data.length - 1)) * (width - 2 * padding) + padding;
-    const normalizedValue = (getValue(point) - minValue) / range;
-    const y = height - padding - normalizedValue * (height - 2 * padding);
-    return { x, y, value: getValue(point), month: point.month };
-  });
-
-  // Create SVG path string
-  const pathD = points
-    .map((point, index) => {
-      if (index === 0) return `M ${point.x} ${point.y}`;
-      return `L ${point.x} ${point.y}`;
-    })
-    .join(' ');
+  const totalClosings = chartData.reduce((sum, point) => sum + point.closings, 0);
 
   return (
     <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
@@ -67,72 +46,41 @@ export function TrendChart({
         {title}
       </h3>
 
-      <div className="relative">
-        {/* SVG Chart */}
-        <svg viewBox="0 0 100 100" className="w-full h-64 overflow-visible">
-          {/* Grid lines */}
-          {[0, 25, 50, 75, 100].map((percent) => (
-            <line
-              key={percent}
-              x1="0"
-              y1={percent}
-              x2="100"
-              y2={percent}
-              stroke="#E5E7EB"
-              strokeWidth="0.5"
-              strokeDasharray="2"
-            />
-          ))}
-
-          {/* Area under the line */}
-          {points.length > 0 && (
-            <path
-              d={`${pathD} L ${points[points.length - 1].x} 100 L ${points[0].x} 100 Z`}
-              fill={color}
-              fillOpacity="0.1"
-            />
-          )}
-
-          {/* Line */}
-          {points.length > 1 && (
-            <path
-              d={pathD}
-              fill="none"
-              stroke={color}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          )}
-
-          {/* Data points */}
-          {points.map((point, index) => (
-            <g key={index}>
-              {!isNaN(point.x) && !isNaN(point.y) && (
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r="2.5"
-                  fill={color}
-                  className="hover:r-3 transition-all cursor-pointer"
-                />
-              )}
-              {/* Tooltip on hover would be implemented here */}
-            </g>
-          ))}
-        </svg>
-
-        {/* X-axis labels */}
-        <div className="flex justify-between mt-2">
-          {data.map((point, index) => (
-            <span
-              key={index}
-              className="text-xs text-[var(--text-secondary)]"
-            >
-              {point.month}
-            </span>
-          ))}
-        </div>
+      <div className="h-64 w-full overflow-x-auto">
+        <RechartsLineChart
+          width={800}
+          height={256}
+          data={chartData}
+          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+        >
+          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#E5E7EB" />
+          <XAxis
+            dataKey="month"
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+            tickFormatter={(value) => value.slice(0, 3)}
+            className="text-xs"
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => value.toString()}
+            className="text-xs"
+          />
+          <Line
+            dataKey="closings"
+            type="monotone"
+            stroke="#3b82f6"
+            strokeWidth={2}
+            dot={{
+              fill: '#3b82f6',
+              r: 4,
+            }}
+          >
+            <LabelList dataKey="closings" position="top" className="text-xs" />
+          </Line>
+        </RechartsLineChart>
       </div>
 
       {/* Summary */}
@@ -140,7 +88,7 @@ export function TrendChart({
         <div className="flex items-center justify-between">
           <span className="text-sm text-[var(--text-secondary)]">Total Closings</span>
           <span className="text-lg font-semibold text-[var(--text-primary)]">
-            {data.reduce((sum, point) => sum + getValue(point), 0)}
+            {totalClosings}
           </span>
         </div>
       </div>
