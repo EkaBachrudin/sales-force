@@ -127,8 +127,8 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts - Full Width */}
+      <div className="space-y-6">
         {/* Lead Funnel */}
         <FunnelChart data={funnelData} total={funnel.total} />
 
