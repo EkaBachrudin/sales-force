@@ -99,7 +99,7 @@ const fetchWithInterceptor = async (input: RequestInfo | URL, init?: RequestInit
 
 export const api = {
   login: async (email: string, password: string) => {
-    const response = await fetchWithInterceptor(`${API_URL}/api/v1/auth/login`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ export const api = {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new ApiError(data.message || 'Login failed', response.status);
+      throw new ApiError(data.message || 'Invalid email or password', response.status);
     }
 
     return data;
@@ -161,7 +161,7 @@ export const api = {
   },
 
   refresh: async () => {
-    const response = await fetchWithInterceptor(`${API_URL}/api/v1/auth/refresh`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
     });
