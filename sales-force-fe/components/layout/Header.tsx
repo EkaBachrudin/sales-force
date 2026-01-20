@@ -135,12 +135,6 @@ export function Header({
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[var(--border)] py-1 z-50">
                   {/* Menu Items */}
                   <div className="py-1">
-                    <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-gray-50 transition-colors">
-                      <User className="w-4 h-4 text-gray-500" />
-                      <span>Profile</span>
-                    </button>
-
-                    <div className="border-t border-[var(--border)] my-1" />
 
                     <button
                       onClick={handleLogout}
