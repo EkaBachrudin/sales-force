@@ -5,8 +5,10 @@ import { Settings as SettingsIcon, User, Bell, Shield, Palette } from 'lucide-re
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function SettingsPage() {
+  const { user, isLoading } = useAuth();
   return (
     <DashboardLayout
       title="Settings"
@@ -21,10 +23,10 @@ export default function SettingsPage() {
             </div>
             <div>
               <h3 className="text-base font-semibold text-[var(--text-primary)]">
-                Profile Settings
+                Profile Information
               </h3>
               <p className="text-sm text-[var(--text-secondary)]">
-                Update your personal information
+                Your personal information
               </p>
             </div>
           </div>
@@ -32,19 +34,25 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
               <div>
                 <p className="text-sm font-medium text-[var(--text-primary)]">Name</p>
-                <p className="text-sm text-[var(--text-secondary)]">John Doe</p>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {isLoading ? 'Loading...' : user?.full_name || '-'}
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
               <div>
                 <p className="text-sm font-medium text-[var(--text-primary)]">Email</p>
-                <p className="text-sm text-[var(--text-secondary)]">john.doe@example.com</p>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {isLoading ? 'Loading...' : user?.email || '-'}
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-between py-3">
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">Phone</p>
-                <p className="text-sm text-[var(--text-secondary)]">+62 812-3456-7890</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">Role</p>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {isLoading ? 'Loading...' : user?.role || '-'}
+                </p>
               </div>
             </div>
           </div>

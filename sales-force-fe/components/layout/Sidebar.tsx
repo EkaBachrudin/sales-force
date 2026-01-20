@@ -29,7 +29,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
   { label: 'Leads', icon: Users, route: '/leads' },
-  { label: 'Pipeline', icon: Kanban, route: '/pipeline' },
+  // { label: 'Pipeline', icon: Kanban, route: '/pipeline' },
   { label: 'Analytics', icon: BarChart2, route: '/analytics' },
   { label: 'Properties', icon: Building2, route: '/properties' },
   { label: 'Settings', icon: Settings, route: '/settings' },
@@ -164,13 +164,6 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
 
             {/* Profile & Logout Buttons */}
             <div className="space-y-1">
-              <button
-                onClick={handleLinkClick}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-[var(--text-primary)] hover:bg-gray-50 transition-colors"
-              >
-                <User className="w-4 h-4 text-gray-500" />
-                <span>Profile</span>
-              </button>
               <button
                 onClick={() => {
                   onLogout?.();
