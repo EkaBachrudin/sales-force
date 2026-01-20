@@ -41,7 +41,7 @@ export function DoughnutChart({
         {title}
       </h3>
 
-      <div className="flex items-center gap-8">
+      <div className="block sm:flex items-center gap-8">
         {/* Chart */}
         <div className="relative flex-shrink-0 w-48 h-48">
           <RechartsPieChart width={192} height={192} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
