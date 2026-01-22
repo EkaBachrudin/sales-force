@@ -2,7 +2,7 @@
 # Sales Force - Docker Commands Helper
 # ============================================
 
-.PHONY: help dev dev-nginx prod up down restart logs build clean install db-connect db-migrate db-migrate-status db-migrate-rollback
+.PHONY: help dev dev-nginx prod prod-local prod-build prod-local-build prod-logs prod-local-logs prod-down prod-local-down up down restart logs build clean install db-connect db-migrate db-migrate-status db-migrate-rollback
 
 # Default target
 help:
@@ -14,18 +14,24 @@ help:
 	@echo "  make dev-build    - Build development containers"
 	@echo ""
 	@echo "Production:"
-	@echo "  make prod         - Start production mode"
-	@echo "  make prod-build   - Build production containers"
+	@echo "  make prod             - Start production mode (server)"
+	@echo "  make prod-local       - Start production mode locally (port 8080)"
+	@echo "  make prod-build       - Build production containers (server)"
+	@echo "  make prod-local-build - Build production containers (local)"
 	@echo ""
 	@echo "Management:"
-	@echo "  make up           - Start all services"
-	@echo "  make down         - Stop all services"
-	@echo "  make restart      - Restart all services"
-	@echo "  make logs         - Show logs from all services"
-	@echo "  make logs-fe      - Show frontend logs"
-	@echo "  make logs-be      - Show backend logs"
-	@echo "  make logs-db      - Show database logs"
-	@echo "  make logs-nginx   - Show nginx logs"
+	@echo "  make up               - Start all services (dev)"
+	@echo "  make down             - Stop all services (dev)"
+	@echo "  make restart          - Restart all services (dev)"
+	@echo "  make logs             - Show logs from all services (dev)"
+	@echo "  make logs-fe          - Show frontend logs (dev)"
+	@echo "  make logs-be          - Show backend logs (dev)"
+	@echo "  make logs-db          - Show database logs (dev)"
+	@echo "  make logs-nginx       - Show nginx logs (dev)"
+	@echo "  make prod-down        - Stop production services (prod)"
+	@echo "  make prod-local-down  - Stop production services (prod-local)"
+	@echo "  make prod-logs        - Show logs from all services (prod)"
+	@echo "  make prod-local-logs  - Show logs from all services (prod-local)"
 	@echo ""
 	@echo "Database:"
 	@echo "  make db-init              - Initialize database (create + migrate)"
@@ -67,6 +73,30 @@ prod:
 prod-build:
 	@echo "Building production containers..."
 	docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml build
+
+prod-logs:
+	docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml logs -f
+
+prod-down:
+	docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml down
+
+# ============================================
+# Local Production Commands
+# ============================================
+
+local-prod:
+	@echo "Starting production environment locally (port 8080)..."
+	docker compose --env-file .env.localprod -f docker-compose.yml -f docker-compose.prod.yml up -d
+	
+local-prod-build:
+	@echo "Building production containers for local..."
+	docker compose --env-file .env.localprod -f docker-compose.yml -f docker-compose.prod.yml build
+
+local-prod-logs:
+	docker compose --env-file .env.localprod -f docker-compose.yml -f docker-compose.prod.yml logs -f
+
+local-prod-down:
+	docker compose --env-file .env.localprod -f docker-compose.yml -f docker-compose.prod.yml down
 
 # ============================================
 # Management Commands
