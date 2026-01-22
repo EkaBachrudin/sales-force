@@ -154,7 +154,7 @@ IMAGE_TAG=latest
 NODE_ENV=production
 
 # Frontend Configuration
-NEXT_PUBLIC_API_URL=https://your-domain.com/api
+NEXT_PUBLIC_API_URL=https://your-domain.com
 
 # Backend Configuration
 PORT=3000
@@ -188,7 +188,253 @@ backend:
   # ...
 ```
 
-## Langkah 5: Login ke GitHub Container Registry (One-time)
+## Langkah 5: Setup Domain dan SSL
+
+Pilih salah satu opsi di bawah ini untuk setup SSL:
+
+### Opsi A: Let's Encrypt (Gratis, Auto-renew)
+
+**Kelebihan:** Gratis, trusted certificate, auto-renewal
+
+**Syarat:**
+- Domain sudah pointing ke IP VPS (A record)
+- Port 80 dan 443 accessible dari internet
+
+#### 5.1 Point Domain ke VPS
+
+Di DNS provider Anda (Cloudflare, Namecheap, dll):
+
+| Type | Name | Value |
+|------|------|-------|
+| A | @ | IP_VPS_ANDA |
+| A | www | IP_VPS_ANDA |
+
+Tunggu propagasi DNS (biasanya 5-30 menit). Cek dengan:
+```bash
+nslookup your-domain.com
+```
+
+#### 5.2 Install Certbot
+
+```bash
+# Update package list
+sudo apt update
+
+# Install Certbot
+sudo apt install certbot -y
+
+# Install Certbot Nginx plugin
+sudo apt install python3-certbot-nginx -y
+```
+
+#### 5.3 Generate SSL Certificate
+
+**Metode 1: Standalone (nginx belum running)**
+
+```bash
+# Stop nginx jika sudah running
+sudo docker compose -f docker-compose.registry.yml --env-file .env stop nginx
+
+# Generate certificate
+sudo certbot certonly --standalone -d your-domain.com -d www.your-domain.com
+
+# Certificate akan disimpan di:
+# /etc/letsencrypt/live/your-domain.com/fullchain.pem
+# /etc/letsencrypt/live/your-domain.com/privkey.pem
+```
+
+**Metode 2: Webroot (nginx sudah running)**
+
+```bash
+# Generate dengan webroot method
+sudo certbot certonly --webroot -w /var/www/certbot \
+  -d your-domain.com -d www.your-domain.com
+```
+
+#### 5.4 Copy Certificate ke Docker Volume
+
+```bash
+# Copy certificate ke project directory
+sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem /var/www/sales-force/docker/nginx/ssl/
+sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem /var/www/sales-force/docker/nginx/ssl/
+
+# Set permissions
+sudo chmod 644 /var/www/sales-force/docker/nginx/ssl/*.pem
+sudo chown $USER:$USER /var/www/sales-force/docker/nginx/ssl/*.pem
+```
+
+#### 5.5 Setup Nginx Config untuk SSL
+
+Buat/update file `/var/www/sales-force/docker/nginx/conf.d/app.conf`:
+
+```nginx
+# HTTP to HTTPS redirect
+server {
+    listen 80;
+    server_name your-domain.com www.your-domain.com;
+    return 301 https://$server_name$request_uri;
+}
+
+# HTTPS server
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com www.your-domain.com;
+
+    # SSL certificates
+    ssl_certificate /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+    # SSL configuration
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # Frontend
+    location / {
+        proxy_pass http://frontend:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Backend API
+    location /api {
+        proxy_pass http://backend:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+#### 5.6 Setup Auto-renewal
+
+Buat script renew di `/var/www/sales-force/scripts/renew-ssl.sh`:
+
+```bash
+#!/bin/bash
+
+# Renew certificate
+sudo certbot renew --quiet
+
+# Copy new certificates
+sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem /var/www/sales-force/docker/nginx/ssl/
+sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem /var/www/sales-force/docker/nginx/ssl/
+
+# Restart nginx container
+cd /var/www/sales-force
+docker compose -f docker-compose.registry.yml --env-file .env restart nginx
+```
+
+Setup cron job:
+```bash
+# Edit crontab
+crontab -e
+
+# Tambahkan baris ini (renew setiap hari jam 3 pagi)
+0 3 * * * /var/www/sales-force/scripts/renew-ssl.sh >> /var/log/certbot-renew.log 2>&1
+```
+
+---
+
+### Opsi B: Cloudflare Origin Certificate
+
+**Kelebihan:** Valid 15 tahun, setup cepat, Cloudflare CDN
+
+**Syarat:** Domain menggunakan Cloudflare DNS
+
+#### 5.1 Setup Cloudflare SSL
+
+1. Login ke [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. Pilih domain Anda
+3. Go to **SSL/TLS > Origin Server**
+4. Click **Create Certificate**
+5. Select hostnames: `your-domain.com`, `*.your-domain.com`
+6. Validity: 15 years
+7. Copy **Origin Certificate** dan **Private Key**
+
+#### 5.2 Save Certificate ke VPS
+
+```bash
+# Create certificate files
+nano /var/www/sales-force/docker/nginx/ssl/cloudflare-origin.pem
+# Paste Origin Certificate
+
+nano /var/www/sales-force/docker/nginx/ssl/cloudflare-key.pem
+# Paste Private Key
+
+# Set permissions
+chmod 644 /var/www/sales-force/docker/nginx/ssl/cloudflare-*.pem
+```
+
+#### 5.3 Update Nginx Config
+
+Di `/var/www/sales-force/docker/nginx/conf.d/app.conf`:
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com www.your-domain.com;
+
+    # Cloudflare certificates
+    ssl_certificate /etc/nginx/ssl/cloudflare-origin.pem;
+    ssl_certificate_key /etc/nginx/ssl/cloudflare-key.pem;
+
+    # Cloudflare authenticator
+    ssl_client_certificate /etc/ssl/certs/Cloudflare-OriginCA.pem;
+
+    # SSL configuration
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # ... (sama seperti config di atas)
+}
+```
+
+#### 5.4 Setup Cloudflare DNS
+
+Di Cloudflare Dashboard:
+
+| Type | Name | Value | Proxy |
+|------|------|-------|-------|
+| A | @ | IP_VPS_ANDA | Proxied (orange) |
+| A | www | IP_VPS_ANDA | Proxied (orange) |
+
+#### 5.5 Cloudflare SSL Settings
+
+Di **SSL/TLS > Overview**:
+- Encryption mode: **Full (strict)**
+
+---
+
+### Testing SSL
+
+Setelah setup, test SSL configuration:
+
+```bash
+# Test dari local machine
+curl -I https://your-domain.com
+
+# Check SSL certificate
+openssl s_client -connect your-domain.com:443 -servername your-domain.com
+
+# Online test: https://www.ssllabs.com/ssltest/
+```
+
+---
+
+## Langkah 6: Login ke GitHub Container Registry (One-time)
 
 ```bash
 # Di VPS
@@ -200,7 +446,7 @@ Untuk membuat Personal Access Token:
 2. Generate new token (classic)
 3. Pilih scope: `read:packages`
 
-## Langkah 6: Deploy Pertama Kali
+## Langkah 7: Deploy Pertama Kali
 
 ### Opsi A: Automatic (via GitHub Actions)
 
@@ -275,6 +521,73 @@ sudo netstat -tulpn
 
 # Stop service yang konflik
 sudo systemctl stop nginx  # jika nginx terinstall di host
+```
+
+### SSL / HTTPS Issues
+
+**Error: SSL certificate expired**
+
+```bash
+# Manual renew Let's Encrypt
+sudo certbot renew
+
+# Copy dan restart nginx
+sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem /var/www/sales-force/docker/nginx/ssl/
+sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem /var/www/sales-force/docker/nginx/ssl/
+cd /var/www/sales-force
+docker compose -f docker-compose.registry.yml --env-file .env restart nginx
+```
+
+**Error: SSL connection error / ERR_SSL_PROTOCOL_ERROR**
+
+- Pastikan port 443 open: `sudo ufw allow 443/tcp`
+- Cek nginx config sudah benar
+- Pastikan certificate files exist dan readable
+
+**Error: Certificate verify failed (Cloudflare)**
+
+- Pastikan Cloudflare SSL/TLS mode set ke **Full (strict)**
+- Cek Origin Certificate sudah benar di VPS
+- Install Cloudflare Origin CA: `sudo apt install ca-certificates`
+
+**Error: Domain tidak resolving**
+
+```bash
+# Cek DNS propagation
+nslookup your-domain.com
+dig your-domain.com
+
+# Cek dari VPS
+curl -I http://localhost
+```
+
+**Browser menunjukkan "Not Secure"**
+
+- Clear browser cache
+- Pastikan HTTP redirect ke HTTPS
+- Cek SSL configuration di nginx config
+- Test dengan: https://www.ssllabs.com/ssltest/
+
+### Certbot Failed
+
+**Error: Failed to connect to host for DVSNI challenge**
+
+```bash
+# Pastikan port 80 dan 443 open
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+
+# Cek firewall status
+sudo ufw status
+```
+
+**Error: Too many certificates already issued**
+
+Let's Encrypt ada rate limit (5 certificates per domain per 7 hari). Gunakan staging environment untuk testing:
+
+```bash
+# Test dengan staging environment
+sudo certbot certonly --test-mode --standalone -d your-domain.com
 ```
 
 ## Rollback

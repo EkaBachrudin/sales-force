@@ -11,7 +11,7 @@ services:
   # FRONTEND (Next.js) - From Registry
   # ========================================
   frontend:
-    image: ${REGISTRY:-ghcr.io/yourusername}/sales-force-frontend:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-ghcr.io/EkaBachrudin}/sales-force-frontend:${IMAGE_TAG:-latest}
     container_name: sales-force-fe
     restart: unless-stopped
     networks:
@@ -30,7 +30,7 @@ services:
   # BACKEND (NestJS) - From Registry
   # ========================================
   backend:
-    image: ${REGISTRY:-ghcr.io/yourusername}/sales-force-backend:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-ghcr.io/EkaBachrudin}/sales-force-backend:${IMAGE_TAG:-latest}
     container_name: sales-force-be
     restart: unless-stopped
     networks:
