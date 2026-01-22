@@ -125,14 +125,23 @@ mkdir -p docker/init-db.d
 # Copy docker-compose file
 scp docker-compose.registry.yml user@vps-host:/var/www/sales-force/
 
-# Copy nginx config
+# Copy nginx config (sudah include production.conf untuk SSL)
 scp -r docker/nginx user@vps-host:/var/www/sales-force/docker/
 
 # Copy init-db.sql (jika ada)
 scp docker/init-db.sql user@vps-host:/var/www/sales-force/docker/
+
+# Copy .env file (yang sudah diisi dengan production values)
+scp .env user@vps-host:/var/www/sales-force/
 ```
 
-### 3.4 Buat `.env` di VPS
+**Catatan:** Nginx config yang di-copy sudah include:
+- [nginx.conf](docker/nginx/nginx.conf) - Config global dengan upstream frontend & backend
+- [conf.d/production.conf](docker/nginx/conf.d/production.conf) - Server config untuk domain sforce.my.id dengan SSL
+
+Jika domain Anda bukan `sforce.my.id`, edit file `production.conf` setelah di-copy ke VPS.
+
+### 3.4 Buat `.env` di VPS 
 
 ```bash
 # SSH ke VPS
