@@ -9,6 +9,8 @@ services:
       context: ./sales-force-fe
       dockerfile: Dockerfile
       target: production
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:4000/api}
     container_name: sales-force-fe
     restart: unless-stopped
     networks:
