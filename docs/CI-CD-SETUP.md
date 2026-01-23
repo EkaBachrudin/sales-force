@@ -274,57 +274,8 @@ sudo chown $USER:$USER /var/www/sales-force/docker/nginx/ssl/*.pem
 
 #### 5.5 Setup Nginx Config untuk SSL
 
-Buat/update file `/var/www/sales-force/docker/nginx/conf.d/app.conf`:
-
-```nginx
-# HTTP to HTTPS redirect
-server {
-    listen 80;
-    server_name your-domain.com www.your-domain.com;
-    return 301 https://$server_name$request_uri;
-}
-
-# HTTPS server
-server {
-    listen 443 ssl http2;
-    server_name your-domain.com www.your-domain.com;
-
-    # SSL certificates
-    ssl_certificate /etc/nginx/ssl/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
-
-    # SSL configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
-
-    # Frontend
-    location / {
-        proxy_pass http://frontend:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Backend API
-    location /api {
-        proxy_pass http://backend:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
+# Cek apakah production.conf sudah ada di VPS
+cat /var/www/sales-force/docker/nginx/conf.d/production.conf
 
 #### 5.6 Setup Auto-renewal
 
@@ -388,28 +339,8 @@ chmod 644 /var/www/sales-force/docker/nginx/ssl/cloudflare-*.pem
 
 #### 5.3 Update Nginx Config
 
-Di `/var/www/sales-force/docker/nginx/conf.d/app.conf`:
-
-```nginx
-server {
-    listen 443 ssl http2;
-    server_name your-domain.com www.your-domain.com;
-
-    # Cloudflare certificates
-    ssl_certificate /etc/nginx/ssl/cloudflare-origin.pem;
-    ssl_certificate_key /etc/nginx/ssl/cloudflare-key.pem;
-
-    # Cloudflare authenticator
-    ssl_client_certificate /etc/ssl/certs/Cloudflare-OriginCA.pem;
-
-    # SSL configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
-
-    # ... (sama seperti config di atas)
-}
-```
+# Cek apakah production.conf sudah ada di VPS
+cat /var/www/sales-force/docker/nginx/conf.d/production.conf
 
 #### 5.4 Setup Cloudflare DNS
 
