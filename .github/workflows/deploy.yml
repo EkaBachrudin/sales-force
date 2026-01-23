@@ -15,6 +15,7 @@ jobs:
   build:
     name: Build and Push Images
     runs-on: ubuntu-latest
+    environment: SALES_SERVER
     permissions:
       contents: read
       packages: write
