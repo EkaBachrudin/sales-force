@@ -6,6 +6,7 @@ import {
   logoutController,
   meController,
   revokeAllController,
+  changePasswordController,
 } from '../controllers/authController';
 import { authenticate, validateCsrf } from '../middleware/auth';
 
@@ -46,5 +47,11 @@ router.get('/me', authenticate, meController);
  * Revoke all active sessions
  */
 router.post('/revoke-all', authenticate, validateCsrf, revokeAllController);
+
+/**
+ * POST /api/v1/auth/change-password
+ * Change user password
+ */
+router.post('/change-password', authenticate, validateCsrf, changePasswordController);
 
 export default router;

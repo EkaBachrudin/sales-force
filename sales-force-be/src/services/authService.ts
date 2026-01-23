@@ -9,7 +9,7 @@ import {
 } from '../utils/auth/password';
 import { generateAccessToken, getRefreshTokenMaxAge, getAccessTokenMaxAge } from '../utils/auth/jwt';
 import { generateCsrfToken } from '../utils/auth/csrf';
-import { User, LoginDto, RegisterDto, UserRole, DeviceInfo } from '../types';
+import { User, LoginDto, RegisterDto, UserRole, DeviceInfo, ChangePasswordDto } from '../types';
 
 export interface AuthTokens {
   accessToken: string;
@@ -355,4 +355,48 @@ export const isSessionActive = async (userId: string, sessionId: string): Promis
     [userId, sessionId]
   );
   return result.rows.length > 0;
+};
+
+/**
+ * Change user password
+ * @param userId - User ID from JWT
+ * @param dto - ChangePasswordDto containing current_password and new_password
+ */
+export const changePassword = async (userId: string, dto: ChangePasswordDto): Promise<void> => {
+  const { current_password, new_password } = dto;
+
+  // Get user with password hash
+  const result = await pool.query(
+    'SELECT id, email, password_hash, is_active FROM users WHERE id = $1',
+    [userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new AppError('User not found', 404);
+  }
+
+  const user = result.rows[0];
+
+  // Verify current password
+  const isPasswordValid = await verifyPassword(current_password, user.password_hash);
+  if (!isPasswordValid) {
+    throw new AppError('Current password is incorrect', 401);
+  }
+
+  // Check if user is active
+  if (!user.is_active) {
+    throw new AppError('Account is inactive. Please contact administrator.', 403);
+  }
+
+  // Hash new password
+  const newPasswordHash = await hashPassword(new_password);
+
+  // Update password
+  await pool.query(
+    'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+    [newPasswordHash, userId]
+  );
+
+  // Revoke all sessions for security (force user to login again)
+  await pool.query('UPDATE user_sessions SET is_active = false WHERE user_id = $1', [userId]);
 };

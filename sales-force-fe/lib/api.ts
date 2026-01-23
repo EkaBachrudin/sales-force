@@ -160,6 +160,39 @@ export const api = {
     return data;
   },
 
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    // Get CSRF token from cookie
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to change password', response.status);
+    }
+
+    return data;
+  },
+
   refresh: async () => {
     const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
       method: 'POST',

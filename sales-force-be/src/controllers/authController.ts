@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { register, login, refresh, logout, revokeAllSessions, getCurrentUser } from '../services/authService';
-import { LoginDto, RegisterDto } from '../types';
+import { register, login, refresh, logout, revokeAllSessions, getCurrentUser, changePassword } from '../services/authService';
+import { LoginDto, RegisterDto, ChangePasswordDto } from '../types';
 
 /**
  * POST /api/v1/auth/register
@@ -210,5 +210,28 @@ export const revokeAllController = async (req: Request, res: Response): Promise<
     data: {
       revoked_count: revokedCount,
     },
+  });
+};
+
+/**
+ * POST /api/v1/auth/change-password
+ * Change user password
+ */
+export const changePasswordController = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({
+      success: false,
+      message: 'Authentication required',
+    });
+    return;
+  }
+
+  const dto: ChangePasswordDto = req.body;
+
+  await changePassword(req.user.sub, dto);
+
+  res.status(200).json({
+    success: true,
+    message: 'Password changed successfully. Please login again.',
   });
 };

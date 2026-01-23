@@ -1,14 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Settings as SettingsIcon, User, Bell, Shield, Palette } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
+import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+
+  const handleChangePasswordSuccess = () => {
+    // Redirect to login page after successful password change
+    router.push('/login');
+  };
   return (
     <DashboardLayout
       title="Settings"
@@ -98,11 +107,22 @@ export default function SettingsPage() {
               </p>
             </div>
           </div>
-          <Button variant="secondary" className="w-full">
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => setIsChangePasswordModalOpen(true)}
+          >
             Change Password
           </Button>
         </Card>
       </div>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+        onSuccess={handleChangePasswordSuccess}
+      />
     </DashboardLayout>
   );
 }

@@ -224,6 +224,11 @@ export interface LoginResponseDto {
   data: LoginResponse;
 }
 
+export interface ChangePasswordDto {
+  current_password: string;
+  new_password: string;
+}
+
 // Lead Management Types (Sales Force CRM)
 export enum CrmLeadStatus {
   NEW = 'new',
