@@ -135,6 +135,9 @@ jobs:
             sudo mkdir -p $DEPLOY_DIR
             cd $DEPLOY_DIR
 
+            # Login to GitHub Container Registry
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             # Pull latest images
             echo "Pulling images..."
             docker pull $REGISTRY/${{ env.IMAGE_FE }}:$FE_TAG
