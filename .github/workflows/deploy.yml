@@ -111,7 +111,8 @@ jobs:
           script: |
             # Set variables
             DEPLOY_DIR="/var/www/sales-force"
-            REGISTRY="ghcr.io/${{ github.repository_owner }}"
+            REGISTRY_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            REGISTRY="ghcr.io/$REGISTRY_OWNER"
             FE_TAG="${{ github.ref_name }}"
             BE_TAG="${{ github.ref_name }}"
 
