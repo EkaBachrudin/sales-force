@@ -63,6 +63,8 @@ services:
     restart: unless-stopped
     networks:
       - sales-force-network
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
