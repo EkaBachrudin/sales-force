@@ -4,14 +4,12 @@
 # File ini digunakan di VPS untuk pull image dari container registry
 # Penggunaan: docker compose -f docker-compose.registry.yml --env-file .env up -d
 
-version: '3.9'
-
 services:
   # ========================================
   # FRONTEND (Next.js) - From Registry
   # ========================================
   frontend:
-    image: ${REGISTRY:-ghcr.io/EkaBachrudin}/sales-force-frontend:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-ghcr.io/ekabachrudin}/sales-force-frontend:${IMAGE_TAG:-latest}
     container_name: sales-force-fe
     restart: unless-stopped
     networks:
@@ -30,7 +28,7 @@ services:
   # BACKEND (NestJS) - From Registry
   # ========================================
   backend:
-    image: ${REGISTRY:-ghcr.io/EkaBachrudin}/sales-force-backend:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-ghcr.io/ekabachrudin}/sales-force-backend:${IMAGE_TAG:-latest}
     container_name: sales-force-be
     restart: unless-stopped
     networks:
