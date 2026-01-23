@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { InstallPWABanner } from '@/components/pwa/InstallPWABanner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,6 +56,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
       <div className="w-full max-w-md">
+        {/* PWA Install Banner */}
+        <InstallPWABanner />
+
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--primary)] rounded-2xl shadow-lg mb-4">
@@ -85,29 +89,30 @@ export default function LoginPage() {
               disabled={isLoading}
             />
 
-            <div>
-              <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (errors.password) setErrors({ ...errors, password: undefined });
-                }}
-                error={errors.password}
-                leftIcon={<Lock className="w-5 h-5" />}
-                autoComplete="current-password"
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[2.3rem] text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
+            <Input
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) setErrors({ ...errors, password: undefined });
+              }}
+              error={errors.password}
+              leftIcon={<Lock className="w-5 h-5" />}
+              rightAction={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="p-0 bg-transparent border-none cursor-pointer"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              }
+              autoComplete="current-password"
+              disabled={isLoading}
+            />
 
             <Button
               type="submit"

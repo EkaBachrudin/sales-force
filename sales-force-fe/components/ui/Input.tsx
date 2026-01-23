@@ -7,6 +7,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  rightAction?: React.ReactNode;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -19,6 +20,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       helperText,
       leftIcon,
       rightIcon,
+      rightAction,
       id,
       ...props
     },
@@ -36,7 +38,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     const paddingStyles = leftIcon
       ? 'pl-10'
-      : rightIcon
+      : rightIcon || rightAction
       ? 'pr-10'
       : '';
 
@@ -75,6 +77,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {rightIcon && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
               {rightIcon}
+            </div>
+          )}
+
+          {rightAction && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+              {rightAction}
             </div>
           )}
         </div>
