@@ -9,6 +9,7 @@ import {
   changePasswordController,
 } from '../controllers/authController';
 import { authenticate, validateCsrf } from '../middleware/auth';
+import { authLimiter, registerLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -16,13 +17,13 @@ const router = Router();
  * POST /api/v1/auth/register
  * Register a new user
  */
-router.post('/register', registerController);
+router.post('/register', registerLimiter, registerController);
 
 /**
  * POST /api/v1/auth/login
  * Login user and create session
  */
-router.post('/login', loginController);
+router.post('/login', authLimiter, loginController);
 
 /**
  * POST /api/v1/auth/refresh

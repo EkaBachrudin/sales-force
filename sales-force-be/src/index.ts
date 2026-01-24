@@ -8,6 +8,7 @@ import cron from 'node-cron';
 import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
+import { generalLimiter } from './middleware/rateLimiter';
 import { AppError } from './utils/AppError';
 import { testConnection, closePool } from './config/database';
 import authRoutes from './routes/authRoutes';
@@ -94,6 +95,7 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // API routes
+app.use(`${API_VERSION}`, generalLimiter);
 app.use(`${API_VERSION}/auth`, authRoutes);
 app.use(`${API_VERSION}/admin`, adminRoutes);
 app.use(`${API_VERSION}/leads`, leadsRoutes);
