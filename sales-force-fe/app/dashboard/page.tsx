@@ -8,6 +8,7 @@ import { RemindersSection, Reminder } from '@/components/dashboard/RemindersSect
 import { NewLeadModal } from '@/components/dashboard/NewLeadModal';
 import { Button } from '@/components/ui/Button';
 import { useDashboardOverview, useUpcomingReminders, ReminderItem } from '@/hooks/useDashboard';
+import { useLeadMutations } from '@/hooks/useLeads';
 
 // Transform API reminder to component format
 const transformReminder = (apiReminder: ReminderItem): Reminder => ({
@@ -29,6 +30,13 @@ export default function DashboardPage() {
   // Fetch dashboard metrics
   const { data: metrics, isLoading: metricsLoading, error: metricsError } = useDashboardOverview();
 
+  // Mutations
+  const { createLead, isCreating } = useLeadMutations({
+    onCreateSuccess: () => {
+      setIsNewLeadModalOpen(false);
+    },
+  });
+
   // Fetch upcoming reminders (default 7 days = 168 hours)
   const { data: remindersData, isLoading: remindersLoading, error: remindersError } = useUpcomingReminders(
     { limit: 3, hours_ahead: 168 }
@@ -36,8 +44,8 @@ export default function DashboardPage() {
 
   const reminders = remindersData?.reminders.map(transformReminder) || [];
 
-  const handleNewLead = () => {
-    setIsNewLeadModalOpen(false);
+  const handleNewLead = async (data: any) => {
+    await createLead(data);
   };
 
   // Loading state
@@ -154,6 +162,7 @@ export default function DashboardPage() {
         isOpen={isNewLeadModalOpen}
         onClose={() => setIsNewLeadModalOpen(false)}
         onSubmit={handleNewLead}
+        isLoading={isCreating}
       />
     </DashboardLayout>
   );

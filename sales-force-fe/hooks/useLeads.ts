@@ -96,6 +96,8 @@ export function useLeadMutations(options?: {
     }) => api.createLead(leadData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['reminders'] });
       options?.onCreateSuccess?.();
     },
     onError: (err: any) => {
