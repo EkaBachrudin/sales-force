@@ -685,4 +685,118 @@ export const api = {
 
     return data;
   },
+
+  // Users API
+  getUsers: async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    role?: string;
+    is_active?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('limit', params.pageSize.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.role && params.role !== 'all') queryParams.append('role', params.role);
+    if (params?.is_active && params.is_active !== 'all') queryParams.append('is_active', params.is_active);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/users${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch users', response.status);
+    }
+
+    return data;
+  },
+
+  getUserDetail: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users/${id}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch user detail', response.status);
+    }
+
+    return data;
+  },
+
+  createUser: async (userData: {
+    email: string;
+    password: string;
+    full_name: string;
+    role: string;
+    phone?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to create user', response.status);
+    }
+
+    return data;
+  },
+
+  updateUser: async (id: string, userData: {
+    email?: string;
+    full_name?: string;
+    role?: string;
+    phone?: string;
+    is_active?: boolean;
+    password?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update user', response.status);
+    }
+
+    return data;
+  },
+
+  deleteUser: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to delete user', response.status);
+    }
+
+    return data;
+  },
 };

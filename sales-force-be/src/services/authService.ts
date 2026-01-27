@@ -9,7 +9,7 @@ import {
 } from '../utils/auth/password';
 import { generateAccessToken, getRefreshTokenMaxAge, getAccessTokenMaxAge } from '../utils/auth/jwt';
 import { generateCsrfToken } from '../utils/auth/csrf';
-import { User, LoginDto, RegisterDto, UserRole, DeviceInfo, ChangePasswordDto } from '../types';
+import { User, LoginDto, RegisterDto, DeviceInfo, ChangePasswordDto } from '../types';
 
 export interface AuthTokens {
   accessToken: string;
@@ -23,7 +23,6 @@ export interface LoginResult {
   user: {
     full_name: string;
     email: string;
-    role: UserRole;
   };
   session: {
     id: string;
@@ -36,9 +35,13 @@ export interface LoginResult {
 /**
  * Find user by email
  */
-const findUserByEmail = async (email: string): Promise<User | null> => {
+const findUserByEmail = async (email: string): Promise<User & { role: string } | null> => {
   const result = await pool.query(
-    'SELECT id, full_name, email, phone, password_hash, is_active, created_at, updated_at FROM users WHERE email = $1',
+    `SELECT u.id, u.full_name, u.email, u.phone, u.password_hash, u.is_active, u.created_at, u.updated_at,
+            r.name as role
+     FROM users u
+     LEFT JOIN roles r ON u.role_id = r.id
+     WHERE u.email = $1`,
     [email]
   );
 
@@ -52,7 +55,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
     full_name: row.full_name,
     email: row.email,
     phone: row.phone,
-    role: UserRole.SALES, // Default role since it's not in DB yet
+    role: row.role,
     password_hash: row.password_hash,
     is_active: row.is_active,
     created_at: row.created_at,
@@ -187,8 +190,7 @@ export const login = async (dto: LoginDto, ipAddress: string, userAgent: string)
     return {
       user: {
         full_name: user.full_name,
-        email: user.email,
-        role: user.role,
+        email: user.email
       },
       session: {
         id: session.id,
@@ -217,9 +219,10 @@ export const login = async (dto: LoginDto, ipAddress: string, userAgent: string)
 export const refresh = async (refreshToken: string, ipAddress: string, userAgent: string): Promise<AuthTokens> => {
   // Get all active sessions (we need to verify hash since it's one-way)
   const sessionResult = await pool.query(
-    `SELECT s.*, u.id as user_id, u.email
+    `SELECT s.*, u.id as user_id, u.email, r.name as role
      FROM user_sessions s
      JOIN users u ON s.user_id = u.id
+     LEFT JOIN roles r ON u.role_id = r.id
      WHERE s.is_active = true AND s.expires_at > NOW()`
   );
 
@@ -257,11 +260,11 @@ export const refresh = async (refreshToken: string, ipAddress: string, userAgent
     [refreshTokenHash, JSON.stringify(deviceInfo), ipAddress, userAgent, expiresAt, matchedSession.id]
   );
 
-  // Generate new access token with session_id
+  // Generate new access token with session_id and role
   const newAccessToken = generateAccessToken({
     sub: matchedSession.user_id,
     email: matchedSession.email,
-    role: UserRole.SALES, // Default role since it's not in DB
+    role: matchedSession.role,
     session_id: matchedSession.id, // Include session_id in JWT
   });
 
@@ -312,9 +315,12 @@ export const revokeAllSessions = async (userId: string): Promise<number> => {
 /**
  * Get current user by ID
  */
-export const getCurrentUser = async (userId: string): Promise<Omit<User, 'password_hash'>> => {
+export const getCurrentUser = async (userId: string): Promise<Omit<User, 'password_hash'> & { role?: string }> => {
   const result = await pool.query(
-    'SELECT id, full_name, email, phone, is_active, created_at, updated_at FROM users WHERE id = $1 AND is_active = true',
+    `SELECT u.id, u.full_name, u.email, u.phone, u.is_active, u.created_at, u.updated_at, r.name as role
+     FROM users u
+     LEFT JOIN roles r ON u.role_id = r.id
+     WHERE u.id = $1 AND u.is_active = true`,
     [userId]
   );
 
@@ -328,7 +334,7 @@ export const getCurrentUser = async (userId: string): Promise<Omit<User, 'passwo
     full_name: row.full_name,
     email: row.email,
     phone: row.phone,
-    role: UserRole.SALES,
+    role: row.role,
     is_active: row.is_active,
     created_at: row.created_at,
     updated_at: row.updated_at,

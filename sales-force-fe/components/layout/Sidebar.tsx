@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  Users,
+  Users as UsersIcon,
   Kanban,
   BarChart2,
   Settings,
@@ -15,6 +15,7 @@ import {
   X,
   LogOut,
   User,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { User as UserType } from './Header';
@@ -24,14 +25,16 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   route: string;
   badge?: number;
+  requiredRoles?: string[]; // Backend role names that can see this item
 }
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
-  { label: 'Leads', icon: Users, route: '/leads' },
+  { label: 'Leads', icon: UsersIcon, route: '/leads' },
   // { label: 'Pipeline', icon: Kanban, route: '/pipeline' },
   { label: 'Analytics', icon: BarChart2, route: '/analytics' },
   { label: 'Properties', icon: Building2, route: '/properties' },
+  { label: 'Users', icon: Shield, route: '/users', requiredRoles: ['Admin', 'Supervisor'] },
   { label: 'Settings', icon: Settings, route: '/settings' },
 ];
 
@@ -46,6 +49,18 @@ export interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onCloseMobile, user, onLogout }: SidebarProps) {
   const pathname = usePathname();
+
+  // Filter nav items based on user role
+  const navItems = useMemo(() => {
+    return baseNavItems.filter(item => {
+      // If no roles required, show to everyone
+      if (!item.requiredRoles || item.requiredRoles.length === 0) {
+        return true;
+      }
+      // Check if user's role matches any of the required roles
+      return item.requiredRoles.includes(user?.role || '');
+    });
+  }, [user?.role]);
 
   // Close mobile sidebar when a link is clicked
   const handleLinkClick = () => {
@@ -106,7 +121,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       <nav className="p-4 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.route || pathname.startsWith(item.route + '/');
+          const isActive = pathname === item.route || (item.route !== '/' && pathname.startsWith(item.route + '/'));
 
           return (
             <Link

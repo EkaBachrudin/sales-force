@@ -74,3 +74,46 @@ export interface UpdatePropertyDto {
   name?: string;
   property_type?: string;
 }
+
+// User Types
+export enum UserRole {
+  ADMIN = 'Admin',
+  MANAGER = 'Supervisor',
+  SALES = 'Sales',
+}
+
+export interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  phone?: string;
+  avatar_url?: string;
+  is_active: boolean;
+  last_login_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateUserDto {
+  email: string;
+  password: string;
+  full_name: string;
+  role: string; // Backend role name (Admin, Supervisor, Sales) as string
+  phone?: string;
+}
+
+export interface UpdateUserDto {
+  email?: string;
+  full_name?: string;
+  role?: string; // Backend role name as string
+  phone?: string;
+  is_active?: boolean;
+  password?: string;
+}
+
+export interface UsersFilters {
+  search: string;
+  role: string;
+  status: string;
+}

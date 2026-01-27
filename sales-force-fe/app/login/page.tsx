@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/Input';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { InstallPWABanner } from '@/components/pwa/InstallPWABanner';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { fetchUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +45,8 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const data = await api.login(email, password);
+      await api.login(email, password);
+      await fetchUser();
 
       router.push('/dashboard');
     } catch (error) {

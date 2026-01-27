@@ -16,18 +16,11 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// User Types
-export enum UserRole {
-  ADMIN = 'admin',
-  MANAGER = 'manager',
-  SALES = 'sales',
-}
-
 export interface User {
   id: string;
   email: string;
   full_name: string;
-  role: UserRole;
+  role: string;
   phone?: string;
   avatar_url?: string;
   is_active: boolean;
@@ -35,14 +28,47 @@ export interface User {
   created_at: Date;
   updated_at: Date;
   password_hash?: string;
+  role_id?: string;
+}
+
+export interface UserListItem {
+  id: string;
+  email: string;
+  full_name: string;
+  phone?: string;
+  is_active: boolean;
+  role_id?: string;
+  role?: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CreateUserDto {
   email: string;
   password: string;
   full_name: string;
-  role: UserRole;
   phone?: string;
+  role_id?: string;
+  is_active?: boolean;
+}
+
+export interface UpdateUserDto {
+  email?: string;
+  password?: string;
+  full_name?: string;
+  phone?: string;
+  role_id?: string;
+  is_active?: boolean;
+}
+
+export interface GetUsersQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  is_active?: boolean;
+  role_id?: string;
+  sort_by?: 'created_at' | 'full_name' | 'email';
+  sort_order?: 'asc' | 'desc';
 }
 
 export interface LoginDto {
@@ -164,7 +190,7 @@ export interface JwtPayload {
   jti: string;
   sub: string;
   email: string;
-  role: UserRole;
+  role: string;
   session_id: string; // Session ID from user_sessions table for secure session validation
   iat: number;
   exp: number;
@@ -195,7 +221,7 @@ export interface LoginResponse {
     id: string;
     full_name: string;
     email: string;
-    role: UserRole;
+    role: string;
   };
   session: {
     id: string;

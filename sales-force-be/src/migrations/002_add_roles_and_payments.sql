@@ -48,9 +48,9 @@ CREATE TABLE IF NOT EXISTS payments (
 -- Purpose: Seed initial roles for the system
 -- ============================================================================
 INSERT INTO roles (name, description, permissions) VALUES
-    ('Admin', 'Full system access', '{"manage_users": true, "manage_roles": true, "manage_properties": true, "view_all_leads": true, "manage_payments": true}'),
-    ('Supervisor', 'Can manage team and view all leads', '{"manage_users": false, "manage_roles": false, "manage_properties": true, "view_all_leads": true, "manage_payments": false}'),
-    ('Sales', 'Can manage assigned leads and properties', '{"manage_users": false, "manage_roles": false, "manage_properties": true, "view_all_leads": false, "manage_payments": false}')
+    ('Admin', 'Full system access', '{"access": ["dashboard", "leads", "analytics", "properties", "settings", "users", "billing"]}'),
+    ('Supervisor', 'Can manage team and view all leads', '{"access": ["dashboard", "leads", "analytics", "properties", "settings", "users"]}'),
+    ('Sales', 'Can manage assigned leads and properties', '{"access": ["dashboard", "leads", "analytics", "properties", "settings"]}')
 ON CONFLICT (name) DO NOTHING;
 
 -- ============================================================================
