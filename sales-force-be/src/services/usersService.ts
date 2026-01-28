@@ -172,6 +172,29 @@ export const getUserById = async (userId: string): Promise<UserListItem> => {
 };
 
 /**
+ * Helper function to get role_id from role name or role_id
+ */
+const getRoleId = async (roleNameOrId: string | undefined): Promise<string | null> => {
+  if (!roleNameOrId) {
+    return null;
+  }
+
+  // First, try to find by name
+  const nameCheck = await pool.query('SELECT id FROM roles WHERE name = $1', [roleNameOrId]);
+  if (nameCheck.rows.length > 0) {
+    return nameCheck.rows[0].id;
+  }
+
+  // If not found by name, try to find by ID (UUID)
+  const idCheck = await pool.query('SELECT id FROM roles WHERE id = $1', [roleNameOrId]);
+  if (idCheck.rows.length > 0) {
+    return idCheck.rows[0].id;
+  }
+
+  throw new AppError('Role not found', 404);
+};
+
+/**
  * POST /api/v1/users - Create New User
  * @param dto - User data to create
  */
@@ -203,12 +226,11 @@ export const createUser = async (dto: CreateUserDto): Promise<UserListItem> => {
     throw new AppError('Email already exists', 400);
   }
 
-  // Validate role_id if provided
-  if (dto.role_id) {
-    const roleCheck = await pool.query('SELECT id FROM roles WHERE id = $1', [dto.role_id]);
-    if (roleCheck.rows.length === 0) {
-      throw new AppError('Role not found', 404);
-    }
+  // Get role_id from role name or role_id
+  let roleId: string | null = null;
+  if (dto.role || dto.role_id) {
+    const roleValue = dto.role || dto.role_id;
+    roleId = await getRoleId(roleValue);
   }
 
   // Hash password
@@ -226,7 +248,7 @@ export const createUser = async (dto: CreateUserDto): Promise<UserListItem> => {
     passwordHash,
     dto.full_name,
     dto.phone || null,
-    dto.role_id || null,
+    roleId,
     dto.is_active !== undefined ? dto.is_active : true,
   ];
 
@@ -288,11 +310,17 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<Us
     }
   }
 
-  // Validate role_id if provided
-  if (dto.role_id) {
-    const roleCheck = await pool.query('SELECT id FROM roles WHERE id = $1', [dto.role_id]);
-    if (roleCheck.rows.length === 0) {
-      throw new AppError('Role not found', 404);
+  // Get role_id from role name or role_id
+  let roleId: string | null | undefined = undefined;
+  if (dto.role || dto.role_id !== undefined) {
+    // If explicitly set to null/empty string, keep it null
+    if (dto.role === '' || dto.role_id === null) {
+      roleId = null;
+    } else if (dto.role === undefined && dto.role_id === undefined) {
+      roleId = undefined;
+    } else {
+      const roleValue = dto.role || dto.role_id;
+      roleId = await getRoleId(roleValue);
     }
   }
 
@@ -323,9 +351,9 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<Us
     updateFields.push(`phone = $${paramIndex++}`);
     values.push(dto.phone);
   }
-  if (dto.role_id !== undefined) {
+  if (roleId !== undefined) {
     updateFields.push(`role_id = $${paramIndex++}`);
-    values.push(dto.role_id);
+    values.push(roleId);
   }
   if (dto.is_active !== undefined) {
     updateFields.push(`is_active = $${paramIndex++}`);

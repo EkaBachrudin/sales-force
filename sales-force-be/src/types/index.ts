@@ -49,6 +49,7 @@ export interface CreateUserDto {
   full_name: string;
   phone?: string;
   role_id?: string;
+  role?: string; // Role name (e.g., 'Admin', 'Supervisor', 'Sales') as alternative to role_id
   is_active?: boolean;
 }
 
@@ -58,6 +59,7 @@ export interface UpdateUserDto {
   full_name?: string;
   phone?: string;
   role_id?: string;
+  role?: string; // Role name as alternative to role_id
   is_active?: boolean;
 }
 
