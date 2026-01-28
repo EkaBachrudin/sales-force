@@ -1,5 +1,5 @@
--- Migration: 002_add_roles_and_payments
--- Description: Add roles table for role management and payments table for subscription management
+-- Migration: 002_add_roles_and_subscriptions
+-- Description: Add roles table for role management and subscriptions table for subscription management
 -- Created: 2025-01-26
 -- Database: PostgreSQL 15+
 
@@ -24,19 +24,18 @@ CREATE TABLE IF NOT EXISTS roles (
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id UUID REFERENCES roles(id) ON DELETE SET NULL;
 
 -- ============================================================================
--- Table: payments
--- Purpose: Payment & subscription management for users
+-- Table: subscriptions
+-- Purpose: Subscription management for users
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS payments (
+CREATE TABLE IF NOT EXISTS subscriptions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    payment_type VARCHAR(50) NOT NULL CHECK (payment_type IN ('monthly', 'quarterly', 'annual')),
+    subscription_type VARCHAR(50) NOT NULL CHECK (subscription_type IN ('monthly', 'quarterly', 'annual')),
     amount NUMERIC(15, 2) NOT NULL CHECK (amount >= 0),
     period_start TIMESTAMPTZ,
     period_end TIMESTAMPTZ,
     due_date TIMESTAMPTZ NOT NULL,
-    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'overdue', 'cancelled')),
-    payment_method VARCHAR(50) CHECK (payment_method IN ('bank_transfer', 'credit_card', 'e_wallet', 'cash', 'other')),
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'overdue', 'cancelled')),
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -48,7 +47,7 @@ CREATE TABLE IF NOT EXISTS payments (
 -- Purpose: Seed initial roles for the system
 -- ============================================================================
 INSERT INTO roles (name, description, permissions) VALUES
-    ('Admin', 'Full system access', '{"access": ["dashboard", "leads", "analytics", "properties", "settings", "users", "billing"]}'),
+    ('Admin', 'Full system access', '{"access": ["dashboard", "leads", "analytics", "properties", "settings", "users", "subscriptions"]}'),
     ('Supervisor', 'Can manage team and view all leads', '{"access": ["dashboard", "leads", "analytics", "properties", "settings", "users"]}'),
     ('Sales', 'Can manage assigned leads and properties', '{"access": ["dashboard", "leads", "analytics", "properties", "settings"]}')
 ON CONFLICT (name) DO NOTHING;
@@ -78,10 +77,10 @@ CREATE INDEX IF NOT EXISTS idx_roles_is_active ON roles(is_active);
 -- Users Indexes (for role_id)
 CREATE INDEX IF NOT EXISTS idx_users_role_id ON users(role_id);
 
--- Payments Indexes
-CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
-CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
-CREATE INDEX IF NOT EXISTS idx_payments_payment_type ON payments(payment_type);
-CREATE INDEX IF NOT EXISTS idx_payments_due_date ON payments(due_date);
-CREATE INDEX IF NOT EXISTS idx_payments_period ON payments(period_start, period_end);
-CREATE INDEX IF NOT EXISTS idx_payments_created_at ON payments(created_at);
+-- Subscriptions Indexes
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_subscription_type ON subscriptions(subscription_type);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_due_date ON subscriptions(due_date);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_period ON subscriptions(period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_created_at ON subscriptions(created_at);

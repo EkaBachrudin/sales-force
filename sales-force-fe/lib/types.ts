@@ -117,3 +117,54 @@ export interface UsersFilters {
   role: string;
   status: string;
 }
+
+// Subscription Types
+export enum SubscriptionType {
+  MONTHLY = 'monthly',
+  QUARTERLY = 'quarterly',
+  ANNUAL = 'annual',
+}
+
+export enum SubscriptionStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  OVERDUE = 'overdue',
+  CANCELLED = 'cancelled',
+}
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  user_name?: string;
+  user_email?: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  period_start?: string;
+  period_end?: string;
+  due_date: string;
+  status: SubscriptionStatus;
+  notes?: string;
+  created_at: string;
+}
+
+export interface CreateSubscriptionDto {
+  user_id: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  due_date: string;
+  notes?: string;
+}
+
+export interface UpdateSubscriptionDto {
+  subscription_type?: SubscriptionType;
+  amount?: number;
+  due_date?: string;
+  status?: SubscriptionStatus;
+  notes?: string;
+}
+
+export interface SubscriptionFilters {
+  search: string;
+  status: string;
+  subscriptionType: string;
+}

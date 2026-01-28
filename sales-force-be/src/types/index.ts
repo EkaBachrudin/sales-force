@@ -630,3 +630,72 @@ export interface AnalyticsDashboardResponse {
   trend: AnalyticsTrendResponse;
   sources: AnalyticsSourcesResponse;
 }
+
+// Subscription Types
+export enum SubscriptionType {
+  MONTHLY = 'monthly',
+  QUARTERLY = 'quarterly',
+  ANNUAL = 'annual',
+}
+
+export enum SubscriptionStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  OVERDUE = 'overdue',
+  CANCELLED = 'cancelled',
+}
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  period_start?: Date;
+  period_end?: Date;
+  due_date: Date;
+  status: SubscriptionStatus;
+  notes?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface SubscriptionListItem {
+  id: string;
+  user_id: string;
+  user_name?: string;
+  user_email?: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  period_start?: Date;
+  period_end?: Date;
+  due_date: Date;
+  status: SubscriptionStatus;
+  notes?: string;
+  created_at: Date;
+}
+
+export interface CreateSubscriptionDto {
+  user_id: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  due_date: string;
+  notes?: string;
+}
+
+export interface UpdateSubscriptionDto {
+  subscription_type?: SubscriptionType;
+  amount?: number;
+  due_date?: string;
+  status?: SubscriptionStatus;
+  notes?: string;
+}
+
+export interface GetSubscriptionsQuery {
+  page?: number;
+  limit?: number;
+  user_id?: string;
+  status?: SubscriptionStatus;
+  subscription_type?: SubscriptionType;
+  sort_by?: 'created_at' | 'due_date' | 'amount';
+  sort_order?: 'asc' | 'desc';
+}

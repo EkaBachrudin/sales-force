@@ -799,4 +799,101 @@ export const api = {
 
     return data;
   },
+
+  // Subscriptions API
+  getSubscriptions: async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    status?: string;
+    subscription_type?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('limit', params.pageSize.toString());
+    if (params?.status && params.status !== 'all') queryParams.append('status', params.status);
+    if (params?.subscription_type && params.subscription_type !== 'all') queryParams.append('subscription_type', params.subscription_type);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/subscriptions${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch subscriptions', response.status);
+    }
+
+    return data;
+  },
+
+  createSubscription: async (subscriptionData: {
+    user_id: string;
+    subscription_type: string;
+    amount: number;
+    due_date: string;
+    notes?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(subscriptionData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to create subscription', response.status);
+    }
+
+    return data;
+  },
+
+  updateSubscription: async (id: string, subscriptionData: {
+    subscription_type?: string;
+    amount?: number;
+    due_date?: string;
+    status?: string;
+    notes?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/subscriptions/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(subscriptionData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update subscription', response.status);
+    }
+
+    return data;
+  },
+
+  deleteSubscription: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/subscriptions/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to delete subscription', response.status);
+    }
+
+    return data;
+  },
 };
