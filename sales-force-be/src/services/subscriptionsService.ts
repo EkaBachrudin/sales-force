@@ -224,7 +224,7 @@ export const createSubscription = async (dto: CreateSubscriptionDto): Promise<Su
   // Insert subscription
   const query = `
     INSERT INTO subscriptions (user_id, subscription_type, amount, period_start, period_end, due_date, notes, status)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, 'active')
+    VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')
     RETURNING id, user_id, subscription_type, amount, period_start, period_end, due_date, status, notes, created_at
   `;
 
@@ -273,6 +273,8 @@ export const updateSubscription = async (subscriptionId: string, dto: UpdateSubs
     throw new AppError('Subscription not found', 404);
   }
 
+  const currentSubscription = existingSubscription.rows[0];
+
   // Validate amount if provided
   if (dto.amount !== undefined && dto.amount <= 0) {
     throw new AppError('Amount must be greater than 0', 400);
@@ -283,6 +285,51 @@ export const updateSubscription = async (subscriptionId: string, dto: UpdateSubs
     const validSubscriptionTypes = [SubscriptionType.MONTHLY, SubscriptionType.QUARTERLY, SubscriptionType.ANNUAL];
     if (!validSubscriptionTypes.includes(dto.subscription_type)) {
       throw new AppError('Invalid subscription type. Must be monthly, quarterly, or annual', 400);
+    }
+  }
+
+  // Determine the subscription type to use for calculations
+  const subscriptionType = dto.subscription_type || currentSubscription.subscription_type;
+
+  // Calculate period_start and period_end if due_date is updated
+  let periodStart: Date | null = null;
+  let periodEnd: Date | null = null;
+  let dueDate: Date | null = null;
+
+  if (dto.due_date) {
+    dueDate = new Date(dto.due_date);
+    periodStart = new Date(dueDate);
+
+    switch (subscriptionType) {
+      case SubscriptionType.MONTHLY:
+        periodEnd = new Date(periodStart);
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+        break;
+      case SubscriptionType.QUARTERLY:
+        periodEnd = new Date(periodStart);
+        periodEnd.setMonth(periodEnd.getMonth() + 3);
+        break;
+      case SubscriptionType.ANNUAL:
+        periodEnd = new Date(periodStart);
+        periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+        break;
+    }
+  } else if (dto.subscription_type) {
+    // If only subscription_type is changed, recalculate period_end based on current period_start
+    periodStart = new Date(currentSubscription.period_start);
+    switch (dto.subscription_type) {
+      case SubscriptionType.MONTHLY:
+        periodEnd = new Date(periodStart);
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+        break;
+      case SubscriptionType.QUARTERLY:
+        periodEnd = new Date(periodStart);
+        periodEnd.setMonth(periodEnd.getMonth() + 3);
+        break;
+      case SubscriptionType.ANNUAL:
+        periodEnd = new Date(periodStart);
+        periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+        break;
     }
   }
 
@@ -301,7 +348,17 @@ export const updateSubscription = async (subscriptionId: string, dto: UpdateSubs
   }
   if (dto.due_date !== undefined) {
     updateFields.push(`due_date = $${paramIndex++}`);
-    values.push(dto.due_date);
+    values.push(dueDate);
+  }
+  if (periodStart && periodEnd) {
+    updateFields.push(`period_start = $${paramIndex++}`);
+    values.push(periodStart);
+    updateFields.push(`period_end = $${paramIndex++}`);
+    values.push(periodEnd);
+  } else if (periodEnd && dto.subscription_type) {
+    // Only subscription_type changed, update period_end
+    updateFields.push(`period_end = $${paramIndex++}`);
+    values.push(periodEnd);
   }
   if (dto.status !== undefined) {
     updateFields.push(`status = $${paramIndex++}`);

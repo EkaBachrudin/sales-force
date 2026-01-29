@@ -68,7 +68,7 @@ export function SubscriptionModal({
           subscription_type: subscription.subscription_type || SubscriptionType.MONTHLY,
           amount: subscription.amount?.toString() || '',
           due_date: subscription.due_date ? new Date(subscription.due_date).toISOString().split('T')[0] : '',
-          status: subscription.status || SubscriptionStatus.ACTIVE,
+          status: subscription.status || SubscriptionStatus.PENDING,
           notes: subscription.notes || '',
         });
       } else {
