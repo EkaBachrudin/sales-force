@@ -3,7 +3,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { KanbanBoard, Lead, PipelineStage } from '@/components/dashboard/KanbanBoard';
 import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
-import { ReasonDialogModal } from '@/components/dashboard/ReasonDialogModal';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { usePipeline, usePipelineMutations } from '@/hooks/usePipeline';
 import { PipelineLeadItem } from '@/lib/types';
@@ -33,11 +32,6 @@ function transformPipelineLeadToLead(pipelineLead: PipelineLeadItem, status: str
 export default function PipelinePage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [reasonModal, setReasonModal] = useState<{
-    isOpen: boolean;
-    leadId: string | null;
-    newStage: PipelineStage | null;
-  }>({ isOpen: false, leadId: null, newStage: null });
 
   // Fetch pipeline data with TanStack Query
   const { data: pipelineData, isLoading, isFetching, error } = usePipeline(1, 50);
@@ -70,16 +64,6 @@ export default function PipelinePage() {
   }, []);
 
   const handleStageChange = useCallback(async (leadId: string, newStage: PipelineStage) => {
-    // If dropping to cancelled stage, show reason modal first
-    if (newStage === 'cancelled') {
-      setReasonModal({
-        isOpen: true,
-        leadId,
-        newStage,
-      });
-      return;
-    }
-
     try {
       // Optimistically update the UI
       setSelectedLead((prev) =>
@@ -107,45 +91,6 @@ export default function PipelinePage() {
       });
     }
   }, [updateLeadStatus, pipelineData]);
-
-  const handleReasonConfirm = useCallback(async (reason: string) => {
-    const { leadId, newStage } = reasonModal;
-    if (!leadId || !newStage) return;
-
-    try {
-      // Optimistically update the UI
-      setSelectedLead((prev) =>
-        prev?.id === leadId ? { ...prev, status: newStage } : prev
-      );
-
-      // Call the API with reason
-      await updateLeadStatus({
-        leadId,
-        statusData: { status: newStage, reason },
-      });
-
-      // Close modal
-      setReasonModal({ isOpen: false, leadId: null, newStage: null });
-    } catch (err) {
-      // Revert on error
-      setSelectedLead((prev) => {
-        if (prev?.id === leadId) {
-          // Find the original status from pipeline data
-          const originalStage = pipelineData?.stages.find((s) =>
-            s.leads.some((l) => l.id === leadId)
-          );
-          if (originalStage) {
-            return { ...prev, status: originalStage.id };
-          }
-        }
-        return prev;
-      });
-    }
-  }, [updateLeadStatus, pipelineData, reasonModal]);
-
-  const handleReasonModalClose = useCallback(() => {
-    setReasonModal({ isOpen: false, leadId: null, newStage: null });
-  }, []);
 
   if (isLoading) {
     return (
@@ -202,13 +147,6 @@ export default function PipelinePage() {
           setIsPanelOpen(false);
           setSelectedLead(null);
         }}
-      />
-
-      <ReasonDialogModal
-        isOpen={reasonModal.isOpen}
-        onClose={handleReasonModalClose}
-        onConfirm={handleReasonConfirm}
-        isLoading={isUpdating}
       />
     </>
   );

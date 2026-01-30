@@ -163,10 +163,6 @@ export const updateLeadStatus = async (
     );
   }
 
-  // If moving to cancelled, reason is required
-  if (dto.status === CrmLeadStatus.CANCELLED && !dto.reason) {
-    throw new AppError('Reason is required when moving lead to cancelled status', 422);
-  }
 
   const client = await pool.connect();
   try {
@@ -198,7 +194,7 @@ export const updateLeadStatus = async (
     const updatedLead = updateResult.rows[0];
 
     // Insert activity log
-    const notes = dto.reason || `Status changed from ${oldStatus} to ${dto.status}`;
+    const notes = dto.reason || (dto.status === CrmLeadStatus.CANCELLED ? 'cancelled' : `Status changed from ${oldStatus} to ${dto.status}`);
 
     const activityQuery = `
       INSERT INTO lead_activities (id, lead_id, user_id, activity_type, old_status, new_status, notes)
