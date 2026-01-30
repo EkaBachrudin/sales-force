@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { LeadCard, Lead } from './LeadCard';
 import { cn } from '@/lib/utils';
-import { Plus, GripVertical } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 
 export type { Lead } from './LeadCard';
 
@@ -521,20 +521,6 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
                 {column.leads.length}
               </span>
             </div>
-
-            {/* Add Lead Button */}
-            <button className={cn(
-              'w-full flex items-center justify-center gap-2 py-2 rounded-lg border-2 border-dashed mb-3 text-sm font-medium transition-colors',
-              column.color === 'gray' && 'border-gray-300 text-gray-500 hover:bg-gray-100',
-              column.color === 'blue' && 'border-blue-300 text-blue-500 hover:bg-blue-100',
-              column.color === 'purple' && 'border-purple-300 text-purple-500 hover:bg-purple-100',
-              column.color === 'orange' && 'border-orange-300 text-orange-500 hover:bg-orange-100',
-              column.color === 'green' && 'border-green-300 text-green-500 hover:bg-green-100',
-              column.color === 'red' && 'border-red-300 text-red-500 hover:bg-red-100',
-            )}>
-              <Plus className="w-4 h-4" />
-              Add Lead
-            </button>
 
             {/* Leads List */}
             <div className="space-y-3" data-stage={column.id}>
