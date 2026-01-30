@@ -17,6 +17,8 @@ export function usePipeline(page = 1, limit = 20): UseQueryResult<PipelineData, 
       return response.data as PipelineData;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 }
 
