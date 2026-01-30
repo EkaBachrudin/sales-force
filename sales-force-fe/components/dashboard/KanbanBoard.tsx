@@ -560,30 +560,42 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
                     {/* Lead Card */}
                     <div
                       data-lead-id={lead.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, lead)}
-                      onDragEnd={handleDragEnd}
-                      onTouchStart={(e) => handleTouchStart(e, lead)}
-                      onTouchEnd={handleTouchEnd}
                       className={cn(
-                        'transition-all touch-none',
-                        isDragging && 'opacity-40 cursor-grabbing'
+                        'transition-all',
+                        isDragging && 'opacity-40'
                       )}
                     >
                       <div className={cn(
                         'relative',
                         isDragging && 'scale-95'
                       )}>
-                        {isDragging && (
-                          <div className="absolute -top-1 -left-1 w-6 h-6 rounded bg-[var(--primary)] flex items-center justify-center">
-                            <GripVertical className="w-3 h-3 text-white" />
-                          </div>
-                        )}
+                        {/* Drag Handle - Only this is draggable */}
+                        <div
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, lead)}
+                          onDragEnd={handleDragEnd}
+                          onTouchStart={(e) => handleTouchStart(e, lead)}
+                          onTouchEnd={handleTouchEnd}
+                          className={cn(
+                            'absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10',
+                            'w-6 h-8 rounded-md bg-white border border-gray-200',
+                            'flex items-center justify-center cursor-grab',
+                            'hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm',
+                            'transition-all duration-150',
+                            'touch-none',
+                            isDragging && 'cursor-grabbing bg-primary border-primary'
+                          )}
+                        >
+                          <GripVertical className={cn(
+                            'w-4 h-4 text-gray-400',
+                            isDragging && 'text-white'
+                          )} />
+                        </div>
                         <LeadCard
                           lead={lead}
                           onClick={() => onLeadClick?.(lead)}
                           isDragging={isDragging}
-                          disableClick={isTouchDevice()}
+                          disableClick={false}
                         />
                       </div>
                     </div>
