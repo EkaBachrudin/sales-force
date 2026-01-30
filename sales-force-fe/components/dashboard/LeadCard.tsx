@@ -59,9 +59,10 @@ export interface LeadCardProps {
   onClick?: () => void;
   isDragging?: boolean;
   className?: string;
+  disableClick?: boolean; // Disable click when using touch drag
 }
 
-export function LeadCard({ lead, onClick, isDragging, className }: LeadCardProps) {
+export function LeadCard({ lead, onClick, isDragging, className, disableClick }: LeadCardProps) {
   const [hasFollowUp, setHasFollowUp] = useState(false);
 
   useEffect(() => {
@@ -72,7 +73,7 @@ export function LeadCard({ lead, onClick, isDragging, className }: LeadCardProps
 
   return (
     <div
-      onClick={onClick}
+      onClick={disableClick ? undefined : onClick}
       className={cn(
         'bg-white rounded-lg border p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[var(--primary)] active:scale-[0.98]',
         isDragging && 'opacity-90 shadow-lg',

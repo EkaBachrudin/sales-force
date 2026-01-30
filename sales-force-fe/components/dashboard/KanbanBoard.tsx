@@ -53,25 +53,69 @@ export interface KanbanBoardProps {
   className?: string;
 }
 
+// Touch state interface
+interface TouchState {
+  leadId: string;
+  lead: Lead;
+  startX: number;
+  startY: number;
+  currentX: number;
+  currentY: number;
+  element: HTMLElement;
+  clone: HTMLElement | null;
+}
+
 export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: KanbanBoardProps) {
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState<{ stage: PipelineStage; index: number } | null>(null);
   const draggedLeadRef = useRef<Lead | null>(null);
+
+  // Touch-specific state
+  const touchStateRef = useRef<TouchState | null>(null);
+  const isDraggingRef = useRef(false);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const columnsRef = useRef<PipelineColumn[]>([]);
+  const rafRef = useRef<number | null>(null);
 
   // Clear all drag states when leads prop changes (after drop and re-render)
   useEffect(() => {
     setDraggedLeadId(null);
     setPlaceholderIndex(null);
     draggedLeadRef.current = null;
+    touchStateRef.current = null;
+    isDraggingRef.current = false;
   }, [leads]);
 
-  // Group leads by stage
-  const columns: PipelineColumn[] = Object.entries(stageConfig).map(([stage, config]) => ({
-    id: stage as PipelineStage,
-    label: config.label,
-    color: config.color,
-    leads: leads.filter((lead) => lead.status === stage),
-  }));
+  // Clean up touch state on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+      if (touchStateRef.current?.clone) {
+        touchStateRef.current.clone.remove();
+      }
+    };
+  }, []);
+
+  // Check if device supports touch
+  const isTouchDevice = useCallback(() => {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  }, []);
+
+  // Group leads by stage - memoized for performance
+  const columns: PipelineColumn[] = React.useMemo(() =>
+    Object.entries(stageConfig).map(([stage, config]) => ({
+      id: stage as PipelineStage,
+      label: config.label,
+      color: config.color,
+      leads: leads.filter((lead) => lead.status === stage),
+    })), [leads]);
+
+  // Keep columnsRef in sync
+  useEffect(() => {
+    columnsRef.current = columns;
+  }, [columns]);
 
   // Handle drag start - set up drag data
   const handleDragStart = useCallback((e: React.DragEvent, lead: Lead) => {
@@ -100,6 +144,202 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
     setPlaceholderIndex(null);
     draggedLeadRef.current = null;
   }, []);
+
+  // === Touch Event Handlers for Mobile ===
+
+  const handleTouchStart = useCallback((e: React.TouchEvent, lead: Lead) => {
+    if (!isTouchDevice()) return;
+
+    // Store the lead reference immediately for potential click
+    draggedLeadRef.current = lead;
+
+    const touch = e.touches[0];
+    const element = e.currentTarget as HTMLElement;
+
+    // Start long press timer to distinguish tap from drag
+    longPressTimerRef.current = setTimeout(() => {
+      isDraggingRef.current = true;
+      setDraggedLeadId(lead.id);
+
+      // Create a visual clone for dragging
+      const rect = element.getBoundingClientRect();
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.position = 'fixed';
+      clone.style.left = `${rect.left}px`;
+      clone.style.top = `${rect.top}px`;
+      clone.style.width = `${rect.width}px`;
+      clone.style.height = `${rect.height}px`;
+      clone.style.opacity = '0.8';
+      clone.style.pointerEvents = 'none';
+      clone.style.zIndex = '9999';
+      clone.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+      clone.style.transform = 'scale(1.05) translateZ(0)'; // translateZ for GPU acceleration
+      clone.style.willChange = 'transform'; // Hint browser for optimization
+      clone.style.transition = 'none'; // Disable transitions for instant updates
+      document.body.appendChild(clone);
+
+      // Add visual feedback to original
+      element.style.opacity = '0.3';
+
+      touchStateRef.current = {
+        leadId: lead.id,
+        lead,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        currentX: touch.clientX,
+        currentY: touch.clientY,
+        element,
+        clone,
+      };
+    }, 200); // 200ms long press to initiate drag
+  }, [isTouchDevice]);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!touchStateRef.current || !isDraggingRef.current) return;
+
+    e.preventDefault(); // Prevent scrolling while dragging
+
+    // Cancel any pending animation frame
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+    }
+
+    // Use requestAnimationFrame for smooth updates
+    rafRef.current = requestAnimationFrame(() => {
+      const touch = e.touches[0];
+      const touchState = touchStateRef.current;
+      if (!touchState) return;
+
+      // Update position
+      touchState.currentX = touch.clientX;
+      touchState.currentY = touch.clientY;
+
+      // Move the clone with GPU acceleration
+      if (touchState.clone) {
+        const deltaX = touch.clientX - touchState.startX;
+        const deltaY = touch.clientY - touchState.startY;
+        touchState.clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.05)`;
+      }
+
+      // Find which column we're over
+      const touchTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+      const columnElement = touchTarget?.closest('[data-stage]');
+
+      if (columnElement) {
+        const stage = columnElement.getAttribute('data-stage') as PipelineStage;
+        const column = columnsRef.current.find(col => col.id === stage);
+
+        if (column) {
+          // Find position within column
+          const targetList = columnElement;
+          const targetElements = Array.from(targetList.children).filter(
+            child => child instanceof HTMLElement && child.dataset.leadId
+          );
+
+          const draggingOverElement = targetElements.find((element) => {
+            const rect = element.getBoundingClientRect();
+            return touch.clientY >= rect.top && touch.clientY <= rect.bottom;
+          });
+
+          if (draggingOverElement) {
+            const overElementId = (draggingOverElement as HTMLElement).dataset.leadId;
+            if (overElementId === touchState.leadId) return;
+
+            const index = column.leads.findIndex(lead => lead.id === overElementId);
+            if (index !== -1) {
+              setPlaceholderIndex({ stage, index });
+            }
+          } else {
+            setPlaceholderIndex({ stage, index: 0 });
+          }
+        }
+      }
+
+      rafRef.current = null;
+    });
+  }, []); // No dependencies - uses refs instead
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    // Cancel any pending RAF
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+
+    // Clear long press timer
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    const lead = draggedLeadRef.current;
+
+    if (!isDraggingRef.current) {
+      // It was a tap (not a drag), treat as click
+      if (lead) {
+        // Prevent the native click from firing
+        e.preventDefault();
+        onLeadClick?.(lead);
+      }
+      // Clean up
+      draggedLeadRef.current = null;
+      return;
+    }
+
+    if (!touchStateRef.current) {
+      draggedLeadRef.current = null;
+      return;
+    }
+
+    const touchState = touchStateRef.current;
+    const touch = e.changedTouches[0];
+
+    // Find drop target
+    const touchTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+    const columnElement = touchTarget?.closest('[data-stage]');
+
+    if (columnElement) {
+      const targetStage = columnElement.getAttribute('data-stage') as PipelineStage;
+
+      if (touchState.lead.status !== targetStage && onStageChange) {
+        onStageChange(touchState.leadId, targetStage);
+      }
+    }
+
+    // Clean up
+    if (touchState.clone) {
+      touchState.clone.remove();
+    }
+    touchState.element.style.opacity = '1';
+
+    setPlaceholderIndex(null);
+    setDraggedLeadId(null);
+    draggedLeadRef.current = null;
+    touchStateRef.current = null;
+    isDraggingRef.current = false;
+  }, [onStageChange, onLeadClick]);
+
+  // Set up global touch move listener - only once on mount
+  useEffect(() => {
+    if (!isTouchDevice()) return;
+
+    const handleTouchMoveGlobal = (e: Event) => {
+      if (e instanceof TouchEvent) {
+        handleTouchMove(e);
+      }
+    };
+
+    document.addEventListener('touchmove', handleTouchMoveGlobal, { passive: false });
+    return () => {
+      document.removeEventListener('touchmove', handleTouchMoveGlobal);
+      // Cancel any pending RAF
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [isTouchDevice]); // Only depends on isTouchDevice (stable)
+
+  // === End Touch Event Handlers ===
 
   // Handle drag over - determine placeholder position
   const handleDragOver = useCallback((e: React.DragEvent, targetStage: PipelineStage) => {
@@ -269,8 +509,10 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
                       draggable
                       onDragStart={(e) => handleDragStart(e, lead)}
                       onDragEnd={handleDragEnd}
+                      onTouchStart={(e) => handleTouchStart(e, lead)}
+                      onTouchEnd={handleTouchEnd}
                       className={cn(
-                        'transition-all',
+                        'transition-all touch-none',
                         isDragging && 'opacity-40 cursor-grabbing'
                       )}
                     >
@@ -287,6 +529,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
                           lead={lead}
                           onClick={() => onLeadClick?.(lead)}
                           isDragging={isDragging}
+                          disableClick={isTouchDevice()}
                         />
                       </div>
                     </div>
