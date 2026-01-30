@@ -74,7 +74,6 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   // Touch-specific state
   const touchStateRef = useRef<TouchState | null>(null);
   const isDraggingRef = useRef(false);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const columnsRef = useRef<PipelineColumn[]>([]);
   const rafRef = useRef<number | null>(null);
   const currentTouchPosRef = useRef<{ clientX: number; clientY: number } | null>(null);
@@ -97,9 +96,6 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   // Clean up touch state on unmount
   useEffect(() => {
     return () => {
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current);
-      }
       if (touchStateRef.current?.clone) {
         touchStateRef.current.clone.remove();
       }
@@ -161,55 +157,51 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   const handleTouchStart = useCallback((e: React.TouchEvent, lead: Lead) => {
     if (!isTouchDevice()) return;
 
-    // Store the lead reference immediately for potential click
-    draggedLeadRef.current = lead;
+    // Prevent the touch from propagating to card click
+    e.stopPropagation();
 
     const touch = e.touches[0];
-    const element = e.currentTarget as HTMLElement;
+    // Get the card element (parent of the drag handle), not the handle itself
+    const handleElement = e.currentTarget as HTMLElement;
+    const element = handleElement.closest('[data-lead-id]') as HTMLElement;
+
+    if (!element) return;
 
     // Store current touch position - will be updated during touch moves
     currentTouchPosRef.current = { clientX: touch.clientX, clientY: touch.clientY };
 
-    // Start long press timer to distinguish tap from drag
-    longPressTimerRef.current = setTimeout(() => {
-      // Get the latest touch position (may have moved during long press)
-      const currentTouch = currentTouchPosRef.current;
-      if (!currentTouch) return;
+    // Immediately start dragging on touch (no long press needed for drag handle)
+    isDraggingRef.current = true;
+    setDraggedLeadId(lead.id);
 
-      isDraggingRef.current = true;
-      setDraggedLeadId(lead.id);
+    // Create a visual clone for dragging - clone the card, not the handle
+    const rect = element.getBoundingClientRect();
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.style.position = 'fixed';
+    clone.style.left = `${rect.left}px`;
+    clone.style.top = `${rect.top}px`;
+    clone.style.width = `${rect.width}px`;
+    clone.style.height = `${rect.height}px`;
+    clone.style.opacity = '0.8';
+    clone.style.pointerEvents = 'none';
+    clone.style.zIndex = '9999';
+    clone.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    clone.style.transition = 'none'; // Disable transitions for instant updates
+    document.body.appendChild(clone);
 
-      // Create a visual clone for dragging
-      const rect = element.getBoundingClientRect();
-      const clone = element.cloneNode(true) as HTMLElement;
-      clone.style.position = 'fixed';
-      clone.style.left = `${rect.left}px`;
-      clone.style.top = `${rect.top}px`;
-      clone.style.width = `${rect.width}px`;
-      clone.style.height = `${rect.height}px`;
-      clone.style.opacity = '0.8';
-      clone.style.pointerEvents = 'none';
-      clone.style.zIndex = '9999';
-      clone.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
-      clone.style.transition = 'none'; // Disable transitions for instant updates
-      document.body.appendChild(clone);
+    // Add visual feedback to original card
+    element.style.opacity = '0.3';
 
-      // Add visual feedback to original
-      element.style.opacity = '0.3';
-
-      // Use CURRENT touch position as startX/startY, not the initial touch position
-      // This ensures the clone follows the finger correctly even if it moved during long press
-      touchStateRef.current = {
-        leadId: lead.id,
-        lead,
-        startX: currentTouch.clientX,
-        startY: currentTouch.clientY,
-        currentX: currentTouch.clientX,
-        currentY: currentTouch.clientY,
-        element,
-        clone,
-      };
-    }, 200); // 200ms long press to initiate drag
+    touchStateRef.current = {
+      leadId: lead.id,
+      lead,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      currentX: touch.clientX,
+      currentY: touch.clientY,
+      element,
+      clone,
+    };
   }, [isTouchDevice]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
@@ -319,16 +311,13 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   }, []); // No dependencies - uses refs instead
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    // Prevent the touch from propagating to card click
+    e.stopPropagation();
+
     // Cancel any pending RAF
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
-    }
-
-    // Clear long press timer
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
     }
 
     // Clear auto-scroll interval
@@ -337,24 +326,11 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
       autoScrollIntervalRef.current = null;
     }
 
-    const lead = draggedLeadRef.current;
-
-    if (!isDraggingRef.current) {
-      // It was a tap (not a drag), treat as click
-      if (lead) {
-        // Prevent the native click from firing
-        e.preventDefault();
-        onLeadClick?.(lead);
-      }
-      // Clean up
+    // Drag handle is always for dragging, not clicking
+    if (!touchStateRef.current || !isDraggingRef.current) {
       draggedLeadRef.current = null;
       currentTouchPosRef.current = null;
-      return;
-    }
-
-    if (!touchStateRef.current) {
-      draggedLeadRef.current = null;
-      currentTouchPosRef.current = null;
+      isDraggingRef.current = false;
       return;
     }
 
@@ -385,7 +361,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     touchStateRef.current = null;
     currentTouchPosRef.current = null;
     isDraggingRef.current = false;
-  }, [onStageChange, onLeadClick]);
+  }, [onStageChange]);
 
   // Set up global touch move listener - only once on mount
   useEffect(() => {
