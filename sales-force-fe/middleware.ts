@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/leads', '/analytics', '/properties', '/settings', '/users'];
+const protectedRoutes = ['/dashboard', '/leads', '/pipeline', '/analytics', '/properties', '/settings', '/users'];
 
 // Routes that require specific roles
 const roleProtectedRoutes: Record<string, string[]> = {

@@ -1,39 +1,46 @@
 'use client';
 
-import { useState } from 'react';
-import { redirect } from 'next/navigation';
-// import { KanbanBoard } from '@/components/dashboard/KanbanBoard';
-// import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
-// import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Lead } from '@/lib/types';
+import { useState, useCallback } from 'react';
+import { KanbanBoard } from '@/components/dashboard/KanbanBoard';
+import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { Lead, PipelineStage } from '@/lib/types';
+import { mockPipelineLeads } from '@/lib/mockData';
 
 export default function PipelinePage() {
-  redirect('/leads');
-  // const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  // const [isPanelOpen, setIsPanelOpen] = useState(false);
-  // const [leads, setLeads] = useState(mockLeads);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>(mockPipelineLeads);
 
-  // const handleLeadClick = (lead: Lead) => {
-  //   setSelectedLead(lead);
-  //   setIsPanelOpen(true);
-  // };
+  const handleLeadClick = useCallback((lead: Lead) => {
+    setSelectedLead(lead);
+    setIsPanelOpen(true);
+  }, []);
 
-  // const handleStageChange = (leadId: string, newStage: string) => {
-  //   setLeads(leads.map(lead =>
-  //     lead.id === leadId ? { ...lead, stage: newStage as any } : lead
-  //   ));
-  //   if (selectedLead?.id === leadId) {
-  //     setSelectedLead({ ...selectedLead, stage: newStage as any });
-  //   }
-  // };
+  const handleStageChange = useCallback((leadId: string, newStage: PipelineStage) => {
+    setLeads((prevLeads) =>
+      prevLeads.map((lead) =>
+        lead.id === leadId ? { ...lead, status: newStage } : lead
+      )
+    );
+
+    // Also update the selected lead if it's the one being changed
+    if (selectedLead?.id === leadId) {
+      setSelectedLead((prev) => prev ? { ...prev, status: newStage } : null);
+    }
+  }, [selectedLead]);
 
   return (
     <>
-      {/* <DashboardLayout
+      <DashboardLayout
         title="Pipeline"
         subtitle="Manage your leads through the sales pipeline"
       >
-        <KanbanBoard leads={leads} onLeadClick={handleLeadClick} />
+        <KanbanBoard
+          leads={leads}
+          onLeadClick={handleLeadClick}
+          onStageChange={handleStageChange}
+        />
       </DashboardLayout>
 
       <LeadDetailPanel
@@ -43,7 +50,7 @@ export default function PipelinePage() {
           setIsPanelOpen(false);
           setSelectedLead(null);
         }}
-      /> */}
+      />
     </>
   );
 }

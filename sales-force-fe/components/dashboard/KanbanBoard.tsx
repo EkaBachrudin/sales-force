@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { LeadCard, Lead } from './LeadCard';
 import { cn } from '@/lib/utils';
-import { Plus, MoreHorizontal } from 'lucide-react';
+import { Plus, GripVertical } from 'lucide-react';
 
 export type { Lead } from './LeadCard';
 
@@ -43,14 +43,27 @@ const headerColorStyles = {
   red: 'text-red-700 bg-red-100',
 };
 
+// Custom type for drag data
+const DRAG_TYPE = 'application/vnd.lead.card';
+
 export interface KanbanBoardProps {
   leads: Lead[];
   onLeadClick?: (lead: Lead) => void;
+  onStageChange?: (leadId: string, newStage: PipelineStage) => void;
   className?: string;
 }
 
-export function KanbanBoard({ leads, onLeadClick, className }: KanbanBoardProps) {
-  const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
+export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: KanbanBoardProps) {
+  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+  const [placeholderIndex, setPlaceholderIndex] = useState<{ stage: PipelineStage; index: number } | null>(null);
+  const draggedLeadRef = useRef<Lead | null>(null);
+
+  // Clear all drag states when leads prop changes (after drop and re-render)
+  useEffect(() => {
+    setDraggedLeadId(null);
+    setPlaceholderIndex(null);
+    draggedLeadRef.current = null;
+  }, [leads]);
 
   // Group leads by stage
   const columns: PipelineColumn[] = Object.entries(stageConfig).map(([stage, config]) => ({
@@ -60,20 +73,107 @@ export function KanbanBoard({ leads, onLeadClick, className }: KanbanBoardProps)
     leads: leads.filter((lead) => lead.status === stage),
   }));
 
-  const handleDragStart = (lead: Lead) => {
-    setDraggedLead(lead);
-  };
+  // Handle drag start - set up drag data
+  const handleDragStart = useCallback((e: React.DragEvent, lead: Lead) => {
+    draggedLeadRef.current = lead;
+    setDraggedLeadId(lead.id);
 
-  const handleDragEnd = () => {
-    setDraggedLead(null);
-  };
+    // Set the drag effect to move
+    e.dataTransfer.effectAllowed = 'move';
 
-  const handleDrop = (targetStage: PipelineStage) => {
-    if (draggedLead) {
-      // In a real app, this would update the lead's stage in the database
-      console.log(`Moving lead ${draggedLead.id} to ${targetStage}`);
+    // Set custom drag type for identification
+    e.dataTransfer.setData(DRAG_TYPE, JSON.stringify({ leadId: lead.id, currentStage: lead.status }));
+
+    // Create a custom drag image (optional)
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.opacity = '0.5';
+    dragImage.style.position = 'absolute';
+    dragImage.style.top = '-1000px';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
+  }, []);
+
+  // Handle drag end - cleanup
+  const handleDragEnd = useCallback(() => {
+    setDraggedLeadId(null);
+    setPlaceholderIndex(null);
+    draggedLeadRef.current = null;
+  }, []);
+
+  // Handle drag over - determine placeholder position
+  const handleDragOver = useCallback((e: React.DragEvent, targetStage: PipelineStage) => {
+    e.preventDefault();
+
+    // Only accept lead cards
+    if (!e.dataTransfer.types.includes(DRAG_TYPE)) {
+      return;
     }
-  };
+
+    // Set drop effect to move
+    e.dataTransfer.dropEffect = 'move';
+
+    // Find the column's leads container
+    const column = columns.find(col => col.id === targetStage);
+    if (!column) return;
+
+    const targetList = e.currentTarget;
+    const targetElements = Array.from(targetList.children).filter(
+      child => child instanceof HTMLElement && child.dataset.leadId
+    );
+
+    // Find which element we're hovering over
+    const draggingOverElement = targetElements.find((element) => {
+      const rect = element.getBoundingClientRect();
+      return e.clientY >= rect.top && e.clientY <= rect.bottom;
+    });
+
+    if (draggingOverElement) {
+      const overElementId = (draggingOverElement as HTMLElement).dataset.leadId;
+      if (overElementId === draggedLeadId) return;
+
+      const index = column.leads.findIndex(lead => lead.id === overElementId);
+      if (index !== -1) {
+        setPlaceholderIndex({ stage: targetStage, index });
+      }
+    } else {
+      // No specific element being hovered - place at the TOP (index 0)
+      const firstLead = column.leads[0];
+      if (firstLead?.id !== draggedLeadId) {
+        setPlaceholderIndex({ stage: targetStage, index: 0 });
+      }
+    }
+  }, [columns, draggedLeadId]);
+
+  // Handle drag leave - remove placeholder when leaving column
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+
+    // Check if we're still within the column bounds
+    if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+      setPlaceholderIndex(null);
+    }
+  }, []);
+
+  // Handle drop - move the lead to the new stage
+  const handleDrop = useCallback((e: React.DragEvent, targetStage: PipelineStage) => {
+    e.preventDefault();
+
+    const draggedLead = draggedLeadRef.current;
+    if (!draggedLead) return;
+
+    // Call the onStageChange callback if the stage actually changed
+    if (draggedLead.status !== targetStage && onStageChange) {
+      onStageChange(draggedLead.id, targetStage);
+    }
+
+    // Clear all drag states immediately
+    setPlaceholderIndex(null);
+    setDraggedLeadId(null);
+    draggedLeadRef.current = null;
+  }, [onStageChange]);
 
   return (
     <div className={cn('w-full', className)}>
@@ -95,11 +195,12 @@ export function KanbanBoard({ leads, onLeadClick, className }: KanbanBoardProps)
           <div
             key={column.id}
             className={cn(
-              'flex-shrink-0 w-80 rounded-xl border p-4',
+              'flex-shrink-0 w-80 rounded-xl border p-4 min-h-[500px]',
               colorStyles[column.color]
             )}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={() => handleDrop(column.id)}
+            onDragOver={(e) => handleDragOver(e, column.id)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, column.id)}
           >
             {/* Column Header */}
             <div className="flex items-center justify-between mb-4">
@@ -129,23 +230,71 @@ export function KanbanBoard({ leads, onLeadClick, className }: KanbanBoardProps)
             </button>
 
             {/* Leads List */}
-            <div className="space-y-3">
-              {column.leads.map((lead) => (
-                <div
-                  key={lead.id}
-                  draggable
-                  onDragStart={() => handleDragStart(lead)}
-                  onDragEnd={handleDragEnd}
-                >
-                  <LeadCard
-                    lead={lead}
-                    onClick={() => onLeadClick?.(lead)}
-                    isDragging={draggedLead?.id === lead.id}
-                  />
-                </div>
-              ))}
+            <div className="space-y-3" data-stage={column.id}>
+              {/* Show placeholder at the top when dragging to empty column or index 0 */}
+              {placeholderIndex?.stage === column.id && placeholderIndex.index === 0 && (
+                <div className={cn(
+                  'rounded-lg border-2 border-dashed',
+                  column.color === 'gray' && 'border-gray-300 bg-gray-100',
+                  column.color === 'blue' && 'border-blue-300 bg-blue-100',
+                  column.color === 'purple' && 'border-purple-300 bg-purple-100',
+                  column.color === 'orange' && 'border-orange-300 bg-orange-100',
+                  column.color === 'green' && 'border-green-300 bg-green-100',
+                  column.color === 'red' && 'border-red-300 bg-red-100',
+                )} style={{ height: '80px' }} />
+              )}
 
-              {column.leads.length === 0 && (
+              {column.leads.map((lead, index) => {
+                const showPlaceholder = placeholderIndex?.stage === column.id && placeholderIndex.index === index && index !== 0;
+                const isDragging = draggedLeadId === lead.id;
+
+                return (
+                  <React.Fragment key={lead.id}>
+                    {/* Placeholder (for positions other than top) */}
+                    {showPlaceholder && (
+                      <div className={cn(
+                        'rounded-lg border-2 border-dashed',
+                        column.color === 'gray' && 'border-gray-300 bg-gray-100',
+                        column.color === 'blue' && 'border-blue-300 bg-blue-100',
+                        column.color === 'purple' && 'border-purple-300 bg-purple-100',
+                        column.color === 'orange' && 'border-orange-300 bg-orange-100',
+                        column.color === 'green' && 'border-green-300 bg-green-100',
+                        column.color === 'red' && 'border-red-300 bg-red-100',
+                      )} style={{ height: '80px' }} />
+                    )}
+
+                    {/* Lead Card */}
+                    <div
+                      data-lead-id={lead.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, lead)}
+                      onDragEnd={handleDragEnd}
+                      className={cn(
+                        'transition-all',
+                        isDragging && 'opacity-40 cursor-grabbing'
+                      )}
+                    >
+                      <div className={cn(
+                        'relative',
+                        isDragging && 'scale-95'
+                      )}>
+                        {isDragging && (
+                          <div className="absolute -top-1 -left-1 w-6 h-6 rounded bg-[var(--primary)] flex items-center justify-center">
+                            <GripVertical className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                        <LeadCard
+                          lead={lead}
+                          onClick={() => onLeadClick?.(lead)}
+                          isDragging={isDragging}
+                        />
+                      </div>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+
+              {column.leads.length === 0 && !placeholderIndex && (
                 <div className="text-center py-8 text-sm text-[var(--text-secondary)]">
                   No leads in this stage
                 </div>

@@ -32,7 +32,7 @@ interface NavItem {
 const baseNavItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
   { label: 'Leads', icon: UsersIcon, route: '/leads' },
-  // { label: 'Pipeline', icon: Kanban, route: '/pipeline' },
+  { label: 'Pipeline', icon: Kanban, route: '/pipeline' },
   { label: 'Analytics', icon: BarChart2, route: '/analytics' },
   { label: 'Properties', icon: Building2, route: '/properties' },
   { label: 'Users', icon: Shield, route: '/users', requiredRoles: ['Admin', 'Supervisor'] },
