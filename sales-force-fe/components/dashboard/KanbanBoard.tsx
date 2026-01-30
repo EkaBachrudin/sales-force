@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { LeadCard, Lead } from './LeadCard';
 import { cn } from '@/lib/utils';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Loader2 } from 'lucide-react';
 
 export type { Lead } from './LeadCard';
 
@@ -51,6 +51,7 @@ export interface KanbanBoardProps {
   onLeadClick?: (lead: Lead) => void;
   onStageChange?: (leadId: string, newStage: PipelineStage) => void;
   className?: string;
+  isUpdating?: boolean;
 }
 
 // Touch state interface
@@ -65,7 +66,7 @@ interface TouchState {
   clone: HTMLElement | null;
 }
 
-export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: KanbanBoardProps) {
+export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUpdating }: KanbanBoardProps) {
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState<{ stage: PipelineStage; index: number } | null>(null);
   const draggedLeadRef = useRef<Lead | null>(null);
@@ -599,6 +600,16 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
           </div>
         ))}
       </div>
+
+      {/* Loading overlay for drag-drop operations */}
+      {isUpdating && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-white rounded-lg shadow-xl p-4 flex items-center gap-3">
+            <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+            <span className="text-sm font-medium">Updating lead status...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { usePipeline, usePipelineMutations } from '@/hooks/usePipeline';
 import { PipelineLeadItem } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
 // Transform backend PipelineLeadItem to frontend Lead format
 function transformPipelineLeadToLead(pipelineLead: PipelineLeadItem, status: string): Lead {
@@ -33,8 +34,8 @@ export default function PipelinePage() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   // Fetch pipeline data with TanStack Query
-  const { data: pipelineData, isLoading, error } = usePipeline(1, 50);
-  const { updateLeadStatus } = usePipelineMutations({
+  const { data: pipelineData, isLoading, isFetching, error } = usePipeline(1, 50);
+  const { updateLeadStatus, isUpdating } = usePipelineMutations({
     onUpdateSuccess: () => {
       // Query will be automatically invalidated and refetched
     },
@@ -127,8 +128,17 @@ export default function PipelinePage() {
           leads={leads}
           onLeadClick={handleLeadClick}
           onStageChange={handleStageChange}
+          isUpdating={isUpdating}
         />
       </DashboardLayout>
+
+      {/* Loading overlay for refetching pipeline data */}
+      {isFetching && !isLoading && (
+        <div className="fixed top-4 right-4 z-50 bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 border border-gray-200">
+          <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+          <span className="text-sm font-medium">Syncing...</span>
+        </div>
+      )}
 
       <LeadDetailPanel
         lead={selectedLead}
