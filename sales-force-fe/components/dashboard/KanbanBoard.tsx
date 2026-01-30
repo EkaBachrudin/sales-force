@@ -76,6 +76,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const columnsRef = useRef<PipelineColumn[]>([]);
   const rafRef = useRef<number | null>(null);
+  const currentTouchPosRef = useRef<{ clientX: number; clientY: number } | null>(null);
 
   // Clear all drag states when leads prop changes (after drop and re-render)
   useEffect(() => {
@@ -156,8 +157,15 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
     const touch = e.touches[0];
     const element = e.currentTarget as HTMLElement;
 
+    // Store current touch position - will be updated during touch moves
+    currentTouchPosRef.current = { clientX: touch.clientX, clientY: touch.clientY };
+
     // Start long press timer to distinguish tap from drag
     longPressTimerRef.current = setTimeout(() => {
+      // Get the latest touch position (may have moved during long press)
+      const currentTouch = currentTouchPosRef.current;
+      if (!currentTouch) return;
+
       isDraggingRef.current = true;
       setDraggedLeadId(lead.id);
 
@@ -173,21 +181,21 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
       clone.style.pointerEvents = 'none';
       clone.style.zIndex = '9999';
       clone.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
-      clone.style.transform = 'scale(1.05) translateZ(0)'; // translateZ for GPU acceleration
-      clone.style.willChange = 'transform'; // Hint browser for optimization
       clone.style.transition = 'none'; // Disable transitions for instant updates
       document.body.appendChild(clone);
 
       // Add visual feedback to original
       element.style.opacity = '0.3';
 
+      // Use CURRENT touch position as startX/startY, not the initial touch position
+      // This ensures the clone follows the finger correctly even if it moved during long press
       touchStateRef.current = {
         leadId: lead.id,
         lead,
-        startX: touch.clientX,
-        startY: touch.clientY,
-        currentX: touch.clientX,
-        currentY: touch.clientY,
+        startX: currentTouch.clientX,
+        startY: currentTouch.clientY,
+        currentX: currentTouch.clientX,
+        currentY: currentTouch.clientY,
         element,
         clone,
       };
@@ -195,6 +203,14 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
   }, [isTouchDevice]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0];
+
+    // Always update current touch position, even before drag starts
+    // This ensures we have the correct position when long press completes
+    if (currentTouchPosRef.current) {
+      currentTouchPosRef.current = { clientX: touch.clientX, clientY: touch.clientY };
+    }
+
     if (!touchStateRef.current || !isDraggingRef.current) return;
 
     e.preventDefault(); // Prevent scrolling while dragging
@@ -283,11 +299,13 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
       }
       // Clean up
       draggedLeadRef.current = null;
+      currentTouchPosRef.current = null;
       return;
     }
 
     if (!touchStateRef.current) {
       draggedLeadRef.current = null;
+      currentTouchPosRef.current = null;
       return;
     }
 
@@ -316,6 +334,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
     setDraggedLeadId(null);
     draggedLeadRef.current = null;
     touchStateRef.current = null;
+    currentTouchPosRef.current = null;
     isDraggingRef.current = false;
   }, [onStageChange, onLeadClick]);
 
