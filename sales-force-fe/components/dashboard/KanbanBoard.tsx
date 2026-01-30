@@ -77,6 +77,12 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
   const columnsRef = useRef<PipelineColumn[]>([]);
   const rafRef = useRef<number | null>(null);
   const currentTouchPosRef = useRef<{ clientX: number; clientY: number } | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-scroll configuration
+  const SCROLL_EDGE_THRESHOLD = 50; // Distance from edge (px) to trigger auto-scroll
+  const SCROLL_SPEED = 8; // Pixels per scroll step
 
   // Clear all drag states when leads prop changes (after drop and re-render)
   useEffect(() => {
@@ -95,6 +101,9 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
       }
       if (touchStateRef.current?.clone) {
         touchStateRef.current.clone.remove();
+      }
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
       }
     };
   }, []);
@@ -215,6 +224,39 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
 
     e.preventDefault(); // Prevent scrolling while dragging
 
+    // Auto-scroll logic
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      const viewportWidth = window.innerWidth;
+      const touchX = touch.clientX;
+
+      // Clear any existing auto-scroll interval
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+        autoScrollIntervalRef.current = null;
+      }
+
+      // Check if near left edge
+      if (touchX < SCROLL_EDGE_THRESHOLD && scrollContainer.scrollLeft > 0) {
+        autoScrollIntervalRef.current = setInterval(() => {
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollLeft -= SCROLL_SPEED;
+          }
+        }, 16); // ~60fps
+      }
+      // Check if near right edge
+      else if (touchX > viewportWidth - SCROLL_EDGE_THRESHOLD) {
+        const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        if (scrollContainer.scrollLeft < maxScrollLeft) {
+          autoScrollIntervalRef.current = setInterval(() => {
+            if (scrollContainerRef.current) {
+              scrollContainerRef.current.scrollLeft += SCROLL_SPEED;
+            }
+          }, 16); // ~60fps
+        }
+      }
+    }
+
     // Cancel any pending animation frame
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
@@ -286,6 +328,12 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
+    }
+
+    // Clear auto-scroll interval
+    if (autoScrollIntervalRef.current) {
+      clearInterval(autoScrollIntervalRef.current);
+      autoScrollIntervalRef.current = null;
     }
 
     const lead = draggedLeadRef.current;
@@ -449,7 +497,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className }: Ka
       </div>
 
       {/* Kanban Columns */}
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto pb-4">
         {columns.map((column) => (
           <div
             key={column.id}
