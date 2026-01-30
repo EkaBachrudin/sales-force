@@ -699,3 +699,63 @@ export interface GetSubscriptionsQuery {
   sort_by?: 'created_at' | 'due_date' | 'amount';
   sort_order?: 'asc' | 'desc';
 }
+
+// Pipeline Kanban Types
+export interface PipelineStage {
+  id: CrmLeadStatus;
+  name: string;
+  name_en: string;
+  order: number;
+  color: string;
+  lead_count: number;
+  leads: PipelineLeadItem[];
+}
+
+export interface PipelineLeadItem {
+  id: string;
+  name: string;
+  property_name?: string;
+  next_follow_up_at?: Date;
+  updated_at: Date;
+}
+
+export interface GetPipelineQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface PipelineStagesSummary {
+  new: number;
+  contacted: number;
+  surveyed: number;
+  negotiating: number;
+  closed: number;
+  cancelled: number;
+}
+
+export interface PipelineResponse {
+  stages: PipelineStage[];
+  meta: {
+    total_leads: number;
+    stages_summary: PipelineStagesSummary;
+  };
+}
+
+export interface UpdateLeadStatusDto {
+  status: CrmLeadStatus;
+  reason?: string;
+}
+
+export interface UpdateLeadStatusResponse {
+  lead: CrmLead;
+  activity: CrmLeadActivity;
+}
+
+export interface PipelineMetricsResponse {
+  total_leads: number;
+  this_month: number;
+  surveyed: number;
+  closed: number;
+  conversion_rate: number;
+  avg_time_to_close: number;
+}

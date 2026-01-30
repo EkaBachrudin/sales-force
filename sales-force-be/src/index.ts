@@ -20,6 +20,7 @@ import remindersRoutes from './routes/remindersRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import usersRoutes from './routes/usersRoutes';
 import subscriptionsRoutes from './routes/subscriptionsRoutes';
+import pipelineRoutes from './routes/pipelineRoutes';
 import { runCleanupJob } from './jobs/cleanupSessions';
 
 // Load environment variables
@@ -107,6 +108,7 @@ app.use(`${API_VERSION}/reminders`, remindersRoutes);
 app.use(`${API_VERSION}/analytics`, analyticsRoutes);
 app.use(`${API_VERSION}/users`, usersRoutes);
 app.use(`${API_VERSION}/subscriptions`, subscriptionsRoutes);
+app.use(`${API_VERSION}/pipeline`, pipelineRoutes);
 
 // 404 handler
 app.use((_req: Request, _res: Response, next) => {
