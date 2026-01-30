@@ -896,4 +896,67 @@ export const api = {
 
     return data;
   },
+
+  // Pipeline API
+  getPipeline: async (params?: {
+    page?: number;
+    limit?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/pipeline${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch pipeline data', response.status);
+    }
+
+    return data;
+  },
+
+  getPipelineMetrics: async () => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/pipeline/metrics`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch pipeline metrics', response.status);
+    }
+
+    return data;
+  },
+
+  updateLeadStatus: async (leadId: string, statusData: {
+    status: string;
+    reason?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/pipeline/leads/${leadId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(statusData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update lead status', response.status);
+    }
+
+    return data;
+  },
 };

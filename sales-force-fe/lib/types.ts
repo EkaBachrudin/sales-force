@@ -168,3 +168,53 @@ export interface SubscriptionFilters {
   status: string;
   subscriptionType: string;
 }
+
+// Pipeline Types
+export interface PipelineStageApi {
+  id: string;
+  name: string;
+  name_en: string;
+  order: number;
+  color: string;
+  lead_count: number;
+  leads: PipelineLeadItem[];
+}
+
+export interface PipelineLeadItem {
+  id: string;
+  name: string;
+  property_name?: string;
+  next_follow_up_at?: string;
+  updated_at: string;
+}
+
+export interface PipelineStagesSummary {
+  new: number;
+  contacted: number;
+  surveyed: number;
+  negotiating: number;
+  closed: number;
+  cancelled: number;
+}
+
+export interface PipelineData {
+  stages: PipelineStageApi[];
+  meta: {
+    total_leads: number;
+    stages_summary: PipelineStagesSummary;
+  };
+}
+
+export interface PipelineMetrics {
+  total_leads: number;
+  this_month: number;
+  surveyed: number;
+  closed: number;
+  conversion_rate: number;
+  avg_time_to_close: number;
+}
+
+export interface UpdateLeadStatusDto {
+  status: string;
+  reason?: string;
+}
