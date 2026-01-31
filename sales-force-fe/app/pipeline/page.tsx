@@ -3,8 +3,10 @@
 import { useState, useCallback, useMemo } from 'react';
 import { KanbanBoard, Lead, PipelineStage } from '@/components/dashboard/KanbanBoard';
 import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
+import { EditLeadModal } from '@/components/dashboard/EditLeadModal';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { usePipeline, usePipelineMutations } from '@/hooks/usePipeline';
+import { useLeadDetail, useLeadMutations } from '@/hooks/useLeads';
 import { PipelineLeadItem } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 
@@ -30,12 +32,23 @@ function transformPipelineLeadToLead(pipelineLead: PipelineLeadItem, status: str
 }
 
 export default function PipelinePage() {
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Fetch lead detail when selectedLeadId changes
+  const { data: selectedLead, isLoading: isLoadingLeadDetail } = useLeadDetail(selectedLeadId, isPanelOpen);
+
+  // Mutations
+  const { updateLead, isUpdating: isUpdatingLead } = useLeadMutations({
+    onUpdateSuccess: () => {
+      setIsEditModalOpen(false);
+    },
+  });
 
   // Fetch pipeline data with TanStack Query
   const { data: pipelineData, isLoading, isFetching, error } = usePipeline(1, 50);
-  const { updateLeadStatus, isUpdating } = usePipelineMutations({
+  const { updateLeadStatus, isUpdating: isUpdatingStatus } = usePipelineMutations({
     onUpdateSuccess: () => {
       // Query will be automatically invalidated and refetched
     },
@@ -59,38 +72,26 @@ export default function PipelinePage() {
   }, [pipelineData]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
-    setSelectedLead(lead);
+    setSelectedLeadId(lead.id);
     setIsPanelOpen(true);
   }, []);
 
-  const handleStageChange = useCallback(async (leadId: string, newStage: PipelineStage) => {
-    try {
-      // Optimistically update the UI
-      setSelectedLead((prev) =>
-        prev?.id === leadId ? { ...prev, status: newStage } : prev
-      );
+  const handleEditClick = useCallback(() => {
+    setIsEditModalOpen(true);
+  }, []);
 
-      // Call the API
-      await updateLeadStatus({
-        leadId,
-        statusData: { status: newStage },
-      });
-    } catch (err) {
-      // Revert on error
-      setSelectedLead((prev) => {
-        if (prev?.id === leadId) {
-          // Find the original status from pipeline data
-          const originalStage = pipelineData?.stages.find((s) =>
-            s.leads.some((l) => l.id === leadId)
-          );
-          if (originalStage) {
-            return { ...prev, status: originalStage.id };
-          }
-        }
-        return prev;
-      });
-    }
-  }, [updateLeadStatus, pipelineData]);
+  const handleEditLead = useCallback(async (data: Partial<Lead>) => {
+    if (!selectedLead) return;
+    await updateLead({ id: selectedLead.id, data });
+  }, [updateLead, selectedLead]);
+
+  const handleStageChange = useCallback(async (leadId: string, newStage: PipelineStage) => {
+    // Call the API
+    await updateLeadStatus({
+      leadId,
+      statusData: { status: newStage },
+    });
+  }, [updateLeadStatus]);
 
   if (isLoading) {
     return (
@@ -128,7 +129,7 @@ export default function PipelinePage() {
           leads={leads}
           onLeadClick={handleLeadClick}
           onStageChange={handleStageChange}
-          isUpdating={isUpdating}
+          isUpdating={isUpdatingStatus}
         />
       </DashboardLayout>
 
@@ -143,10 +144,19 @@ export default function PipelinePage() {
       <LeadDetailPanel
         lead={selectedLead}
         isOpen={isPanelOpen}
+        onEdit={handleEditClick}
         onClose={() => {
           setIsPanelOpen(false);
-          setSelectedLead(null);
+          setSelectedLeadId(null);
         }}
+      />
+
+      <EditLeadModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleEditLead}
+        lead={selectedLead}
+        isLoading={isUpdatingLead}
       />
     </>
   );
