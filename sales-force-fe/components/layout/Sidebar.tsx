@@ -14,10 +14,8 @@ import {
   ChevronRight,
   X,
   LogOut,
-  User,
   Shield,
-  Receipt,
-  Sparkles,
+  Receipt
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { User as UserType } from './Header';
@@ -36,7 +34,6 @@ const baseNavItems: NavItem[] = [
   { label: 'Pipeline', icon: Kanban, route: '/pipeline' },
   { label: 'Analytics', icon: BarChart2, route: '/analytics' },
   { label: 'Properties', icon: Building2, route: '/properties' },
-  { label: 'Features', icon: Sparkles, route: '/features' },
   { label: 'Users', icon: Shield, route: '/users', requiredRoles: ['Admin', 'Supervisor'] },
   { label: 'Subscriptions', icon: Receipt, route: '/subscriptions', requiredRoles: ['Admin'] },
   { label: 'Settings', icon: Settings, route: '/settings' },
