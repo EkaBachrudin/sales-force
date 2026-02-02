@@ -83,8 +83,10 @@ const fetchWithInterceptor = async (input: RequestInfo | URL, init?: RequestInit
       // Refresh gagal, process queue dengan error
       processQueue(error);
 
-      // Redirect ke login jika refresh juga gagal
-      if (!window.location.pathname.includes('/login')) {
+      // Redirect ke login jika refresh juga gagal, kecuali untuk public routes
+      const publicRoutes = ['/login', '/register', '/features'];
+      const isPublicRoute = publicRoutes.some(route => window.location.pathname.startsWith(route));
+      if (!isPublicRoute) {
         window.location.href = '/login';
       }
 

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
 export interface User {
@@ -22,10 +22,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Public routes yang tidak perlu auth check
+const PUBLIC_ROUTES = ['/login', '/register', '/features'];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
 
   const fetchUser = async () => {
@@ -57,8 +61,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Skip fetching user untuk public routes
+    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route));
+    if (isPublicRoute) {
+      setIsLoading(false);
+      return;
+    }
+
     fetchUser();
-  }, []);
+  }, [pathname]);
 
   const value: AuthContextType = {
     user,

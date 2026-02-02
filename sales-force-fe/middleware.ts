@@ -12,7 +12,7 @@ const roleProtectedRoutes: Record<string, string[]> = {
 };
 
 // Public routes
-const publicRoutes = ['/login', '/register'];
+const publicRoutes = ['/login', '/register', '/features'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

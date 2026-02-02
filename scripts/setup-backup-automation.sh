@@ -42,20 +42,20 @@ log "Setting up log files and rotation..."
 # Create log files
 touch /var/log/postgres-backup.log
 touch /var/log/backup-sync.log
-touch /var/log/auto-backup.log
+touch /home/nursa/auto-backup.log
 touch /var/log/postgres-restore.log
 
 # Set permissions
 chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-backup.log
 chown $PROJECT_USER:$PROJECT_USER /var/log/backup-sync.log
-chown $PROJECT_USER:$PROJECT_USER /var/log/auto-backup.log
+chown $PROJECT_USER:$PROJECT_USER /home/nursa/auto-backup.log
 chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-restore.log
 
 # Setup logrotate
 cat > /etc/logrotate.d/salesforce-backup << 'EOF'
 /var/log/postgres-backup.log
 /var/log/backup-sync.log
-/var/log/auto-backup.log
+/home/nursa/auto-backup.log
 /var/log/postgres-restore.log {
     daily
     rotate 14
@@ -106,8 +106,8 @@ Type=oneshot
 User=$PROJECT_USER
 Group=$PROJECT_USER
 ExecStart=$AUTO_BACKUP_SCRIPT
-StandardOutput=append:/var/log/auto-backup.log
-StandardError=append:/var/log/auto-backup.log
+StandardOutput=append:/home/nursa/auto-backup.log
+StandardError=append:/home/nursa/auto-backup.log
 
 [Install]
 WantedBy=multi-user.target
@@ -146,7 +146,7 @@ else
     log "Setting up cron job..."
 
     # Check if crontab entry already exists
-    CRON_ENTRY="0 2 * * * $AUTO_BACKUP_SCRIPT >> /var/log/auto-backup.log 2>&1"
+    CRON_ENTRY="0 2 * * * $AUTO_BACKUP_SCRIPT >> /home/nursa/auto-backup.log 2>&1"
 
     if crontab -l -u "$PROJECT_USER" 2>/dev/null | grep -q "auto-backup.sh"; then
         log "Cron entry already exists. Skipping..."
@@ -186,7 +186,7 @@ echo "Backup Directory: $BACKUP_DIR"
 echo ""
 echo "Next Steps:"
 echo "  1. Test backup manually: $AUTO_BACKUP_SCRIPT"
-echo "  2. Check logs: tail -f /var/log/auto-backup.log"
+echo "  2. Check logs: tail -f /home/nursa/auto-backup.log"
 echo ""
 echo "Scheduled: Daily at 2:00 AM"
 echo ""
