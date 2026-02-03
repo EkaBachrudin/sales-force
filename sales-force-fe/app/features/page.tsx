@@ -13,14 +13,12 @@ import {
   TrendingUp,
   Users,
   Bell,
-  Phone,
   Building2,
   Shield,
   ArrowRight,
   Flame,
   Award,
   Check,
-  Mail,
   MessageCircle,
   HelpCircle,
   ChevronDown,
@@ -292,13 +290,10 @@ export default function FeaturesPage() {
 
       {/* Floating Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrollY > 50 ? 'bg-white/90 backdrop-blur-xl border-b border-gray-200 shadow-sm' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-gray-900 font-bold text-lg">Sales CRM Pro</span>
+              <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-18" />
             </Link>
             <button
               onClick={openFormModal}
@@ -857,51 +852,15 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* Contact Section */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                  <Phone className="w-6 h-6 text-blue-600" />
-                </div>
-                <h3 className="text-gray-900 font-semibold">Telepon</h3>
-                <a href="tel:+6281234567890" className="text-gray-600 hover:text-gray-900 transition-colors">
-                  +62 812 3456 7890
-                </a>
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                  <MessageCircle className="w-6 h-6 text-green-600" />
-                </div>
-                <h3 className="text-gray-900 font-semibold">WhatsApp</h3>
-                <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-900 transition-colors">
-                  +62 812 3456 7890
-                </a>
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-purple-600" />
-                </div>
-                <h3 className="text-gray-900 font-semibold">Email</h3>
-                <a href="mailto:hello@salescrmpro.com" className="text-gray-600 hover:text-gray-900 transition-colors">
-                  hello@salescrmpro.com
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Footer */}
         <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-200 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8 mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
-                    <Target className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-gray-900 font-bold">Sales CRM Pro</span>
+                    <Link href="/" className="flex items-center gap-2">
+                      <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-18 ml-[-10px]" />
+                    </Link>
                 </div>
                 <p className="text-gray-600 text-sm">
                   Platform CRM terbaik untuk profesional real estate dan tim sales di Indonesia.
