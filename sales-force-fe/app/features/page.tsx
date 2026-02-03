@@ -117,20 +117,6 @@ export default function FeaturesPage() {
       description: 'Reach leads instantly on WhatsApp. One-click access from lead information.',
       color: '#25D366',
       items: ['Direct WhatsApp access', 'One-click messaging', 'Phone integration', 'Fast response']
-    },
-    {
-      icon: Users,
-      title: 'Team Collaboration',
-      description: 'Work together seamlessly. Assign leads and coordinate with your sales team.',
-      color: '#06B6D4',
-      items: ['User management', 'Role-based access', 'Activity logging', 'Team insights']
-    },
-    {
-      icon: Shield,
-      title: 'Secure & Reliable',
-      description: 'Your data is protected with enterprise-grade security. Always available, always backed up.',
-      color: '#6366F1',
-      items: ['Data encryption', 'Secure authentication', 'Regular backups', '99.9% uptime']
     }
   ];
 
@@ -199,16 +185,12 @@ export default function FeaturesPage() {
       answer: 'Setup awal hanya membutuhkan waktu kurang dari 5 menit. Anda bisa mulai menambahkan leads dan menggunakan sistem segera setelah registrasi.'
     },
     {
-      question: 'Apakah bisa digunakan oleh tim sales?',
-      answer: 'Tentu saja! Sistem kami dirancang untuk kolaborasi tim. Anda bisa menambahkan unlimited users dengan role-based access control.'
-    },
-    {
       question: 'Apakah ada integrasi dengan WhatsApp?',
       answer: 'Ya, integrasi WhatsApp adalah salah satu fitur unggulan kami. Anda bisa langsung menghubungi leads dengan satu klik dari dalam sistem.'
     },
     {
       question: 'Bagaimana dengan support pelanggan?',
-      answer: 'Kami menyediakan support melalui WhatsApp, email, dan telepon selama jam kerja. Untuk paket Enterprise, tersedia support 24/7 dengan dedicated account manager.'
+      answer: 'Kami menyediakan support melalui WhatsApp, email, dan telepon selama jam kerja. Untuk paket Enterprise. '
     }
   ];
 
@@ -554,7 +536,7 @@ export default function FeaturesPage() {
             </div>
 
             {/* Features Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
@@ -597,7 +579,7 @@ export default function FeaturesPage() {
                   step: '01',
                   icon: Users,
                   title: 'Tambah Lead Anda',
-                  description: 'Import atau tambahkan lead secara manual. Sertakan info kontak, minat properti, dan sumber lead.'
+                  description: 'ambahkan lead. Sertakan info kontak, minat properti, dan sumber lead.'
                 },
                 {
                   step: '02',
@@ -717,7 +699,6 @@ export default function FeaturesPage() {
                         { icon: Bell, text: 'Smart reminders & automation' },
                         { icon: Building2, text: 'Property catalog management' },
                         { icon: Smartphone, text: 'WhatsApp one-click integration' },
-                        { icon: Users, text: 'Team collaboration tools' },
                         { icon: Shield, text: 'Enterprise-grade security' },
                         { icon: Monitor, text: 'Desktop, tablet & mobile apps' },
                         { icon: Cloud, text: 'Cloud-based, always accessible' }
@@ -747,10 +728,6 @@ export default function FeaturesPage() {
                         <div className="text-center">
                           <p className="text-2xl font-bold text-gray-900">24<span className="text-blue-500">/7</span></p>
                           <p className="text-xs text-gray-500 mt-1">Support</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-gray-900">99<span className="text-blue-500">%</span></p>
-                          <p className="text-xs text-gray-500 mt-1">Uptime</p>
                         </div>
                       </div>
                     </div>
@@ -845,15 +822,6 @@ export default function FeaturesPage() {
                     Saya Tertarik
                     <Zap className="w-5 h-5" />
                   </button>
-                  <a
-                    href="https://wa.me/6281234567890"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-green-500 hover:bg-green-400 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    Chat WhatsApp
-                  </a>
                 </div>
               </div>
             </div>
@@ -871,7 +839,7 @@ export default function FeaturesPage() {
                     </Link>
                 </div>
                 <p className="text-gray-600 text-sm">
-                  Platform CRM terbaik untuk profesional real estate dan tim sales di Indonesia.
+                  Platform CRM terbaik untuk profesional real estate dan sales di Indonesia.
                 </p>
               </div>
               <div>
@@ -879,14 +847,12 @@ export default function FeaturesPage() {
                 <ul className="space-y-2 text-gray-600 text-sm">
                   <li><a href="#features" className="hover:text-gray-900 transition-colors">Fitur</a></li>
                   <li><a href="#pricing" className="hover:text-gray-900 transition-colors">Harga</a></li>
-                  <li><a href="#testimonials" className="hover:text-gray-900 transition-colors">Testimoni</a></li>
                 </ul>
               </div>
               <div>
                 <h4 className="text-gray-900 font-semibold mb-4">Perusahaan</h4>
                 <ul className="space-y-2 text-gray-600 text-sm">
                   <li><a href="#" className="hover:text-gray-900 transition-colors">Tentang Kami</a></li>
-                  <li><a href="#" className="hover:text-gray-900 transition-colors">Blog</a></li>
                   <li><a href="#faq" className="hover:text-gray-900 transition-colors">FAQ</a></li>
                 </ul>
               </div>
@@ -899,7 +865,7 @@ export default function FeaturesPage() {
               </div>
             </div>
             <div className="pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-              <p>© 2025 Sales CRM Pro. Dibuat dengan ❤️ di Indonesia. Semua hak dilindungi.</p>
+              <p>© {new Date().getFullYear()} SForce CRM. Dibuat dengan ❤️ di Indonesia. Semua hak dilindungi.</p>
             </div>
           </div>
         </footer>
