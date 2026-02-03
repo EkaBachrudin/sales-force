@@ -18,7 +18,6 @@ import {
   ArrowRight,
   Flame,
   Award,
-  Check,
   MessageCircle,
   HelpCircle,
   ChevronDown,
@@ -213,63 +212,6 @@ export default function FeaturesPage() {
     }
   ];
 
-  const pricingPlans = [
-    {
-      name: 'Starter',
-      description: 'Untuk sales profesional individu',
-      price: 'Rp 299.000',
-      period: '/bulan',
-      features: [
-        'Hingga 500 leads',
-        'Basic pipeline',
-        'WhatsApp integration',
-        'Email support',
-        'Mobile access',
-        'Basic analytics'
-      ],
-      cta: 'Mulai Gratis',
-      popular: false
-    },
-    {
-      name: 'Professional',
-      description: 'Untuk tim sales kecil-menengah',
-      price: 'Rp 799.000',
-      period: '/bulan',
-      features: [
-        'Unlimited leads',
-        'Advanced pipeline',
-        'WhatsApp integration',
-        'Priority support',
-        'Mobile access',
-        'Advanced analytics',
-        'Team collaboration (5 users)',
-        'Custom reminders',
-        'Property catalog'
-      ],
-      cta: 'Pilih Paket Ini',
-      popular: true
-    },
-    {
-      name: 'Enterprise',
-      description: 'Untuk perusahaan dan tim besar',
-      price: 'Custom',
-      period: '',
-      features: [
-        'Everything in Professional',
-        'Unlimited team members',
-        'Custom workflows',
-        'API access',
-        'Dedicated account manager',
-        '24/7 support',
-        'On-site training',
-        'Custom reports',
-        'White label option'
-      ],
-      cta: 'Hubungi Kami',
-      popular: false
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
       {/* Subtle Background Pattern */}
@@ -293,7 +235,7 @@ export default function FeaturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-18" />
+              <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-15" />
             </Link>
             <button
               onClick={openFormModal}
@@ -699,70 +641,136 @@ export default function FeaturesPage() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-100/50">
+        <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
           <div className="max-w-7xl mx-auto">
+            {/* Section Header */}
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-700 text-sm mb-4">
-                <Award className="w-4 h-4" />
-                <span>Harga Transparan</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 text-gray-700 text-xs font-medium tracking-wide uppercase mb-6">
+                <Award className="w-3.5 h-3.5" />
+                <span>Pricing</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-                Pilih Paket yang
-                <span className="block bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
-                  Sesuai Kebutuhan Anda
-                </span>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+                Satu Harga,<br />Semua Fitur
               </h2>
-              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                Mulai gratis, upgrade kapan saja. Tidak ada biaya tersembunyi.
+              <p className="text-gray-500 text-lg max-w-xl mx-auto">
+                Investasi cerdas untuk pertumbuhan bisnis Anda. Tanpa biaya tersembunyi, tanpa kompromi.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {pricingPlans.map((plan, index) => (
-                <div
-                  key={index}
-                  className={`relative p-8 rounded-2xl border transition-all duration-300 ${
-                    plan.popular
-                      ? 'bg-white border-blue-300 shadow-xl shadow-blue-100 scale-105'
-                      : 'bg-white border-gray-200 hover:shadow-md'
-                  }`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold">
-                      Paling Populer
+            {/* Modern Split Card */}
+            <div className="max-w-5xl mx-auto">
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="grid lg:grid-cols-5">
+                  {/* Left Side - Pricing */}
+                  <div className="lg:col-span-2 bg-gray-900 p-8 sm:p-10 lg:p-12">
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 text-white text-xs font-medium tracking-wide mb-8">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                      <span>Most Popular</span>
                     </div>
-                  )}
 
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                      <span className="text-gray-500">{plan.period}</span>
+                    {/* Plan Name */}
+                    <div className="mb-8">
+                      <p className="text-gray-400 text-sm font-medium tracking-wide uppercase mb-2">DRM Subscription</p>
+                      <h3 className="text-white text-xl font-semibold">Dynamic Revenue Management</h3>
                     </div>
+
+                    {/* Price */}
+                    <div className="mb-8">
+                      <div className="flex items-baseline gap-1 mb-2">
+                        <span className="text-5xl sm:text-6xl font-bold text-white tracking-tight">60</span>
+                        <span className="text-3xl font-bold text-white">.000</span>
+                      </div>
+                      <p className="text-gray-400 text-sm">per bulan • Rp 720.000/tahun</p>
+                    </div>
+
+                    {/* Guarantee */}
+                    <div className="pt-6 border-t border-white/10">
+                      <div className="flex items-center gap-3 text-gray-300 text-sm">
+                        <Shield className="w-5 h-5 text-blue-400" />
+                        <span>30-day money-back guarantee</span>
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <button
+                      onClick={openFormModal}
+                      className="w-full mt-8 py-4 px-6 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                      Get Started
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
 
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {/* Right Side - Features */}
+                  <div className="lg:col-span-3 p-8 sm:p-10 lg:p-12">
+                    <div className="mb-8">
+                      <h4 className="text-gray-900 font-semibold mb-1">Everything Included</h4>
+                      <p className="text-gray-500 text-sm">Full access to all features</p>
+                    </div>
 
-                  <button
-                    onClick={openFormModal}
-                    className={`block w-full py-3 px-6 rounded-xl font-semibold text-center transition-all duration-300 ${
-                      plan.popular
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300'
-                    }`}
-                  >
-                    {plan.cta}
-                  </button>
+                    {/* Features List */}
+                    <div className="space-y-3 mb-8">
+                      {[
+                        { icon: Target, text: 'Unlimited leads & pipeline stages' },
+                        { icon: BarChart3, text: 'Advanced analytics & reporting' },
+                        { icon: Bell, text: 'Smart reminders & automation' },
+                        { icon: Building2, text: 'Property catalog management' },
+                        { icon: Smartphone, text: 'WhatsApp one-click integration' },
+                        { icon: Users, text: 'Team collaboration tools' },
+                        { icon: Shield, text: 'Enterprise-grade security' },
+                        { icon: Monitor, text: 'Desktop, tablet & mobile apps' },
+                        { icon: Cloud, text: 'Cloud-based, always accessible' }
+                      ].map((feature, index) => {
+                        const Icon = feature.icon;
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                              <Icon className="w-4.5 h-4.5 text-blue-600" />
+                            </div>
+                            <span className="text-gray-700 text-sm font-medium">{feature.text}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Trust Badges */}
+                    <div className="pt-6 border-t border-gray-100">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-gray-900">5<span className="text-blue-500">min</span></p>
+                          <p className="text-xs text-gray-500 mt-1">Setup time</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-gray-900">24<span className="text-blue-500">/7</span></p>
+                          <p className="text-xs text-gray-500 mt-1">Support</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-gray-900">99<span className="text-blue-500">%</span></p>
+                          <p className="text-xs text-gray-500 mt-1">Uptime</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Enterprise CTA */}
+              <div className="mt-8 text-center">
+                <p className="text-gray-500 text-sm mb-3">Need custom solutions for your enterprise?</p>
+                <a
+                  href="https://wa.me/6281234567890"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-gray-900 font-medium text-sm hover:text-blue-600 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Contact our sales team
+                </a>
+              </div>
             </div>
           </div>
         </section>
