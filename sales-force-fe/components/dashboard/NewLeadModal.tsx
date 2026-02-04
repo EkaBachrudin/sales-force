@@ -115,7 +115,6 @@ export function NewLeadModal({
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
 
   const handleInputChange = (field: keyof LeadFormData, value: string | number) => {
-    console.log('[field]', field, '[value]', value)
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (field === 'name' || field === 'phone') {

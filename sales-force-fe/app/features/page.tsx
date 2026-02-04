@@ -65,7 +65,7 @@ export default function FeaturesPage() {
     // Simulate API call - replace with actual API endpoint
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    console.log('Lead captured:', formData);
+
     setIsSubmitting(false);
     setSubmitSuccess(true);
 

@@ -1,10 +1,4 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
-// Debug: log API URL to console
-if (typeof window !== 'undefined') {
-  console.log('API_URL configured as:', API_URL);
-}
-
 // Custom error class that includes status code
 class ApiError extends Error {
   constructor(message: string, public statusCode: number) {
