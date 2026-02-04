@@ -94,19 +94,14 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       {/* Logo Section */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--border)]">
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center">
-              <Kanban className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-semibold text-lg text-[var(--text-primary)]">
-              Sales CRM
-            </span>
-          </div>
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-14" />
+          </Link>
         )}
         {collapsed && (
-          <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center mx-auto">
-            <Kanban className="w-5 h-5 text-white" />
-          </div>
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/sforce-icon.webp" alt="Sales CRM Pro" className="h-14" />
+          </Link>
         )}
 
         {/* Mobile Close Button */}
