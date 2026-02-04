@@ -3,14 +3,14 @@
 # Automated Backup Wrapper Script
 # ============================================
 # This script runs backup-db.sh followed by sync-backup.sh
-# Schedule (crontab): 0 2 * * * /path/to/auto-backup.sh >> /var/log/auto-backup.log 2>&1
+# Schedule (crontab): 0 2 * * * /path/to/auto-backup.sh >> /home/nursa/auto-backup.log 2>&1
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_SCRIPT="$SCRIPT_DIR/backup-db.sh"
 SYNC_SCRIPT="$SCRIPT_DIR/sync-backup.sh"
-LOG_FILE="/var/log/auto-backup.log"
+LOG_FILE="/home/nursa/logs/auto-backup.log"
 NOTIFICATION_EMAIL="${NOTIFICATION_EMAIL:-}"
 
 # ============================================
