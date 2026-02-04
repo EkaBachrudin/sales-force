@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '@/lib/api';
 import { useRouter, usePathname } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
 
 export interface User {
   id: string;
@@ -30,15 +29,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const queryClient = useQueryClient();
 
   const fetchUser = async () => {
     try {
       const response = await api.getMe();
-      console.log(response.data)
       setUser(response.data.user);
-      // Invalidate all queries to refetch with new user context
-      queryClient.invalidateQueries();
     } catch (error) {
       console.error('Failed to fetch user:', error);
       setUser(null);
