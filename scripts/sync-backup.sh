@@ -4,7 +4,7 @@
 # ============================================
 # Usage: ./sync-backup.sh [provider]
 # Providers: s3, gdrive, dropbox, sftp, local
-# Schedule (crontab): 0 3 * * * /path/to/sync-backup.sh s3 >> /home/nursa/backup-sync.log 2>&1
+# Schedule (crontab): 0 3 * * * /path/to/sync-backup.sh s3 >> /var/log/backup-sync.log 2>&1
 
 set -e
 
@@ -13,7 +13,7 @@ set -e
 # ============================================
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/postgres}"
 PROVIDER="${1:-s3}"
-LOG_FILE="/home/nursa/backup-sync.log"
+LOG_FILE="/var/log/backup-sync.log"
 MAX_AGE_DAYS="${MAX_AGE_DAYS:-90}"
 CLEANUP_AFTER_DAYS="${CLEANUP_AFTER_DAYS:-30}"  # Delete files older than this in cloud
 
