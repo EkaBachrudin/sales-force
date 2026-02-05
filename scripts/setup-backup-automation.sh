@@ -146,7 +146,7 @@ else
     log "Setting up cron job..."
 
     # Check if crontab entry already exists
-    CRON_ENTRY="0 2 * * * $AUTO_BACKUP_SCRIPT >> /var/log/auto-backup.log 2>&1"
+    CRON_ENTRY="0 19 * * * $AUTO_BACKUP_SCRIPT >> /var/log/auto-backup.log 2>&1"
 
     if crontab -l -u "$PROJECT_USER" 2>/dev/null | grep -q "auto-backup.sh"; then
         log "Cron entry already exists. Skipping..."
