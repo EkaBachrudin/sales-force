@@ -97,7 +97,7 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
     end_date,
     property_id,
     source,
-    sort_by = 'created_at',
+    sort_by = 'updated_at',
     sort_order = 'desc',
   } = query;
 
@@ -140,8 +140,8 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
   }
 
   // Validate and set sort column
-  const validSortColumns = ['created_at', 'name', 'status', 'next_follow_up_at'];
-  const sortColumn = validSortColumns.includes(sort_by) ? sort_by : 'created_at';
+  const validSortColumns = ['created_at', 'updated_at', 'name', 'status', 'next_follow_up_at'];
+  const sortColumn = validSortColumns.includes(sort_by) ? sort_by : 'updated_at';
   const sortOrder = sort_order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
