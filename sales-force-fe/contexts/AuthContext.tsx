@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '@/lib/api';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -63,8 +63,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    fetchUser();
-  }, [pathname]);
+    // Only fetch user on mount, not on every route change
+    // User data typically only changes on login/logout/profile update
+    if (user === null) {
+      fetchUser();
+    } else {
+      setIsLoading(false);
+    }
+  }, []); // Remove pathname dependency - fetch only once
 
   const value: AuthContextType = {
     user,
