@@ -112,12 +112,13 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
         l.id,
         l.name,
         l.next_follow_up_at,
+        l.created_at,
         l.updated_at,
         p.name as property_name
       FROM leads l
       LEFT JOIN properties p ON l.property_id = p.id
       WHERE l.status = $1 AND l.assigned_to = $2
-      ORDER BY l.created_at DESC
+      ORDER BY l.updated_at DESC
       LIMIT $3 OFFSET $4
     `;
     const leadsResult = await pool.query(leadsQuery, [stage.id, userId, validatedLimit, offset]);
@@ -127,6 +128,7 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
       name: row.name,
       property_name: row.property_name || undefined,
       next_follow_up_at: row.next_follow_up_at || undefined,
+      created_at: row.created_at,
       updated_at: row.updated_at,
     }));
 

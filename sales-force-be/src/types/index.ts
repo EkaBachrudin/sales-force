@@ -716,6 +716,7 @@ export interface PipelineLeadItem {
   name: string;
   property_name?: string;
   next_follow_up_at?: Date;
+  created_at: Date;
   updated_at: Date;
 }
 
