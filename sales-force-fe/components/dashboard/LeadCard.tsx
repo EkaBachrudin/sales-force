@@ -35,6 +35,7 @@ export interface Lead {
   status: string;
   followUpDate?: Date | string;
   created_at: Date | string;
+  updated_at: Date | string;
   source?: string;
   notes?: string;
   reminders?: ReminderData[];

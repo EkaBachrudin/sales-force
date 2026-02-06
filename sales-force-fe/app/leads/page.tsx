@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Search, Plus, Phone, MoreVertical, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/Input';
 import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
 import { NewLeadModal } from '@/components/dashboard/NewLeadModal';
 import { EditLeadModal } from '@/components/dashboard/EditLeadModal';
-import { stageLabels, stageColors } from '@/lib/mockData';
+import { stageLabels } from '@/lib/mockData';
 import { Lead, PipelineStage } from '@/lib/types';
-import { cn, formatCurrency, formatPhone, formatRelativeTime } from '@/lib/utils';
+import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { useProperties } from '@/hooks/useProperties';
 import { useLeads, useLeadMutations, useLeadDetail, LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
 
@@ -60,7 +60,7 @@ export default function LeadsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Fetch lead detail when selectedLeadId changes
-  const { data: selectedLead, isLoading: isLoadingLeadDetail } = useLeadDetail(selectedLeadId, isPanelOpen);
+  const { data: selectedLead } = useLeadDetail(selectedLeadId, isPanelOpen);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,7 +74,7 @@ export default function LeadsPage() {
   const { data: leadsData, isLoading: isLoadingLeads } = useLeads(currentPage, pageSize, filters);
 
   // Mutations
-  const { updateLead, createLead, isUpdating, isCreating } = useLeadMutations({
+  const { updateLead, createLead, isUpdating } = useLeadMutations({
     onUpdateSuccess: () => {
       setIsEditModalOpen(false);
     },
