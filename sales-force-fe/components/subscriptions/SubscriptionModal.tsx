@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, DollarSign, FileText, User } from 'lucide-react';
+import { X, Calendar, DollarSign, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { CreateSubscriptionDto, Subscription, SubscriptionType, SubscriptionStatus, UpdateSubscriptionDto } from '@/lib/types';
+import { CreateSubscriptionDto, Subscription, SubscriptionType, SubscriptionStatus, UpdateSubscriptionDto, User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useUsers } from '@/hooks/useUsers';
 
@@ -132,22 +132,21 @@ export function SubscriptionModal({
       return;
     }
 
-    const submitData: CreateSubscriptionDto | UpdateSubscriptionDto = {
-      user_id: formData.user_id.trim(),
-      subscription_type: formData.subscription_type,
-      amount: parseFloat(formData.amount),
-      due_date: formData.due_date,
-    };
-
-    // Only include notes if provided
-    if (formData.notes.trim()) {
-      submitData.notes = formData.notes.trim();
-    }
-
-    // Only include status for edit mode
-    if (mode === 'edit' && formData.status) {
-      submitData.status = formData.status;
-    }
+    const submitData: CreateSubscriptionDto | UpdateSubscriptionDto = mode === 'edit'
+      ? {
+          subscription_type: formData.subscription_type,
+          amount: parseFloat(formData.amount),
+          due_date: formData.due_date,
+          ...(formData.status && { status: formData.status }),
+          ...(formData.notes.trim() && { notes: formData.notes.trim() }),
+        }
+      : {
+          user_id: formData.user_id.trim(),
+          subscription_type: formData.subscription_type,
+          amount: parseFloat(formData.amount),
+          due_date: formData.due_date,
+          ...(formData.notes.trim() && { notes: formData.notes.trim() }),
+        };
 
     onSubmit?.(submitData);
   };
@@ -197,7 +196,7 @@ export function SubscriptionModal({
                   disabled={mode === 'edit'}
                 >
                   <option value="">Select a user</option>
-                  {usersData?.data?.map((user) => (
+                  {usersData?.data?.map((user: User) => (
                     <option key={user.id} value={user.id}>
                       {user.full_name} ({user.email})
                     </option>

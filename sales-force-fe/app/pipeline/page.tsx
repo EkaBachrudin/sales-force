@@ -26,6 +26,7 @@ function transformPipelineLeadToLead(pipelineLead: PipelineLeadItem, status: str
     },
     status,
     created_at: pipelineLead.updated_at,
+    updated_at: pipelineLead.updated_at,
     followUpDate: pipelineLead.next_follow_up_at,
     property_id: '',
   };

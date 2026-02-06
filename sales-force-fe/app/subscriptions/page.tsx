@@ -12,8 +12,8 @@ import { cn, formatRelativeTime } from '@/lib/utils';
 import { useSubscriptions, useSubscriptionMutations } from '@/hooks/useSubscriptions';
 import { useAuth } from '@/contexts/AuthContext';
 
-const statusVariantMap: Record<string, 'red' | 'blue' | 'green' | 'gray' | 'yellow'> = {
-  'pending': 'yellow',
+const statusVariantMap: Record<string, 'red' | 'blue' | 'green' | 'gray' | 'orange'> = {
+  'pending': 'orange',
   'active': 'green',
   'overdue': 'red',
   'cancelled': 'gray',
@@ -160,7 +160,7 @@ export default function SubscriptionsPage() {
   };
 
   const getSelectedSubscription = (): Subscription | undefined => {
-    return subscriptionsData?.data.find((s) => s.id === selectedSubscriptionId);
+    return subscriptionsData?.data.find((s: { id: string | null; }) => s.id === selectedSubscriptionId);
   };
 
   const formatCurrency = (amount: number) => {
@@ -234,7 +234,7 @@ export default function SubscriptionsPage() {
                       No subscriptions found
                     </div>
                   ) : (
-                    subscriptionsData.data.map((subscription) => (
+                    subscriptionsData.data.map((subscription: Subscription) => (
                       <div key={subscription.id} className="p-4 hover:bg-gray-50 transition-colors">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
@@ -341,7 +341,7 @@ export default function SubscriptionsPage() {
                         </td>
                       </tr>
                     ) : (
-                      subscriptionsData.data.map((subscription) => (
+                      subscriptionsData.data.map((subscription: Subscription) => (
                         <tr key={subscription.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3">
                             <div>
