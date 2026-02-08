@@ -141,24 +141,24 @@ EOF
 
 else
     # ============================================
-    # CRON SETUP (default)
+    # CRON SETUP (default) - ROOT CRONTAB
     # ============================================
-    log "Setting up cron job..."
+    log "Setting up cron job in root crontab..."
 
     # Check if crontab entry already exists
     CRON_ENTRY="0 19 * * * $AUTO_BACKUP_SCRIPT >> /var/log/auto-backup.log 2>&1"
 
-    if crontab -l -u "$PROJECT_USER" 2>/dev/null | grep -q "auto-backup.sh"; then
-        log "Cron entry already exists. Skipping..."
+    if crontab -l 2>/dev/null | grep -q "auto-backup.sh"; then
+        log "Cron entry already exists in root crontab. Skipping..."
     else
-        # Add to crontab
-        (crontab -l -u "$PROJECT_USER" 2>/dev/null; echo "$CRON_ENTRY") | crontab -u "$PROJECT_USER" -
-        log "✓ Cron job added to user $PROJECT_USER"
+        # Add to root crontab
+        (crontab -l 2>/dev/null; echo "$CRON_ENTRY") | crontab -
+        log "✓ Cron job added to root crontab"
     fi
 
     log ""
-    log "Current crontab:"
-    crontab -l -u "$PROJECT_USER" | grep -E "(auto-backup|backup-db|sync-backup)" || echo "No backup cron jobs found"
+    log "Current root crontab:"
+    crontab -l | grep -E "(auto-backup|backup-db|sync-backup)" || echo "No backup cron jobs found"
 fi
 
 # ============================================
