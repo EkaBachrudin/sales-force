@@ -68,7 +68,7 @@ interface TouchState {
 
 export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUpdating }: KanbanBoardProps) {
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
-  const [placeholderIndex, setPlaceholderIndex] = useState<{ stage: PipelineStage; index: number } | null>(null);
+  const [draggedOverStage, setDraggedOverStage] = useState<PipelineStage | null>(null);
   const draggedLeadRef = useRef<Lead | null>(null);
 
   // Touch-specific state
@@ -87,7 +87,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   // Clear all drag states when leads prop changes (after drop and re-render)
   useEffect(() => {
     setDraggedLeadId(null);
-    setPlaceholderIndex(null);
+    setDraggedOverStage(null);
     draggedLeadRef.current = null;
     touchStateRef.current = null;
     isDraggingRef.current = false;
@@ -148,7 +148,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   // Handle drag end - cleanup
   const handleDragEnd = useCallback(() => {
     setDraggedLeadId(null);
-    setPlaceholderIndex(null);
+    setDraggedOverStage(null);
     draggedLeadRef.current = null;
   }, []);
 
@@ -178,6 +178,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     const rect = element.getBoundingClientRect();
     const clone = element.cloneNode(true) as HTMLElement;
     clone.style.position = 'fixed';
+    clone.style.borderRadius = '10px';
     clone.style.left = `${rect.left}px`;
     clone.style.top = `${rect.top}px`;
     clone.style.width = `${rect.width}px`;
@@ -272,38 +273,53 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
         touchState.clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.05)`;
       }
 
-      // Find which column we're over
-      const touchTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-      const columnElement = touchTarget?.closest('[data-stage]');
+      // Find which column we're over using bounding box detection
+      // This allows detection anywhere in the column, not just on [data-stage] elements
+      const allColumns = Array.from(document.querySelectorAll('[data-stage]'));
+      let targetStage: PipelineStage | null = null;
 
-      if (columnElement) {
-        const stage = columnElement.getAttribute('data-stage') as PipelineStage;
-        const column = columnsRef.current.find(col => col.id === stage);
+      for (const columnEl of allColumns) {
+        const rect = columnEl.getBoundingClientRect();
+        if (
+          touch.clientX >= rect.left &&
+          touch.clientX <= rect.right &&
+          touch.clientY >= rect.top &&
+          touch.clientY <= rect.bottom
+        ) {
+          targetStage = columnEl.getAttribute('data-stage') as PipelineStage;
+          break;
+        }
+      }
 
-        if (column) {
-          // Find position within column
-          const targetList = columnElement;
-          const targetElements = Array.from(targetList.children).filter(
-            child => child instanceof HTMLElement && child.dataset.leadId
-          );
+      // Also check the column container itself (in case we're above the leads list)
+      if (!targetStage) {
+        // Get all pipeline stage columns by checking their color classes or structure
+        const columnContainers = Array.from(
+          document.querySelectorAll('.flex-shrink-0.w-80')
+        );
 
-          const draggingOverElement = targetElements.find((element) => {
-            const rect = element.getBoundingClientRect();
-            return touch.clientY >= rect.top && touch.clientY <= rect.bottom;
-          });
-
-          if (draggingOverElement) {
-            const overElementId = (draggingOverElement as HTMLElement).dataset.leadId;
-            if (overElementId === touchState.leadId) return;
-
-            const index = column.leads.findIndex(lead => lead.id === overElementId);
-            if (index !== -1) {
-              setPlaceholderIndex({ stage, index });
+        for (const container of columnContainers) {
+          const rect = container.getBoundingClientRect();
+          if (
+            touch.clientX >= rect.left &&
+            touch.clientX <= rect.right &&
+            touch.clientY >= rect.top &&
+            touch.clientY <= rect.bottom
+          ) {
+            // Find the data-stage attribute within this container
+            const stageEl = container.querySelector('[data-stage]');
+            if (stageEl) {
+              targetStage = stageEl.getAttribute('data-stage') as PipelineStage;
+              break;
             }
-          } else {
-            setPlaceholderIndex({ stage, index: 0 });
           }
         }
+      }
+
+      if (targetStage) {
+        setDraggedOverStage(targetStage);
+      } else {
+        setDraggedOverStage(null);
       }
 
       rafRef.current = null;
@@ -337,16 +353,49 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     const touchState = touchStateRef.current;
     const touch = e.changedTouches[0];
 
-    // Find drop target
-    const touchTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-    const columnElement = touchTarget?.closest('[data-stage]');
+    // Find drop target using bounding box detection (same logic as handleTouchMove)
+    let targetStage: PipelineStage | null = null;
 
-    if (columnElement) {
-      const targetStage = columnElement.getAttribute('data-stage') as PipelineStage;
-
-      if (touchState.lead.status !== targetStage && onStageChange) {
-        onStageChange(touchState.leadId, targetStage);
+    // First try to find [data-stage] elements
+    const allColumns = Array.from(document.querySelectorAll('[data-stage]'));
+    for (const columnEl of allColumns) {
+      const rect = columnEl.getBoundingClientRect();
+      if (
+        touch.clientX >= rect.left &&
+        touch.clientX <= rect.right &&
+        touch.clientY >= rect.top &&
+        touch.clientY <= rect.bottom
+      ) {
+        targetStage = columnEl.getAttribute('data-stage') as PipelineStage;
+        break;
       }
+    }
+
+    // If not found, check column containers
+    if (!targetStage) {
+      const columnContainers = Array.from(
+        document.querySelectorAll('.flex-shrink-0.w-80')
+      );
+
+      for (const container of columnContainers) {
+        const rect = container.getBoundingClientRect();
+        if (
+          touch.clientX >= rect.left &&
+          touch.clientX <= rect.right &&
+          touch.clientY >= rect.top &&
+          touch.clientY <= rect.bottom
+        ) {
+          const stageEl = container.querySelector('[data-stage]');
+          if (stageEl) {
+            targetStage = stageEl.getAttribute('data-stage') as PipelineStage;
+            break;
+          }
+        }
+      }
+    }
+
+    if (targetStage && touchState.lead.status !== targetStage && onStageChange) {
+      onStageChange(touchState.leadId, targetStage);
     }
 
     // Clean up
@@ -355,7 +404,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     }
     touchState.element.style.opacity = '1';
 
-    setPlaceholderIndex(null);
+    setDraggedOverStage(null);
     setDraggedLeadId(null);
     draggedLeadRef.current = null;
     touchStateRef.current = null;
@@ -397,37 +446,9 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     // Set drop effect to move
     e.dataTransfer.dropEffect = 'move';
 
-    // Find the column's leads container
-    const column = columns.find(col => col.id === targetStage);
-    if (!column) return;
-
-    const targetList = e.currentTarget;
-    const targetElements = Array.from(targetList.children).filter(
-      child => child instanceof HTMLElement && child.dataset.leadId
-    );
-
-    // Find which element we're hovering over
-    const draggingOverElement = targetElements.find((element) => {
-      const rect = element.getBoundingClientRect();
-      return e.clientY >= rect.top && e.clientY <= rect.bottom;
-    });
-
-    if (draggingOverElement) {
-      const overElementId = (draggingOverElement as HTMLElement).dataset.leadId;
-      if (overElementId === draggedLeadId) return;
-
-      const index = column.leads.findIndex(lead => lead.id === overElementId);
-      if (index !== -1) {
-        setPlaceholderIndex({ stage: targetStage, index });
-      }
-    } else {
-      // No specific element being hovered - place at the TOP (index 0)
-      const firstLead = column.leads[0];
-      if (firstLead?.id !== draggedLeadId) {
-        setPlaceholderIndex({ stage: targetStage, index: 0 });
-      }
-    }
-  }, [columns, draggedLeadId]);
+    // Set the dragged over stage for visual indicator
+    setDraggedOverStage(targetStage);
+  }, []);
 
   // Handle drag leave - remove placeholder when leaving column
   const handleDragLeave = useCallback((e: React.DragEvent) => {
@@ -437,7 +458,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
 
     // Check if we're still within the column bounds
     if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
-      setPlaceholderIndex(null);
+      setDraggedOverStage(null);
     }
   }, []);
 
@@ -454,7 +475,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     }
 
     // Clear all drag states immediately
-    setPlaceholderIndex(null);
+    setDraggedOverStage(null);
     setDraggedLeadId(null);
     draggedLeadRef.current = null;
   }, [onStageChange]);
@@ -474,18 +495,21 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
       </div>
 
       {/* Kanban Columns */}
-      <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto pb-4">
-        {columns.map((column) => (
-          <div
-            key={column.id}
-            className={cn(
-              'flex-shrink-0 w-80 rounded-xl border p-4 min-h-[500px]',
-              colorStyles[column.color]
-            )}
-            onDragOver={(e) => handleDragOver(e, column.id)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, column.id)}
-          >
+      <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto pb-4 p-2">
+        {columns.map((column) => {
+          const isDraggedOver = draggedOverStage === column.id;
+          return (
+            <div
+              key={column.id}
+              className={cn(
+                'flex-shrink-0 w-80 rounded-xl border p-4 min-h-[500px] transition-all',
+                colorStyles[column.color],
+                isDraggedOver && 'ring-4 ring-blue-400 ring-opacity-50 scale-[1.01] shadow-lg'
+              )}
+              onDragOver={(e) => handleDragOver(e, column.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, column.id)}
+            >
             {/* Column Header */}
             <div className="flex items-center justify-between mb-4">
               <div className={cn(
@@ -501,38 +525,12 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
 
             {/* Leads List */}
             <div className="space-y-3" data-stage={column.id}>
-              {/* Show placeholder at the top when dragging to empty column or index 0 */}
-              {placeholderIndex?.stage === column.id && placeholderIndex.index === 0 && (
-                <div className={cn(
-                  'rounded-lg border-2 border-dashed',
-                  column.color === 'gray' && 'border-gray-300 bg-gray-100',
-                  column.color === 'blue' && 'border-blue-300 bg-blue-100',
-                  column.color === 'purple' && 'border-purple-300 bg-purple-100',
-                  column.color === 'orange' && 'border-orange-300 bg-orange-100',
-                  column.color === 'green' && 'border-green-300 bg-green-100',
-                  column.color === 'red' && 'border-red-300 bg-red-100',
-                )} style={{ height: '80px' }} />
-              )}
 
-              {column.leads.map((lead, index) => {
-                const showPlaceholder = placeholderIndex?.stage === column.id && placeholderIndex.index === index && index !== 0;
+              {column.leads.map((lead) => {
                 const isDragging = draggedLeadId === lead.id;
 
                 return (
                   <React.Fragment key={lead.id}>
-                    {/* Placeholder (for positions other than top) */}
-                    {showPlaceholder && (
-                      <div className={cn(
-                        'rounded-lg border-2 border-dashed',
-                        column.color === 'gray' && 'border-gray-300 bg-gray-100',
-                        column.color === 'blue' && 'border-blue-300 bg-blue-100',
-                        column.color === 'purple' && 'border-purple-300 bg-purple-100',
-                        column.color === 'orange' && 'border-orange-300 bg-orange-100',
-                        column.color === 'green' && 'border-green-300 bg-green-100',
-                        column.color === 'red' && 'border-red-300 bg-red-100',
-                      )} style={{ height: '80px' }} />
-                    )}
-
                     {/* Lead Card */}
                     <div
                       data-lead-id={lead.id}
@@ -579,14 +577,15 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
                 );
               })}
 
-              {column.leads.length === 0 && !placeholderIndex && (
+              {column.leads.length === 0 && (
                 <div className="text-center py-8 text-sm text-[var(--text-secondary)]">
                   No leads in this stage
                 </div>
               )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Loading overlay for drag-drop operations */}
