@@ -40,19 +40,19 @@ error_exit() {
 log "Setting up log files and rotation..."
 
 # Create log files
-touch /var/log/postgres-backup.log
-touch /var/log/backup-sync.log
-touch /var/log/auto-backup.log
-touch /var/log/postgres-restore.log
+sudo touch /var/log/postgres-backup.log
+sudo touch /var/log/backup-sync.log
+sudo touch /var/log/auto-backup.log
+sudo touch /var/log/postgres-restore.log
 
 # Set permissions
-chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-backup.log
-chown $PROJECT_USER:$PROJECT_USER /var/log/backup-sync.log
-chown $PROJECT_USER:$PROJECT_USER /var/log/auto-backup.log
-chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-restore.log
+sudo chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-backup.log
+sudo chown $PROJECT_USER:$PROJECT_USER /var/log/backup-sync.log
+sudo chown $PROJECT_USER:$PROJECT_USER /var/log/auto-backup.log
+sudo chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-restore.log
 
 # Setup logrotate
-cat > /etc/logrotate.d/salesforce-backup << 'EOF'
+cat > /etc/logrotate.d/salesforce-backup << EOF
 /var/log/postgres-backup.log
 /var/log/backup-sync.log
 /var/log/auto-backup.log
@@ -63,7 +63,14 @@ cat > /etc/logrotate.d/salesforce-backup << 'EOF'
     delaycompress
     missingok
     notifempty
-    create 0644 root root
+    create 0644 $PROJECT_USER $PROJECT_USER
+    postrotate
+        # Ensure permissions are correct after rotation
+        chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-backup.log \
+                                 /var/log/backup-sync.log \
+                                 /var/log/auto-backup.log \
+                                 /var/log/postgres-restore.log 2>/dev/null || true
+    endscript
 }
 EOF
 
