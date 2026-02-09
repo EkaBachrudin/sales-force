@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Phone, Mail, Bell, MoreVertical } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
-import { cn, formatCurrency, formatPhone, formatRelativeTime } from '@/lib/utils';
+import { cn, formatRelativeTime } from '@/lib/utils';
 
 export interface ReminderData {
   id: string;
