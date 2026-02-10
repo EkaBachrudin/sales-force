@@ -10,7 +10,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_SCRIPT="$SCRIPT_DIR/backup-db.sh"
 SYNC_SCRIPT="$SCRIPT_DIR/sync-backup.sh"
-LOG_FILE="/var/log/auto-backup.log"
+HOME_DIR="${HOME_DIR:-/home/nursa}"
+LOG_FILE="$HOME_DIR/logs/auto-backup.log"
 NOTIFICATION_EMAIL="${NOTIFICATION_EMAIL:-}"
 
 # ============================================
@@ -49,10 +50,10 @@ log "=========================================="
 # Step 1: Run Backup
 log ""
 log "Step 1/2: Running database backup..."
-if sudo bash "$BACKUP_SCRIPT"; then
+if bash "$BACKUP_SCRIPT"; then
     log "✓ Database backup completed successfully"
 else
-    error_exit "Database backup failed! Check logs at /var/log/postgres-backup.log"
+    error_exit "Database backup failed! Check logs at $HOME_DIR/logs/postgres-backup.log"
 fi
 
 # Step 2: Sync to Cloud
@@ -81,7 +82,7 @@ if [ "$SYNC_SUCCESS" = true ]; then
     log "✓ Cloud sync completed successfully"
 else
     log "⚠️  Cloud sync failed! Backup is safe locally."
-    log "   Check logs at /var/log/backup-sync.log"
+    log "   Check logs at $HOME_DIR/logs/backup-sync.log"
     # Don't exit here - backup is still safe locally
 fi
 
@@ -93,7 +94,7 @@ log "=========================================="
 log "Automated backup process completed!"
 
 # Show backup summary
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/postgres}"
+BACKUP_DIR="${BACKUP_DIR:-$HOME_DIR/backups/postgres}"
 LATEST_BACKUP=$(find "$BACKUP_DIR" -name "salesforce_backup_*.sql.gz" -type f -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
 
 if [ -n "$LATEST_BACKUP" ]; then

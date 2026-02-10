@@ -19,6 +19,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_USER="${SUDO_USER:-$USER}"
+PROJECT_HOME="${PROJECT_HOME:-/home/$PROJECT_USER}"
 AUTO_BACKUP_SCRIPT="$SCRIPT_DIR/auto-backup.sh"
 METHOD="${1:-cron}"
 
@@ -39,24 +40,22 @@ error_exit() {
 # ============================================
 log "Setting up log files and rotation..."
 
+# Create log directory in user home
+LOG_DIR="$PROJECT_HOME/logs"
+sudo -u "$PROJECT_USER" mkdir -p "$LOG_DIR"
+
 # Create log files
-sudo touch /var/log/postgres-backup.log
-sudo touch /var/log/backup-sync.log
-sudo touch /var/log/auto-backup.log
-sudo touch /var/log/postgres-restore.log
+sudo -u "$PROJECT_USER" touch "$LOG_DIR/postgres-backup.log"
+sudo -u "$PROJECT_USER" touch "$LOG_DIR/backup-sync.log"
+sudo -u "$PROJECT_USER" touch "$LOG_DIR/auto-backup.log"
+sudo -u "$PROJECT_USER" touch "$LOG_DIR/postgres-restore.log"
 
-# Set permissions
-sudo chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-backup.log
-sudo chown $PROJECT_USER:$PROJECT_USER /var/log/backup-sync.log
-sudo chown $PROJECT_USER:$PROJECT_USER /var/log/auto-backup.log
-sudo chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-restore.log
-
-# Setup logrotate
+# Setup logrotate for user home logs
 cat > /etc/logrotate.d/salesforce-backup << EOF
-/var/log/postgres-backup.log
-/var/log/backup-sync.log
-/var/log/auto-backup.log
-/var/log/postgres-restore.log {
+$LOG_DIR/postgres-backup.log
+$LOG_DIR/backup-sync.log
+$LOG_DIR/auto-backup.log
+$LOG_DIR/postgres-restore.log {
     daily
     rotate 14
     compress
@@ -66,15 +65,15 @@ cat > /etc/logrotate.d/salesforce-backup << EOF
     create 0644 $PROJECT_USER $PROJECT_USER
     postrotate
         # Ensure permissions are correct after rotation
-        chown $PROJECT_USER:$PROJECT_USER /var/log/postgres-backup.log \
-                                 /var/log/backup-sync.log \
-                                 /var/log/auto-backup.log \
-                                 /var/log/postgres-restore.log 2>/dev/null || true
+        chown $PROJECT_USER:$PROJECT_USER $LOG_DIR/postgres-backup.log \
+                                 $LOG_DIR/backup-sync.log \
+                                 $LOG_DIR/auto-backup.log \
+                                 $LOG_DIR/postgres-restore.log 2>/dev/null || true
     endscript
 }
 EOF
 
-log "✓ Log files configured"
+log "✓ Log files configured in $LOG_DIR"
 
 # ============================================
 # SETUP SUDOERS (optional)
@@ -112,9 +111,10 @@ Requires=docker.service
 Type=oneshot
 User=$PROJECT_USER
 Group=$PROJECT_USER
+Environment="HOME_DIR=$PROJECT_HOME"
 ExecStart=$AUTO_BACKUP_SCRIPT
-StandardOutput=append:/var/log/auto-backup.log
-StandardError=append:/var/log/auto-backup.log
+StandardOutput=append:$PROJECT_HOME/logs/auto-backup.log
+StandardError=append:$PROJECT_HOME/logs/auto-backup.log
 
 [Install]
 WantedBy=multi-user.target
@@ -148,24 +148,25 @@ EOF
 
 else
     # ============================================
-    # CRON SETUP (default) - ROOT CRONTAB
+    # CRON SETUP (default) - USER CRONTAB
     # ============================================
-    log "Setting up cron job in root crontab..."
+    log "Setting up cron job in user crontab ($PROJECT_USER)..."
 
     # Check if crontab entry already exists
-    CRON_ENTRY="0 19 * * * $AUTO_BACKUP_SCRIPT >> /var/log/auto-backup.log 2>&1"
+    CRON_ENTRY="0 19 * * * $AUTO_BACKUP_SCRIPT >> $PROJECT_HOME/logs/auto-backup.log 2>&1"
 
-    if crontab -l 2>/dev/null | grep -q "auto-backup.sh"; then
-        log "Cron entry already exists in root crontab. Skipping..."
+    # Add to user crontab (not root crontab)
+    if sudo -u "$PROJECT_USER" crontab -l 2>/dev/null | grep -q "auto-backup.sh"; then
+        log "Cron entry already exists in user crontab. Skipping..."
     else
-        # Add to root crontab
-        (crontab -l 2>/dev/null; echo "$CRON_ENTRY") | crontab -
-        log "✓ Cron job added to root crontab"
+        # Add to user crontab
+        (sudo -u "$PROJECT_USER" crontab -l 2>/dev/null; echo "$CRON_ENTRY") | sudo -u "$PROJECT_USER" crontab -
+        log "✓ Cron job added to user crontab ($PROJECT_USER)"
     fi
 
     log ""
-    log "Current root crontab:"
-    crontab -l | grep -E "(auto-backup|backup-db|sync-backup)" || echo "No backup cron jobs found"
+    log "Current user crontab ($PROJECT_USER):"
+    sudo -u "$PROJECT_USER" crontab -l | grep -E "(auto-backup|backup-db|sync-backup)" || echo "No backup cron jobs found"
 fi
 
 # ============================================
@@ -174,9 +175,8 @@ fi
 log ""
 log "Setting up backup directory..."
 
-BACKUP_DIR="/var/backups/postgres"
-mkdir -p "$BACKUP_DIR"
-chown $PROJECT_USER:$PROJECT_USER "$BACKUP_DIR"
+BACKUP_DIR="$PROJECT_HOME/backups/postgres"
+sudo -u "$PROJECT_USER" mkdir -p "$BACKUP_DIR"
 log "✓ Backup directory: $BACKUP_DIR"
 
 # ============================================
@@ -189,17 +189,20 @@ echo "=========================================="
 echo ""
 echo "Method: $METHOD"
 echo "User: $PROJECT_USER"
+echo "Home Directory: $PROJECT_HOME"
 echo "Backup Directory: $BACKUP_DIR"
+echo "Log Directory: $PROJECT_HOME/logs"
 echo ""
 echo "Next Steps:"
 echo "  1. Test backup manually: $AUTO_BACKUP_SCRIPT"
-echo "  2. Check logs: tail -f /var/log/auto-backup.log"
+echo "  2. Check logs: tail -f $PROJECT_HOME/logs/auto-backup.log"
 echo ""
-echo "Scheduled: Daily at 2:00 AM"
+echo "Scheduled: Daily at 7:00 PM (19:00)"
 echo ""
 echo "Useful Commands:"
 echo "  List backups: $SCRIPT_DIR/list-backups.sh"
 echo "  Restore:      $SCRIPT_DIR/restore-db.sh <backup_file>"
 echo "  Sync now:      $SCRIPT_DIR/sync-backup.sh gdrive"
+echo "  View cron:     sudo -u $PROJECT_USER crontab -l"
 echo ""
 echo "=========================================="

@@ -10,11 +10,12 @@ set -e
 # ============================================
 # CONFIGURATION
 # ============================================
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/postgres}"
+HOME_DIR="${HOME_DIR:-/home/nursa}"
+BACKUP_DIR="${BACKUP_DIR:-$HOME_DIR/backups/postgres}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="$BACKUP_DIR/salesforce_backup_$TIMESTAMP.sql.gz"
-LOG_FILE="/var/log/postgres-backup.log"
+LOG_FILE="$HOME_DIR/logs/postgres-backup.log"
 
 # Container & Database
 CONTAINER_NAME="${CONTAINER_NAME:-sales-force-db}"
@@ -44,8 +45,14 @@ fi
 # Create backup directory if not exists
 if [ ! -d "$BACKUP_DIR" ]; then
     log "Creating backup directory: $BACKUP_DIR"
-    sudo mkdir -p "$BACKUP_DIR"
-    sudo chown $USER:$USER "$BACKUP_DIR"
+    mkdir -p "$BACKUP_DIR"
+fi
+
+# Create log directory if not exists
+LOG_DIR="$(dirname "$LOG_FILE")"
+if [ ! -d "$LOG_DIR" ]; then
+    log "Creating log directory: $LOG_DIR"
+    mkdir -p "$LOG_DIR"
 fi
 
 # ============================================

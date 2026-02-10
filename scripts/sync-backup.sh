@@ -11,9 +11,10 @@ set -e
 # ============================================
 # CONFIGURATION
 # ============================================
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/postgres}"
+HOME_DIR="${HOME_DIR:-/home/nursa}"
+BACKUP_DIR="${BACKUP_DIR:-$HOME_DIR/backups/postgres}"
 PROVIDER="${1:-s3}"
-LOG_FILE="/var/log/backup-sync.log"
+LOG_FILE="$HOME_DIR/logs/backup-sync.log"
 MAX_AGE_DAYS="${MAX_AGE_DAYS:-90}"
 CLEANUP_AFTER_DAYS="${CLEANUP_AFTER_DAYS:-30}"  # Delete files older than this in cloud
 

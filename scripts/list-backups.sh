@@ -11,7 +11,8 @@
 # ============================================
 # CONFIGURATION
 # ============================================
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/postgres}"
+HOME_DIR="${HOME_DIR:-/home/nursa}"
+BACKUP_DIR="${BACKUP_DIR:-$HOME_DIR/backups/postgres}"
 SHOW_ALL="${SHOW_ALL:-false}"
 SHOW_SIZE="${SHOW_SIZE:-true}"
 SHOW_DETAIL="${SHOW_DETAIL:-false}"
