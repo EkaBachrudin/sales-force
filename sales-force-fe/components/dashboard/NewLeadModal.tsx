@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calculator, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -113,6 +113,33 @@ export function NewLeadModal({
   const [kprResult, setKprResult] = useState<number | null>(null);
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        nik: '',
+        npwp: '',
+        source: '',
+        sourceOther: '',
+        property_id: '',
+        budgetMin: 0,
+        budgetMax: 0,
+        kprPrice: 0,
+        kprDownPayment: 0,
+        kprInterestRate: 0,
+        kprTerm: 0,
+        note: '',
+      });
+      setShowKprCalculator(false);
+      setKprResult(null);
+      setShowReminderForm(false);
+      setErrors({});
+    }
+  }, [isOpen]);
 
   const handleInputChange = (field: keyof LeadFormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
