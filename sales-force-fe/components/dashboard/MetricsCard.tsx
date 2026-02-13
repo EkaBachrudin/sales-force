@@ -29,13 +29,13 @@ export function MetricsCard({
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border border-[var(--border)] p-4 sm:p-5 hover:shadow-lg transition-all duration-200',
+        'bg-white rounded-xl border border-border p-4 sm:p-5 hover:shadow-lg transition-all duration-200',
         className
       )}
     >
       {/* Header: Label + Icon */}
       <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="text-sm sm:text-base font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+        <p className="text-sm sm:text-base font-semibold text-text-secondary uppercase tracking-wide">
           {label}
         </p>
 
@@ -52,19 +52,19 @@ export function MetricsCard({
 
       {/* Main Value */}
       <div className="mb-3">
-        <p className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-tight">
+        <p className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
           {value}
         </p>
       </div>
 
       {/* Footer: Trend + Secondary Info */}
-      <div className="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border)]">
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
         {/* Trend Indicator */}
         {trend ? (
           <div
             className={cn(
               'flex items-center gap-1.5 text-sm sm:text-base font-semibold',
-              trend.isPositive ? 'text-[var(--success)]' : 'text-[var(--danger)]'
+              trend.isPositive ? 'text-success' : 'text-danger'
             )}
           >
             {trend.isPositive ? (
@@ -80,7 +80,7 @@ export function MetricsCard({
 
         {/* Secondary Info */}
         {secondaryInfo && (
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-right line-clamp-1 max-w-[60%]">
+          <p className="text-xs sm:text-sm text-text-secondary text-right line-clamp-1 max-w-[60%]">
             {secondaryInfo}
           </p>
         )}

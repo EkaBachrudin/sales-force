@@ -219,8 +219,8 @@ export function EditLeadModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-xl font-semibold text-text-primary">
               Edit Lead
             </h2>
             <button
@@ -236,7 +236,7 @@ export function EditLeadModal({
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information */}
               <div>
-                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3">
+                <h3 className="text-base font-semibold text-text-primary mb-3">
                   Personal Information
                 </h3>
                 <div className="space-y-4">
@@ -283,18 +283,18 @@ export function EditLeadModal({
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                    <label className="block text-sm font-medium text-text-primary mb-1.5">
                       Notes
                     </label>
                     <textarea
                       placeholder="Add any notes about this lead..."
-                      className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] resize-none"
+                      className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)] resize-none"
                       rows={4}
                       maxLength={500}
                       value={formData.notes}
                       onChange={(e) => handleInputChange('notes', e.target.value)}
                     />
-                    <p className="text-xs text-[var(--text-secondary)] mt-1 text-right">
+                    <p className="text-xs text-text-secondary mt-1 text-right">
                       {formData.notes.length}/500
                     </p>
                   </div>
@@ -310,7 +310,7 @@ export function EditLeadModal({
 
               {/* Property Interest */}
               <div>
-                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3">
+                <h3 className="text-base font-semibold text-text-primary mb-3">
                   Property Interest
                 </h3>
                 <div className="space-y-4">
@@ -334,12 +334,12 @@ export function EditLeadModal({
 
               {/* Budget Range */}
               <div>
-                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3">
+                <h3 className="text-base font-semibold text-text-primary mb-3">
                   Budget Range
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                    <label className="block text-sm font-medium text-text-primary mb-1.5">
                       Min Budget
                     </label>
                     <div className="relative">
@@ -348,7 +348,7 @@ export function EditLeadModal({
                       </span>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
                         value={formatCurrencyInput(formData.budgetMin)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -358,7 +358,7 @@ export function EditLeadModal({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                    <label className="block text-sm font-medium text-text-primary mb-1.5">
                       Max Budget
                     </label>
                     <div className="relative">
@@ -367,7 +367,7 @@ export function EditLeadModal({
                       </span>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
                         value={formatCurrencyInput(formData.budgetMax)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -384,7 +384,7 @@ export function EditLeadModal({
                 <button
                   type="button"
                   onClick={() => setShowKprCalculator(!showKprCalculator)}
-                  className="flex items-center gap-2 text-[var(--primary)] font-medium mb-3"
+                  className="flex items-center gap-2 text-primary font-medium mb-3"
                 >
                   <Calculator className="w-4 h-4" />
                   {showKprCalculator ? 'Hide' : 'Show'} KPR Calculator (Optional)
@@ -394,7 +394,7 @@ export function EditLeadModal({
                   <div className="p-4 bg-gray-50 rounded-xl space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                        <label className="block text-sm font-medium text-text-primary mb-1.5">
                           Property Price
                         </label>
                         <div className="relative">
@@ -403,7 +403,7 @@ export function EditLeadModal({
                           </span>
                           <input
                             type="text"
-                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)]"
+                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
                             value={formatCurrencyInput(formData.kprPrice)}
                             onChange={(e) => {
                               const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -413,12 +413,12 @@ export function EditLeadModal({
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                        <label className="block text-sm font-medium text-text-primary mb-1.5">
                           Down Payment %
                         </label>
                         <input
                           type="number"
-                          className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)]"
+                          className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
                           value={formData.kprDownPayment}
                           onChange={(e) => handleInputChange('kprDownPayment', parseFloat(e.target.value))}
                           min="0"
@@ -430,12 +430,12 @@ export function EditLeadModal({
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                        <label className="block text-sm font-medium text-text-primary mb-1.5">
                           Interest Rate %
                         </label>
                         <input
                           type="number"
-                          className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)]"
+                          className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
                           value={formData.kprInterestRate}
                           onChange={(e) => handleInputChange('kprInterestRate', parseFloat(e.target.value))}
                           min="0"
@@ -444,7 +444,7 @@ export function EditLeadModal({
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                        <label className="block text-sm font-medium text-text-primary mb-1.5">
                           Term
                         </label>
                         <Select
@@ -466,9 +466,9 @@ export function EditLeadModal({
                     </Button>
 
                     {kprResult !== null && (
-                      <div className="text-center p-3 bg-[var(--primary)]/10 rounded-lg">
-                        <p className="text-sm text-[var(--text-secondary)]">Estimated Monthly Payment</p>
-                        <p className="text-2xl font-bold text-[var(--primary)]">
+                      <div className="text-center p-3 bg-primary/10 rounded-lg">
+                        <p className="text-sm text-text-secondary">Estimated Monthly Payment</p>
+                        <p className="text-2xl font-bold text-primary">
                           {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(kprResult)}/mo
                         </p>
                       </div>
@@ -482,7 +482,7 @@ export function EditLeadModal({
                 <button
                   type="button"
                   onClick={() => setShowReminderForm(!showReminderForm)}
-                  className="flex items-center gap-2 text-[var(--primary)] font-medium mb-3"
+                  className="flex items-center gap-2 text-primary font-medium mb-3"
                 >
                   <Bell className="w-4 h-4" />
                   {showReminderForm ? 'Hide' : 'Show'} Reminder (Optional)
@@ -491,30 +491,30 @@ export function EditLeadModal({
                 {showReminderForm && (
                   <div className="p-4 bg-gray-50 rounded-xl space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                      <label className="block text-sm font-medium text-text-primary mb-1.5">
                         Reminder Date & Time
                       </label>
                       <input
                         type="datetime-local"
-                        className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
                         value={formData.reminderScheduledFor}
                         onChange={(e) => handleInputChange('reminderScheduledFor', e.target.value)}
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                      <label className="block text-sm font-medium text-text-primary mb-1.5">
                         Reminder Notes
                       </label>
                       <textarea
                         placeholder="Add notes for this reminder..."
-                        className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] resize-none"
+                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)] resize-none"
                         rows={3}
                         maxLength={200}
                         value={formData.reminderNotes}
                         onChange={(e) => handleInputChange('reminderNotes', e.target.value)}
                       />
-                      <p className="text-xs text-[var(--text-secondary)] mt-1 text-right">
+                      <p className="text-xs text-text-secondary mt-1 text-right">
                         {formData.reminderNotes.length}/200
                       </p>
                     </div>
@@ -525,7 +525,7 @@ export function EditLeadModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-[var(--border)]">
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

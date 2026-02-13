@@ -138,7 +138,7 @@ export default function LeadsPage() {
             <select
               value={filters.stage}
               onChange={(e) => updateFilter('stage', e.target.value)}
-              className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+              className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
             >
               <option value="all">All Stages</option>
               <option value="new">Baru Masuk</option>
@@ -155,7 +155,7 @@ export default function LeadsPage() {
             <select
               value={filters.propertyType}
               onChange={(e) => updateFilter('propertyType', e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
               disabled={isLoadingProperties}
             >
               <option value="all">All Properties</option>
@@ -169,7 +169,7 @@ export default function LeadsPage() {
             <select
               value={filters.source}
               onChange={(e) => updateFilter('source', e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
             >
               <option value="all">All Sources</option>
               {sourceOptions.map((option) => (
@@ -181,7 +181,7 @@ export default function LeadsPage() {
 
             <button
               onClick={() => setShowDateRange(!showDateRange)}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)] flex items-center justify-center sm:justify-start gap-2 hover:bg-gray-50"
+              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary flex items-center justify-center sm:justify-start gap-2 hover:bg-gray-50"
             >
               <Calendar className="w-4 h-4 flex-shrink-0" />
               <span className="truncate">{showDateRange ? 'Hide' : 'Show'} Date Range</span>
@@ -192,26 +192,26 @@ export default function LeadsPage() {
           {showDateRange && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start sm:items-end">
               <div className="w-full">
-                <label className="block text-xs text-[var(--text-secondary)] mb-1">From Date</label>
+                <label className="block text-xs text-text-secondary mb-1">From Date</label>
                 <input
                   type="date"
                   value={formatDateForInput(filters.dateFrom)}
                   onChange={(e) => updateFilter('dateFrom', e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+                  className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
                 />
               </div>
               <div className="w-full">
-                <label className="block text-xs text-[var(--text-secondary)] mb-1">To Date</label>
+                <label className="block text-xs text-text-secondary mb-1">To Date</label>
                 <input
                   type="date"
                   value={formatDateForInput(filters.dateTo)}
                   onChange={(e) => updateFilter('dateTo', e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+                  className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
                 />
               </div>
               <button
                 onClick={() => setFilters({ ...defaultFilters })}
-                className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)] hover:bg-gray-50"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary hover:bg-gray-50"
               >
                 Reset Filters
               </button>
@@ -220,9 +220,9 @@ export default function LeadsPage() {
         </div>
 
         {/* Leads Table */}
-        <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-hidden">
           {isLoadingLeads ? (
-            <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+            <div className="px-4 py-8 text-center text-sm text-text-secondary">
               Loading leads...
             </div>
           ) : (
@@ -232,7 +232,7 @@ export default function LeadsPage() {
                 {/* Mobile/Tablet Card View */}
                 <div className="divide-y divide-[var(--border)]">
                   {!leadsData?.data || leadsData.data.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+                    <div className="px-4 py-8 text-center text-sm text-text-secondary">
                       No leads found
                     </div>
                   ) : (
@@ -245,7 +245,7 @@ export default function LeadsPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">{lead.name}</h3>
+                              <h3 className="text-sm font-semibold text-text-primary truncate">{lead.name}</h3>
                               <Badge variant={stageVariantMap[lead.status]} size="sm">
                                 {stageLabels[lead.status as PipelineStage]}
                               </Badge>
@@ -253,19 +253,19 @@ export default function LeadsPage() {
                             <a
                               href={`tel:${lead.phone}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--primary)] mb-2"
+                              className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary mb-2"
                             >
                               <Phone className="w-3 h-3" />
                               {formatPhone(lead.phone)}
                             </a>
                             <div className="space-y-1">
-                              <p className="text-sm text-[var(--text-primary)]">
-                                <span className="text-[var(--text-secondary)]">Property:</span> {lead.property ? lead.property.name : '-'}
+                              <p className="text-sm text-text-primary">
+                                <span className="text-text-secondary">Property:</span> {lead.property ? lead.property.name : '-'}
                               </p>
                               {lead.source && (
-                                <p className="text-xs text-[var(--text-secondary)]">via {lead.source}</p>
+                                <p className="text-xs text-text-secondary">via {lead.source}</p>
                               )}
-                              <p className="text-xs text-[var(--text-secondary)]">{formatRelativeTime(lead.created_at)}</p>
+                              <p className="text-xs text-text-secondary">{formatRelativeTime(lead.created_at)}</p>
                             </div>
                           </div>
                           <div className="flex flex-col gap-1">
@@ -303,20 +303,20 @@ export default function LeadsPage() {
               <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[var(--border)] bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                    <tr className="border-b border-border bg-gray-50">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Lead
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Property
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Stage
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Created
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -324,7 +324,7 @@ export default function LeadsPage() {
                   <tbody className="divide-y divide-[var(--border)]">
                     {!leadsData?.data || leadsData.data.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+                        <td colSpan={5} className="px-4 py-8 text-center text-sm text-text-secondary">
                           No leads found
                         </td>
                       </tr>
@@ -337,12 +337,12 @@ export default function LeadsPage() {
                         >
                           <td className="px-4 py-3">
                             <div>
-                              <p className="text-sm font-medium text-[var(--text-primary)]">{lead.name}</p>
+                              <p className="text-sm font-medium text-text-primary">{lead.name}</p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 <a
                                   href={`tel:${lead.phone}`}
                                   onClick={(e) => e.stopPropagation()}
-                                  className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--primary)]"
+                                  className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary"
                                 >
                                   <Phone className="w-3 h-3" />
                                   {formatPhone(lead.phone)}
@@ -351,9 +351,9 @@ export default function LeadsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-primary)]">{lead.property ? lead.property.name : '-'}</p>
+                            <p className="text-sm text-text-primary">{lead.property ? lead.property.name : '-'}</p>
                             {lead.source && (
-                              <p className="text-xs text-[var(--text-secondary)] mt-0.5">via {lead.source}</p>
+                              <p className="text-xs text-text-secondary mt-0.5">via {lead.source}</p>
                             )}
                           </td>
                           <td className="px-4 py-3">
@@ -362,7 +362,7 @@ export default function LeadsPage() {
                             </Badge>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-secondary)]">{formatRelativeTime(lead.created_at)}</p>
+                            <p className="text-sm text-text-secondary">{formatRelativeTime(lead.created_at)}</p>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-end gap-1">
@@ -406,8 +406,8 @@ export default function LeadsPage() {
 
               {/* Pagination */}
               {leadsData && (leadsData.total ?? 0) > 0 && leadsData.totalPages && leadsData.totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border)]">
-                  <div className="text-xs sm:text-sm text-[var(--text-secondary)] text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
+                  <div className="text-xs sm:text-sm text-text-secondary text-center sm:text-left">
                     Showing {Math.min((currentPage - 1) * pageSize + 1, leadsData.total ?? 0)} to{' '}
                     {Math.min(currentPage * pageSize, leadsData.total ?? 0)} of {leadsData.total ?? 0} leads
                   </div>
@@ -415,18 +415,18 @@ export default function LeadsPage() {
                     <button
                       onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-[var(--border)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Previous page"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-xs sm:text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                    <span className="text-xs sm:text-sm text-text-secondary whitespace-nowrap">
                       {currentPage} / {leadsData.totalPages}
                     </span>
                     <button
                       onClick={() => setCurrentPage((prev) => Math.min(leadsData.totalPages || 1, prev + 1))}
                       disabled={currentPage === leadsData.totalPages}
-                      className="p-2 rounded-lg border border-[var(--border)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Next page"
                     >
                       <ChevronRight className="w-4 h-4" />

@@ -104,7 +104,7 @@ export default function SubscriptionsPage() {
     return (
       <DashboardLayout title="Subscriptions" subtitle="">
         <div className="flex items-center justify-center h-64">
-          <div className="text-sm text-[var(--text-secondary)]">Loading...</div>
+          <div className="text-sm text-text-secondary">Loading...</div>
         </div>
       </DashboardLayout>
     );
@@ -116,10 +116,10 @@ export default function SubscriptionsPage() {
       <DashboardLayout title="Access Denied" subtitle="">
         <div className="flex flex-col items-center justify-center h-64">
           <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-lg font-semibold text-text-primary mb-2">
             Access Denied
           </h2>
-          <p className="text-sm text-[var(--text-secondary)] mb-4">
+          <p className="text-sm text-text-secondary mb-4">
             You don't have permission to access this page.
           </p>
           <Button onClick={() => router.push('/dashboard')}>
@@ -197,7 +197,7 @@ export default function SubscriptionsPage() {
           <select
             value={filters.subscriptionType}
             onChange={(e) => updateFilter('subscriptionType', e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
           >
             {subscriptionTypeOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -208,7 +208,7 @@ export default function SubscriptionsPage() {
           <select
             value={filters.status}
             onChange={(e) => updateFilter('status', e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
           >
             {statusOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -219,9 +219,9 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* Subscriptions Table */}
-        <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-hidden">
           {isLoadingSubscriptions ? (
-            <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+            <div className="px-4 py-8 text-center text-sm text-text-secondary">
               Loading subscriptions...
             </div>
           ) : (
@@ -230,7 +230,7 @@ export default function SubscriptionsPage() {
               <div className="block lg:hidden">
                 <div className="divide-y divide-[var(--border)]">
                   {!subscriptionsData?.data || subscriptionsData.data.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+                    <div className="px-4 py-8 text-center text-sm text-text-secondary">
                       No subscriptions found
                     </div>
                   ) : (
@@ -239,7 +239,7 @@ export default function SubscriptionsPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">
+                              <h3 className="text-sm font-semibold text-text-primary truncate">
                                 {subscription.user_name || 'Unknown User'}
                               </h3>
                               <Badge variant={subscriptionTypeVariantMap[subscription.subscription_type] || 'blue'} size="sm">
@@ -251,27 +251,27 @@ export default function SubscriptionsPage() {
                             </div>
                             <div className="space-y-1">
                               {subscription.user_email && (
-                                <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                                <p className="text-xs text-text-secondary flex items-center gap-1">
                                   <Mail className="w-3 h-3" />
                                   {subscription.user_email}
                                 </p>
                               )}
-                              <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                              <p className="text-xs text-text-secondary flex items-center gap-1">
                                 <DollarSign className="w-3 h-3" />
                                 {formatCurrency(subscription.amount)}
                               </p>
-                              <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                              <p className="text-xs text-text-secondary flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
                                 Due: {formatDate(subscription.due_date)}
                               </p>
                               {subscription.period_start && subscription.period_end && (
-                                <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                                <p className="text-xs text-text-secondary flex items-center gap-1">
                                   <Clock className="w-3 h-3" />
                                   {formatDate(subscription.period_start)} - {formatDate(subscription.period_end)}
                                 </p>
                               )}
                               {subscription.notes && (
-                                <p className="text-xs text-[var(--text-secondary)] line-clamp-1">
+                                <p className="text-xs text-text-secondary line-clamp-1">
                                   {subscription.notes}
                                 </p>
                               )}
@@ -306,29 +306,29 @@ export default function SubscriptionsPage() {
               <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[var(--border)] bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                    <tr className="border-b border-border bg-gray-50">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         User
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Type
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Amount
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Period
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Due Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Notes
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -336,7 +336,7 @@ export default function SubscriptionsPage() {
                   <tbody className="divide-y divide-[var(--border)]">
                     {!subscriptionsData?.data || subscriptionsData.data.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+                        <td colSpan={8} className="px-4 py-8 text-center text-sm text-text-secondary">
                           No subscriptions found
                         </td>
                       </tr>
@@ -345,13 +345,13 @@ export default function SubscriptionsPage() {
                         <tr key={subscription.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3">
                             <div>
-                              <p className="text-sm font-medium text-[var(--text-primary)]">
+                              <p className="text-sm font-medium text-text-primary">
                                 {subscription.user_name || 'Unknown User'}
                               </p>
                               {subscription.user_email && (
                                 <a
                                   href={`mailto:${subscription.user_email}`}
-                                  className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--primary)]"
+                                  className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary"
                                 >
                                   <Mail className="w-3 h-3" />
                                   {subscription.user_email}
@@ -365,13 +365,13 @@ export default function SubscriptionsPage() {
                             </Badge>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-[var(--text-primary)]">
+                            <div className="flex items-center gap-1 text-sm text-text-primary">
                               <DollarSign className="w-4 h-4" />
                               {formatCurrency(subscription.amount)}
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-[var(--text-secondary)]">
+                            <div className="flex items-center gap-1 text-sm text-text-secondary">
                               <Clock className="w-4 h-4" />
                               {subscription.period_start && subscription.period_end ? (
                                 <span>
@@ -383,7 +383,7 @@ export default function SubscriptionsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-[var(--text-secondary)]">
+                            <div className="flex items-center gap-1 text-sm text-text-secondary">
                               <Calendar className="w-4 h-4" />
                               {formatDate(subscription.due_date)}
                             </div>
@@ -394,7 +394,7 @@ export default function SubscriptionsPage() {
                             </Badge>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-secondary)] line-clamp-1 max-w-xs">
+                            <p className="text-sm text-text-secondary line-clamp-1 max-w-xs">
                               {subscription.notes || '-'}
                             </p>
                           </td>
@@ -427,8 +427,8 @@ export default function SubscriptionsPage() {
 
               {/* Pagination */}
               {subscriptionsData && (subscriptionsData.total ?? 0) > 0 && subscriptionsData.totalPages && subscriptionsData.totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border)]">
-                  <div className="text-xs sm:text-sm text-[var(--text-secondary)] text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
+                  <div className="text-xs sm:text-sm text-text-secondary text-center sm:text-left">
                     Showing {Math.min((currentPage - 1) * pageSize + 1, subscriptionsData.total ?? 0)} to{' '}
                     {Math.min(currentPage * pageSize, subscriptionsData.total ?? 0)} of {subscriptionsData.total ?? 0} subscriptions
                   </div>
@@ -436,18 +436,18 @@ export default function SubscriptionsPage() {
                     <button
                       onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-[var(--border)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Previous page"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-xs sm:text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                    <span className="text-xs sm:text-sm text-text-secondary whitespace-nowrap">
                       {currentPage} / {subscriptionsData.totalPages}
                     </span>
                     <button
                       onClick={() => setCurrentPage((prev) => Math.min(subscriptionsData.totalPages || 1, prev + 1))}
                       disabled={currentPage === subscriptionsData.totalPages}
-                      className="p-2 rounded-lg border border-[var(--border)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Next page"
                     >
                       <ChevronRight className="w-4 h-4" />

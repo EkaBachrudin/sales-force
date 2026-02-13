@@ -33,14 +33,14 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
   // Don't render layout while loading auth state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--primary)]"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-background">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div

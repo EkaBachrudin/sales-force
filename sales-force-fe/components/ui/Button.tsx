@@ -30,11 +30,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = 'inline-flex items-center justify-center gap-2 font-medium rounded-[8px] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
 
     const variantStyles = {
-      primary: 'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] focus-visible:outline-[var(--primary)] shadow-sm hover:shadow-md',
-      secondary: 'bg-white text-[var(--text-primary)] border border-[var(--border)] hover:bg-gray-50 focus-visible:outline-[var(--border)]',
-      danger: 'bg-[var(--danger)] text-white hover:bg-red-600 focus-visible:outline-[var(--danger)] shadow-sm',
-      ghost: 'bg-transparent text-[var(--text-primary)] hover:bg-gray-100 focus-visible:outline-gray-300',
-      success: 'bg-[var(--success)] text-white hover:bg-emerald-600 focus-visible:outline-[var(--success)] shadow-sm',
+      primary: 'bg-primary text-white hover:bg-primary-hover focus-visible:outline-primary shadow-sm hover:shadow-md',
+      secondary: 'bg-white text-text-primary border border-border hover:bg-gray-50 focus-visible:outline-border',
+      danger: 'bg-danger text-white hover:bg-red-600 focus-visible:outline-danger shadow-sm',
+      ghost: 'bg-transparent text-text-primary hover:bg-gray-100 focus-visible:outline-gray-300',
+      success: 'bg-success text-white hover:bg-emerald-600 focus-visible:outline-[var(--success)] shadow-sm',
     };
 
     const sizeStyles = {

@@ -29,11 +29,11 @@ export function TrendChart(
 
   if (chartData.length === 0) {
     return (
-      <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
-        <h3 className="text-base font-semibold text-[var(--text-primary)] mb-6">
+      <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
+        <h3 className="text-base font-semibold text-text-primary mb-6">
           {title}
         </h3>
-        <p className="text-sm text-[var(--text-secondary)]">No data available</p>
+        <p className="text-sm text-text-secondary">No data available</p>
       </div>
     );
   }
@@ -41,8 +41,8 @@ export function TrendChart(
   const totalClosings = chartData.reduce((sum, point) => sum + point.closings, 0);
 
   return (
-    <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
-      <h3 className="text-base font-semibold text-[var(--text-primary)] mb-6">
+    <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
+      <h3 className="text-base font-semibold text-text-primary mb-6">
         {title}
       </h3>
 
@@ -84,10 +84,10 @@ export function TrendChart(
       </div>
 
       {/* Summary */}
-      <div className="mt-4 pt-4 border-t border-[var(--border)]">
+      <div className="mt-4 pt-4 border-t border-border">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-[var(--text-secondary)]">Total Closings</span>
-          <span className="text-lg font-semibold text-[var(--text-primary)]">
+          <span className="text-sm text-text-secondary">Total Closings</span>
+          <span className="text-lg font-semibold text-text-primary">
             {totalClosings}
           </span>
         </div>

@@ -165,8 +165,8 @@ export function SubscriptionModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-xl font-semibold text-text-primary">
               {mode === 'create' ? 'Add New Subscription' : 'Edit Subscription'}
             </h2>
             <button
@@ -182,15 +182,15 @@ export function SubscriptionModal({
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* User Selection */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                <label className="block text-sm font-medium text-text-primary mb-1.5">
                   User *
                 </label>
                 <select
                   value={formData.user_id}
                   onChange={(e) => handleInputChange('user_id', e.target.value)}
                   className={cn(
-                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]',
-                    errors.user_id ? 'border-red-500' : 'border-[var(--border)]'
+                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
+                    errors.user_id ? 'border-red-500' : 'border-border'
                   )}
                   required
                   disabled={mode === 'edit'}
@@ -209,15 +209,15 @@ export function SubscriptionModal({
 
               {/* Subscription Type */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                <label className="block text-sm font-medium text-text-primary mb-1.5">
                   Subscription Type *
                 </label>
                 <select
                   value={formData.subscription_type}
                   onChange={(e) => handleInputChange('subscription_type', e.target.value as SubscriptionType)}
                   className={cn(
-                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]',
-                    errors.subscription_type ? 'border-red-500' : 'border-[var(--border)]'
+                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
+                    errors.subscription_type ? 'border-red-500' : 'border-border'
                   )}
                   required
                 >
@@ -248,7 +248,7 @@ export function SubscriptionModal({
 
               {/* Due Date */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                <label className="block text-sm font-medium text-text-primary mb-1.5">
                   Due Date *
                 </label>
                 <input
@@ -256,8 +256,8 @@ export function SubscriptionModal({
                   value={formData.due_date}
                   onChange={(e) => handleInputChange('due_date', e.target.value)}
                   className={cn(
-                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]',
-                    errors.due_date ? 'border-red-500' : 'border-[var(--border)]'
+                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
+                    errors.due_date ? 'border-red-500' : 'border-border'
                   )}
                   required
                 />
@@ -269,13 +269,13 @@ export function SubscriptionModal({
               {/* Status (Edit Mode Only) */}
               {mode === 'edit' && (
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">
                     Status
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => handleInputChange('status', e.target.value as SubscriptionStatus)}
-                    className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                    className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
                   >
                     {statusOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -288,7 +288,7 @@ export function SubscriptionModal({
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                <label className="block text-sm font-medium text-text-primary mb-1.5">
                   Notes
                 </label>
                 <textarea
@@ -296,14 +296,14 @@ export function SubscriptionModal({
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)] resize-none"
                 />
               </div>
             </form>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-[var(--border)]">
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

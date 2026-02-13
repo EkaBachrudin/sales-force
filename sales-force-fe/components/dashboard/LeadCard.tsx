@@ -76,7 +76,7 @@ export function LeadCard({ lead, onClick, isDragging, className, disableClick }:
     <div
       onClick={disableClick ? undefined : onClick}
       className={cn(
-        'bg-white rounded-lg border-gray-400 border p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[var(--primary)] active:scale-[0.98]',
+        'bg-white rounded-lg border-gray-400 border p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary active:scale-[0.98]',
         isDragging && 'opacity-90 shadow-lg',
         className
       )}
@@ -86,19 +86,19 @@ export function LeadCard({ lead, onClick, isDragging, className, disableClick }:
         <Badge variant="blue" size="sm">
           {lead.property.name}
         </Badge>
-        <span className="text-[11px] text-[var(--text-secondary)]">
+        <span className="text-[11px] text-text-secondary">
           {formatRelativeTime(lead.created_at)}
         </span>
       </div>
 
       {/* Name */}
-      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
+      <h3 className="text-sm font-semibold text-text-primary mb-1">
         {lead.name}
       </h3>
 
       {/* Follow Up Reminder */}
       {hasFollowUp && lead.followUpDate && (
-        <div className="flex items-center gap-2 text-[11px] text-[var(--warning)]">
+        <div className="flex items-center gap-2 text-[11px] text-warning">
           <Bell className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
             Follow up: {new Date(lead.followUpDate).toLocaleDateString('en-US', {

@@ -73,7 +73,7 @@ export function InstallPWABanner() {
 
         <button
           onClick={handleInstall}
-          className="flex-shrink-0 bg-white text-[var(--primary)] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
+          className="flex-shrink-0 bg-white text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
         >
           Install
         </button>

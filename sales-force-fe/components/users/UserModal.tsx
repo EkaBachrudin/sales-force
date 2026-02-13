@@ -182,8 +182,8 @@ export function UserModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-xl font-semibold text-text-primary">
               {mode === 'create' ? 'Add New User' : 'Edit User'}
             </h2>
             <button
@@ -199,7 +199,7 @@ export function UserModal({
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Personal Information */}
               <div>
-                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
                   <Shield className="w-4 h-4" />
                   User Information
                 </h3>
@@ -234,15 +234,15 @@ export function UserModal({
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                    <label className="block text-sm font-medium text-text-primary mb-1.5">
                       Role *
                     </label>
                     <select
                       value={formData.role}
                       onChange={(e) => handleInputChange('role', e.target.value)}
                       className={cn(
-                        'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]',
-                        errors.role ? 'border-red-500' : 'border-[var(--border)]'
+                        'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
+                        errors.role ? 'border-red-500' : 'border-border'
                       )}
                       required
                       disabled={isEditingSelf}
@@ -257,7 +257,7 @@ export function UserModal({
                       <p className="text-xs text-red-500 mt-1">{errors.role}</p>
                     )}
                     {isEditingSelf && (
-                      <p className="text-xs text-[var(--text-secondary)] mt-1">
+                      <p className="text-xs text-text-secondary mt-1">
                         You cannot change your own role
                       </p>
                     )}
@@ -267,7 +267,7 @@ export function UserModal({
 
               {/* Password Section */}
               <div>
-                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
                   <Key className="w-4 h-4" />
                   {mode === 'create' ? 'Password' : 'Change Password (Optional)'}
                 </h3>
@@ -317,7 +317,7 @@ export function UserModal({
               {/* Status (Edit Mode Only) */}
               {mode === 'edit' && (
                 <div>
-                  <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
                     {formData.is_active ? (
                       <UserCheck className="w-4 h-4 text-green-600" />
                     ) : (
@@ -332,10 +332,10 @@ export function UserModal({
                         name="status"
                         checked={formData.is_active === true}
                         onChange={() => handleInputChange('is_active', true)}
-                        className="w-4 h-4 text-[var(--primary)]"
+                        className="w-4 h-4 text-primary"
                         disabled={isEditingSelf}
                       />
-                      <span className="text-sm text-[var(--text-primary)]">Active</span>
+                      <span className="text-sm text-text-primary">Active</span>
                     </label>
                     <label className="flex items-center gap-2">
                       <input
@@ -343,14 +343,14 @@ export function UserModal({
                         name="status"
                         checked={formData.is_active === false}
                         onChange={() => handleInputChange('is_active', false)}
-                        className="w-4 h-4 text-[var(--primary)]"
+                        className="w-4 h-4 text-primary"
                         disabled={isEditingSelf}
                       />
-                      <span className="text-sm text-[var(--text-primary)]">Inactive</span>
+                      <span className="text-sm text-text-primary">Inactive</span>
                     </label>
                   </div>
                   {isEditingSelf && (
-                    <p className="text-xs text-[var(--text-secondary)] mt-2">
+                    <p className="text-xs text-text-secondary mt-2">
                       You cannot deactivate your own account
                     </p>
                   )}
@@ -360,7 +360,7 @@ export function UserModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-[var(--border)]">
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

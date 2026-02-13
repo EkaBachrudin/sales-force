@@ -484,11 +484,11 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     <div className={cn('w-full', className)}>
       {/* Board Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+        <h2 className="text-lg font-semibold text-text-primary">
           Pipeline
         </h2>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="px-3 py-1.5 text-sm text-text-secondary hover:text-text-primary border border-border rounded-lg hover:bg-gray-50 transition-colors">
             Board
           </button>
         </div>
@@ -518,7 +518,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
               )}>
                 {column.label}
               </div>
-              <span className="text-sm font-medium text-[var(--text-secondary)]">
+              <span className="text-sm font-medium text-text-secondary">
                 {column.leads.length}
               </span>
             </div>
@@ -578,7 +578,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
               })}
 
               {column.leads.length === 0 && (
-                <div className="text-center py-8 text-sm text-[var(--text-secondary)]">
+                <div className="text-center py-8 text-sm text-text-secondary">
                   No leads in this stage
                 </div>
               )}

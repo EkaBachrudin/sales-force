@@ -82,7 +82,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
   return (
     <aside
       className={cn(
-        'fixed top-0 h-screen bg-white border-r border-[var(--border)] transition-all duration-300 z-40 lg:z-20',
+        'fixed top-0 h-screen bg-white border-r border-border transition-all duration-300 z-40 lg:z-20',
         // Desktop behavior
         'lg:translate-x-0',
         collapsed ? 'lg:w-20' : 'lg:w-64',
@@ -92,7 +92,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       )}
     >
       {/* Logo Section */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--border)]">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-border">
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
             <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-14" />
@@ -127,8 +127,8 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative',
                 isActive
-                  ? 'bg-[rgba(37,99,235,0.1)] text-[var(--primary)] border-l-4 border-[var(--primary)]'
-                  : 'text-[var(--text-secondary)] hover:bg-gray-50 border-l-4 border-transparent'
+                  ? 'bg-[rgba(37,99,235,0.1)] text-primary border-l-4 border-primary'
+                  : 'text-text-secondary hover:bg-gray-50 border-l-4 border-transparent'
               )}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
@@ -136,7 +136,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
                 <>
                   <span className="font-medium">{item.label}</span>
                   {item.badge && item.badge > 0 && (
-                    <span className="ml-auto bg-[var(--danger)] text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                    <span className="ml-auto bg-danger text-white text-xs font-medium px-2 py-0.5 rounded-full">
                       {item.badge}
                     </span>
                   )}
@@ -150,17 +150,17 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       {/* User Profile Section - Mobile only */}
       {user && mobileOpen && (
         <div className="lg:hidden absolute bottom-16 left-0 right-0 px-4">
-          <div className="border-t border-[var(--border)] pt-4">
+          <div className="border-t border-border pt-4">
             {/* User Info */}
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center text-white text-sm font-medium">
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium">
                 {getInitials(user.full_name)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                <p className="text-sm font-medium text-text-primary truncate">
                   {user.full_name}
                 </p>
-                <p className="text-xs text-[var(--text-secondary)] truncate">
+                <p className="text-xs text-text-secondary truncate">
                   {user.email}
                 </p>
               </div>

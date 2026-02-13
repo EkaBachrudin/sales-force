@@ -88,14 +88,14 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl w-full max-w-md">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h2 className="text-lg font-semibold text-text-primary">
             {property ? 'Edit Property' : 'Add New Property'}
           </h2>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
               Property Name
             </label>
             <Input
@@ -105,13 +105,13 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
               maxLength={100}
               required
             />
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-text-secondary mt-1">
               Max 100 characters
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
               Property Type
             </label>
 
@@ -125,16 +125,16 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
                     setUseCustomType(false);
                     setCustomType('');
                   }}
-                  className="w-4 h-4 text-[var(--primary)]"
+                  className="w-4 h-4 text-primary"
                 />
-                <span className="text-sm text-[var(--text-primary)]">Select from examples</span>
+                <span className="text-sm text-text-primary">Select from examples</span>
               </label>
 
               {!useCustomType && (
                 <select
                   value={propertyType}
                   onChange={(e) => setPropertyType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
                   required
                 >
                   <option value="">Select a type</option>
@@ -155,9 +155,9 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
                     setUseCustomType(true);
                     setPropertyType('');
                   }}
-                  className="w-4 h-4 text-[var(--primary)]"
+                  className="w-4 h-4 text-primary"
                 />
-                <span className="text-sm text-[var(--text-primary)]">Custom type</span>
+                <span className="text-sm text-text-primary">Custom type</span>
               </label>
 
               {useCustomType && (
@@ -171,7 +171,7 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
               )}
             </div>
 
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-text-secondary mt-1">
               Max 50 characters
             </p>
           </div>
@@ -217,11 +217,11 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, propertyName, isLoadin
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
             <Trash2 className="w-6 h-6 text-red-600" />
           </div>
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-lg font-semibold text-text-primary mb-2">
             Delete Property
           </h2>
-          <p className="text-sm text-[var(--text-secondary)]">
-            Are you sure you want to delete <span className="font-medium text-[var(--text-primary)]">{propertyName}</span>?
+          <p className="text-sm text-text-secondary">
+            Are you sure you want to delete <span className="font-medium text-text-primary">{propertyName}</span>?
             This action cannot be undone.
           </p>
         </div>
@@ -343,15 +343,15 @@ export default function PropertiesPage() {
         </div>
 
         {/* Properties List */}
-        <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-hidden">
           {isLoading ? (
-            <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+            <div className="px-4 py-8 text-center text-sm text-text-secondary">
               Loading properties...
             </div>
           ) : properties.length === 0 ? (
             <div className="px-4 py-12 text-center">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
+              <p className="text-sm text-text-secondary mb-4">
                 {search ? 'No properties found matching your search' : 'No properties yet'}
               </p>
               {!search && (
@@ -368,10 +368,10 @@ export default function PropertiesPage() {
                   className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">
+                    <h3 className="text-sm font-semibold text-text-primary truncate">
                       {property.name}
                     </h3>
-                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                    <p className="text-xs text-text-secondary mt-0.5">
                       {property.property_type}
                     </p>
                   </div>

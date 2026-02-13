@@ -31,35 +31,35 @@ export default function SettingsPage() {
               <User className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-[var(--text-primary)]">
+              <h3 className="text-base font-semibold text-text-primary">
                 Profile Information
               </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-text-secondary">
                 Your personal information
               </p>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between py-3 border-b border-border">
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">Name</p>
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-sm font-medium text-text-primary">Name</p>
+                <p className="text-sm text-text-secondary">
                   {isLoading ? 'Loading...' : user?.full_name || '-'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between py-3 border-b border-border">
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">Email</p>
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-sm font-medium text-text-primary">Email</p>
+                <p className="text-sm text-text-secondary">
                   {isLoading ? 'Loading...' : user?.email || '-'}
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-between py-3">
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">Role</p>
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-sm font-medium text-text-primary">Role</p>
+                <p className="text-sm text-text-secondary">
                   {isLoading ? 'Loading...' : user?.role || '-'}
                 </p>
               </div>
@@ -74,16 +74,16 @@ export default function SettingsPage() {
               <Palette className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-[var(--text-primary)]">
+              <h3 className="text-base font-semibold text-text-primary">
                 Appearance
               </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-text-secondary">
                 Customize the look and feel
               </p>
             </div>
           </div>
           <div className="flex items-center justify-between py-2">
-            <span className="text-sm text-[var(--text-primary)]">Dark mode</span>
+            <span className="text-sm text-text-primary">Dark mode</span>
             <button
               className="relative w-11 h-6 rounded-full bg-gray-300 transition-colors"
             >
@@ -99,10 +99,10 @@ export default function SettingsPage() {
               <Shield className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-[var(--text-primary)]">
+              <h3 className="text-base font-semibold text-text-primary">
                 Security
               </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-text-secondary">
                 Password and authentication settings
               </p>
             </div>

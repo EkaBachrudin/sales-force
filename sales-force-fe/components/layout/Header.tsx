@@ -64,7 +64,7 @@ export function Header({
   };
 
   return (
-    <header className="bg-white border-b border-[var(--border)] sticky top-0 z-30">
+    <header className="bg-white border-b border-border sticky top-0 z-30">
       <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-2.5 md:px-6">
         {/* Left Section - Title */}
         <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
@@ -81,11 +81,11 @@ export function Header({
 
           {title && (
             <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text-primary)] truncate">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-text-primary truncate">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5 truncate">
+                <p className="text-xs sm:text-sm text-text-secondary mt-0.5 truncate">
                   {subtitle}
                 </p>
               )}
@@ -104,16 +104,16 @@ export function Header({
                 className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 {/* User Avatar */}
-                <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-white text-sm font-medium">
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium">
                   {getInitials(user.full_name)}
                 </div>
 
                 {/* User Info - Desktop only */}
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-[var(--text-primary)] truncate max-w-[120px]">
+                  <p className="text-sm font-medium text-text-primary truncate max-w-[120px]">
                     {user.full_name}
                   </p>
-                  <p className="text-xs text-[var(--text-secondary)] truncate max-w-[120px]">
+                  <p className="text-xs text-text-secondary truncate max-w-[120px]">
                     {user.email}
                   </p>
                 </div>
@@ -127,7 +127,7 @@ export function Header({
 
               {/* Dropdown Menu - Desktop only */}
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[var(--border)] py-1 z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-border py-1 z-50">
                   {/* Menu Items */}
                   <div className="py-1">
 

@@ -96,7 +96,7 @@ export default function UsersPage() {
     return (
       <DashboardLayout title="Users" subtitle="">
         <div className="flex items-center justify-center h-64">
-          <div className="text-sm text-[var(--text-secondary)]">Loading...</div>
+          <div className="text-sm text-text-secondary">Loading...</div>
         </div>
       </DashboardLayout>
     );
@@ -108,10 +108,10 @@ export default function UsersPage() {
       <DashboardLayout title="Access Denied" subtitle="">
         <div className="flex flex-col items-center justify-center h-64">
           <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-lg font-semibold text-text-primary mb-2">
             Access Denied
           </h2>
-          <p className="text-sm text-[var(--text-secondary)] mb-4">
+          <p className="text-sm text-text-secondary mb-4">
             You don't have permission to access this page.
           </p>
           <Button onClick={() => router.push('/dashboard')}>
@@ -184,7 +184,7 @@ export default function UsersPage() {
           <select
             value={filters.role}
             onChange={(e) => updateFilter('role', e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
           >
             {roleOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -195,7 +195,7 @@ export default function UsersPage() {
           <select
             value={filters.status}
             onChange={(e) => updateFilter('status', e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:border-[var(--primary)]"
+            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
           >
             {statusOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -206,9 +206,9 @@ export default function UsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-hidden">
           {isLoadingUsers ? (
-            <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+            <div className="px-4 py-8 text-center text-sm text-text-secondary">
               Loading users...
             </div>
           ) : (
@@ -217,7 +217,7 @@ export default function UsersPage() {
               <div className="block lg:hidden">
                 <div className="divide-y divide-[var(--border)]">
                   {!usersData?.data || usersData.data.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+                    <div className="px-4 py-8 text-center text-sm text-text-secondary">
                       No users found
                     </div>
                   ) : (
@@ -226,7 +226,7 @@ export default function UsersPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">{user.full_name}</h3>
+                              <h3 className="text-sm font-semibold text-text-primary truncate">{user.full_name}</h3>
                               <Badge variant={roleVariantMap[user.role || 'Sales']} size="sm">
                                 {user.role || 'Sales'}
                               </Badge>
@@ -238,18 +238,18 @@ export default function UsersPage() {
                             </div>
                             <div className="space-y-1">
                               {user.email && (
-                                <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                                <p className="text-xs text-text-secondary flex items-center gap-1">
                                   <Mail className="w-3 h-3" />
                                   {user.email}
                                 </p>
                               )}
                               {user.phone && (
-                                <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                                <p className="text-xs text-text-secondary flex items-center gap-1">
                                   <Phone className="w-3 h-3" />
                                   {user.phone}
                                 </p>
                               )}
-                              <p className="text-xs text-[var(--text-secondary)]">
+                              <p className="text-xs text-text-secondary">
                                 Joined {formatRelativeTime(user.created_at)}
                               </p>
                             </div>
@@ -287,20 +287,20 @@ export default function UsersPage() {
               <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[var(--border)] bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                    <tr className="border-b border-border bg-gray-50">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         User
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Role
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Created
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -308,7 +308,7 @@ export default function UsersPage() {
                   <tbody className="divide-y divide-[var(--border)]">
                     {!usersData?.data || usersData.data.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+                        <td colSpan={5} className="px-4 py-8 text-center text-sm text-text-secondary">
                           No users found
                         </td>
                       </tr>
@@ -317,19 +317,19 @@ export default function UsersPage() {
                         <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3">
                             <div>
-                              <p className="text-sm font-medium text-[var(--text-primary)]">{user.full_name}</p>
+                              <p className="text-sm font-medium text-text-primary">{user.full_name}</p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 {user.email && (
                                   <a
                                     href={`mailto:${user.email}`}
-                                    className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--primary)]"
+                                    className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary"
                                   >
                                     <Mail className="w-3 h-3" />
                                     {user.email}
                                   </a>
                                 )}
                                 {user.phone && (
-                                  <span className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+                                  <span className="flex items-center gap-1 text-xs text-text-secondary">
                                     <Phone className="w-3 h-3" />
                                     {user.phone}
                                   </span>
@@ -356,7 +356,7 @@ export default function UsersPage() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-secondary)]">{formatRelativeTime(user.created_at)}</p>
+                            <p className="text-sm text-text-secondary">{formatRelativeTime(user.created_at)}</p>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-end gap-1">
@@ -397,8 +397,8 @@ export default function UsersPage() {
 
               {/* Pagination */}
               {usersData && (usersData.total ?? 0) > 0 && usersData.totalPages && usersData.totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border)]">
-                  <div className="text-xs sm:text-sm text-[var(--text-secondary)] text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
+                  <div className="text-xs sm:text-sm text-text-secondary text-center sm:text-left">
                     Showing {Math.min((currentPage - 1) * pageSize + 1, usersData.total ?? 0)} to{' '}
                     {Math.min(currentPage * pageSize, usersData.total ?? 0)} of {usersData.total ?? 0} users
                   </div>
@@ -406,18 +406,18 @@ export default function UsersPage() {
                     <button
                       onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-[var(--border)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Previous page"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-xs sm:text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                    <span className="text-xs sm:text-sm text-text-secondary whitespace-nowrap">
                       {currentPage} / {usersData.totalPages}
                     </span>
                     <button
                       onClick={() => setCurrentPage((prev) => Math.min(usersData.totalPages || 1, prev + 1))}
                       disabled={currentPage === usersData.totalPages}
-                      className="p-2 rounded-lg border border-[var(--border)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Next page"
                     >
                       <ChevronRight className="w-4 h-4" />
