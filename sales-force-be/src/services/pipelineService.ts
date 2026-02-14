@@ -76,11 +76,15 @@ const validateStatus = (status: string): status is CrmLeadStatus => {
  * Retrieves all leads grouped by pipeline stage for kanban board rendering
  */
 export const getPipelineData = async (query: GetPipelineQuery, userId: string): Promise<PipelineResponse> => {
-  const { page = 1, limit = 20 } = query;
+  const { page = 1, limit = 20, search } = query;
 
   // Validate limit (max 50)
   const validatedLimit = Math.min(Math.max(1, limit), 50);
   const offset = (page - 1) * validatedLimit;
+
+  // Build search filter for name
+  const searchFilter = search ? ` AND l.name ILIKE $3` : '';
+  const searchParams = search ? [`%${search}%`] : [];
 
   // Build stages with leads
   const stages: PipelineStage[] = [];
@@ -98,15 +102,15 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
     // Get lead count for this stage
     const countQuery = `
       SELECT COUNT(*) as count
-      FROM leads
-      WHERE status = $1 AND assigned_to = $2
+      FROM leads l
+      WHERE l.status = $1 AND l.assigned_to = $2${searchFilter}
     `;
-    const countResult = await pool.query(countQuery, [stage.id, userId]);
+    const countResult = await pool.query(countQuery, [stage.id, userId, ...searchParams]);
     const leadCount = parseInt(countResult.rows[0].count, 10);
     stagesSummary[stage.id] = leadCount;
     totalLeads += leadCount;
 
-    // Get leads for this stage with pagination
+    // Get leads for this stage with pagination and search
     const leadsQuery = `
       SELECT
         l.id,
@@ -117,11 +121,11 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
         p.name as property_name
       FROM leads l
       LEFT JOIN properties p ON l.property_id = p.id
-      WHERE l.status = $1 AND l.assigned_to = $2
+      WHERE l.status = $1 AND l.assigned_to = $2${searchFilter}
       ORDER BY l.updated_at DESC
-      LIMIT $3 OFFSET $4
+      LIMIT $${search ? '4' : '3'} OFFSET $${search ? '5' : '4'}
     `;
-    const leadsResult = await pool.query(leadsQuery, [stage.id, userId, validatedLimit, offset]);
+    const leadsResult = await pool.query(leadsQuery, [stage.id, userId, ...searchParams, validatedLimit, offset]);
 
     const leads: PipelineLeadItem[] = leadsResult.rows.map((row) => ({
       id: row.id,

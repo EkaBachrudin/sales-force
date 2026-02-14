@@ -9,11 +9,11 @@ import {
 /**
  * Hook to fetch pipeline data with TanStack Query
  */
-export function usePipeline(page = 1, limit = 20): UseQueryResult<PipelineData, Error> {
+export function usePipeline(page = 1, limit = 20, search?: string): UseQueryResult<PipelineData, Error> {
   return useQuery<PipelineData>({
-    queryKey: ['pipeline', page, limit],
+    queryKey: ['pipeline', page, limit, search],
     queryFn: async (): Promise<PipelineData> => {
-      const response = await api.getPipeline({ page, limit });
+      const response = await api.getPipeline({ page, limit, search });
       return response.data as PipelineData;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes

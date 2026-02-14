@@ -723,6 +723,7 @@ export interface PipelineLeadItem {
 export interface GetPipelineQuery {
   page?: number;
   limit?: number;
+  search?: string;
 }
 
 export interface PipelineStagesSummary {

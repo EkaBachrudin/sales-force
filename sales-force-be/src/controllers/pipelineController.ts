@@ -17,6 +17,7 @@ export const getPipelineController = async (req: Request, res: Response): Promis
   const query: GetPipelineQuery = {
     page: req.query.page ? parseInt(req.query.page as string) : undefined,
     limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+    search: req.query.search as string | undefined,
   };
   const userId = req.user?.sub;
 
