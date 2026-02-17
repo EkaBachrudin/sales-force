@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, DollarSign, FileText } from 'lucide-react';
+import { X, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { CreateSubscriptionDto, Subscription, SubscriptionType, SubscriptionStatus, UpdateSubscriptionDto, User } from '@/lib/types';
@@ -46,7 +46,7 @@ export function SubscriptionModal({
   isLoading = false,
   mode,
   subscription,
-}: SubscriptionModalProps) {
+}: Readonly<SubscriptionModalProps>) {
   // Fetch users for the dropdown
   const { data: usersData } = useUsers(1, 1000, { search: '', role: 'all', status: 'all' }, isOpen);
 
@@ -112,7 +112,7 @@ export function SubscriptionModal({
     // Amount validation
     if (!formData.amount.trim()) {
       newErrors.amount = 'Amount is required';
-    } else if (parseFloat(formData.amount) <= 0) {
+    } else if (Number.parseFloat(formData.amount) <= 0) {
       newErrors.amount = 'Amount must be greater than 0';
     }
 
@@ -135,7 +135,7 @@ export function SubscriptionModal({
     const submitData: CreateSubscriptionDto | UpdateSubscriptionDto = mode === 'edit'
       ? {
           subscription_type: formData.subscription_type,
-          amount: parseFloat(formData.amount),
+          amount: Number.parseFloat(formData.amount),
           due_date: formData.due_date,
           ...(formData.status && { status: formData.status }),
           ...(formData.notes.trim() && { notes: formData.notes.trim() }),
@@ -143,7 +143,7 @@ export function SubscriptionModal({
       : {
           user_id: formData.user_id.trim(),
           subscription_type: formData.subscription_type,
-          amount: parseFloat(formData.amount),
+          amount: Number.parseFloat(formData.amount),
           due_date: formData.due_date,
           ...(formData.notes.trim() && { notes: formData.notes.trim() }),
         };

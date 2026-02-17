@@ -3,12 +3,19 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '@/lib/api';
 import { useRouter, usePathname } from 'next/navigation';
+import { SubscriptionStatus } from '@/lib/types';
 
 export interface User {
   id: string;
   full_name: string;
   email: string;
   role: string;
+  subscription?: {
+    status: SubscriptionStatus;
+    subscription_type?: string;
+    period_end?: string;
+    amount?: number;
+  };
 }
 
 interface AuthContextType {

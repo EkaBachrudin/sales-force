@@ -23,8 +23,8 @@ import {
  */
 export const getLeadsController = async (req: Request, res: Response): Promise<void> => {
   const query: GetLeadsQuery = {
-    page: req.query.page ? parseInt(req.query.page as string) : undefined,
-    limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+    page: req.query.page ? Number.parseInt(req.query.page as string) : undefined,
+    limit: req.query.limit ? Number.parseInt(req.query.limit as string) : undefined,
     status: req.query.status as LeadStatusEnum | undefined,
     search: req.query.search as string | undefined,
     start_date: req.query.start_date as string | undefined,

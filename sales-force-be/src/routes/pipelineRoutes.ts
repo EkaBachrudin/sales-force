@@ -4,29 +4,29 @@ import {
   updateLeadStatusController,
   getPipelineMetricsController,
 } from '../controllers/pipelineController';
-import { authenticate } from '../middleware/auth';
+import { authenticate, subscriptionCheck } from '../middleware';
 
 const router = Router();
 
 /**
  * GET /api/v1/pipeline
  * Get all leads grouped by pipeline stage for kanban board rendering
- * @access Private (requires authentication)
+ * @access Private (requires authentication and active subscription)
  */
-router.get('/', authenticate, getPipelineController);
+router.get('/', authenticate, subscriptionCheck, getPipelineController);
 
 /**
  * GET /api/v1/pipeline/metrics
  * Get summary metrics for pipeline overview
- * @access Private (requires authentication)
+ * @access Private (requires authentication and active subscription)
  */
-router.get('/metrics', authenticate, getPipelineMetricsController);
+router.get('/metrics', authenticate, subscriptionCheck, getPipelineMetricsController);
 
 /**
  * PUT /api/v1/leads/:id/status
  * Update lead status when dragging between kanban columns
- * @access Private (requires authentication)
+ * @access Private (requires authentication and active subscription)
  */
-router.put('/leads/:id/status', authenticate, updateLeadStatusController);
+router.put('/leads/:id/status', authenticate, subscriptionCheck, updateLeadStatusController);
 
 export default router;

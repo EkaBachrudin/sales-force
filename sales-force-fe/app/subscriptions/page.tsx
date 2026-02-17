@@ -7,8 +7,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { SubscriptionModal } from '@/components/subscriptions/SubscriptionModal';
-import { Subscription, SubscriptionFilters, CreateSubscriptionDto, UpdateSubscriptionDto, SubscriptionType, SubscriptionStatus } from '@/lib/types';
-import { cn, formatRelativeTime } from '@/lib/utils';
+import { Subscription, SubscriptionFilters, CreateSubscriptionDto, UpdateSubscriptionDto} from '@/lib/types';
 import { useSubscriptions, useSubscriptionMutations } from '@/hooks/useSubscriptions';
 import { useAuth } from '@/contexts/AuthContext';
 

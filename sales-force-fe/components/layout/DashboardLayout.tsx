@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { Header, HeaderProps, User } from './Header';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { SubscriptionBanner } from '@/components/subscription/SubscriptionBanner';
 
 export interface DashboardLayoutProps extends Omit<HeaderProps, 'user' | 'onLogout'> {
   children: React.ReactNode;
@@ -77,6 +78,7 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
         />
 
         <div className="p-3 sm:p-4 md:p-6">
+          <SubscriptionBanner />
           {children}
         </div>
       </main>

@@ -290,7 +290,7 @@ export const logout = async (userId: string, jti: string): Promise<void> => {
 
     // Add JWT to blacklist
     const jtiParts = jti.split('-');
-    const timestamp = parseInt(jtiParts[0] || '0', 10);
+    const timestamp = Number.parseInt(jtiParts[0] || '0', 10);
     const expiresAt = new Date(timestamp + 15 * 60 * 1000);
 
     await client.query('INSERT INTO revoked_tokens (jti, user_id, expires_at) VALUES ($1, $2, $3)', [jti, userId, expiresAt]);
@@ -313,9 +313,9 @@ export const revokeAllSessions = async (userId: string): Promise<number> => {
 };
 
 /**
- * Get current user by ID
+ * Get current user by ID with subscription status
  */
-export const getCurrentUser = async (userId: string): Promise<Omit<User, 'password_hash'> & { role?: string }> => {
+export const getCurrentUser = async (userId: string): Promise<Omit<User, 'password_hash'> & { role?: string; subscription?: { status: string; subscription_type?: string; period_end?: string } }> => {
   const result = await pool.query(
     `SELECT u.id, u.full_name, u.email, u.phone, u.is_active, u.created_at, u.updated_at, r.name as role
      FROM users u
@@ -329,6 +329,24 @@ export const getCurrentUser = async (userId: string): Promise<Omit<User, 'passwo
   }
 
   const row = result.rows[0];
+
+  // Get active subscription (most recent one)
+  const subscriptionResult = await pool.query(
+    `SELECT status, subscription_type, period_end, amount
+     FROM subscriptions
+     WHERE user_id = $1
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [userId]
+  );
+
+  const subscription = subscriptionResult.rows.length > 0 ? {
+    status: subscriptionResult.rows[0].status,
+    subscription_type: subscriptionResult.rows[0].subscription_type,
+    period_end: subscriptionResult.rows[0].period_end,
+    amount: subscriptionResult.rows[0].amount,
+  } : undefined;
+
   return {
     id: row.id,
     full_name: row.full_name,
@@ -338,6 +356,7 @@ export const getCurrentUser = async (userId: string): Promise<Omit<User, 'passwo
     is_active: row.is_active,
     created_at: row.created_at,
     updated_at: row.updated_at,
+    subscription,
   };
 };
 
@@ -405,4 +424,26 @@ export const changePassword = async (userId: string, dto: ChangePasswordDto): Pr
 
   // Revoke all sessions for security (force user to login again)
   await pool.query('UPDATE user_sessions SET is_active = false WHERE user_id = $1', [userId]);
+};
+
+/**
+ * Get user subscription status
+ * @param userId - User ID
+ * @returns Subscription status or null if no subscription exists
+ */
+export const getUserSubscriptionStatus = async (userId: string): Promise<string | null> => {
+  const result = await pool.query(
+    `SELECT status
+     FROM subscriptions
+     WHERE user_id = $1
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [userId]
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  return result.rows[0].status;
 };
