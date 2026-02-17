@@ -126,7 +126,7 @@ export default function FeaturesPage() {
       id: 'lead-management',
       title: 'Smart Lead Management',
       description: 'Kelola semua lead Anda dalam satu tempat yang terpusat. Tambah, edit, dan lacak setiap lead dari kontak pertama hingga penutupan deal.',
-      image: '/images/features/lead-management.png',
+      image: '/features/dashboard.png',
       imageAlt: 'Lead Management Dashboard',
       badges: ['Unlimited Leads', 'Custom Fields', 'Quick Search'],
       color: 'blue',
@@ -136,9 +136,9 @@ export default function FeaturesPage() {
       id: 'visual-pipeline',
       title: 'Visual Pipeline Kanban',
       description: 'Lihat seluruh sales pipeline Anda dalam tampilan Kanban yang intuitif. Drag & drop lead antar stage dan monitor progress secara real-time.',
-      image: '/images/features/pipeline-kanban.png',
+      image: '/features/pipeline.png',
       imageAlt: 'Visual Pipeline Kanban Board',
-      badges: ['Drag & Drop', 'Custom Stages', 'Real-time Updates'],
+      badges: ['Drag & Drop', 'Real-time Updates'],
       color: 'orange',
       reverse: true
     },
@@ -146,9 +146,9 @@ export default function FeaturesPage() {
       id: 'analytics-dashboard',
       title: 'Analytics Dashboard',
       description: 'Dapatkan wawasan mendalam tentang performa sales Anda dengan dashboard analitik yang komprehensif dan visualisasi data yang interaktif.',
-      image: '/images/features/analytics-dashboard.png',
+      image: '/features/analytic.png',
       imageAlt: 'Analytics Dashboard with Charts',
-      badges: ['Sales Metrics', 'Trend Analysis', 'Custom Reports'],
+      badges: ['Sales Metrics', 'Trend Analysis'],
       color: 'purple',
       reverse: false
     },
@@ -156,9 +156,9 @@ export default function FeaturesPage() {
       id: 'whatsapp-integration',
       title: 'WhatsApp Integration',
       description: 'Hubungi lead langsung melalui WhatsApp dengan satu klik. Integrasi seamless yang mempercepat respons dan meningkatkan konversi.',
-      image: '/images/features/whatsapp-integration.png',
+      image: '/features/wa-integration.png',
       imageAlt: 'WhatsApp Quick Connect Feature',
-      badges: ['One-Click Connect', 'Message Templates', 'Chat History'],
+      badges: ['One-Click Connect'],
       color: 'green',
       reverse: true
     }
@@ -451,33 +451,12 @@ export default function FeaturesPage() {
 
                       {/* Screenshot Container */}
                       <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
-                        {/* Placeholder for Screenshot - Replace with actual Image component */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center p-8">
-                            {/* Screenshot Placeholder */}
-                            <div className="bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto border border-gray-200">
-                              {/* Mini App Preview */}
-                              <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="h-6 w-32 bg-gray-200 rounded" />
-                                  <div className="flex gap-2">
-                                    <div className="h-8 w-8 bg-blue-500 rounded-lg" />
-                                    <div className="h-8 w-8 bg-purple-500 rounded-lg" />
-                                  </div>
-                                </div>
-                                <div className="grid grid-cols-3 gap-3">
-                                  {[...Array(6)].map((_, i) => (
-                                    <div key={i} className="h-20 bg-gray-100 rounded-lg border border-gray-200" />
-                                  ))}
-                                </div>
-                                <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-20" />
-                              </div>
-                            </div>
-                            <p className="text-gray-400 text-sm mt-4">
-                              {showcase.imageAlt}
-                            </p>
-                          </div>
-                        </div>
+                        {/* Screenshot Image */}
+                        <img
+                          src={showcase.image}
+                          alt={showcase.imageAlt}
+                          className="w-full object-cover"
+                        />
 
                         {/* Color Accent Bar */}
                         <div className={`absolute top-0 left-0 right-0 h-1 ${
@@ -584,7 +563,7 @@ export default function FeaturesPage() {
                 {
                   step: '02',
                   icon: Target,
-                  title: 'Lacak & Nurture',
+                  title: 'Lacak & Bina',
                   description: 'Pindahkan lead melalui pipeline. Atur pengingat dan jangan pernah melewatkan follow-up.'
                 },
                 {
@@ -663,7 +642,7 @@ export default function FeaturesPage() {
                         <span className="text-5xl sm:text-6xl font-bold text-white tracking-tight">60</span>
                         <span className="text-3xl font-bold text-white">.000</span>
                       </div>
-                      <p className="text-gray-400 text-sm">per bulan • Rp 720.000/tahun</p>
+                      <p className="text-gray-400 text-sm">per bulan • Rp 600.000/tahun</p>
                     </div>
 
                     {/* Guarantee */}
@@ -811,7 +790,7 @@ export default function FeaturesPage() {
                   Siap untuk Meningkatkan Penjualan Anda?
                 </h2>
                 <p className="text-white/90 mb-8 max-w-2xl mx-auto">
-                  Bergabunglah dengan ribuan profesional sales yang telah menutup lebih banyak deal dengan Sales CRM Pro.
+                  Bergabunglah dengan ribuan profesional sales yang telah menutup lebih banyak deal dengan SForce CRM Pro.
                   Mulai trial gratis Anda hari ini.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -831,7 +810,7 @@ export default function FeaturesPage() {
         {/* Footer */}
         <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-200 bg-gray-50">
           <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-4">
                     <Link href="/" className="flex items-center gap-2">
@@ -854,13 +833,6 @@ export default function FeaturesPage() {
                 <ul className="space-y-2 text-gray-600 text-sm">
                   <li><a href="#" className="hover:text-gray-900 transition-colors">Tentang Kami</a></li>
                   <li><a href="#faq" className="hover:text-gray-900 transition-colors">FAQ</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-gray-900 font-semibold mb-4">Legal</h4>
-                <ul className="space-y-2 text-gray-600 text-sm">
-                  <li><a href="#" className="hover:text-gray-900 transition-colors">Kebijakan Privasi</a></li>
-                  <li><a href="#" className="hover:text-gray-900 transition-colors">Syarat & Ketentuan</a></li>
                 </ul>
               </div>
             </div>
