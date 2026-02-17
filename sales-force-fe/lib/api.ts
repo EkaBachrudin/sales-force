@@ -660,10 +660,12 @@ export const api = {
   getAnalyticsDashboard: async (params?: {
     period?: 'today' | 'week' | 'month' | 'year';
     trend_months?: number;
+    data_range_months?: number;
   }) => {
     const queryParams = new URLSearchParams();
     if (params?.period) queryParams.append('period', params.period);
     if (params?.trend_months) queryParams.append('trend_months', params.trend_months.toString());
+    if (params?.data_range_months) queryParams.append('data_range_months', params.data_range_months.toString());
 
     const response = await fetchWithInterceptor(
       `${API_URL}/api/v1/analytics/dashboard${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,

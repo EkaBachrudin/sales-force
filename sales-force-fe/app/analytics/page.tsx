@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ConversionMetricCard } from '@/components/analytics/ConversionMetricCard';
 import { FunnelChart } from '@/components/analytics/FunnelChart';
@@ -8,11 +8,23 @@ import { TrendChart } from '@/components/analytics/TrendChart';
 import { DoughnutChart } from '@/components/analytics/DoughnutChart';
 import { useAnalyticsDashboard } from '@/hooks/useAnalytics';
 
+type DataRangeOption = 1 | 3 | 6 | 12 | 24;
+
+const DATA_RANGE_OPTIONS: { value: DataRangeOption; label: string }[] = [
+  { value: 1, label: '1 Bulan' },
+  { value: 3, label: '3 Bulan' },
+  { value: 6, label: '6 Bulan' },
+  { value: 12, label: '12 Bulan' },
+  { value: 24, label: '24 Bulan' },
+];
+
 export default function AnalyticsPage() {
+  const [dataRangeMonths, setDataRangeMonths] = useState<DataRangeOption>(6);
+
   const { data: dashboardData, isLoading, error } = useAnalyticsDashboard(
     {
-      period: 'month',
-      trend_months: 6,
+      data_range_months: dataRangeMonths,
+      trend_months: Math.min(dataRangeMonths, 12),
     },
     true
   );
@@ -83,6 +95,25 @@ export default function AnalyticsPage() {
       title="Analytics"
       subtitle="Track your sales performance and metrics"
     >
+      {/* Filter - Data Range Selection */}
+      <div className="mb-6 flex items-center gap-3">
+        <span className="text-sm font-medium text-gray-700">Filter Data:</span>
+        <div className="flex gap-2">
+          {DATA_RANGE_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => setDataRangeMonths(option.value)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                dataRangeMonths === option.value
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
       {/* Conversion Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <ConversionMetricCard

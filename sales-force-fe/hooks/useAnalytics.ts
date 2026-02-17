@@ -141,6 +141,7 @@ export function useAnalyticsDashboard(
   params?: {
     period?: AnalyticsPeriod;
     trend_months?: number;
+    data_range_months?: number;
   },
   enabled = true
 ) {
