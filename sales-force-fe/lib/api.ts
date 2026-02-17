@@ -957,4 +957,39 @@ export const api = {
 
     return data;
   },
+
+  // Export Leads API
+  exportLeads: async (params?: {
+    stage?: string;
+    search?: string;
+    propertyType?: string;
+    source?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.stage && params.stage !== 'all') queryParams.append('status', params.stage);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.propertyType && params.propertyType !== 'all') queryParams.append('property_id', params.propertyType);
+    if (params?.source && params.source !== 'all') queryParams.append('source', params.source);
+    if (params?.dateFrom) queryParams.append('start_date', params.dateFrom);
+    if (params?.dateTo) queryParams.append('end_date', params.dateTo);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/leads/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new ApiError(data.error?.message || data.message || 'Failed to export leads', response.status);
+    }
+
+    // Return blob for download
+    return response.blob();
+  },
 };

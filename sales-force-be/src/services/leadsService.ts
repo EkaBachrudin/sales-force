@@ -1,5 +1,6 @@
 import { pool } from '../config/database';
 import { AppError } from '../utils/AppError';
+import ExcelJS from 'exceljs';
 import {
   CrmLead as Lead,
   CrmLeadListItem,
@@ -841,4 +842,221 @@ export const getProperties = async (query: GetPropertiesQuery): Promise<Property
     city: row.city,
     province: row.province,
   }));
+};
+
+/**
+ * GET /api/v1/leads/export - Export Leads to Excel
+ * @param query - Query parameters for filtering
+ * @param userId - The ID of the user exporting leads
+ */
+export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise<Buffer> => {
+  const {
+    status,
+    search,
+    start_date,
+    end_date,
+    property_id,
+    source,
+  } = query;
+
+  // Build WHERE conditions - always filter by assigned user
+  const params: any[] = [userId];
+  let paramIndex = 2;
+  const conditions: string[] = [`l.assigned_to = $1`];
+
+  // Default date range: 1 year ago to today
+  const defaultStartDate = new Date();
+  defaultStartDate.setFullYear(defaultStartDate.getFullYear() - 1);
+
+  const startDate = start_date ? new Date(start_date + 'T00:00:00') : defaultStartDate;
+  const endDate = end_date ? new Date(end_date + 'T23:59:59') : new Date();
+
+  conditions.push(`l.created_at >= $${paramIndex++}`);
+  params.push(startDate);
+
+  conditions.push(`l.created_at <= $${paramIndex++}`);
+  params.push(endDate);
+
+  if (status) {
+    conditions.push(`l.status = $${paramIndex++}`);
+    params.push(status);
+  }
+
+  if (search) {
+    conditions.push(`(l.name ILIKE $${paramIndex++} OR l.phone ILIKE $${paramIndex++})`);
+    params.push(`%${search}%`, `%${search}%`);
+  }
+
+  if (property_id) {
+    conditions.push(`l.property_id = $${paramIndex++}`);
+    params.push(property_id);
+  }
+
+  if (source) {
+    conditions.push(`l.source = $${paramIndex++}`);
+    params.push(source);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  // Get leads with full details for export
+  const leadsQuery = `
+    SELECT
+      l.id,
+      l.name,
+      l.phone,
+      l.email,
+      l.nik,
+      l.npwp,
+      l.status,
+      l.source,
+      l.property_id,
+      l.budget_range,
+      l.notes,
+      l.property_price,
+      l.down_payment_percentage,
+      l.interest_rate,
+      l.loan_term_years,
+      l.estimated_monthly_payment,
+      l.created_at,
+      l.updated_at,
+      u.full_name as assigned_to_name,
+      p.name as property_name,
+      p.property_type,
+      p.price as property_price_detail
+    FROM leads l
+    LEFT JOIN users u ON l.assigned_to = u.id
+    LEFT JOIN properties p ON l.property_id = p.id
+    ${whereClause}
+    ORDER BY l.created_at DESC
+  `;
+
+  const leadsResult = await pool.query(leadsQuery, params);
+  const leads = leadsResult.rows;
+
+  // Create Excel workbook
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Leads');
+
+  // Define columns
+  worksheet.columns = [
+    { header: 'Name', key: 'name', width: 25 },
+    { header: 'Phone', key: 'phone', width: 20 },
+    { header: 'Email', key: 'email', width: 30 },
+    { header: 'NIK', key: 'nik', width: 20 },
+    { header: 'NPWP', key: 'npwp', width: 20 },
+    { header: 'Status', key: 'status', width: 15 },
+    { header: 'Source', key: 'source', width: 15 },
+    { header: 'Property', key: 'property_name', width: 25 },
+    { header: 'Property Type', key: 'property_type', width: 15 },
+    { header: 'Budget Range', key: 'budget_range', width: 20 },
+    { header: 'Property Price', key: 'property_price', width: 20 },
+    { header: 'Down Payment %', key: 'down_payment_percentage', width: 15 },
+    { header: 'Interest Rate %', key: 'interest_rate', width: 15 },
+    { header: 'Loan Term (Years)', key: 'loan_term_years', width: 15 },
+    { header: 'Est. Monthly Payment', key: 'estimated_monthly_payment', width: 20 },
+    { header: 'Notes', key: 'notes', width: 40 },
+  ];
+
+  // Style header row
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF4472C4' },
+  };
+  headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+  headerRow.height = 25;
+
+  // Add data rows
+  leads.forEach((lead) => {
+    let budgetRange = '';
+    if (lead.budget_range) {
+      try {
+        const budget = JSON.parse(lead.budget_range);
+        budgetRange = `Rp ${budget.min?.toLocaleString('id-ID')} - Rp ${budget.max?.toLocaleString('id-ID')}`;
+      } catch {
+        budgetRange = lead.budget_range;
+      }
+    }
+
+    let propertyPrice = '';
+    if (lead.property_price_detail) {
+      propertyPrice = `Rp ${Number(lead.property_price_detail).toLocaleString('id-ID')}`;
+    } else if (lead.property_price) {
+      propertyPrice = `Rp ${Number(lead.property_price).toLocaleString('id-ID')}`;
+    }
+
+    let estimatedPayment = '';
+    if (lead.estimated_monthly_payment) {
+      estimatedPayment = `Rp ${Number(lead.estimated_monthly_payment).toLocaleString('id-ID')}`;
+    }
+
+    worksheet.addRow({
+      name: lead.name,
+      phone: lead.phone || '',
+      email: lead.email || '',
+      nik: lead.nik || '',
+      npwp: lead.npwp || '',
+      status: lead.status,
+      source: lead.source || '',
+      property_name: lead.property_name || '',
+      property_type: lead.property_type || '',
+      budget_range: budgetRange,
+      property_price: propertyPrice,
+      down_payment_percentage: lead.down_payment_percentage || '',
+      interest_rate: lead.interest_rate || '',
+      loan_term_years: lead.loan_term_years || '',
+      estimated_monthly_payment: estimatedPayment,
+      notes: lead.notes || '',
+    });
+  });
+
+  // Auto-fit column widths based on content
+  worksheet.columns.forEach((column) => {
+    if (column.eachCell) {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: false }, (cell) => {
+        const value = cell.value;
+        let length = 0;
+        if (value) {
+          // Handle different cell value types from ExcelJS
+          if (typeof value === 'object') {
+            if ('text' in value) {
+              length = String(value.text).length;
+            } else if ('richText' in value) {
+              length = String(value.richText).length;
+            } else if ('formula' in value) {
+              length = String(value.formula).length;
+            } else {
+              length = String(value).length;
+            }
+          } else if (typeof value === 'string' || typeof value === 'number') {
+            length = String(value).length;
+          }
+        }
+        if (length > maxLength) {
+          maxLength = length;
+        }
+      });
+      column.width = Math.max(Math.min(maxLength + 2, 50), 15);
+    }
+  });
+
+  // Add borders to all cells
+  worksheet.eachRow((row) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
+  });
+
+  // Generate buffer
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 };

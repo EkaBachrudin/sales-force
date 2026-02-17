@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Plus, Phone, MoreVertical, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { api } from '@/lib/api';
+import { Search, Plus, Phone, MoreVertical, ChevronLeft, ChevronRight, Calendar, Download } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -58,6 +59,7 @@ export default function LeadsPage() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Fetch lead detail when selectedLeadId changes
   const { data: selectedLead } = useLeadDetail(selectedLeadId, isPanelOpen);
@@ -107,6 +109,35 @@ export default function LeadsPage() {
     await updateLead({ id: selectedLead.id, data });
   };
 
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const blob = await api.exportLeads({
+        stage: filters.stage,
+        search: filters.search,
+        propertyType: filters.propertyType,
+        source: filters.source,
+        dateFrom: filters.dateFrom,
+        dateTo: filters.dateTo,
+      });
+
+      // Create download link
+      const url = globalThis.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `leads-export-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      globalThis.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error('Export failed:', error);
+      // You could add a toast notification here
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const formatDateForInput = (dateString: string) => {
     if (!dateString) return '';
     return dateString;
@@ -118,9 +149,19 @@ export default function LeadsPage() {
         title="Leads"
         subtitle={leadsData ? `Total ${leadsData.total ?? 0} leads` : 'Loading...'}
         action={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)}>
-            Add Lead
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              leftIcon={<Download className="w-4 h-4" />}
+              onClick={handleExport}
+              isLoading={isExporting}
+            >
+              Export
+            </Button>
+            <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)}>
+              Add Lead
+            </Button>
+          </div>
         }
       >
         {/* Filters */}

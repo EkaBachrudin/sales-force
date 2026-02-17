@@ -6,6 +6,7 @@ import {
   updateLead,
   addActivity,
   getProperties,
+  exportLeads,
 } from '../services/leadsService';
 import {
   CrmCreateLeadDto as CreateLeadDto,
@@ -146,4 +147,37 @@ export const getPropertiesController = async (req: Request, res: Response): Prom
       properties: result,
     },
   });
+};
+
+/**
+ * GET /api/v1/leads/export - Export Leads to Excel
+ */
+export const exportLeadsController = async (req: Request, res: Response): Promise<void> => {
+  const query: GetLeadsQuery = {
+    status: req.query.status as LeadStatusEnum | undefined,
+    search: req.query.search as string | undefined,
+    start_date: req.query.start_date as string | undefined,
+    end_date: req.query.end_date as string | undefined,
+    property_id: req.query.property_id as string | undefined,
+    source: req.query.source as LeadSourceEnum | undefined,
+  };
+  const userId = req.user?.sub;
+
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+    });
+    return;
+  }
+
+  const buffer = await exportLeads(query, userId);
+
+  // Set headers for Excel file download
+  const filename = `leads-export-${new Date().toISOString().split('T')[0]}.xlsx`;
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.setHeader('Content-Length', buffer.length);
+
+  res.send(buffer);
 };

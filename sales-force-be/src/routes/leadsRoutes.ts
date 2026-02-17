@@ -6,6 +6,7 @@ import {
   updateLeadController,
   addActivityController,
   getPropertiesController,
+  exportLeadsController,
 } from '../controllers/leadsController';
 import { authenticate } from '../middleware/auth';
 
@@ -17,6 +18,13 @@ const router = Router();
  * @access Private (requires authentication)
  */
 router.get('/', authenticate, getLeadsController);
+
+/**
+ * GET /api/v1/leads/export
+ * Export leads to Excel file
+ * @access Private (requires authentication)
+ */
+router.get('/export', authenticate, exportLeadsController);
 
 /**
  * GET /api/v1/leads/:id
