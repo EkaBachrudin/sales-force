@@ -10,6 +10,7 @@ services:
   frontend:
     environment:
       - NODE_ENV=production
+      - GOOGLE_SCRIPT_URL=${GOOGLE_SCRIPT_URL}
 
   # ========================================
   # BACKEND - Production Mode

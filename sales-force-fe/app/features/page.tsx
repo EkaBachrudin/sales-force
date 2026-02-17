@@ -62,17 +62,33 @@ export default function FeaturesPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call - replace with actual API endpoint
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const response = await fetch('/api/submit-interest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
+      const result = await response.json();
 
-    setIsSubmitting(false);
-    setSubmitSuccess(true);
+      if (!response.ok) {
+        throw new Error(result.error || 'Terjadi kesalahan');
+      }
 
-    // Close modal after success message
-    setTimeout(() => {
-      closeFormModal();
-    }, 2000);
+      setSubmitSuccess(true);
+
+      // Close modal after success message
+      setTimeout(() => {
+        closeFormModal();
+      }, 2000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const features = [
