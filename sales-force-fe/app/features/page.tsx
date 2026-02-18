@@ -460,7 +460,7 @@ export default function FeaturesPage() {
                         </div>
                         <div className="flex-1 mx-4">
                           <div className="bg-white rounded-md px-3 py-1 text-xs text-gray-400 text-center">
-                            {showcase.id}.salescrmpro.com
+                            {showcase.id}.sforce.my.id
                           </div>
                         </div>
                       </div>
@@ -471,7 +471,7 @@ export default function FeaturesPage() {
                         <img
                           src={showcase.image}
                           alt={showcase.imageAlt}
-                          className="w-full object-cover"
+                          className="w-full object-cover mt-[5px]"
                         />
 
                         {/* Color Accent Bar */}
