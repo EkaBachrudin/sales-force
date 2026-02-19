@@ -845,6 +845,44 @@ export const getProperties = async (query: GetPropertiesQuery): Promise<Property
 };
 
 /**
+ * DELETE /api/v1/leads/:id - Delete Lead
+ * @param leadId - The ID of the lead to delete
+ * @param userId - The ID of the user deleting the lead
+ */
+export const deleteLead = async (leadId: string, userId: string): Promise<void> => {
+  // Check if lead exists and belongs to the user
+  const leadCheck = await pool.query('SELECT * FROM leads WHERE id = $1 AND assigned_to = $2', [leadId, userId]);
+  if (leadCheck.rows.length === 0) {
+    throw new AppError('Lead not found', 404);
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Delete related records first (due to foreign key constraints)
+    // Delete lead activities
+    await client.query('DELETE FROM lead_activities WHERE lead_id = $1', [leadId]);
+
+    // Delete WhatsApp messages
+    await client.query('DELETE FROM whatsapp_messages WHERE lead_id = $1', [leadId]);
+
+    // Delete reminders
+    await client.query('DELETE FROM reminder_schedules WHERE lead_id = $1', [leadId]);
+
+    // Delete the lead
+    await client.query('DELETE FROM leads WHERE id = $1', [leadId]);
+
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+/**
  * GET /api/v1/leads/export - Export Leads to Excel
  * @param query - Query parameters for filtering
  * @param userId - The ID of the user exporting leads
@@ -1014,10 +1052,10 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
   });
 
   // Auto-fit column widths based on content
-  worksheet.columns.forEach((column) => {
+  worksheet.columns.forEach((column: any) => {
     if (column.eachCell) {
       let maxLength = 0;
-      column.eachCell({ includeEmpty: false }, (cell) => {
+      column.eachCell({ includeEmpty: false }, (cell: any) => {
         const value = cell.value;
         let length = 0;
         if (value) {
@@ -1045,8 +1083,8 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
   });
 
   // Add borders to all cells
-  worksheet.eachRow((row) => {
-    row.eachCell((cell) => {
+  worksheet.eachRow((row: any) => {
+    row.eachCell((cell: any) => {
       cell.border = {
         top: { style: 'thin' },
         left: { style: 'thin' },
