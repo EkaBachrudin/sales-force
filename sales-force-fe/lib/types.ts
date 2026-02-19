@@ -74,3 +74,147 @@ export interface UpdatePropertyDto {
   name?: string;
   property_type?: string;
 }
+
+// User Types
+export enum UserRole {
+  ADMIN = 'Admin',
+  MANAGER = 'Supervisor',
+  SALES = 'Sales',
+}
+
+export interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  phone?: string;
+  avatar_url?: string;
+  is_active: boolean;
+  last_login_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateUserDto {
+  email: string;
+  password: string;
+  full_name: string;
+  role: string; // Backend role name (Admin, Supervisor, Sales) as string
+  phone?: string;
+}
+
+export interface UpdateUserDto {
+  email?: string;
+  full_name?: string;
+  role?: string; // Backend role name as string
+  phone?: string;
+  is_active?: boolean;
+  password?: string;
+}
+
+export interface UsersFilters {
+  search: string;
+  role: string;
+  status: string;
+}
+
+// Subscription Types
+export enum SubscriptionType {
+  MONTHLY = 'monthly',
+  QUARTERLY = 'quarterly',
+  ANNUAL = 'annual',
+}
+
+export enum SubscriptionStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  OVERDUE = 'overdue',
+  CANCELLED = 'cancelled',
+}
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  user_name?: string;
+  user_email?: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  period_start?: string;
+  period_end?: string;
+  due_date: string;
+  status: SubscriptionStatus;
+  notes?: string;
+  created_at: string;
+}
+
+export interface CreateSubscriptionDto {
+  user_id: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  due_date: string;
+  notes?: string;
+}
+
+export interface UpdateSubscriptionDto {
+  subscription_type?: SubscriptionType;
+  amount?: number;
+  due_date?: string;
+  status?: SubscriptionStatus;
+  notes?: string;
+}
+
+export interface SubscriptionFilters {
+  search: string;
+  status: string;
+  subscriptionType: string;
+}
+
+// Pipeline Types
+export interface PipelineStageApi {
+  id: string;
+  name: string;
+  name_en: string;
+  order: number;
+  color: string;
+  lead_count: number;
+  leads: PipelineLeadItem[];
+}
+
+export interface PipelineLeadItem {
+  id: string;
+  name: string;
+  property_name?: string;
+  next_follow_up_at?: string;
+  updated_at: string;
+}
+
+export interface PipelineStagesSummary {
+  new: number;
+  contacted: number;
+  surveyed: number;
+  negotiating: number;
+  closed: number;
+  cancelled: number;
+}
+
+export interface PipelineData {
+  stages: PipelineStageApi[];
+  meta: {
+    total_leads: number;
+    stages_summary: PipelineStagesSummary;
+  };
+}
+
+export interface PipelineMetrics {
+  total_leads: number;
+  this_month: number;
+  surveyed: number;
+  closed: number;
+  conversion_rate: number;
+  avg_time_to_close: number;
+}
+
+export interface UpdateLeadStatusDto {
+  status: string;
+  reason?: string;
+}

@@ -16,6 +16,7 @@ services:
       - /app/.next
     environment:
       - NODE_ENV=development
+      - GOOGLE_SCRIPT_URL=${GOOGLE_SCRIPT_URL}
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     command: npm run dev

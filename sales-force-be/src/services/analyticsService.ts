@@ -128,6 +128,61 @@ function getDateRangeEnd(period: AnalyticsPeriod, startDate: Date): Date {
 }
 
 /**
+ * Get date range based on months (e.g., last 6 months)
+ */
+function getDateRangeByMonths(months: number): { start: Date; end: Date } {
+  const now = new Date();
+  const start = new Date(now);
+  start.setMonth(now.getMonth() - months + 1);
+  start.setDate(1);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+/**
+ * Get data range for comparison (current vs previous period based on months)
+ */
+function getDataRangeForComparison(
+  months: number,
+  compareWith?: AnalyticsCompareWith
+): { current: { start: Date; end: Date }; previous?: { start: Date; end: Date } } {
+  const now = new Date();
+  const currentEnd = new Date(now);
+  currentEnd.setHours(23, 59, 59, 999);
+
+  const currentStart = new Date(now);
+  currentStart.setMonth(now.getMonth() - months + 1);
+  currentStart.setDate(1);
+  currentStart.setHours(0, 0, 0, 0);
+
+  let previousStart: Date | undefined;
+  let previousEnd: Date | undefined;
+
+  if (compareWith === 'previous_period') {
+    previousEnd = new Date(currentStart);
+    previousEnd.setMilliseconds(previousEnd.getMilliseconds() - 1);
+    previousEnd.setHours(23, 59, 59, 999);
+
+    previousStart = new Date(currentStart);
+    previousStart.setMonth(previousStart.getMonth() - months);
+    previousStart.setHours(0, 0, 0, 0);
+  } else if (compareWith === 'last_year') {
+    previousEnd = new Date(currentEnd);
+    previousEnd.setFullYear(previousEnd.getFullYear() - 1);
+
+    previousStart = new Date(currentStart);
+    previousStart.setFullYear(previousStart.getFullYear() - 1);
+    previousStart.setHours(0, 0, 0, 0);
+  }
+
+  return { current: { start: currentStart, end: currentEnd }, previous: previousStart && previousEnd ? { start: previousStart, end: previousEnd } : undefined };
+}
+
+/**
  * Calculate trend between current and previous values
  */
 function calculateTrend(currentValue: number, previousValue: number, label: string): MetricTrend {
@@ -146,7 +201,8 @@ function calculateTrend(currentValue: number, previousValue: number, label: stri
 export const getAnalyticsMetrics = async (
   userId: string,
   period: AnalyticsPeriod = 'month',
-  compareWith: AnalyticsCompareWith = 'previous_period'
+  compareWith: AnalyticsCompareWith = 'previous_period',
+  dataRangeMonths?: number
 ): Promise<AnalyticsMetricsResponse> => {
   // Validate user exists
   const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
@@ -154,9 +210,26 @@ export const getAnalyticsMetrics = async (
     throw new AppError('User not found', 404);
   }
 
-  const { current: currentStart, previous: previousStart } = getDateRange(period, compareWith);
-  const currentEnd = getDateRangeEnd(period, currentStart);
-  const previousEnd = previousStart ? getDateRangeEnd(period, previousStart) : undefined;
+  let currentStart: Date;
+  let currentEnd: Date;
+  let previousStart: Date | undefined;
+  let previousEnd: Date | undefined;
+
+  if (dataRangeMonths) {
+    // Use date range by months (e.g., last 6 months vs previous 6 months)
+    const { current, previous } = getDataRangeForComparison(dataRangeMonths, compareWith);
+    currentStart = current.start;
+    currentEnd = current.end;
+    previousStart = previous?.start;
+    previousEnd = previous?.end;
+  } else {
+    // Use period-based date range
+    const range = getDateRange(period, compareWith);
+    currentStart = range.current;
+    previousStart = range.previous;
+    currentEnd = getDateRangeEnd(period, currentStart);
+    previousEnd = previousStart ? getDateRangeEnd(period, previousStart) : undefined;
+  }
 
   // Conversion Rate = (Closed Leads / Total Leads) * 100
   const currentConversionResult = await pool.query(
@@ -272,19 +345,25 @@ export const getAnalyticsMetrics = async (
     previousFollowUp = parseFloat(previousFollowUpResult.rows[0].follow_up_rate || '0');
   }
 
-  // Get trend label based on period
-  const trendLabels: Record<AnalyticsPeriod, string> = {
-    today: 'vs yesterday',
-    week: 'vs last week',
-    month: 'vs last month',
-    year: 'vs last year',
-  };
+  // Get trend label based on period or data range months
+  let trendLabel: string;
+  if (dataRangeMonths) {
+    trendLabel = `vs previous ${dataRangeMonths} months`;
+  } else {
+    const trendLabels: Record<AnalyticsPeriod, string> = {
+      today: 'vs yesterday',
+      week: 'vs last week',
+      month: 'vs last month',
+      year: 'vs last year',
+    };
+    trendLabel = trendLabels[period];
+  }
 
   return {
     conversion_rate: {
       value: Math.round(currentConversion * 10) / 10,
       unit: '%',
-      trend: calculateTrend(currentConversion, previousConversion, trendLabels[period]),
+      trend: calculateTrend(currentConversion, previousConversion, trendLabel),
     },
     avg_time_to_close: {
       value: Math.round(currentAvgTime),
@@ -317,7 +396,8 @@ export const getAnalyticsMetrics = async (
  */
 export const getAnalyticsFunnel = async (
   userId: string,
-  period: AnalyticsPeriod = 'month'
+  period: AnalyticsPeriod = 'month',
+  dataRangeMonths?: number
 ): Promise<AnalyticsFunnelResponse> => {
   // Validate user exists
   const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
@@ -325,8 +405,18 @@ export const getAnalyticsFunnel = async (
     throw new AppError('User not found', 404);
   }
 
-  const { current: startDate } = getDateRange(period);
-  const endDate = getDateRangeEnd(period, startDate);
+  let startDate: Date;
+  let endDate: Date;
+
+  if (dataRangeMonths) {
+    const range = getDateRangeByMonths(dataRangeMonths);
+    startDate = range.start;
+    endDate = range.end;
+  } else {
+    const { current } = getDateRange(period);
+    startDate = current;
+    endDate = getDateRangeEnd(period, startDate);
+  }
 
   const funnelResult = await pool.query(
     `SELECT
@@ -426,7 +516,8 @@ export const getAnalyticsTrend = async (userId: string, months: number = 6): Pro
  */
 export const getAnalyticsSources = async (
   userId: string,
-  period: AnalyticsPeriod = 'month'
+  period: AnalyticsPeriod = 'month',
+  dataRangeMonths?: number
 ): Promise<AnalyticsSourcesResponse> => {
   // Validate user exists
   const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
@@ -434,8 +525,18 @@ export const getAnalyticsSources = async (
     throw new AppError('User not found', 404);
   }
 
-  const { current: startDate } = getDateRange(period);
-  const endDate = getDateRangeEnd(period, startDate);
+  let startDate: Date;
+  let endDate: Date;
+
+  if (dataRangeMonths) {
+    const range = getDateRangeByMonths(dataRangeMonths);
+    startDate = range.start;
+    endDate = range.end;
+  } else {
+    const { current } = getDateRange(period);
+    startDate = current;
+    endDate = getDateRangeEnd(period, startDate);
+  }
 
   const sourcesResult = await pool.query(
     `SELECT
@@ -467,13 +568,14 @@ export const getAnalyticsSources = async (
 export const getAnalyticsDashboard = async (
   userId: string,
   period: AnalyticsPeriod = 'month',
-  trendMonths: number = 6
+  trendMonths: number = 6,
+  dataRangeMonths?: number
 ): Promise<AnalyticsDashboardResponse> => {
   const [metrics, funnel, trend, sources] = await Promise.all([
-    getAnalyticsMetrics(userId, period),
-    getAnalyticsFunnel(userId, period),
+    getAnalyticsMetrics(userId, period, 'previous_period', dataRangeMonths),
+    getAnalyticsFunnel(userId, period, dataRangeMonths),
     getAnalyticsTrend(userId, trendMonths),
-    getAnalyticsSources(userId, period),
+    getAnalyticsSources(userId, period, dataRangeMonths),
   ]);
 
   return {

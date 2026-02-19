@@ -52,6 +52,9 @@ RUN addgroup -g 1001 -S nodejs && \
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+# Copy src folder (needed for ts-node migrations in production)
+COPY --from=builder --chown=nodejs:nodejs /app/src ./src
+COPY --from=builder --chown=nodejs:nodejs /app/tsconfig.json ./
 
 USER nodejs
 

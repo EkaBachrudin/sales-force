@@ -33,14 +33,14 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 
     const stateStyles = hasError
       ? 'border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)] bg-red-50/50'
-      : 'border-[var(--border)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]';
+      : 'border-border focus:border-primary focus:ring-1 focus:ring-[var(--primary)]';
 
     return (
       <div className="w-full">
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-medium text-[var(--text-primary)] mb-1.5"
+            className="block text-sm font-medium text-text-primary mb-1.5"
           >
             {label}
           </label>
@@ -63,15 +63,15 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <div className="flex items-center justify-between mt-1.5">
           <div className="flex-1">
             {error && (
-              <p className="text-xs text-[var(--danger)]">{error}</p>
+              <p className="text-xs text-danger">{error}</p>
             )}
             {helperText && !error && (
-              <p className="text-xs text-[var(--text-secondary)]">{helperText}</p>
+              <p className="text-xs text-text-secondary">{helperText}</p>
             )}
           </div>
 
           {showCharacterCount && maxLength && (
-            <p className="text-xs text-[var(--text-secondary)] ml-2">
+            <p className="text-xs text-text-secondary ml-2">
               {characterCount}/{maxLength}
             </p>
           )}

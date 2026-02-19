@@ -71,22 +71,22 @@ export function RemindersSection({
   };
 
   return (
-    <div className={cn('bg-white rounded-xl border border-[var(--border)]', className)}>
+    <div className={cn('bg-white rounded-xl border border-border', className)}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 sm:p-4 border-b border-[var(--border)]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 sm:p-4 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-[var(--warning)]" />
-            <h3 className="text-base font-semibold text-[var(--text-primary)]">
+            <Bell className="w-5 h-5 text-warning" />
+            <h3 className="text-base font-semibold text-text-primary">
               Upcoming Reminders
             </h3>
           </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1 ml-7">
+          <p className="text-xs text-text-secondary mt-1 ml-7">
             Menampilkan jadwal follow-up untuk hari ini hingga 7 hari ke depan
           </p>
         </div>
         {reminders.length > maxItems && (
-          <button className="text-sm text-[var(--primary)] hover:underline font-medium self-start sm:self-auto">
+          <button className="text-sm text-primary hover:underline font-medium self-start sm:self-auto">
             See all →
           </button>
         )}
@@ -95,7 +95,7 @@ export function RemindersSection({
       {/* Reminders List */}
       <div className="divide-y divide-[var(--border)]">
         {displayReminders.length === 0 ? (
-          <div className="p-6 sm:p-8 text-center text-sm text-[var(--text-secondary)]">
+          <div className="p-6 sm:p-8 text-center text-sm text-text-secondary">
             No upcoming reminders
           </div>
         ) : (
@@ -108,17 +108,17 @@ export function RemindersSection({
               <div className="flex items-start gap-3">
                 {/* Icon */}
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                  <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--warning)]" />
+                  <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-warning" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   {/* Time & Name - Stack on mobile */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 mb-1">
-                    <span className="text-sm font-semibold text-[var(--text-primary)]">
+                    <span className="text-sm font-semibold text-text-primary">
                       {isClient ? getTimeLabel(reminder.scheduledFor) : 'Loading...'}
                     </span>
-                    <span className="text-xs text-[var(--text-secondary)]">
+                    <span className="text-xs text-text-secondary">
                       {isClient ? (() => {
                         const d = typeof reminder.scheduledFor === 'string'
                           ? new Date(reminder.scheduledFor)
@@ -131,12 +131,12 @@ export function RemindersSection({
                   </div>
 
                   {/* Lead Name */}
-                  <p className="text-sm text-[var(--text-primary)] mb-0.5 truncate">
+                  <p className="text-sm text-text-primary mb-0.5 truncate">
                     {reminder.leadName}
                   </p>
 
                   {/* Property */}
-                  <p className="text-xs text-[var(--text-secondary)] mb-1 truncate">
+                  <p className="text-xs text-text-secondary mb-1 truncate">
                     Property: {reminder.property}
                   </p>
 

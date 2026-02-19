@@ -8,3 +8,4 @@
 - API Design Leads: https://www.notion.so/API-Design-Leads-2e6b2c42720c81049249fe6f831ec771
 - API Design Authentication & Session Management: https://www.notion.so/API-Design-Authentication-Session-Management-2e7b2c42720c81a78f8aed7caba631db
 - API Design Properties: https://www.notion.so/API-Design-Properties-2ebb2c42720c81a38c4cfc434ceed544
+- Api Design Kanban: https://www.notion.so/API-Design-Kanban-2e7b2c42720c81bfac5acb5968f5be69

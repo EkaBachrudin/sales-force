@@ -63,8 +63,8 @@ export default function DashboardPage() {
       >
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)] mx-auto mb-2"></div>
-            <p className="text-sm text-[var(--text-secondary)]">Loading dashboard...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-text-secondary">Loading dashboard...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-2" />
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-text-secondary">
               Failed to load dashboard. Please try again later.
             </p>
           </div>

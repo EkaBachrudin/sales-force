@@ -52,19 +52,19 @@ export function ConversionMetricCard({
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border border-[var(--border)] p-5 relative',
+        'bg-white rounded-xl border border-border p-5 relative',
         className
       )}
     >
       <div className="flex items-center gap-1 mb-1">
-        <p className="text-sm text-[var(--text-secondary)]">{label}</p>
+        <p className="text-sm text-text-secondary">{label}</p>
         {tooltip && (
           <div className="relative">
             <button
               ref={buttonRef}
               type="button"
               onClick={() => setShowTooltip(!showTooltip)}
-              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="text-text-secondary hover:text-text-primary transition-colors"
               aria-label="Show info"
             >
               <Info className="w-3.5 h-3.5" />
@@ -108,11 +108,11 @@ export function ConversionMetricCard({
       </div>
 
       <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-[var(--text-primary)]">
+        <span className="text-2xl font-bold text-text-primary">
           {value}
         </span>
         {unit && (
-          <span className="text-sm text-[var(--text-secondary)]">{unit}</span>
+          <span className="text-sm text-text-secondary">{unit}</span>
         )}
       </div>
 
@@ -120,7 +120,7 @@ export function ConversionMetricCard({
         <div
           className={cn(
             'flex items-center gap-1 mt-2 text-xs font-medium',
-            trend.isPositive ? 'text-[var(--success)]' : 'text-[var(--danger)]'
+            trend.isPositive ? 'text-success' : 'text-danger'
           )}
         >
           {trend.isPositive ? (

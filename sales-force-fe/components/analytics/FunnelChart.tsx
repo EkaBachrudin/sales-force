@@ -24,8 +24,8 @@ export function FunnelChart({ data, total, className }: FunnelChartProps) {
   }));
 
   return (
-    <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
-      <h3 className="text-base font-semibold text-[var(--text-primary)] mb-6">
+    <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
+      <h3 className="text-base font-semibold text-text-primary mb-6">
         Lead Funnel
       </h3>
 
@@ -64,7 +64,7 @@ export function FunnelChart({ data, total, className }: FunnelChartProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 mt-6 pt-6 border-t border-[var(--border)]">
+      <div className="flex flex-wrap gap-4 mt-6 pt-6 border-t border-border">
         {data.map((stage, index) => {
           const totalPercentage = total ? ((stage.count / total) * 100).toFixed(1) : null;
 
@@ -74,7 +74,7 @@ export function FunnelChart({ data, total, className }: FunnelChartProps) {
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: stage.color }}
               />
-              <span className="text-xs text-[var(--text-secondary)]">
+              <span className="text-xs text-text-secondary">
                 {stage.label}
                 {totalPercentage && ` (${totalPercentage}%)`}
               </span>

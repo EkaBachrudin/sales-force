@@ -8,7 +8,7 @@ import {
   revokeAllController,
   changePasswordController,
 } from '../controllers/authController';
-import { authenticate, validateCsrf } from '../middleware/auth';
+import { authenticate, validateCsrf, optionalSubscriptionCheck } from '../middleware';
 import { authLimiter, registerLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
@@ -34,25 +34,29 @@ router.post('/refresh', refreshController);
 /**
  * POST /api/v1/auth/logout
  * Terminate current session
+ * Note: Allows cancelled users to logout
  */
-router.post('/logout', authenticate, validateCsrf, logoutController);
+router.post('/logout', authenticate, optionalSubscriptionCheck, validateCsrf, logoutController);
 
 /**
  * GET /api/v1/auth/me
  * Get current user session info
+ * Note: Allows cancelled users to fetch their subscription status
  */
-router.get('/me', authenticate, meController);
+router.get('/me', authenticate, optionalSubscriptionCheck, meController);
 
 /**
  * POST /api/v1/auth/revoke-all
  * Revoke all active sessions
+ * Note: Allows cancelled users to revoke sessions
  */
-router.post('/revoke-all', authenticate, validateCsrf, revokeAllController);
+router.post('/revoke-all', authenticate, optionalSubscriptionCheck, validateCsrf, revokeAllController);
 
 /**
  * POST /api/v1/auth/change-password
  * Change user password
+ * Note: Allows cancelled users to change password
  */
-router.post('/change-password', authenticate, validateCsrf, changePasswordController);
+router.post('/change-password', authenticate, optionalSubscriptionCheck, validateCsrf, changePasswordController);
 
 export default router;

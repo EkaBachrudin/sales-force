@@ -232,6 +232,7 @@ export const getAnalyticsDashboardController = async (req: Request, res: Respons
   try {
     const period = (req.query.period as AnalyticsPeriod) || 'month';
     const trendMonths = parseInt(req.query.trend_months as string) || 6;
+    const dataRangeMonths = req.query.data_range_months ? parseInt(req.query.data_range_months as string) : undefined;
 
     // Validate period parameter
     const validPeriods: AnalyticsPeriod[] = ['today', 'week', 'month', 'year'];
@@ -244,7 +245,12 @@ export const getAnalyticsDashboardController = async (req: Request, res: Respons
       throw new AppError('Trend months parameter must be between 1 and 12', 400);
     }
 
-    const dashboard = await getAnalyticsDashboard(userId, period, trendMonths);
+    // Validate data_range_months parameter if provided
+    if (dataRangeMonths !== undefined && (isNaN(dataRangeMonths) || dataRangeMonths < 1 || dataRangeMonths > 24)) {
+      throw new AppError('Data range months parameter must be between 1 and 24', 400);
+    }
+
+    const dashboard = await getAnalyticsDashboard(userId, period, trendMonths, dataRangeMonths);
 
     res.status(200).json({
       success: true,

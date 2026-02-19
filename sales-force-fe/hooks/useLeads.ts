@@ -98,6 +98,7 @@ export function useLeadMutations(options?: {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] }); // Invalidate pipeline cache
       options?.onCreateSuccess?.();
     },
     onError: (err: any) => {
@@ -112,6 +113,7 @@ export function useLeadMutations(options?: {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] }); // Invalidate pipeline cache
       options?.onUpdateSuccess?.();
     },
     onError: (err: any) => {
@@ -126,6 +128,7 @@ export function useLeadMutations(options?: {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] }); // Invalidate pipeline cache
       options?.onAddActivitySuccess?.();
     },
     onError: (err: any) => {

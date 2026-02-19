@@ -1,10 +1,4 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
-// Debug: log API URL to console
-if (typeof window !== 'undefined') {
-  console.log('API_URL configured as:', API_URL);
-}
-
 // Custom error class that includes status code
 class ApiError extends Error {
   constructor(message: string, public statusCode: number) {
@@ -83,8 +77,10 @@ const fetchWithInterceptor = async (input: RequestInfo | URL, init?: RequestInit
       // Refresh gagal, process queue dengan error
       processQueue(error);
 
-      // Redirect ke login jika refresh juga gagal
-      if (!window.location.pathname.includes('/login')) {
+      // Redirect ke login jika refresh juga gagal, kecuali untuk public routes
+      const publicRoutes = ['/login', '/register', '/features'];
+      const isPublicRoute = publicRoutes.some(route => window.location.pathname.startsWith(route));
+      if (!isPublicRoute) {
         window.location.href = '/login';
       }
 
@@ -664,10 +660,12 @@ export const api = {
   getAnalyticsDashboard: async (params?: {
     period?: 'today' | 'week' | 'month' | 'year';
     trend_months?: number;
+    data_range_months?: number;
   }) => {
     const queryParams = new URLSearchParams();
     if (params?.period) queryParams.append('period', params.period);
     if (params?.trend_months) queryParams.append('trend_months', params.trend_months.toString());
+    if (params?.data_range_months) queryParams.append('data_range_months', params.data_range_months.toString());
 
     const response = await fetchWithInterceptor(
       `${API_URL}/api/v1/analytics/dashboard${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
@@ -684,5 +682,316 @@ export const api = {
     }
 
     return data;
+  },
+
+  // Users API
+  getUsers: async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    role?: string;
+    is_active?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('limit', params.pageSize.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.role && params.role !== 'all') queryParams.append('role', params.role);
+    if (params?.is_active && params.is_active !== 'all') queryParams.append('is_active', params.is_active);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/users${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch users', response.status);
+    }
+
+    return data;
+  },
+
+  getUserDetail: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users/${id}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch user detail', response.status);
+    }
+
+    return data;
+  },
+
+  createUser: async (userData: {
+    email: string;
+    password: string;
+    full_name: string;
+    role: string;
+    phone?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to create user', response.status);
+    }
+
+    return data;
+  },
+
+  updateUser: async (id: string, userData: {
+    email?: string;
+    full_name?: string;
+    role?: string;
+    phone?: string;
+    is_active?: boolean;
+    password?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update user', response.status);
+    }
+
+    return data;
+  },
+
+  deleteUser: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/users/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to delete user', response.status);
+    }
+
+    return data;
+  },
+
+  // Subscriptions API
+  getSubscriptions: async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    status?: string;
+    subscription_type?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('limit', params.pageSize.toString());
+    if (params?.status && params.status !== 'all') queryParams.append('status', params.status);
+    if (params?.subscription_type && params.subscription_type !== 'all') queryParams.append('subscription_type', params.subscription_type);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/subscriptions${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch subscriptions', response.status);
+    }
+
+    return data;
+  },
+
+  createSubscription: async (subscriptionData: {
+    user_id: string;
+    subscription_type: string;
+    amount: number;
+    due_date: string;
+    notes?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(subscriptionData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to create subscription', response.status);
+    }
+
+    return data;
+  },
+
+  updateSubscription: async (id: string, subscriptionData: {
+    subscription_type?: string;
+    amount?: number;
+    due_date?: string;
+    status?: string;
+    notes?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/subscriptions/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(subscriptionData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update subscription', response.status);
+    }
+
+    return data;
+  },
+
+  deleteSubscription: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/subscriptions/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to delete subscription', response.status);
+    }
+
+    return data;
+  },
+
+  // Pipeline API
+  getPipeline: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/pipeline${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch pipeline data', response.status);
+    }
+
+    return data;
+  },
+
+  getPipelineMetrics: async () => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/pipeline/metrics`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch pipeline metrics', response.status);
+    }
+
+    return data;
+  },
+
+  updateLeadStatus: async (leadId: string, statusData: {
+    status: string;
+    reason?: string;
+  }) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/pipeline/leads/${leadId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(statusData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to update lead status', response.status);
+    }
+
+    return data;
+  },
+
+  // Export Leads API
+  exportLeads: async (params?: {
+    stage?: string;
+    search?: string;
+    propertyType?: string;
+    source?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.stage && params.stage !== 'all') queryParams.append('status', params.stage);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.propertyType && params.propertyType !== 'all') queryParams.append('property_id', params.propertyType);
+    if (params?.source && params.source !== 'all') queryParams.append('source', params.source);
+    if (params?.dateFrom) queryParams.append('start_date', params.dateFrom);
+    if (params?.dateTo) queryParams.append('end_date', params.dateTo);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/leads/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new ApiError(data.error?.message || data.message || 'Failed to export leads', response.status);
+    }
+
+    // Return blob for download
+    return response.blob();
   },
 };

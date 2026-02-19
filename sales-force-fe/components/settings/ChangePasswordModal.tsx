@@ -116,8 +116,8 @@ export function ChangePasswordModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-xl font-semibold text-text-primary">
               Change Password
             </h2>
             <button
@@ -138,10 +138,10 @@ export function ChangePasswordModal({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="text-lg font-semibold text-text-primary mb-2">
                   Password Changed Successfully
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-sm text-text-secondary">
                   Please login again with your new password.
                 </p>
               </div>
@@ -186,7 +186,7 @@ export function ChangePasswordModal({
                   required
                 />
 
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-text-secondary">
                   Password must be at least 6 characters long.
                 </p>
               </form>
@@ -195,7 +195,7 @@ export function ChangePasswordModal({
 
           {/* Footer */}
           {!showSuccess && (
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-[var(--border)]">
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
               <Button variant="secondary" onClick={onClose} disabled={isLoading}>
                 Cancel
               </Button>

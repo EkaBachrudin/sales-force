@@ -16,18 +16,11 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// User Types
-export enum UserRole {
-  ADMIN = 'admin',
-  MANAGER = 'manager',
-  SALES = 'sales',
-}
-
 export interface User {
   id: string;
   email: string;
   full_name: string;
-  role: UserRole;
+  role: string;
   phone?: string;
   avatar_url?: string;
   is_active: boolean;
@@ -35,14 +28,49 @@ export interface User {
   created_at: Date;
   updated_at: Date;
   password_hash?: string;
+  role_id?: string;
+}
+
+export interface UserListItem {
+  id: string;
+  email: string;
+  full_name: string;
+  phone?: string;
+  is_active: boolean;
+  role_id?: string;
+  role?: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CreateUserDto {
   email: string;
   password: string;
   full_name: string;
-  role: UserRole;
   phone?: string;
+  role_id?: string;
+  role?: string; // Role name (e.g., 'Admin', 'Supervisor', 'Sales') as alternative to role_id
+  is_active?: boolean;
+}
+
+export interface UpdateUserDto {
+  email?: string;
+  password?: string;
+  full_name?: string;
+  phone?: string;
+  role_id?: string;
+  role?: string; // Role name as alternative to role_id
+  is_active?: boolean;
+}
+
+export interface GetUsersQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  is_active?: boolean;
+  role_id?: string;
+  sort_by?: 'created_at' | 'full_name' | 'email';
+  sort_order?: 'asc' | 'desc';
 }
 
 export interface LoginDto {
@@ -164,7 +192,7 @@ export interface JwtPayload {
   jti: string;
   sub: string;
   email: string;
-  role: UserRole;
+  role: string;
   session_id: string; // Session ID from user_sessions table for secure session validation
   iat: number;
   exp: number;
@@ -195,7 +223,7 @@ export interface LoginResponse {
     id: string;
     full_name: string;
     email: string;
-    role: UserRole;
+    role: string;
   };
   session: {
     id: string;
@@ -601,4 +629,135 @@ export interface AnalyticsDashboardResponse {
   funnel: AnalyticsFunnelResponse;
   trend: AnalyticsTrendResponse;
   sources: AnalyticsSourcesResponse;
+}
+
+// Subscription Types
+export enum SubscriptionType {
+  MONTHLY = 'monthly',
+  QUARTERLY = 'quarterly',
+  ANNUAL = 'annual',
+}
+
+export enum SubscriptionStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  OVERDUE = 'overdue',
+  CANCELLED = 'cancelled',
+}
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  period_start?: Date;
+  period_end?: Date;
+  due_date: Date;
+  status: SubscriptionStatus;
+  notes?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface SubscriptionListItem {
+  id: string;
+  user_id: string;
+  user_name?: string;
+  user_email?: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  period_start?: Date;
+  period_end?: Date;
+  due_date: Date;
+  status: SubscriptionStatus;
+  notes?: string;
+  created_at: Date;
+}
+
+export interface CreateSubscriptionDto {
+  user_id: string;
+  subscription_type: SubscriptionType;
+  amount: number;
+  due_date: string;
+  notes?: string;
+}
+
+export interface UpdateSubscriptionDto {
+  subscription_type?: SubscriptionType;
+  amount?: number;
+  due_date?: string;
+  status?: SubscriptionStatus;
+  notes?: string;
+}
+
+export interface GetSubscriptionsQuery {
+  page?: number;
+  limit?: number;
+  user_id?: string;
+  status?: SubscriptionStatus;
+  subscription_type?: SubscriptionType;
+  sort_by?: 'created_at' | 'due_date' | 'amount';
+  sort_order?: 'asc' | 'desc';
+}
+
+// Pipeline Kanban Types
+export interface PipelineStage {
+  id: CrmLeadStatus;
+  name: string;
+  name_en: string;
+  order: number;
+  color: string;
+  lead_count: number;
+  leads: PipelineLeadItem[];
+}
+
+export interface PipelineLeadItem {
+  id: string;
+  name: string;
+  property_name?: string;
+  next_follow_up_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface GetPipelineQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export interface PipelineStagesSummary {
+  new: number;
+  contacted: number;
+  surveyed: number;
+  negotiating: number;
+  closed: number;
+  cancelled: number;
+}
+
+export interface PipelineResponse {
+  stages: PipelineStage[];
+  meta: {
+    total_leads: number;
+    stages_summary: PipelineStagesSummary;
+  };
+}
+
+export interface UpdateLeadStatusDto {
+  status: CrmLeadStatus;
+  reason?: string;
+}
+
+export interface UpdateLeadStatusResponse {
+  lead: CrmLead;
+  activity: CrmLeadActivity;
+}
+
+export interface PipelineMetricsResponse {
+  total_leads: number;
+  this_month: number;
+  surveyed: number;
+  closed: number;
+  conversion_rate: number;
+  avg_time_to_close: number;
 }

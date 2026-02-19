@@ -1,14 +1,21 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { SubscriptionStatus } from '@/lib/types';
 
 export interface User {
   id: string;
   full_name: string;
   email: string;
   role: string;
+  subscription?: {
+    status: SubscriptionStatus;
+    subscription_type?: string;
+    period_end?: string;
+    amount?: number;
+  };
 }
 
 interface AuthContextType {
@@ -21,10 +28,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Public routes yang tidak perlu auth check
+const PUBLIC_ROUTES = ['/login', '/register', '/features'];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   const fetchUser = async () => {
     try {
@@ -52,8 +63,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    // Skip fetching user untuk public routes
+    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route));
+    if (isPublicRoute) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Only fetch user on mount, not on every route change
+    // User data typically only changes on login/logout/profile update
+    if (user === null) {
+      fetchUser();
+    } else {
+      setIsLoading(false);
+    }
+  }, []); // Remove pathname dependency - fetch only once
 
   const value: AuthContextType = {
     user,

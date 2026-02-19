@@ -18,14 +18,14 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
     const stateStyles = hasError
       ? 'border-[var(--danger)] focus:border-[var(--danger)] bg-red-50/50'
-      : 'border-[var(--border)] focus:border-[var(--primary)]';
+      : 'border-border focus:border-primary';
 
     return (
       <div className="w-full">
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-[var(--text-primary)] mb-1.5"
+            className="block text-sm font-medium text-text-primary mb-1.5"
           >
             {label}
           </label>
@@ -72,11 +72,11 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         </div>
 
         {error && (
-          <p className="mt-1.5 text-xs text-[var(--danger)]">{error}</p>
+          <p className="mt-1.5 text-xs text-danger">{error}</p>
         )}
 
         {helperText && !error && (
-          <p className="mt-1.5 text-xs text-[var(--text-secondary)]">{helperText}</p>
+          <p className="mt-1.5 text-xs text-text-secondary">{helperText}</p>
         )}
       </div>
     );

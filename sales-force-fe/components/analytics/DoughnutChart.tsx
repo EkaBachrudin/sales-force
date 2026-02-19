@@ -36,8 +36,8 @@ export function DoughnutChart({
   }));
 
   return (
-    <div className={cn('bg-white rounded-xl border border-[var(--border)] p-6', className)}>
-      <h3 className="text-base font-semibold text-[var(--text-primary)] mb-6">
+    <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
+      <h3 className="text-base font-semibold text-text-primary mb-6">
         {title}
       </h3>
 
@@ -65,11 +65,11 @@ export function DoughnutChart({
           {/* Center text - absolutely positioned */}
           {centerText && (
             <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-              <span className="text-xl font-bold text-[var(--text-primary)]">
+              <span className="text-xl font-bold text-text-primary">
                 {centerText}
               </span>
               {centerSubtext && (
-                <span className="text-xs text-[var(--text-secondary)]">
+                <span className="text-xs text-text-secondary">
                   {centerSubtext}
                 </span>
               )}
@@ -90,15 +90,15 @@ export function DoughnutChart({
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: segment.color }}
                   />
-                  <span className="text-sm text-[var(--text-primary)]">
+                  <span className="text-sm text-text-primary">
                     {segment.label ?? segment.source}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                  <span className="text-sm font-medium text-text-primary">
                     {segmentValue}
                   </span>
-                  <span className="text-xs text-[var(--text-secondary)] ml-1">
+                  <span className="text-xs text-text-secondary ml-1">
                     ({percentage}%)
                   </span>
                 </div>

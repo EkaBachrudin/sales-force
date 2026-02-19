@@ -184,6 +184,7 @@ export const meController = async (req: Request, res: Response): Promise<void> =
         full_name: user.full_name,
         email: user.email,
         role: user.role,
+        subscription: user.subscription,
       },
     },
   });
