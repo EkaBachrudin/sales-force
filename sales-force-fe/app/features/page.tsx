@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Rocket,
@@ -28,17 +28,64 @@ import {
   Cloud
 } from 'lucide-react';
 
+/**
+ * Generate CSRF token
+ */
+function generateCSRFToken(): string {
+  const tokenData = {
+    timestamp: Date.now(),
+    random: Math.random().toString(36).substring(2)
+  };
+  // Use btoa for browser-compatible base64 encoding
+  return btoa(JSON.stringify(tokenData));
+}
+
+/**
+ * Validate email format
+ */
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/**
+ * Validate WhatsApp number (Indonesian format)
+ */
+function isValidWhatsApp(phone: string): boolean {
+  const cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
+  const phoneRegex = /^(\+?62|0)[0-9]{9,13}$/;
+  return phoneRegex.test(cleaned);
+}
+
+/**
+ * Sanitize input to prevent basic XSS
+ */
+function sanitizeInput(input: string): string {
+  return input
+    .trim()
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 export default function FeaturesPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [scrollY, setScrollY] = useState(0);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [csrfToken, setCsrfToken] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     whatsapp: '',
-    message: ''
+    message: '',
+    website: '' // Honeypot field
   });
+  const [errors, setErrors] = useState<{ email?: string; whatsapp?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
+
+  const submitTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -46,30 +93,102 @@ export default function FeaturesPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Generate CSRF token when modal opens
+    if (showFormModal) {
+      setCsrfToken(generateCSRFToken());
+    }
+  }, [showFormModal]);
+
+  useEffect(() => {
+    // Cleanup timeout
+    return () => {
+      if (submitTimeoutRef.current) {
+        clearTimeout(submitTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const openFormModal = () => setShowFormModal(true);
+
   const closeFormModal = () => {
     setShowFormModal(false);
     setSubmitSuccess(false);
-    setFormData({ email: '', whatsapp: '', message: '' });
+    setErrors({});
+    setFormData({ email: '', whatsapp: '', message: '', website: '' });
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Clear error when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: { email?: string; whatsapp?: string } = {};
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email wajib diisi';
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = 'Format email tidak valid';
+    }
+
+    // WhatsApp validation
+    if (!formData.whatsapp.trim()) {
+      newErrors.whatsapp = 'Nomor WhatsApp wajib diisi';
+    } else if (!isValidWhatsApp(formData.whatsapp)) {
+      newErrors.whatsapp = 'Format nomor WhatsApp tidak valid (gunakan 08xxx atau 628xxx)';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check for rapid submissions (prevent double-submit)
+    const now = Date.now();
+    if (now - lastSubmitTime < 3000) { // 3 seconds minimum between submissions
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
+    setLastSubmitTime(now);
 
     try {
+      // Sanitize inputs before sending
+      const sanitizedData = {
+        email: sanitizeInput(formData.email),
+        whatsapp: sanitizeInput(formData.whatsapp),
+        message: sanitizeInput(formData.message),
+        website: formData.website, // Honeypot field - don't sanitize, send as-is
+        csrfToken
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
       const response = await fetch('/api/submit-interest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(sanitizedData),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       const result = await response.json();
 
@@ -80,12 +199,17 @@ export default function FeaturesPage() {
       setSubmitSuccess(true);
 
       // Close modal after success message
-      setTimeout(() => {
+      submitTimeoutRef.current = setTimeout(() => {
         closeFormModal();
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
-      alert('Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
+
+      if (error.name === 'AbortError') {
+        alert('Request timeout. Silakan coba lagi.');
+      } else {
+        alert(error.message || 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -887,6 +1011,29 @@ export default function FeaturesPage() {
 
               {/* Modal Body */}
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {/* Honeypot field - hidden from users, visible to bots */}
+                <style jsx>{`
+                  .website-field {
+                    position: absolute;
+                    left: -10000px;
+                    width: 1px;
+                    height: 1px;
+                    overflow: hidden;
+                    opacity: 0;
+                  }
+                `}</style>
+                <input
+                  type="text"
+                  name="website"
+                  id="website"
+                  value={formData.website}
+                  onChange={handleFormChange}
+                  className="website-field"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
+
                 {/* Email Field */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -900,9 +1047,10 @@ export default function FeaturesPage() {
                     onChange={handleFormChange}
                     required
                     placeholder="nama@email.com"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    className={`w-full px-4 py-2.5 rounded-lg border ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'} focus:ring-2 outline-none transition-all`}
                     disabled={isSubmitting || submitSuccess}
                   />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 {/* WhatsApp Field */}
@@ -918,9 +1066,10 @@ export default function FeaturesPage() {
                     onChange={handleFormChange}
                     required
                     placeholder="08123456789"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    className={`w-full px-4 py-2.5 rounded-lg border ${errors.whatsapp ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'} focus:ring-2 outline-none transition-all`}
                     disabled={isSubmitting || submitSuccess}
                   />
+                  {errors.whatsapp && <p className="text-red-500 text-xs mt-1">{errors.whatsapp}</p>}
                 </div>
 
                 {/* Message Field */}
