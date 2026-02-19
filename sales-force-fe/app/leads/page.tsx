@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { Search, Plus, Phone, MoreVertical, ChevronLeft, ChevronRight, Calendar, Download } from 'lucide-react';
+import { Search, Plus, Phone, ChevronLeft, ChevronRight, Calendar, Download, Trash2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -15,6 +15,7 @@ import { Lead, PipelineStage } from '@/lib/types';
 import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { useProperties } from '@/hooks/useProperties';
 import { useLeads, useLeadMutations, useLeadDetail, LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
   new: 'gray',
@@ -60,6 +61,7 @@ export default function LeadsPage() {
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [deleteConfirmLead, setDeleteConfirmLead] = useState<Lead | null>(null);
 
   // Fetch lead detail when selectedLeadId changes
   const { data: selectedLead } = useLeadDetail(selectedLeadId, isPanelOpen);
@@ -70,18 +72,32 @@ export default function LeadsPage() {
 
   // Filter state
   const [filters, setFilters] = useState<UseLeadsFilters>(defaultFilters);
+  const [searchInput, setSearchInput] = useState(filters.search);
   const [showDateRange, setShowDateRange] = useState(false);
+
+  // Debounce search input
+  const debouncedSearch = useDebounce(searchInput, 500);
+
+  // Update filters when debounced search changes
+  useEffect(() => {
+    setFilters((prev: UseLeadsFilters) => ({ ...prev, search: debouncedSearch }));
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   // Fetch leads with filters and pagination
   const { data: leadsData, isLoading: isLoadingLeads } = useLeads(currentPage, pageSize, filters);
 
   // Mutations
-  const { updateLead, createLead, isUpdating } = useLeadMutations({
+  const { updateLead, createLead, deleteLead, isUpdating, isDeleting } = useLeadMutations({
     onUpdateSuccess: () => {
       setIsEditModalOpen(false);
     },
     onCreateSuccess: () => {
       setIsNewLeadModalOpen(false);
+    },
+    onDeleteSuccess: () => {
+      setIsPanelOpen(false);
+      setSelectedLeadId(null);
     },
   });
 
@@ -107,6 +123,21 @@ export default function LeadsPage() {
   const handleEditLead = async (data: Partial<Lead>) => {
     if (!selectedLead) return;
     await updateLead({ id: selectedLead.id, data });
+  };
+
+  const handleDeleteClick = (lead: Lead) => {
+    setDeleteConfirmLead(lead);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirmLead) return;
+    await deleteLead(deleteConfirmLead.id);
+    setDeleteConfirmLead(null);
+    // If the deleted lead was selected, close the panel
+    if (selectedLeadId === deleteConfirmLead.id) {
+      setIsPanelOpen(false);
+      setSelectedLeadId(null);
+    }
   };
 
   const handleExport = async () => {
@@ -171,8 +202,8 @@ export default function LeadsPage() {
             <div className="w-full">
               <Input
                 placeholder="Search by name, phone, or email..."
-                value={filters.search}
-                onChange={(e) => updateFilter('search', e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
                 leftIcon={<Search className="w-4 h-4" />}
               />
             </div>
@@ -251,7 +282,10 @@ export default function LeadsPage() {
                 />
               </div>
               <button
-                onClick={() => setFilters({ ...defaultFilters })}
+                onClick={() => {
+                  setFilters({ ...defaultFilters });
+                  setSearchInput('');
+                }}
                 className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary hover:bg-gray-50"
               >
                 Reset Filters
@@ -331,6 +365,16 @@ export default function LeadsPage() {
                               title="Call"
                             >
                               <Phone className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClick(lead);
+                              }}
+                              className="p-2 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-5 h-5" />
                             </button>
                           </div>
                         </div>
@@ -430,11 +474,14 @@ export default function LeadsPage() {
                                 <Phone className="w-4 h-4" />
                               </button>
                               <button
-                                className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                                title="More"
-                                onClick={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(lead);
+                                }}
+                                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                                title="Delete"
                               >
-                                <MoreVertical className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </td>
@@ -506,6 +553,44 @@ export default function LeadsPage() {
         lead={selectedLead}
         isLoading={isUpdating}
       />
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setDeleteConfirmLead(null)} />
+          <div className="relative bg-white rounded-xl shadow-lg max-w-md w-full mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 rounded-full bg-red-100">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-text-primary">Delete Lead</h3>
+                <p className="text-sm text-text-secondary">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="text-sm text-text-secondary mb-6">
+              Are you sure you want to delete <span className="font-semibold text-text-primary">{deleteConfirmLead.name}</span>?
+              This will permanently remove this lead and all associated activities and reminders.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="secondary"
+                onClick={() => setDeleteConfirmLead(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDeleteConfirm}
+                isLoading={isDeleting}
+              >
+                Delete Lead
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

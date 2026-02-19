@@ -440,6 +440,21 @@ export const api = {
     return data;
   },
 
+  deleteLead: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/leads/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to delete lead', response.status);
+    }
+
+    return data;
+  },
+
   addLeadActivity: async (id: string, activityData: {
     type: 'call' | 'email' | 'whatsapp' | 'meeting' | 'other';
     notes: string;

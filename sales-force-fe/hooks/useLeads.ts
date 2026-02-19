@@ -66,6 +66,7 @@ export function useLeadDetail(id: string | null, enabled = true) {
 export function useLeadMutations(options?: {
   onCreateSuccess?: () => void;
   onUpdateSuccess?: () => void;
+  onDeleteSuccess?: () => void;
   onAddActivitySuccess?: () => void;
   onError?: (error: Error) => void;
 }) {
@@ -137,12 +138,28 @@ export function useLeadMutations(options?: {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.deleteLead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] }); // Invalidate pipeline cache
+      options?.onDeleteSuccess?.();
+    },
+    onError: (err: any) => {
+      options?.onError?.(err);
+      throw err;
+    },
+  });
+
   return {
     createLead: createMutation.mutateAsync,
     updateLead: updateMutation.mutateAsync,
     addActivity: addActivityMutation.mutateAsync,
+    deleteLead: deleteMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isAddingActivity: addActivityMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
 }

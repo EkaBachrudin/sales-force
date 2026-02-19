@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Rocket,
-  Zap,
   Target,
   BarChart3,
   Smartphone,
@@ -314,7 +313,7 @@ export default function FeaturesPage() {
   const faqs = [
     {
       question: 'Apakah ada masa percobaan gratis?',
-      answer: 'Ya! Kami menawarkan masa percobaan gratis 14 hari dengan akses penuh ke semua fitur. Tidak perlu kartu kredit untuk memulai.'
+      answer: 'Ya! Kami menawarkan masa percobaan gratis 7 hari dengan akses penuh ke semua fitur. Tidak perlu kartu kredit untuk memulai.'
     },
     {
       question: 'Apakah data saya aman?',
@@ -785,14 +784,6 @@ export default function FeaturesPage() {
                       <p className="text-gray-400 text-sm">per bulan • Rp 600.000/tahun</p>
                     </div>
 
-                    {/* Guarantee */}
-                    <div className="pt-6 border-t border-white/10">
-                      <div className="flex items-center gap-3 text-gray-300 text-sm">
-                        <Shield className="w-5 h-5 text-blue-400" />
-                        <span>30-day money-back guarantee</span>
-                      </div>
-                    </div>
-
                     {/* CTA Button */}
                     <button
                       onClick={openFormModal}
@@ -930,8 +921,7 @@ export default function FeaturesPage() {
                   Siap untuk Meningkatkan Penjualan Anda?
                 </h2>
                 <p className="text-white/90 mb-8 max-w-2xl mx-auto">
-                  Bergabunglah dengan ribuan profesional sales yang telah menutup lebih banyak deal dengan SForce CRM Pro.
-                  Mulai trial gratis Anda hari ini.
+                  Tutup lebih banyak deal. Mulai trial gratis!
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
@@ -939,7 +929,6 @@ export default function FeaturesPage() {
                     className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
                   >
                     Saya Tertarik
-                    <Zap className="w-5 h-5" />
                   </button>
                 </div>
               </div>

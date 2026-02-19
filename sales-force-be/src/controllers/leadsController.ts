@@ -4,6 +4,7 @@ import {
   getLeadDetail,
   createLead,
   updateLead,
+  deleteLead,
   addActivity,
   getProperties,
   exportLeads,
@@ -180,4 +181,27 @@ export const exportLeadsController = async (req: Request, res: Response): Promis
   res.setHeader('Content-Length', buffer.length);
 
   res.send(buffer);
+};
+
+/**
+ * DELETE /api/v1/leads/:id - Delete Lead
+ */
+export const deleteLeadController = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const userId = req.user?.sub;
+
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+    });
+    return;
+  }
+
+  await deleteLead(id as string, userId);
+
+  res.status(200).json({
+    success: true,
+    message: 'Lead deleted successfully',
+  });
 };

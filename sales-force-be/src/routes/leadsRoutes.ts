@@ -4,6 +4,7 @@ import {
   getLeadDetailController,
   createLeadController,
   updateLeadController,
+  deleteLeadController,
   addActivityController,
   getPropertiesController,
   exportLeadsController,
@@ -46,6 +47,13 @@ router.post('/', authenticate, subscriptionCheck, createLeadController);
  * @access Private (requires authentication and active subscription)
  */
 router.put('/:id', authenticate, subscriptionCheck, updateLeadController);
+
+/**
+ * DELETE /api/v1/leads/:id
+ * Delete lead
+ * @access Private (requires authentication and active subscription)
+ */
+router.delete('/:id', authenticate, subscriptionCheck, deleteLeadController);
 
 /**
  * POST /api/v1/leads/:id/activities
