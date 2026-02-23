@@ -361,7 +361,7 @@ export default function PropertiesPage() {
               )}
             </div>
           ) : (
-            <div className="divide-y divide-[var(--border)]">
+            <div className="divide-y divide-border">
               {properties.map((property) => (
                 <div
                   key={property.id}

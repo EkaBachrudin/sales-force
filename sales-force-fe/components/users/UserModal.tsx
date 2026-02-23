@@ -241,7 +241,7 @@ export function UserModal({
                       value={formData.role}
                       onChange={(e) => handleInputChange('role', e.target.value)}
                       className={cn(
-                        'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
+                        'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary',
                         errors.role ? 'border-red-500' : 'border-border'
                       )}
                       required
@@ -285,7 +285,7 @@ export function UserModal({
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-[1.75rem] text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-7 text-gray-400 hover:text-gray-600"
                     >
                       {showPassword ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
