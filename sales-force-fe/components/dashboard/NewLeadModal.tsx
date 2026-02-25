@@ -259,7 +259,7 @@ export function NewLeadModal({
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-150 max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border">
             <h2 className="text-xl font-semibold text-text-primary">
@@ -274,14 +274,15 @@ export function NewLeadModal({
           </div>
 
           {/* Content */}
-          <div className="overflow-y-auto flex-1 p-6">
+          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information */}
               <div>
-                <h3 className="text-base font-semibold text-text-primary mb-3">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-4 bg-primary rounded-full"></span>
                   Personal Information
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 pl-1 sm:pl-3">
                   <Input
                     label="Name *"
                     placeholder="Enter lead name"
@@ -332,8 +333,8 @@ export function NewLeadModal({
                     </label>
                     <textarea
                       placeholder="Add any notes about this lead..."
-                      className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)] resize-none"
-                      rows={5}
+                      className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                      rows={4}
                       maxLength={500}
                       value={formData.note}
                       onChange={(e) => handleInputChange('note', e.target.value)}
@@ -365,10 +366,11 @@ export function NewLeadModal({
 
               {/* Property Interest */}
               <div>
-                <h3 className="text-base font-semibold text-text-primary mb-3">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
                   Property Interest
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 pl-1 sm:pl-3">
                   <Select
                     label="Property Type"
                     options={propertyOptions}
@@ -381,10 +383,11 @@ export function NewLeadModal({
 
               {/* Budget Range */}
               <div>
-                <h3 className="text-base font-semibold text-text-primary mb-3">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-4 bg-green-500 rounded-full"></span>
                   Budget Range
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 pl-1 sm:pl-3">
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-1.5">
                       Min Budget
@@ -395,7 +398,7 @@ export function NewLeadModal({
                       </span>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
+                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                         value={formatCurrencyInput(formData.budgetMin)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -414,7 +417,7 @@ export function NewLeadModal({
                       </span>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
+                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                         value={formatCurrencyInput(formData.budgetMax)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -427,19 +430,26 @@ export function NewLeadModal({
               </div>
 
               {/* KPR Simulation */}
-              <div>
+              <div className="rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setShowKprCalculator(!showKprCalculator)}
-                  className="flex items-center gap-2 text-primary font-medium mb-3"
+                  className="w-full flex items-center justify-between hover:bg-gray-50 transition-colors mb-3"
                 >
-                  <Calculator className="w-4 h-4" />
-                  {showKprCalculator ? 'Hide' : 'Show'} KPR Calculator (Optional)
+                  <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
+                    <span className="w-1 h-4 bg-orange-500 rounded-full"></span>
+                    <Calculator className="w-4 h-4 text-orange-500" />
+                    KPR Calculator
+                    <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                  </h3>
+                  <span className="text-xs text-gray-500">
+                    {showKprCalculator ? '▲ Hide' : '▼ Show'}
+                  </span>
                 </button>
 
                 {showKprCalculator && (
-                  <div className="p-4 bg-gray-50 rounded-xl space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium text-text-primary mb-1.5">
                           Property Price
@@ -475,7 +485,7 @@ export function NewLeadModal({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium text-text-primary mb-1.5">
                           Interest Rate %
@@ -525,25 +535,32 @@ export function NewLeadModal({
               </div>
 
               {/* Reminder (Optional) */}
-              <div>
+              <div className="rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setShowReminderForm(!showReminderForm)}
-                  className="flex items-center gap-2 text-primary font-medium mb-3"
+                  className="w-full flex items-center justify-between hover:bg-gray-50 transition-colors mb-3"
                 >
-                  <Bell className="w-4 h-4" />
-                  {showReminderForm ? 'Hide' : 'Show'} Reminder (Optional)
+                  <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
+                    <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
+                    <Bell className="w-4 h-4 text-purple-500" />
+                    Reminder
+                    <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                  </h3>
+                  <span className="text-xs text-gray-500">
+                    {showReminderForm ? '▲ Hide' : '▼ Show'}
+                  </span>
                 </button>
 
                 {showReminderForm && (
-                  <div className="p-4 bg-gray-50 rounded-xl space-y-4">
+                  <div className="p-4 bg-gray-50 space-y-3">
                     <div>
                       <label className="block text-sm font-medium text-text-primary mb-1.5">
                         Reminder Date & Time
                       </label>
                       <input
                         type="datetime-local"
-                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
+                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                         value={formData.reminder?.scheduledFor || ''}
                         onChange={(e) => handleReminderChange('scheduledFor', e.target.value)}
                       />
@@ -555,7 +572,7 @@ export function NewLeadModal({
                       </label>
                       <textarea
                         placeholder="Add notes for this reminder..."
-                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)] resize-none"
+                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
                         rows={3}
                         maxLength={200}
                         value={formData.reminder?.notes || ''}

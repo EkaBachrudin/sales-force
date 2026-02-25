@@ -5,6 +5,13 @@ version: '3.9'
 
 services:
   # ========================================
+  # DATABASE - Local Production (expose port for TablePlus)
+  # ========================================
+  postgres:
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+  # ========================================
   # NGINX - Local Production (HTTP only, no SSL)
   # ========================================
   nginx:

@@ -96,9 +96,9 @@ export default function AnalyticsPage() {
       subtitle="Track your sales performance and metrics"
     >
       {/* Filter - Data Range Selection */}
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3 flex-wrap">
         <span className="text-sm font-medium text-gray-700">Filter Data:</span>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {DATA_RANGE_OPTIONS.map((option) => (
             <button
               key={option.value}

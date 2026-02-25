@@ -178,7 +178,7 @@ export function SubscriptionModal({
           </div>
 
           {/* Content */}
-          <div className="overflow-y-auto flex-1 p-6">
+          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* User Selection */}
               <div>

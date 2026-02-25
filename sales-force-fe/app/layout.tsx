@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { DocumentTitle } from "@/components/DocumentTitle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sales Force - Personal CRM Dashboard",
+  title: "Sforce",
   description: "A comprehensive CRM dashboard for managing property sales leads, pipeline, and analytics.",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <DocumentTitle />
         <AuthProvider>
           <QueryProvider>
             {children}
