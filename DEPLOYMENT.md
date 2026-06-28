@@ -22,9 +22,10 @@ sales-force/
 ├── sales-force-be/              # Backend (NestJS)
 │   ├── Dockerfile
 │   └── src/
-└── sales-force-fe/              # Frontend (Next.js)
+└── sales-force-fe-react/         # Frontend (React + Vite)
     ├── Dockerfile
-    └── app/
+    ├── nginx.conf
+    └── src/
 ```
 
 ---
@@ -235,7 +236,7 @@ docker compose logs nginx
 make dev
 
 # Your changes are automatically reflected:
-# - Frontend: Next.js hot reload
+# - Frontend: Vite hot reload
 # - Backend: Nodemon watches for changes
 # - Database: Data persists in volume
 ```
@@ -337,7 +338,7 @@ docker volume prune
 | `DB_PORT` | Database port (dev) | `5432` |
 | `NGINX_HTTP_PORT` | HTTP port | `80` |
 | `NGINX_HTTPS_PORT` | HTTPS port | `443` |
-| `NEXT_PUBLIC_API_URL` | API URL for frontend | `http://localhost/api` |
+| `VITE_API_URL` | API URL for frontend | `http://localhost/api` |
 | `JWT_SECRET` | JWT signing key | - |
 | `JWT_EXPIRES_IN` | JWT expiration time | `24h` |
 | `DB_NAME` | Database name | `salesforce` |
