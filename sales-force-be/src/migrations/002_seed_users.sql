@@ -1,4 +1,4 @@
--- Migration: 003_seed_users
+-- Migration: 002_seed_users
 -- Description: Seed initial users for development/testing
 -- Created: 2025-01-28
 -- Database: PostgreSQL 15+
