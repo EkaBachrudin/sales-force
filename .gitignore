@@ -22,7 +22,7 @@ lerna-debug.log*
 # ============================================
 # BUILD OUTPUTS
 # ============================================
-# Frontend (Next.js)
+# Frontend (React + Vite)
 .next/
 out/
 build/
@@ -156,11 +156,8 @@ tmp/
 # ============================================
 
 # Frontend specific
-sales-force-fe/.next/
-sales-force-fe/out/
-sales-force-fe/build/
-sales-force-fe/coverage/
-sales-force-fe/.turbo/
+sales-force-fe-react/dist/
+sales-force-fe-react/node_modules/
 
 # Backend specific
 sales-force-be/dist/

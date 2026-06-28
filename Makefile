@@ -196,5 +196,5 @@ nuke:
 
 install:
 	@echo "Installing dependencies..."
-	cd sales-force-fe && npm install
+	cd sales-force-fe-react && npm install
 	cd ../sales-force-be && npm install

@@ -57,7 +57,7 @@ jobs:
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./sales-force-fe
+          context: ./sales-force-fe-react
           push: true
           tags: ${{ steps.meta-fe.outputs.tags }}
           labels: ${{ steps.meta-fe.outputs.labels }}
@@ -65,7 +65,7 @@ jobs:
           cache-to: type=gha,mode=max
           target: production
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            VITE_API_URL=${{ vars.VITE_API_URL }}
 
       - name: Build and push Backend
         uses: docker/build-push-action@v5

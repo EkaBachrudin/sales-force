@@ -78,7 +78,7 @@ cat ~/.ssh/github_actions_deploy
 
 | Variable | Deskripsi | Contoh |
 |----------|-----------|--------|
-| `NEXT_PUBLIC_API_URL` | API URL untuk frontend | `https://api.domain.com` |
+| `VITE_API_URL` | API URL untuk frontend | `https://api.domain.com` |
 
 ## Langkah 3: Setup VPS
 
@@ -163,7 +163,7 @@ IMAGE_TAG=latest
 NODE_ENV=production
 
 # Frontend Configuration
-NEXT_PUBLIC_API_URL=https://your-domain.com
+VITE_API_URL=https://your-domain.com
 
 # Backend Configuration
 PORT=3000
