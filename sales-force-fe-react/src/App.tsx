@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { DocumentTitle } from '@/components/DocumentTitle';
-import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 import LoginPage from '@/pages/LoginPage';
@@ -18,7 +17,6 @@ function App() {
   return (
     <>
       <DocumentTitle />
-      <PWAInstallPrompt />
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />

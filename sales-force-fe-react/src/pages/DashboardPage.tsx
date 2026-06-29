@@ -99,11 +99,12 @@ export default function DashboardPage() {
       title="Dashboard"
       subtitle="Welcome back! Here's what's happening today."
       action={
-        <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)} size="sm">
-          <span className="hidden sm:inline">New Lead</span>
-          <span className="sm:hidden">Add</span>
-        </Button>
-      }
+          <div className="flex items-center gap-3">
+            <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)}>
+              Add Lead
+            </Button>
+          </div>
+        }
     >
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">

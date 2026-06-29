@@ -90,14 +90,14 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       )}
     >
       {/* Logo Section */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+      <div className="h-16 flex items-center justify-between px-4">
         {!collapsed && (
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 mt-3">
             <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-14" />
           </Link>
         )}
         {collapsed && (
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 mt-3">
             <img src="/sforce-icon.webp" alt="Sales CRM Pro" className="h-14" />
           </Link>
         )}
