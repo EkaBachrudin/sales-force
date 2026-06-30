@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, ChevronLeft, ChevronRight, Mail, Phone, UserCheck, UserX, Trash2, MoreVertical } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, Mail, Phone, UserCheck, UserX, Trash2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -323,12 +323,6 @@ export default function UsersPage() {
                                   </svg>
                                 </button>
                               )}
-                              <button
-                                className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                                title="More"
-                              >
-                                <MoreVertical className="w-4 h-4" />
-                              </button>
                             </div>
                           </td>
                         </tr>

@@ -63,7 +63,7 @@ export function Header({
   };
 
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-30">
+    <header className="bg-white sticky top-0 z-30">
       <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-2.5 md:px-6">
         {/* Left Section - Title */}
         <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">

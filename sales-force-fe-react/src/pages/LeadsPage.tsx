@@ -193,7 +193,7 @@ export default function LeadsPage() {
         }
       >
         {/* Filters */}
-        <div className="flex flex-col gap-3 mb-6">
+        <div className="flex flex-col gap-3 mb-6 p-4 bg-white rounded-xl border border-border">
           {/* Search and Stage - Mobile: stacked, Tablet+: side by side */}
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
             <div className="w-full">

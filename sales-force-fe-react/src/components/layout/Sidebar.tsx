@@ -90,7 +90,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       )}
     >
       {/* Logo Section */}
-      <div className="h-16 flex items-center justify-between px-4">
+      <div className="h-20 flex items-center justify-center px-4">
         {!collapsed && (
           <Link to="/" className="flex items-center gap-2 mt-3">
             <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-14" />
@@ -112,35 +112,44 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       </div>
 
       {/* Navigation */}
-      <nav className="p-4 space-y-1">
+      <nav className={cn( collapsed ? 'p-4 space-y-1' : 'py-4 pr-4 pl-6 space-y-1')}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.route || (item.route !== '/' && pathname.startsWith(item.route + '/'));
 
           return (
-            <Link
-              key={item.route}
-              to={item.route}
-              onClick={handleLinkClick}
-              className={cn(
-                'flex items-center gap-3 px-3 py-3 rounded-md transition-all duration-200 relative',
-                isActive
-                  ? 'bg-[rgba(37,126,235,0.1)] text-primary border-l-4 border-primary'
-                  : 'text-text-secondary hover:bg-gray-50 border-l-4 border-transparent'
-              )}
-            >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {(!collapsed || mobileOpen) && (
-                <>
-                  <span className="font-medium">{item.label}</span>
-                  {item.badge && item.badge > 0 && (
-                    <span className="ml-auto bg-danger text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
-                </>
-              )}
-            </Link>
+            <>
+           
+              <Link
+                key={item.route}
+                to={item.route}
+                onClick={handleLinkClick}
+                className={cn(
+                  'flex items-center gap-3 pr-3 pl-8 py-4 rounded-md transition-all duration-200 relative h-[53px]',
+                  collapsed ? 'pl-3' : 'pl-8',
+                  isActive
+                    ? 'bg-[#4880FF] text-primary border-primary text-white'
+                    : 'text-text-secondary hover:bg-gray-50 border-l-4 border-transparent'
+                )}
+              >
+                {isActive && (
+                  <div className={cn('absolute bg-[#4880FF] h-full w-[8px] rounded-[20px]', collapsed ? 'left-[-20px]' : 'left-[-28px]')}></div>
+                )}
+                
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {(!collapsed || mobileOpen) && (
+                  <>
+                   
+                    <span className="font-medium">{item.label}</span>
+                    {item.badge && item.badge > 0 && (
+                      <span className="ml-auto bg-danger text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </>
+                )}
+              </Link>
+            </>
           );
         })}
       </nav>
