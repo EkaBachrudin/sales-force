@@ -79,8 +79,8 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   const autoScrollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Auto-scroll configuration
-  const SCROLL_EDGE_THRESHOLD = 50; // Distance from edge (px) to trigger auto-scroll
-  const SCROLL_SPEED = 8; // Pixels per scroll step
+  const SCROLL_EDGE_THRESHOLD = 80; // Distance from edge (px) to trigger auto-scroll
+  const SCROLL_SPEED = 15; // Pixels per scroll step
 
   // Clear all drag states when leads prop changes (after drop and re-render)
   useEffect(() => {
