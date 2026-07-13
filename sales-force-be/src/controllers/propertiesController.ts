@@ -1,18 +1,20 @@
 import { Request, Response } from 'express';
 import {
   getProperties as getPropertiesService,
+  getPropertyDetail as getPropertyDetailService,
+  getPropertySiteplan as getPropertySiteplanService,
   createProperty as createPropertyService,
   updateProperty as updatePropertyService,
   deleteProperty as deletePropertyService,
 } from '../services/propertiesService';
 import {
-  GetPropertiesQueryV2,
+  GetPropertiesQuery,
   CreatePropertyDto,
   UpdatePropertyDto,
 } from '../types';
 
 /**
- * GET /api/v1/properties - Get User Properties (Dropdown Filter)
+ * GET /api/v1/properties - Get User Properties List
  */
 export const getPropertiesController = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.sub;
@@ -27,17 +29,70 @@ export const getPropertiesController = async (req: Request, res: Response): Prom
     return;
   }
 
-  const query: GetPropertiesQueryV2 = {
+  const query: GetPropertiesQuery = {
+    page: req.query.page ? parseInt(req.query.page as string) : undefined,
+    limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
     search: req.query.search as string | undefined,
+    city: req.query.city as string | undefined,
   };
 
   const result = await getPropertiesService(query, userId);
 
   res.status(200).json({
     success: true,
-    data: {
-      properties: result,
-    },
+    data: result,
+  });
+};
+
+/**
+ * GET /api/v1/properties/:id - Get Property Detail with Blocks
+ */
+export const getPropertyDetailController = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?.sub;
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required',
+      },
+    });
+    return;
+  }
+
+  const id = req.params.id as string;
+
+  const result = await getPropertyDetailService(id, userId);
+
+  res.status(200).json({
+    success: true,
+    data: result,
+  });
+};
+
+/**
+ * GET /api/v1/properties/:id/siteplan - Get Property Siteplan with All Units
+ */
+export const getPropertySiteplanController = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?.sub;
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required',
+      },
+    });
+    return;
+  }
+
+  const id = req.params.id as string;
+
+  const result = await getPropertySiteplanService(id, userId);
+
+  res.status(200).json({
+    success: true,
+    data: result,
   });
 };
 
@@ -86,10 +141,10 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
     return;
   }
 
-  const { id } = req.params;
+  const id = req.params.id as string;
   const dto: UpdatePropertyDto = req.body;
 
-  const result = await updatePropertyService(id as string, dto, userId);
+  const result = await updatePropertyService(id, dto, userId);
 
   res.status(200).json({
     success: true,
@@ -116,9 +171,9 @@ export const deletePropertyController = async (req: Request, res: Response): Pro
     return;
   }
 
-  const { id } = req.params;
+  const id = req.params.id as string;
 
-  await deletePropertyService(id as string, userId);
+  await deletePropertyService(id, userId);
 
   res.status(200).json({
     success: true,

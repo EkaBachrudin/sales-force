@@ -478,25 +478,212 @@ export interface GetPropertiesQuery {
 }
 
 // Properties Module Types
+export enum UnitStatus {
+  AVAILABLE = 'available',
+  RESERVED = 'reserved',
+  BOOKED = 'booked',
+  SOLD = 'sold',
+}
+
+export interface PropertyListItem {
+  id: string;
+  name: string;
+  city: string;
+  land_area: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
+  is_active: boolean;
+  total_blocks: number;
+  total_units: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface Property {
   id: string;
   name: string;
-  property_type: string;
+  city: string;
+  land_area: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
+  is_active: boolean;
   created_at: Date;
+  updated_at: Date;
 }
 
-export interface GetPropertiesQueryV2 {
+export interface PropertyDetail {
+  property: Property;
+  blocks: BlockListItem[];
+}
+
+export interface GetPropertiesQuery {
+  page?: number;
+  limit?: number;
   search?: string;
+  city?: string;
 }
 
 export interface CreatePropertyDto {
   name: string;
-  property_type: string;
+  city: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
 }
 
 export interface UpdatePropertyDto {
   name?: string;
-  property_type?: string;
+  city?: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
+}
+
+export interface Block {
+  id: string;
+  property_id: string;
+  name: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface BlockListItem {
+  id: string;
+  name: string;
+  is_active: boolean;
+  total_units: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CreateBlockDto {
+  name: string;
+}
+
+export interface UpdateBlockDto {
+  name: string;
+}
+
+export interface Unit {
+  id: string;
+  block_id: string;
+  name: string;
+  land_area?: number;
+  status: UnitStatus;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface UnitListItem {
+  id: string;
+  name: string;
+  land_area?: number;
+  status: UnitStatus;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface UnitDetail {
+  unit: {
+    id: string;
+    block_id: string;
+    block_name: string;
+    property_id: string;
+    property_name: string;
+    name: string;
+    land_area?: number;
+    status: UnitStatus;
+    created_at: Date;
+    updated_at: Date;
+  };
+  leads: CrmLead[];
+}
+
+export interface CreateUnitDto {
+  name: string;
+  land_area?: number;
+}
+
+export interface UpdateUnitDto {
+  name?: string;
+  land_area?: number;
+}
+
+export interface GetUnitsQuery {
+  page?: number;
+  limit?: number;
+  status?: UnitStatus;
+  search?: string;
+}
+
+// Pagination Types
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total_items: number;
+  total_pages: number;
+}
+
+export interface PaginatedPropertiesResponse {
+  properties: PropertyListItem[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginatedUnitsResponse {
+  block: {
+    id: string;
+    name: string;
+    property_id: string;
+    property_name: string;
+  };
+  units: UnitListItem[];
+  pagination: PaginationMeta;
+}
+
+// Siteplan Types
+export interface SiteplanData {
+  property: {
+    id: string;
+    name: string;
+    siteplan_assets?: string;
+  };
+  units: SiteplanUnit[];
+}
+
+export interface SiteplanUnit {
+  id: string;
+  block_id: string;
+  block_name: string;
+  name: string;
+  land_area?: number;
+  status: UnitStatus;
+}
+
+// Lead Assignment Types
+export interface AssignLeadToUnitDto {
+  lead_id: string;
+}
+
+export interface AssignLeadResponse {
+  lead: {
+    id: string;
+    name: string;
+    unit_id: string;
+    unit_name: string;
+    status: CrmLeadStatus;
+    updated_at: Date;
+  };
+  unit: {
+    id: string;
+    name: string;
+    status: UnitStatus;
+    updated_at: Date;
+  };
 }
 
 // Dashboard Types
