@@ -531,7 +531,6 @@ export interface CreatePropertyDto {
   land_area?: number;
   address?: string;
   description?: string;
-  siteplan_assets?: string;
 }
 
 export interface UpdatePropertyDto {
@@ -540,7 +539,6 @@ export interface UpdatePropertyDto {
   land_area?: number;
   address?: string;
   description?: string;
-  siteplan_assets?: string;
 }
 
 export interface Block {
@@ -947,4 +945,16 @@ export interface PipelineMetricsResponse {
   closed: number;
   conversion_rate: number;
   avg_time_to_close: number;
+}
+
+// File Upload Error Types
+export interface FileUploadError {
+  success: false;
+  error: {
+    code: 'INVALID_FILE_TYPE' | 'FILE_TOO_LARGE';
+    message: string;
+    details: {
+      siteplan_file: string[];
+    };
+  };
 }

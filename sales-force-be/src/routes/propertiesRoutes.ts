@@ -8,6 +8,7 @@ import {
   deletePropertyController,
 } from '../controllers/propertiesController';
 import { authenticate, subscriptionCheck } from '../middleware';
+import { uploadSiteplan, handleMulterError } from '../middleware/upload';
 
 const router = Router();
 
@@ -34,21 +35,35 @@ router.get('/:id/siteplan', authenticate, subscriptionCheck, getPropertySiteplan
 
 /**
  * POST /api/v1/properties
- * Create a new property
+ * Create a new property with optional siteplan file upload
  * @access Private (requires authentication and active subscription)
  */
-router.post('/', authenticate, subscriptionCheck, createPropertyController);
+router.post(
+  '/',
+  authenticate,
+  subscriptionCheck,
+  uploadSiteplan.single('siteplan_file'),
+  handleMulterError,
+  createPropertyController
+);
 
 /**
  * PUT /api/v1/properties/:id
- * Update existing property
+ * Update existing property with optional siteplan file upload
  * @access Private (requires authentication and active subscription)
  */
-router.put('/:id', authenticate, subscriptionCheck, updatePropertyController);
+router.put(
+  '/:id',
+  authenticate,
+  subscriptionCheck,
+  uploadSiteplan.single('siteplan_file'),
+  handleMulterError,
+  updatePropertyController
+);
 
 /**
  * DELETE /api/v1/properties/:id
- * Delete property (cascade delete blocks and units)
+ * Delete property (cascade delete blocks and units) and cleanup siteplan file
  * @access Private (requires authentication and active subscription)
  */
 router.delete('/:id', authenticate, subscriptionCheck, deletePropertyController);

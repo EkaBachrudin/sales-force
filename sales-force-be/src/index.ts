@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import cron from 'node-cron';
 import dotenv from 'dotenv';
+import path from 'path';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -72,6 +73,9 @@ app.use(cookieParser());
 
 // Compression middleware
 app.use(compression());
+
+// Static file serving for uploaded siteplan files
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Logging middleware
 if (process.env.NODE_ENV !== 'test') {

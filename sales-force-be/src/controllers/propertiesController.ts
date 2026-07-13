@@ -113,8 +113,9 @@ export const createPropertyController = async (req: Request, res: Response): Pro
   }
 
   const dto: CreatePropertyDto = req.body;
+  const siteplanPath = req.file ? `/uploads/siteplans/${req.file.filename}` : null;
 
-  const result = await createPropertyService(dto, userId);
+  const result = await createPropertyService(dto, userId, siteplanPath);
 
   res.status(201).json({
     success: true,
@@ -143,8 +144,9 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
 
   const id = req.params.id as string;
   const dto: UpdatePropertyDto = req.body;
+  const siteplanPath = req.file ? `/uploads/siteplans/${req.file.filename}` : null;
 
-  const result = await updatePropertyService(id, dto, userId);
+  const result = await updatePropertyService(id, dto, userId, siteplanPath);
 
   res.status(200).json({
     success: true,
