@@ -64,11 +64,13 @@ CREATE TABLE IF NOT EXISTS properties (
     land_area NUMERIC(10, 2),
     address TEXT,
     description TEXT,
-    siteplan_assets VARCHAR(255),
+    siteplan_assets VARCHAR(500),
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+COMMENT ON COLUMN properties.siteplan_assets IS 'Relative path to SVG siteplan file (e.g., /uploads/siteplans/{uuid}-{timestamp}.svg)';
 
 -- ============================================================================
 -- Table: blocks
@@ -269,7 +271,6 @@ CREATE INDEX IF NOT EXISTS idx_blocks_is_active ON blocks(is_active);
 -- Units Indexes
 CREATE INDEX IF NOT EXISTS idx_units_block_id ON units(block_id);
 CREATE INDEX IF NOT EXISTS idx_units_status ON units(status);
-CREATE INDEX IF NOT EXISTS idx_units_is_active ON units(is_active);
 
 -- Leads Indexes
 CREATE INDEX IF NOT EXISTS idx_leads_assigned_to ON leads(assigned_to);
