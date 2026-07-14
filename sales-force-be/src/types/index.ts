@@ -271,7 +271,7 @@ export enum CrmLeadSource {
   LANDING_PAGE = 'landing_page',
   WHATSAPP = 'whatsapp',
   MANUAL = 'manual',
-  VISIT = 'visit'
+  VISIT = 'visit',
 }
 
 export enum CrmActivityType {
@@ -716,11 +716,22 @@ export interface ReminderLeadInfo {
   name: string;
   phone: string;
   email?: string;
-  property?: {
+  status: string;
+  property_price?: number;
+  unit?: {
     id: string;
     name: string;
-    property_type: string;
-    price: number;
+    land_area?: number;
+    status: string;
+    block: {
+      id: string;
+      name: string;
+      property: {
+        id: string;
+        name: string;
+        city: string;
+      };
+    };
   };
 }
 
@@ -730,6 +741,7 @@ export interface ReminderItem {
   remind_at_formatted: string;
   message?: string;
   is_completed: boolean;
+  created_at: Date;
   lead: ReminderLeadInfo;
 }
 
