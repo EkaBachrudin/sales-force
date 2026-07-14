@@ -15,7 +15,6 @@ import {
   CrmAddActivityDto as AddActivityDto,
   GetPropertiesQuery,
   CrmLeadStatus as LeadStatusEnum,
-  CrmLeadSource as LeadSourceEnum,
   CrmActivityType as ActivityTypeEnum,
 } from '../types';
 
@@ -98,7 +97,7 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
     end_date,
     property_id,
     source,
-    sort_by = 'updated_at',
+    sort_by = 'created_at',
     sort_order = 'desc',
   } = query;
 
@@ -131,18 +130,18 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
   }
 
   if (property_id) {
-    conditions.push(`l.property_id = $${paramIndex++}`);
+    conditions.push(`p.id = $${paramIndex++}`);
     params.push(property_id);
   }
 
   if (source) {
-    conditions.push(`l.source = $${paramIndex++}`);
-    params.push(source);
+    conditions.push(`l.source ILIKE $${paramIndex++}`);
+    params.push(`%${source}%`);
   }
 
   // Validate and set sort column
   const validSortColumns = ['created_at', 'updated_at', 'name', 'status', 'next_follow_up_at'];
-  const sortColumn = validSortColumns.includes(sort_by) ? sort_by : 'updated_at';
+  const sortColumn = validSortColumns.includes(sort_by) ? sort_by : 'created_at';
   const sortOrder = sort_order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -151,6 +150,9 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
   const countQuery = `
     SELECT COUNT(DISTINCT l.id) as total
     FROM leads l
+    LEFT JOIN units u ON l.unit_id = u.id
+    LEFT JOIN blocks b ON u.block_id = b.id
+    LEFT JOIN properties p ON b.property_id = p.id
     ${whereClause}
   `;
   const countResult = await pool.query(countQuery, params);
@@ -163,29 +165,19 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
       l.id,
       l.name,
       l.phone,
-      l.email,
       l.status,
       l.source,
-      l.property_id,
-      l.property_price,
-      l.budget_range,
-      l.down_payment_percentage,
-      l.interest_rate,
-      l.loan_term_years,
-      l.estimated_monthly_payment,
-      l.assigned_to,
-      u.full_name as assigned_to_name,
-      l.next_follow_up_at,
       l.created_at,
       l.updated_at,
-      p.id as property_detail_id,
-      p.name as property_name,
-      p.property_type,
-      p.price as property_detail_price,
-      p.city
+      u.id AS unit_id_detail,
+      u.name AS unit_name,
+      b.name AS block_name,
+      p.id AS property_id,
+      p.name AS property_name
     FROM leads l
-    LEFT JOIN users u ON l.assigned_to = u.id
-    LEFT JOIN properties p ON l.property_id = p.id
+    LEFT JOIN units u ON l.unit_id = u.id
+    LEFT JOIN blocks b ON u.block_id = b.id
+    LEFT JOIN properties p ON b.property_id = p.id
     ${whereClause}
     ORDER BY l.${sortColumn} ${sortOrder}
     LIMIT $${paramIndex++} OFFSET $${paramIndex++}
@@ -195,10 +187,13 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
   const leadsResult = await pool.query(leadsQuery, params);
 
   const leads: CrmLeadListItem[] = leadsResult.rows.map((row) => {
-    const property = row.property_detail_id
+    const unit = row.unit_id_detail
       ? {
-          id: row.property_detail_id,
-          name: row.property_name
+          id: row.unit_id_detail,
+          name: row.unit_name,
+          block_name: row.block_name,
+          property_name: row.property_name,
+          property_id: row.property_id,
         }
       : undefined;
 
@@ -208,9 +203,9 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
       phone: row.phone,
       status: row.status,
       source: row.source,
-      property,
+      unit,
       created_at: row.created_at,
-      updated_at: row.updated_at
+      updated_at: row.updated_at,
     };
   });
 
@@ -236,15 +231,20 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
     SELECT
       l.*,
       u.full_name as assigned_to_name,
-      p.id as property_id_detail,
-      p.name as property_name,
-      p.property_type,
-      p.price as property_price_detail,
-      p.city,
-      p.province
+      un.id AS unit_detail_id,
+      un.name AS unit_name,
+      un.land_area AS unit_land_area,
+      un.status AS unit_status,
+      b.id AS block_id,
+      b.name AS block_name,
+      p.id AS property_detail_id,
+      p.name AS property_name,
+      p.city AS property_city
     FROM leads l
     LEFT JOIN users u ON l.assigned_to = u.id
-    LEFT JOIN properties p ON l.property_id = p.id
+    LEFT JOIN units un ON l.unit_id = un.id
+    LEFT JOIN blocks b ON un.block_id = b.id
+    LEFT JOIN properties p ON b.property_id = p.id
     WHERE l.id = $1 AND l.assigned_to = $2
   `;
 
@@ -256,14 +256,21 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
 
   const row = leadResult.rows[0];
 
-  const property = row.property_id_detail
+  const unit = row.unit_detail_id
     ? {
-        id: row.property_id_detail,
-        name: row.property_name,
-        property_type: row.property_type,
-        price: row.property_price_detail,
-        city: row.city,
-        province: row.province,
+        id: row.unit_detail_id,
+        name: row.unit_name,
+        land_area: row.unit_land_area,
+        status: row.unit_status,
+        block: {
+          id: row.block_id,
+          name: row.block_name,
+        },
+        property: {
+          id: row.property_detail_id,
+          name: row.property_name,
+          city: row.property_city,
+        },
       }
     : undefined;
 
@@ -272,7 +279,7 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
       ? {
           property_price: row.property_price,
           down_payment_percentage: row.down_payment_percentage,
-          down_payment: row.property_price * (row.down_payment_percentage / 100),
+          down_payment: row.down_payment,
           interest_rate: row.interest_rate,
           loan_term_years: row.loan_term_years,
           estimated_monthly_payment: row.estimated_monthly_payment,
@@ -288,9 +295,14 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
     email: row.email,
     status: row.status,
     source: row.source,
-    property_id: row.property_id,
+    unit_id: row.unit_id,
     budget_range: row.budget_range,
     kpr_simulation,
+    down_payment: row.down_payment,
+    down_payment_percentage: row.down_payment_percentage,
+    interest_rate: row.interest_rate,
+    loan_term_years: row.loan_term_years,
+    estimated_monthly_payment: row.estimated_monthly_payment,
     assigned_to: row.assigned_to,
     assigned_to_name: row.assigned_to_name,
     notes: row.notes,
@@ -298,7 +310,7 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
     last_followed_up_at: row.last_followed_up_at,
     created_at: row.created_at,
     updated_at: row.updated_at,
-    property,
+    unit,
   };
 
   // Get activities
@@ -327,24 +339,43 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
 
   // Get WhatsApp messages
   const whatsappQuery = `
-    SELECT *
-    FROM whatsapp_messages
-    WHERE lead_id = $1
-    ORDER BY sent_at DESC
+    SELECT
+      wm.id,
+      wm.lead_id,
+      wm.user_id,
+      wm.direction,
+      wm.message_text,
+      wm.message_id,
+      wm.status,
+      wm.sent_at,
+      wm.created_at
+    FROM whatsapp_messages wm
+    WHERE wm.lead_id = $1
+    ORDER BY wm.sent_at DESC
   `;
   const whatsappResult = await pool.query(whatsappQuery, [leadId]);
   const whatsapp_messages: WhatsAppMessage[] = whatsappResult.rows.map((r) => ({
     id: r.id,
     lead_id: r.lead_id,
-    message_type: r.message_type,
-    content: r.content,
+    user_id: r.user_id,
+    direction: r.direction,
+    message_text: r.message_text,
+    message_id: r.message_id,
+    status: r.status,
     sent_at: r.sent_at,
     created_at: r.created_at,
   }));
 
   // Get reminders
   const remindersQuery = `
-    SELECT *
+    SELECT
+      id,
+      user_id,
+      lead_id,
+      remind_at,
+      message,
+      is_completed,
+      created_at
     FROM reminder_schedules
     WHERE lead_id = $1 AND is_completed = false
     ORDER BY remind_at ASC
@@ -358,7 +389,6 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
     message: r.message,
     is_completed: r.is_completed,
     created_at: r.created_at,
-    updated_at: r.updated_at,
   }));
 
   return {
@@ -394,23 +424,34 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
     throw new AppError('NPWP must be 15-20 digits', 400);
   }
 
-  // Validate property_id if provided
-  if (dto.property_id) {
-    const propertyCheck = await pool.query('SELECT id FROM properties WHERE id = $1', [dto.property_id]);
-    if (propertyCheck.rows.length === 0) {
-      throw new AppError('Property not found', 404);
+  // Validate unit_id if provided
+  if (dto.unit_id) {
+    const unitCheck = await pool.query(
+      `SELECT u.id, p.id as property_id
+       FROM units u
+       JOIN blocks b ON u.block_id = b.id
+       JOIN properties p ON b.property_id = p.id
+       WHERE u.id = $1 AND p.assigned_to = $2`,
+      [dto.unit_id, userId]
+    );
+    if (unitCheck.rows.length === 0) {
+      throw new AppError('Unit not found or not owned by user', 404);
+    }
+    if (unitCheck.rows[0].status === 'sold') {
+      throw new AppError('Unit is already sold', 409);
     }
   }
 
   // Validate KPR simulation if provided
   let estimatedMonthlyPayment: number | undefined;
+  let downPayment: number | undefined;
   if (dto.kpr_simulation) {
     const kpr = dto.kpr_simulation;
     if (!kpr.property_price || kpr.property_price <= 0) {
       throw new AppError('Property price must be greater than 0', 400);
     }
-    if (!kpr.down_payment_percentage || kpr.down_payment_percentage < 10 || kpr.down_payment_percentage > 50) {
-      throw new AppError('Down payment percentage must be between 10 and 50', 400);
+    if (!kpr.down_payment_percentage || kpr.down_payment_percentage < 1 || kpr.down_payment_percentage > 100) {
+      throw new AppError('Down payment percentage must be between 1 and 100', 400);
     }
     if (!kpr.interest_rate || kpr.interest_rate <= 0) {
       throw new AppError('Interest rate must be greater than 0', 400);
@@ -425,6 +466,7 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
       kpr.interest_rate,
       kpr.loan_term_years
     );
+    downPayment = kpr.property_price * (kpr.down_payment_percentage / 100);
   }
 
   // Validate reminder if provided
@@ -439,29 +481,30 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
     // Insert lead
     const leadQuery = `
       INSERT INTO leads (
-        id, assigned_to, name, nik, npwp, phone, email, source,
-        property_id, budget_range, status, notes,
-        property_price, down_payment_percentage, interest_rate, loan_term_years,
+        id, assigned_to, unit_id, name, nik, npwp, phone, email, source,
+        budget_range, status, notes,
+        property_price, down_payment, down_payment_percentage, interest_rate, loan_term_years,
         estimated_monthly_payment
       ) VALUES (
-        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
       )
       RETURNING *
     `;
 
     const leadValues = [
       userId || null,
+      dto.unit_id || null,
       dto.name,
       dto.nik || null,
       dto.npwp || null,
       dto.phone,
       dto.email || null,
-      dto.source || LeadSourceEnum.VISIT,
-      dto.property_id || null,
+      dto.source || 'Visit',
       dto.budget_range ? JSON.stringify(dto.budget_range) : null,
       dto.status || LeadStatusEnum.NEW,
       dto.notes || null,
       dto.kpr_simulation?.property_price || null,
+      downPayment || null,
       dto.kpr_simulation?.down_payment_percentage || null,
       dto.kpr_simulation?.interest_rate || null,
       dto.kpr_simulation?.loan_term_years || null,
@@ -475,7 +518,7 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
     await client.query(
       `INSERT INTO lead_activities (id, lead_id, user_id, activity_type, new_status, notes)
        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)`,
-      [newLead.id, userId || null, ActivityTypeEnum.NOTE_ADDED, dto.status || LeadStatusEnum.NEW, `Lead created via ${dto.source || LeadSourceEnum.MANUAL}`]
+      [newLead.id, userId || null, ActivityTypeEnum.NOTE_ADDED, dto.status || LeadStatusEnum.NEW, `Lead created via ${dto.source || 'manual'}`]
     );
 
     // Insert reminder if provided
@@ -489,21 +532,57 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
 
     await client.query('COMMIT');
 
-    // Get property details if property_id exists
-    let property;
-    if (newLead.property_id) {
-      const propertyResult = await client.query('SELECT id, name, property_type, price, city FROM properties WHERE id = $1', [newLead.property_id]);
-      if (propertyResult.rows.length > 0) {
-        const propRow = propertyResult.rows[0];
-        property = {
-          id: propRow.id,
-          name: propRow.name,
-          property_type: propRow.property_type,
-          price: propRow.price,
-          city: propRow.city,
+    // Get unit details if unit_id exists
+    let unit;
+    if (newLead.unit_id) {
+      const unitResult = await client.query(
+        `SELECT
+          u.id,
+          u.name,
+          u.land_area,
+          u.status,
+          b.id as block_id,
+          b.name as block_name,
+          p.id as property_id,
+          p.name as property_name,
+          p.city
+        FROM units u
+        JOIN blocks b ON u.block_id = b.id
+        JOIN properties p ON b.property_id = p.id
+        WHERE u.id = $1`,
+        [newLead.unit_id]
+      );
+      if (unitResult.rows.length > 0) {
+        const unitRow = unitResult.rows[0];
+        unit = {
+          id: unitRow.id,
+          name: unitRow.name,
+          land_area: unitRow.land_area,
+          status: unitRow.status,
+          block: {
+            id: unitRow.block_id,
+            name: unitRow.block_name,
+          },
+          property: {
+            id: unitRow.property_id,
+            name: unitRow.property_name,
+            city: unitRow.city,
+          },
         };
       }
     }
+
+    const kpr_simulation =
+      newLead.property_price && newLead.down_payment_percentage && newLead.interest_rate && newLead.loan_term_years
+        ? {
+            property_price: newLead.property_price,
+            down_payment_percentage: newLead.down_payment_percentage,
+            down_payment: newLead.down_payment,
+            interest_rate: newLead.interest_rate,
+            loan_term_years: newLead.loan_term_years,
+            estimated_monthly_payment: newLead.estimated_monthly_payment,
+          }
+        : undefined;
 
     return {
       id: newLead.id,
@@ -512,18 +591,19 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
       email: newLead.email,
       status: newLead.status,
       source: newLead.source,
-      property_id: newLead.property_id,
-      property_price: newLead.property_price,
+      unit_id: newLead.unit_id,
       budget_range: newLead.budget_range,
-      assigned_to: newLead.assigned_to,
-      next_follow_up_at: newLead.next_follow_up_at,
-      created_at: newLead.created_at,
-      updated_at: newLead.updated_at,
-      property,
+      kpr_simulation,
+      down_payment: newLead.down_payment,
       down_payment_percentage: newLead.down_payment_percentage,
       interest_rate: newLead.interest_rate,
       loan_term_years: newLead.loan_term_years,
       estimated_monthly_payment: newLead.estimated_monthly_payment,
+      assigned_to: newLead.assigned_to,
+      next_follow_up_at: newLead.next_follow_up_at,
+      created_at: newLead.created_at,
+      updated_at: newLead.updated_at,
+      unit,
     };
   } catch (error) {
     await client.query('ROLLBACK');
@@ -562,16 +642,27 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
     throw new AppError('NPWP must be 15-20 digits', 400);
   }
 
-  // Validate property_id if provided
-  if (dto.property_id) {
-    const propertyCheck = await pool.query('SELECT id FROM properties WHERE id = $1', [dto.property_id]);
-    if (propertyCheck.rows.length === 0) {
-      throw new AppError('Property not found', 404);
+  // Validate unit_id if provided
+  if (dto.unit_id) {
+    const unitCheck = await pool.query(
+      `SELECT u.id, u.status
+       FROM units u
+       JOIN blocks b ON u.block_id = b.id
+       JOIN properties p ON b.property_id = p.id
+       WHERE u.id = $1 AND p.assigned_to = $2`,
+      [dto.unit_id, userId]
+    );
+    if (unitCheck.rows.length === 0) {
+      throw new AppError('Unit not found or not owned by user', 404);
+    }
+    if (unitCheck.rows[0].status === 'sold') {
+      throw new AppError('Unit is already sold', 409);
     }
   }
 
   // Calculate new monthly payment if KPR fields are updated
   let estimatedMonthlyPayment: number | null = null;
+  let downPayment: number | null = null;
   if (dto.kpr_simulation) {
     const kpr = dto.kpr_simulation;
     if (!kpr.property_price || kpr.property_price <= 0) {
@@ -593,6 +684,7 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
       kpr.interest_rate,
       kpr.loan_term_years
     );
+    downPayment = kpr.property_price * (kpr.down_payment_percentage / 100);
   }
 
   const client = await pool.connect();
@@ -600,7 +692,7 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
     await client.query('BEGIN');
 
     // Update lead
-    // Special handling for property_id: if explicitly null/undefined, allow clearing it
+    // Special handling for unit_id: if explicitly null/undefined, allow clearing it
     // Otherwise use COALESCE to keep existing value if not provided
     const updateQuery = `
       UPDATE leads SET
@@ -610,9 +702,9 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
         nik = COALESCE($5, nik),
         npwp = COALESCE($6, npwp),
         source = COALESCE($7, source),
-        property_id = CASE
+        unit_id = CASE
           WHEN $8::uuid IS NULL THEN NULL
-          ELSE COALESCE($8::uuid, property_id)
+          ELSE COALESCE($8::uuid, unit_id)
         END,
         budget_range = COALESCE($9, budget_range),
         status = COALESCE($10, status),
@@ -620,10 +712,11 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
         last_followed_up_at = COALESCE($12, last_followed_up_at),
         next_follow_up_at = COALESCE($13, next_follow_up_at),
         property_price = COALESCE($14, property_price),
-        down_payment_percentage = COALESCE($15, down_payment_percentage),
-        interest_rate = COALESCE($16, interest_rate),
-        loan_term_years = COALESCE($17, loan_term_years),
-        estimated_monthly_payment = COALESCE($18, estimated_monthly_payment),
+        down_payment = COALESCE($15, down_payment),
+        down_payment_percentage = COALESCE($16, down_payment_percentage),
+        interest_rate = COALESCE($17, interest_rate),
+        loan_term_years = COALESCE($18, loan_term_years),
+        estimated_monthly_payment = COALESCE($19, estimated_monthly_payment),
         updated_at = NOW()
       WHERE id = $1
       RETURNING *
@@ -637,13 +730,14 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
       dto.nik,
       dto.npwp,
       dto.source,
-      dto.property_id,
+      dto.unit_id,
       dto.budget_range ? JSON.stringify(dto.budget_range) : null,
       dto.status,
       dto.notes,
       dto.last_followed_up_at ? new Date(dto.last_followed_up_at) : null,
       dto.next_follow_up_at ? new Date(dto.next_follow_up_at) : null,
       dto.kpr_simulation?.property_price,
+      downPayment,
       dto.kpr_simulation?.down_payment_percentage,
       dto.kpr_simulation?.interest_rate,
       dto.kpr_simulation?.loan_term_years,
@@ -699,18 +793,42 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
 
     await client.query('COMMIT');
 
-    // Get property details if property_id exists
-    let property;
-    if (updatedLead.property_id) {
-      const propertyResult = await client.query('SELECT id, name, property_type, price, city FROM properties WHERE id = $1', [updatedLead.property_id]);
-      if (propertyResult.rows.length > 0) {
-        const propRow = propertyResult.rows[0];
-        property = {
-          id: propRow.id,
-          name: propRow.name,
-          property_type: propRow.property_type,
-          price: propRow.price,
-          city: propRow.city,
+    // Get unit details if unit_id exists
+    let unit;
+    if (updatedLead.unit_id) {
+      const unitResult = await client.query(
+        `SELECT
+          u.id,
+          u.name,
+          u.land_area,
+          u.status,
+          b.id as block_id,
+          b.name as block_name,
+          p.id as property_id,
+          p.name as property_name,
+          p.city
+        FROM units u
+        JOIN blocks b ON u.block_id = b.id
+        JOIN properties p ON b.property_id = p.id
+        WHERE u.id = $1`,
+        [updatedLead.unit_id]
+      );
+      if (unitResult.rows.length > 0) {
+        const unitRow = unitResult.rows[0];
+        unit = {
+          id: unitRow.id,
+          name: unitRow.name,
+          land_area: unitRow.land_area,
+          status: unitRow.status,
+          block: {
+            id: unitRow.block_id,
+            name: unitRow.block_name,
+          },
+          property: {
+            id: unitRow.property_id,
+            name: unitRow.property_name,
+            city: unitRow.city,
+          },
         };
       }
     }
@@ -724,6 +842,18 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
       }
     }
 
+    const kpr_simulation =
+      updatedLead.property_price && updatedLead.down_payment_percentage && updatedLead.interest_rate && updatedLead.loan_term_years
+        ? {
+            property_price: updatedLead.property_price,
+            down_payment_percentage: updatedLead.down_payment_percentage,
+            down_payment: updatedLead.down_payment,
+            interest_rate: updatedLead.interest_rate,
+            loan_term_years: updatedLead.loan_term_years,
+            estimated_monthly_payment: updatedLead.estimated_monthly_payment,
+          }
+        : undefined;
+
     return {
       id: updatedLead.id,
       name: updatedLead.name,
@@ -731,20 +861,21 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
       email: updatedLead.email,
       status: updatedLead.status,
       source: updatedLead.source,
-      property_id: updatedLead.property_id,
-      property_price: updatedLead.property_price,
+      unit_id: updatedLead.unit_id,
       budget_range: updatedLead.budget_range,
+      kpr_simulation,
+      down_payment: updatedLead.down_payment,
+      down_payment_percentage: updatedLead.down_payment_percentage,
+      interest_rate: updatedLead.interest_rate,
+      loan_term_years: updatedLead.loan_term_years,
+      estimated_monthly_payment: updatedLead.estimated_monthly_payment,
       assigned_to: updatedLead.assigned_to,
       assigned_to_name,
       next_follow_up_at: updatedLead.next_follow_up_at,
       last_followed_up_at: updatedLead.last_followed_up_at,
       created_at: updatedLead.created_at,
       updated_at: updatedLead.updated_at,
-      property,
-      down_payment_percentage: updatedLead.down_payment_percentage,
-      interest_rate: updatedLead.interest_rate,
-      loan_term_years: updatedLead.loan_term_years,
-      estimated_monthly_payment: updatedLead.estimated_monthly_payment,
+      unit,
     };
   } catch (error) {
     await client.query('ROLLBACK');
@@ -823,10 +954,7 @@ export const getProperties = async (query: GetPropertiesQuery): Promise<Property
     SELECT
       p.id,
       p.name,
-      p.property_type,
-      p.price,
-      p.city,
-      p.province
+      p.city
     FROM properties p
     ${whereClause}
     ORDER BY p.name ASC
@@ -837,10 +965,7 @@ export const getProperties = async (query: GetPropertiesQuery): Promise<Property
   return result.rows.map((row) => ({
     id: row.id,
     name: row.name,
-    property_type: row.property_type,
-    price: row.price,
     city: row.city,
-    province: row.province,
   }));
 };
 
@@ -926,13 +1051,13 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
   }
 
   if (property_id) {
-    conditions.push(`l.property_id = $${paramIndex++}`);
+    conditions.push(`p.id = $${paramIndex++}`);
     params.push(property_id);
   }
 
   if (source) {
-    conditions.push(`l.source = $${paramIndex++}`);
-    params.push(source);
+    conditions.push(`l.source ILIKE $${paramIndex++}`);
+    params.push(`%${source}%`);
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -948,10 +1073,10 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
       l.npwp,
       l.status,
       l.source,
-      l.property_id,
       l.budget_range,
       l.notes,
       l.property_price,
+      l.down_payment,
       l.down_payment_percentage,
       l.interest_rate,
       l.loan_term_years,
@@ -959,12 +1084,12 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
       l.created_at,
       l.updated_at,
       u.full_name as assigned_to_name,
-      p.name as property_name,
-      p.property_type,
-      p.price as property_price_detail
+      p.name as property_name
     FROM leads l
     LEFT JOIN users u ON l.assigned_to = u.id
-    LEFT JOIN properties p ON l.property_id = p.id
+    LEFT JOIN units un ON l.unit_id = un.id
+    LEFT JOIN blocks b ON un.block_id = b.id
+    LEFT JOIN properties p ON b.property_id = p.id
     ${whereClause}
     ORDER BY l.created_at DESC
   `;
@@ -986,9 +1111,9 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
     { header: 'Status', key: 'status', width: 15 },
     { header: 'Source', key: 'source', width: 15 },
     { header: 'Property', key: 'property_name', width: 25 },
-    { header: 'Property Type', key: 'property_type', width: 15 },
     { header: 'Budget Range', key: 'budget_range', width: 20 },
     { header: 'Property Price', key: 'property_price', width: 20 },
+    { header: 'Down Payment', key: 'down_payment', width: 20 },
     { header: 'Down Payment %', key: 'down_payment_percentage', width: 15 },
     { header: 'Interest Rate %', key: 'interest_rate', width: 15 },
     { header: 'Loan Term (Years)', key: 'loan_term_years', width: 15 },
@@ -1020,10 +1145,13 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
     }
 
     let propertyPrice = '';
-    if (lead.property_price_detail) {
-      propertyPrice = `Rp ${Number(lead.property_price_detail).toLocaleString('id-ID')}`;
-    } else if (lead.property_price) {
+    if (lead.property_price) {
       propertyPrice = `Rp ${Number(lead.property_price).toLocaleString('id-ID')}`;
+    }
+
+    let downPayment = '';
+    if (lead.down_payment) {
+      downPayment = `Rp ${Number(lead.down_payment).toLocaleString('id-ID')}`;
     }
 
     let estimatedPayment = '';
@@ -1040,9 +1168,9 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
       status: lead.status,
       source: lead.source || '',
       property_name: lead.property_name || '',
-      property_type: lead.property_type || '',
       budget_range: budgetRange,
       property_price: propertyPrice,
+      down_payment: downPayment,
       down_payment_percentage: lead.down_payment_percentage || '',
       interest_rate: lead.interest_rate || '',
       loan_term_years: lead.loan_term_years || '',

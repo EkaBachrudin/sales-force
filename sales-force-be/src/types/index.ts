@@ -263,15 +263,9 @@ export enum CrmLeadStatus {
   CONTACTED = 'contacted',
   SURVEYED = 'surveyed',
   NEGOTIATING = 'negotiating',
+  BOOKED = 'booked',
   CLOSED = 'closed',
   CANCELLED = 'cancelled',
-}
-
-export enum CrmLeadSource {
-  LANDING_PAGE = 'landing_page',
-  WHATSAPP = 'whatsapp',
-  MANUAL = 'manual',
-  VISIT = 'visit',
 }
 
 export enum CrmActivityType {
@@ -296,6 +290,30 @@ export interface KPRSimulation {
   estimated_monthly_payment?: number;
 }
 
+export interface UnitInfo {
+  id: string;
+  name: string;
+  land_area?: number;
+  status: string;
+  block: {
+    id: string;
+    name: string;
+  };
+  property: {
+    id: string;
+    name: string;
+    city: string;
+  };
+}
+
+export interface UnitBasicInfo {
+  id: string;
+  name: string;
+  block_name: string;
+  property_name: string;
+  property_id: string;
+}
+
 export interface Reminder {
   id?: string;
   remind_at: Date;
@@ -311,20 +329,11 @@ export interface CrmLead {
   phone: string;
   email?: string;
   status: CrmLeadStatus;
-  source: CrmLeadSource;
-  property_id?: string;
-  property_url?: string;
-  property?: {
-    id: string;
-    name: string;
-    property_type: string;
-    price: number;
-    city: string;
-    province?: string;
-  };
-  property_price?: number;
+  source: string;
+  unit_id?: string;
   budget_range?: BudgetRange;
   kpr_simulation?: KPRSimulation;
+  down_payment?: number;
   down_payment_percentage?: number;
   interest_rate?: number;
   loan_term_years?: number;
@@ -336,6 +345,7 @@ export interface CrmLead {
   last_followed_up_at?: Date;
   created_at: Date;
   updated_at: Date;
+  unit?: UnitInfo;
 }
 
 export interface CrmLeadActivity {
@@ -354,8 +364,11 @@ export interface CrmLeadActivity {
 export interface CrmWhatsAppMessage {
   id: string;
   lead_id: string;
-  message_type: 'incoming' | 'outgoing';
-  content: string;
+  user_id: string;
+  direction: 'incoming' | 'outgoing';
+  message_text: string;
+  message_id?: string;
+  status?: string;
   sent_at: Date;
   created_at: Date;
 }
@@ -368,16 +381,12 @@ export interface CrmReminderSchedule {
   message?: string;
   is_completed: boolean;
   created_at: Date;
-  updated_at: Date;
 }
 
 export interface CrmProperty {
   id: string;
   name: string;
-  property_type: string;
-  price: number;
   city: string;
-  province?: string;
 }
 
 // List Leads Query Parameters
@@ -389,7 +398,7 @@ export interface GetLeadsQuery {
   start_date?: string;
   end_date?: string;
   property_id?: string;
-  source?: CrmLeadSource;
+  source?: string;
   sort_by?: 'created_at' | 'name' | 'status' | 'next_follow_up_at';
   sort_order?: 'asc' | 'desc';
 }
@@ -399,14 +408,11 @@ export interface CrmLeadListItem {
   id: string;
   name: string;
   phone: string;
-  email?: string;
   status: CrmLeadStatus;
-  source: CrmLeadSource;
-  property?: {
-    id: string;
-    name: string;
-  };
+  source: string;
+  unit?: UnitBasicInfo;
   created_at: Date;
+  updated_at: Date;
 }
 
 export interface GetLeadsResponse {
@@ -434,9 +440,8 @@ export interface CrmCreateLeadDto {
   email?: string;
   nik?: string;
   npwp?: string;
-  source?: CrmLeadSource;
-  property_id?: string;
-  property_url?: string;
+  source?: string;
+  unit_id?: string;
   budget_range?: BudgetRange;
   status?: CrmLeadStatus;
   notes?: string;
@@ -451,9 +456,8 @@ export interface CrmUpdateLeadDto {
   email?: string;
   nik?: string;
   npwp?: string;
-  source?: CrmLeadSource;
-  property_id?: string;
-  property_url?: string;
+  source?: string;
+  unit_id?: string;
   budget_range?: BudgetRange;
   status?: CrmLeadStatus;
   notes?: string;
@@ -928,6 +932,7 @@ export interface PipelineStagesSummary {
   contacted: number;
   surveyed: number;
   negotiating: number;
+  booked: number;
   closed: number;
   cancelled: number;
 }

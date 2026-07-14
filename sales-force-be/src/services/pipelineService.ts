@@ -94,6 +94,7 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
     contacted: 0,
     surveyed: 0,
     negotiating: 0,
+    booked: 0,
     closed: 0,
     cancelled: 0,
   };
@@ -219,21 +220,42 @@ export const updateLeadStatus = async (
 
     await client.query('COMMIT');
 
-    // Get property details if property_id exists
-    let property;
-    if (updatedLead.property_id) {
-      const propertyResult = await client.query(
-        'SELECT id, name, property_type, price, city FROM properties WHERE id = $1',
-        [updatedLead.property_id]
+    // Get unit details if unit_id exists
+    let unit;
+    if (updatedLead.unit_id) {
+      const unitResult = await client.query(
+        `SELECT
+          u.id,
+          u.name,
+          u.land_area,
+          u.status,
+          b.id as block_id,
+          b.name as block_name,
+          p.id as property_id,
+          p.name as property_name,
+          p.city
+        FROM units u
+        JOIN blocks b ON u.block_id = b.id
+        JOIN properties p ON b.property_id = p.id
+        WHERE u.id = $1`,
+        [updatedLead.unit_id]
       );
-      if (propertyResult.rows.length > 0) {
-        const propRow = propertyResult.rows[0];
-        property = {
-          id: propRow.id,
-          name: propRow.name,
-          property_type: propRow.property_type,
-          price: propRow.price,
-          city: propRow.city,
+      if (unitResult.rows.length > 0) {
+        const unitRow = unitResult.rows[0];
+        unit = {
+          id: unitRow.id,
+          name: unitRow.name,
+          land_area: unitRow.land_area,
+          status: unitRow.status,
+          block: {
+            id: unitRow.block_id,
+            name: unitRow.block_name,
+          },
+          property: {
+            id: unitRow.property_id,
+            name: unitRow.property_name,
+            city: unitRow.city,
+          },
         };
       }
     }
@@ -246,9 +268,9 @@ export const updateLeadStatus = async (
       email: updatedLead.email || undefined,
       status: updatedLead.status,
       source: updatedLead.source,
-      property_id: updatedLead.property_id || undefined,
-      property_price: updatedLead.property_price || undefined,
+      unit_id: updatedLead.unit_id || undefined,
       budget_range: updatedLead.budget_range || undefined,
+      down_payment: updatedLead.down_payment || undefined,
       down_payment_percentage: updatedLead.down_payment_percentage || undefined,
       interest_rate: updatedLead.interest_rate || undefined,
       loan_term_years: updatedLead.loan_term_years || undefined,
@@ -257,7 +279,7 @@ export const updateLeadStatus = async (
       next_follow_up_at: updatedLead.next_follow_up_at || undefined,
       created_at: updatedLead.created_at,
       updated_at: updatedLead.updated_at,
-      property,
+      unit,
     };
 
     // Build activity response

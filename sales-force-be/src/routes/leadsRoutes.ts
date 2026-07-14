@@ -67,6 +67,6 @@ router.post('/:id/activities', authenticate, subscriptionCheck, addActivityContr
  * Get list of properties for filter dropdown
  * @access Private (requires authentication and active subscription)
  */
-router.get('/properties/list', authenticate, subscriptionCheck, getPropertiesController);
+router.get('/properties', authenticate, subscriptionCheck, getPropertiesController);
 
 export default router;
