@@ -915,6 +915,8 @@ export interface PipelineStage {
 export interface PipelineLeadItem {
   id: string;
   name: string;
+  unit_name?: string;
+  block_name?: string;
   property_name?: string;
   next_follow_up_at?: Date;
   created_at: Date;
@@ -959,6 +961,7 @@ export interface PipelineMetricsResponse {
   total_leads: number;
   this_month: number;
   surveyed: number;
+  booked: number;
   closed: number;
   conversion_rate: number;
   avg_time_to_close: number;

@@ -24,17 +24,43 @@ export const getPipelineController = async (req: Request, res: Response): Promis
   if (!userId) {
     res.status(401).json({
       success: false,
-      message: 'Unauthorized',
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Unauthorized',
+        details: {}
+      }
     });
     return;
   }
 
-  const result = await getPipelineData(query, userId);
-
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
+  try {
+    const result = await getPipelineData(query, userId);
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      const statusCode = (error as any).statusCode || 500;
+      res.status(statusCode).json({
+        success: false,
+        error: {
+          code: statusCode === 401 ? 'UNAUTHORIZED' : statusCode === 403 ? 'FORBIDDEN' : statusCode === 404 ? 'NOT_FOUND' : statusCode === 400 ? 'VALIDATION_ERROR' : 'INTERNAL_ERROR',
+          message: error.message,
+          details: {}
+        }
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An unexpected error occurred',
+          details: {}
+        }
+      });
+    }
+  }
 };
 
 /**
@@ -49,18 +75,44 @@ export const updateLeadStatusController = async (req: Request, res: Response): P
   if (!userId) {
     res.status(401).json({
       success: false,
-      message: 'Unauthorized',
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Unauthorized',
+        details: {}
+      }
     });
     return;
   }
 
-  const result = await updateLeadStatus(id as string, dto, userId);
-
-  res.status(200).json({
-    success: true,
-    message: 'Lead status updated successfully',
-    data: result,
-  });
+  try {
+    const result = await updateLeadStatus(id as string, dto, userId);
+    res.status(200).json({
+      success: true,
+      message: 'Lead status updated successfully',
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      const statusCode = (error as any).statusCode || 500;
+      res.status(statusCode).json({
+        success: false,
+        error: {
+          code: statusCode === 401 ? 'UNAUTHORIZED' : statusCode === 403 ? 'FORBIDDEN' : statusCode === 404 ? 'NOT_FOUND' : statusCode === 400 ? 'VALIDATION_ERROR' : 'INTERNAL_ERROR',
+          message: error.message,
+          details: {}
+        }
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An unexpected error occurred',
+          details: {}
+        }
+      });
+    }
+  }
 };
 
 /**
@@ -73,15 +125,41 @@ export const getPipelineMetricsController = async (req: Request, res: Response):
   if (!userId) {
     res.status(401).json({
       success: false,
-      message: 'Unauthorized',
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Unauthorized',
+        details: {}
+      }
     });
     return;
   }
 
-  const result = await getPipelineMetrics(userId);
-
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
+  try {
+    const result = await getPipelineMetrics(userId);
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      const statusCode = (error as any).statusCode || 500;
+      res.status(statusCode).json({
+        success: false,
+        error: {
+          code: statusCode === 401 ? 'UNAUTHORIZED' : statusCode === 403 ? 'FORBIDDEN' : statusCode === 404 ? 'NOT_FOUND' : statusCode === 400 ? 'VALIDATION_ERROR' : 'INTERNAL_ERROR',
+          message: error.message,
+          details: {}
+        }
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An unexpected error occurred',
+          details: {}
+        }
+      });
+    }
+  }
 };

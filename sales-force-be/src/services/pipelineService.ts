@@ -49,17 +49,24 @@ const PIPELINE_STAGES: Omit<PipelineStage, 'lead_count' | 'leads'>[] = [
     color: '#F59E0B',
   },
   {
+    id: CrmLeadStatus.BOOKED,
+    name: 'Booking Fee',
+    name_en: 'Booked',
+    order: 5,
+    color: '#06B6D4',
+  },
+  {
     id: CrmLeadStatus.CLOSED,
     name: 'Closing',
     name_en: 'Closed',
-    order: 5,
+    order: 6,
     color: '#10B981',
   },
   {
     id: CrmLeadStatus.CANCELLED,
     name: 'Batal',
     name_en: 'Cancelled',
-    order: 6,
+    order: 7,
     color: '#EF4444',
   },
 ];
@@ -119,9 +126,13 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
         l.next_follow_up_at,
         l.created_at,
         l.updated_at,
+        u.name as unit_name,
+        b.name as block_name,
         p.name as property_name
       FROM leads l
-      LEFT JOIN properties p ON l.property_id = p.id
+      LEFT JOIN units u ON l.unit_id = u.id
+      LEFT JOIN blocks b ON u.block_id = b.id
+      LEFT JOIN properties p ON b.property_id = p.id
       WHERE l.status = $1 AND l.assigned_to = $2${searchFilter}
       ORDER BY l.updated_at DESC
       LIMIT $${search ? '4' : '3'} OFFSET $${search ? '5' : '4'}
@@ -131,6 +142,8 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
     const leads: PipelineLeadItem[] = leadsResult.rows.map((row) => ({
       id: row.id,
       name: row.name,
+      unit_name: row.unit_name || undefined,
+      block_name: row.block_name || undefined,
       property_name: row.property_name || undefined,
       next_follow_up_at: row.next_follow_up_at || undefined,
       created_at: row.created_at,
@@ -165,8 +178,16 @@ export const updateLeadStatus = async (
   // Validate status
   if (!validateStatus(dto.status)) {
     throw new AppError(
-      'Status must be one of: new, contacted, surveyed, negotiating, closed, cancelled',
-      422
+      'Status must be one of: new, contacted, surveyed, negotiating, booked, closed, cancelled',
+      400
+    );
+  }
+
+  // Validate reason when status is cancelled
+  if (dto.status === CrmLeadStatus.CANCELLED && !dto.reason) {
+    throw new AppError(
+      'Reason is required when moving lead to cancelled status',
+      400
     );
   }
 
@@ -175,14 +196,19 @@ export const updateLeadStatus = async (
   try {
     await client.query('BEGIN');
 
-    // Check if lead exists and is assigned to this user
+    // Check if lead exists
     const leadCheck = await client.query(
-      'SELECT * FROM leads WHERE id = $1 AND assigned_to = $2',
-      [leadId, userId]
+      'SELECT * FROM leads WHERE id = $1',
+      [leadId]
     );
 
     if (leadCheck.rows.length === 0) {
-      throw new AppError('Lead not found or access denied', 404);
+      throw new AppError('Lead not found', 404);
+    }
+
+    // Check if lead is assigned to this user
+    if (leadCheck.rows[0].assigned_to !== userId) {
+      throw new AppError('You do not have permission to modify this lead', 403);
     }
 
     const currentLead = leadCheck.rows[0];
@@ -194,14 +220,14 @@ export const updateLeadStatus = async (
       SET
         status = $2,
         updated_at = NOW()
-      WHERE id = $1 AND assigned_to = $3
+      WHERE id = $1
       RETURNING *
     `;
-    const updateResult = await client.query(updateQuery, [leadId, dto.status, userId]);
+    const updateResult = await client.query(updateQuery, [leadId, dto.status]);
     const updatedLead = updateResult.rows[0];
 
     // Insert activity log
-    const notes = dto.reason || (dto.status === CrmLeadStatus.CANCELLED ? 'cancelled' : `Status changed from ${oldStatus} to ${dto.status}`);
+    const notes = dto.reason || `Status changed from ${oldStatus} to ${dto.status}`;
 
     const activityQuery = `
       INSERT INTO lead_activities (id, lead_id, user_id, activity_type, old_status, new_status, notes)
@@ -315,10 +341,11 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
     WITH metrics AS (
       SELECT
         COUNT(*) FILTER (WHERE status = 'closed') as closed_count,
+        COUNT(*) FILTER (WHERE status = 'booked') as booked_count,
         COUNT(*) FILTER (WHERE status = 'surveyed') as surveyed_count,
         COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE)) as this_month_count,
         COUNT(*) as total_count,
-        AVG(EXTRACT(DAY FROM (updated_at - created_at))) FILTER (WHERE status = 'closed') as avg_days_to_close
+        AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) FILTER (WHERE status = 'closed') as avg_days_to_close
       FROM leads
       WHERE assigned_to = $1
     )
@@ -326,6 +353,7 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
       total_count as total_leads,
       this_month_count as this_month,
       surveyed_count as surveyed,
+      booked_count as booked,
       closed_count as closed,
       CASE
         WHEN total_count > 0 THEN ROUND((closed_count::NUMERIC / total_count::NUMERIC) * 100, 2)
@@ -342,6 +370,7 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
     total_leads: parseInt(row.total_leads, 10),
     this_month: parseInt(row.this_month, 10),
     surveyed: parseInt(row.surveyed, 10),
+    booked: parseInt(row.booked, 10),
     closed: parseInt(row.closed, 10),
     conversion_rate: parseFloat(row.conversion_rate),
     avg_time_to_close: parseFloat(row.avg_time_to_close),
