@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import cron from 'node-cron';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs/promises';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -133,6 +134,14 @@ const startServer = async () => {
   if (!dbConnected) {
     console.error('Failed to connect to database. Server will not start.');
     process.exit(1);
+  }
+
+  const uploadDir = path.join(__dirname, '../public/uploads/siteplans');
+  try {
+    await fs.mkdir(uploadDir, { recursive: true });
+    console.log('Upload directory ready');
+  } catch (err) {
+    console.error('Failed to create upload directory:', err);
   }
 
   // Schedule cleanup job - runs daily at 2 AM

@@ -112,7 +112,13 @@ export const createPropertyController = async (req: Request, res: Response): Pro
     return;
   }
 
-  const dto: CreatePropertyDto = req.body;
+  const dto: CreatePropertyDto = {
+    name: req.body.name,
+    city: req.body.city,
+    land_area: req.body.land_area ? parseFloat(req.body.land_area) : undefined,
+    address: req.body.address,
+    description: req.body.description,
+  };
   const siteplanPath = req.file ? `/uploads/siteplans/${req.file.filename}` : null;
 
   const result = await createPropertyService(dto, userId, siteplanPath);
@@ -143,7 +149,13 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
   }
 
   const id = req.params.id as string;
-  const dto: UpdatePropertyDto = req.body;
+  const dto: UpdatePropertyDto = {
+    name: req.body.name,
+    city: req.body.city,
+    land_area: req.body.land_area ? parseFloat(req.body.land_area) : undefined,
+    address: req.body.address,
+    description: req.body.description,
+  };
   const siteplanPath = req.file ? `/uploads/siteplans/${req.file.filename}` : null;
 
   const result = await updatePropertyService(id, dto, userId, siteplanPath);

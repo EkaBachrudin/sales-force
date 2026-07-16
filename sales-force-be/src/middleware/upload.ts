@@ -2,13 +2,20 @@ import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { Request } from 'express';
+import fs from 'fs/promises';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 const ALLOWED_MIME_TYPE = 'image/svg+xml';
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, '../../public/uploads/siteplans'));
+  destination: async (_req, _file, cb) => {
+    const destPath = path.join(__dirname, '../../public/uploads/siteplans');
+    try {
+      await fs.mkdir(destPath, { recursive: true });
+      cb(null, destPath);
+    } catch (err) {
+      cb(err as Error, destPath);
+    }
   },
   filename: (_req, file, cb) => {
     const uniqueSuffix = `${randomUUID()}-${Date.now()}`;

@@ -55,6 +55,9 @@ COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
 # Copy src folder (needed for ts-node migrations in production)
 COPY --from=builder --chown=nodejs:nodejs /app/src ./src
 COPY --from=builder --chown=nodejs:nodejs /app/tsconfig.json ./
+# Copy public folder for static file serving
+COPY --from=builder --chown=nodejs:nodejs /app/public ./public
+RUN mkdir -p /app/public/uploads/siteplans
 
 USER nodejs
 
