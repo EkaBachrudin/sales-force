@@ -91,7 +91,7 @@ export default function PipelinePage() {
   }, [hasPrevPage, isFetching]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
-    navigate(`/leads/${lead.id}`);
+    navigate(`/leads/${lead.id}`, { state: { from: '/pipeline' } });
   }, [navigate]);
 
   const handleStageChange = useCallback(async (leadId: string, newStage: PipelineStage) => {

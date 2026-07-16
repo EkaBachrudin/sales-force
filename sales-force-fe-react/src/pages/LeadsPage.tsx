@@ -96,7 +96,7 @@ export default function LeadsPage() {
   };
 
   const handleLeadClick = (lead: Lead) => {
-    navigate(`/leads/${lead.id}`);
+    navigate(`/leads/${lead.id}`, { state: { from: '/leads' } });
   };
 
   const handleNewLead = async (data: any) => {

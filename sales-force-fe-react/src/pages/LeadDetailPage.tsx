@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import { Phone, MessageCircle, Mail, Calculator, Bell, ArrowLeft } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
@@ -8,8 +8,6 @@ import { Select } from '@/components/ui/Select';
 import { useLeadDetail, useLeadMutations } from '@/hooks/useLeads';
 import { useProperties } from '@/hooks/useProperties';
 import { propertyService } from '@/services/propertyService';
-import { formatCurrency, formatPhone } from '@/lib/utils';
-import type { Lead, PipelineStage } from '@/lib/types';
 
 const stageOptions = [
   { value: 'new', label: 'Baru Masuk' },
@@ -39,7 +37,9 @@ const termOptions = [
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
+  const fromPath = location.state?.from || '/leads';
   const { data: lead, isLoading: isLoadingLead } = useLeadDetail(id || '', true);
   const { updateLead, isUpdating } = useLeadMutations({
     onUpdateSuccess: () => {
@@ -194,10 +194,10 @@ export default function LeadDetailPage() {
   const handleCancel = () => {
     if (hasUnsavedChanges) {
       if (confirm('You have unsaved changes. Are you sure you want to leave?')) {
-        navigate('/leads');
+        navigate(fromPath);
       }
     } else {
-      navigate('/leads');
+      navigate(fromPath);
     }
   };
 
@@ -233,9 +233,9 @@ export default function LeadDetailPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <p className="text-lg text-gray-600 mb-4">Lead not found</p>
-            <Button onClick={() => navigate('/leads')}>
+            <Button onClick={() => navigate(fromPath)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Leads
+              {fromPath === '/pipeline' ? 'Back to Pipeline' : 'Back to Leads'}
             </Button>
           </div>
         </div>
@@ -260,8 +260,8 @@ export default function LeadDetailPage() {
     >
       {/* Breadcrumb */}
       <div className="mb-6 flex items-center gap-2 text-sm">
-        <Link to="/leads" className="text-primary hover:underline">
-          Leads
+        <Link to={fromPath} className="text-primary hover:underline">
+          {fromPath === '/pipeline' ? 'Pipeline' : 'Leads'}
         </Link>
         <span className="text-gray-400">/</span>
         <span className="text-gray-700">{lead?.name}</span>
