@@ -1,11 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { KanbanBoard, type Lead, type PipelineStage } from '@/components/dashboard/KanbanBoard';
 import { Search, Loader2 } from 'lucide-react';
-import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
-import { EditLeadModal } from '@/components/dashboard/EditLeadModal';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { usePipeline, usePipelineMutations } from '@/hooks/usePipeline';
-import { useLeadDetail, useLeadMutations } from '@/hooks/useLeads';
 import type { PipelineLeadItem } from '@/lib/types';
 
 // Transform backend PipelineLeadItem to frontend Lead format
@@ -31,9 +29,7 @@ function transformPipelineLeadToLead(pipelineLead: PipelineLeadItem, status: str
 }
 
 export default function PipelinePage() {
-  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -47,16 +43,6 @@ export default function PipelinePage() {
 
     return () => clearTimeout(timer);
   }, [search]);
-
-  // Fetch lead detail when selectedLeadId changes
-  const { data: selectedLead, isLoading: isLoadingLeadDetail } = useLeadDetail(selectedLeadId, isPanelOpen);
-
-  // Mutations
-  const { updateLead, isUpdating: isUpdatingLead } = useLeadMutations({
-    onUpdateSuccess: () => {
-      setIsEditModalOpen(false);
-    },
-  });
 
   // Fetch pipeline data with TanStack Query
   const { data: pipelineData, isLoading, isFetching, error } = usePipeline(page, 10, debouncedSearch);
@@ -105,18 +91,8 @@ export default function PipelinePage() {
   }, [hasPrevPage, isFetching]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
-    setSelectedLeadId(lead.id);
-    setIsPanelOpen(true);
-  }, []);
-
-  const handleEditClick = useCallback(() => {
-    setIsEditModalOpen(true);
-  }, []);
-
-  const handleEditLead = useCallback(async (data: Partial<Lead>) => {
-    if (!selectedLead) return;
-    await updateLead({ id: selectedLead.id, data });
-  }, [updateLead, selectedLead]);
+    navigate(`/leads/${lead.id}`);
+  }, [navigate]);
 
   const handleStageChange = useCallback(async (leadId: string, newStage: PipelineStage) => {
     await updateLeadStatus({
@@ -222,24 +198,6 @@ export default function PipelinePage() {
           <span className="text-sm font-medium">Syncing...</span>
         </div>
       )}
-
-      <LeadDetailPanel
-        lead={selectedLead}
-        isOpen={isPanelOpen}
-        onEdit={handleEditClick}
-        onClose={() => {
-          setIsPanelOpen(false);
-          setSelectedLeadId(null);
-        }}
-      />
-
-      <EditLeadModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSubmit={handleEditLead}
-        lead={selectedLead}
-        isLoading={isUpdatingLead || isLoadingLeadDetail}
-      />
     </>
   );
 }

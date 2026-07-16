@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { Search, Plus, Phone, ChevronLeft, ChevronRight, Calendar, Download, Trash2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
-import { LeadDetailPanel } from '@/components/dashboard/LeadDetailPanel';
 import { NewLeadModal } from '@/components/dashboard/NewLeadModal';
-import { EditLeadModal } from '@/components/dashboard/EditLeadModal';
 import { stageLabels } from '@/lib/mockData';
 import type { Lead, PipelineStage } from '@/lib/types';
 import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { useProperties } from '@/hooks/useProperties';
-import { useLeads, useLeadMutations, useLeadDetail, type LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
+import { useLeads, useLeadMutations, type LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
 import { useDebounce } from '@/hooks/useDebounce';
 
 const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
@@ -52,17 +51,12 @@ const defaultFilters: UseLeadsFilters = {
 };
 
 export default function LeadsPage() {
+  const navigate = useNavigate();
   const { data: properties, isLoading: isLoadingProperties } = useProperties();
 
-  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [deleteConfirmLead, setDeleteConfirmLead] = useState<Lead | null>(null);
-
-  // Fetch lead detail when selectedLeadId changes
-  const { data: selectedLead } = useLeadDetail(selectedLeadId, isPanelOpen);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,16 +80,12 @@ export default function LeadsPage() {
   const { data: leadsData, isLoading: isLoadingLeads } = useLeads(currentPage, pageSize, filters);
 
   // Mutations
-  const { updateLead, createLead, deleteLead, isUpdating, isDeleting } = useLeadMutations({
-    onUpdateSuccess: () => {
-      setIsEditModalOpen(false);
-    },
+  const { createLead, deleteLead, isDeleting } = useLeadMutations({
     onCreateSuccess: () => {
       setIsNewLeadModalOpen(false);
     },
     onDeleteSuccess: () => {
-      setIsPanelOpen(false);
-      setSelectedLeadId(null);
+      // Lead deleted, list will refresh automatically
     },
   });
 
@@ -106,21 +96,11 @@ export default function LeadsPage() {
   };
 
   const handleLeadClick = (lead: Lead) => {
-    setSelectedLeadId(lead.id);
-    setIsPanelOpen(true);
+    navigate(`/leads/${lead.id}`);
   };
 
   const handleNewLead = async (data: any) => {
     await createLead(data);
-  };
-
-  const handleEditClick = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditLead = async (data: Partial<Lead>) => {
-    if (!selectedLead) return;
-    await updateLead({ id: selectedLead.id, data });
   };
 
   const handleDeleteClick = (lead: Lead) => {
@@ -131,11 +111,6 @@ export default function LeadsPage() {
     if (!deleteConfirmLead) return;
     await deleteLead(deleteConfirmLead.id);
     setDeleteConfirmLead(null);
-    // If the deleted lead was selected, close the panel
-    if (selectedLeadId === deleteConfirmLead.id) {
-      setIsPanelOpen(false);
-      setSelectedLeadId(null);
-    }
   };
 
   const handleExport = async () => {
@@ -524,31 +499,11 @@ export default function LeadsPage() {
         </div>
       </DashboardLayout>
 
-      {/* Lead Detail Panel */}
-      <LeadDetailPanel
-        lead={selectedLead}
-        isOpen={isPanelOpen}
-        onClose={() => {
-          setIsPanelOpen(false);
-          setSelectedLeadId(null);
-        }}
-        onEdit={handleEditClick}
-      />
-
       {/* New Lead Modal */}
       <NewLeadModal
         isOpen={isNewLeadModalOpen}
         onClose={() => setIsNewLeadModalOpen(false)}
         onSubmit={handleNewLead}
-      />
-
-      {/* Edit Lead Modal */}
-      <EditLeadModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSubmit={handleEditLead}
-        lead={selectedLead}
-        isLoading={isUpdating}
       />
 
       {/* Delete Confirmation Modal */}
