@@ -102,7 +102,7 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
         formData.append('description', description.trim());
       }
       if (siteplanFile) {
-        formData.append('siteplan', siteplanFile);
+        formData.append('siteplan_file', siteplanFile);
       }
 
       await onSubmit(formData);
