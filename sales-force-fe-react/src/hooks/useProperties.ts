@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Property, CreatePropertyDto, UpdatePropertyDto } from '@/lib/types';
+import type { Property, UpdatePropertyDto } from '@/lib/types';
 import { api } from '@/lib/api';
 
 export function useProperties(search?: string) {
@@ -22,7 +22,7 @@ export function usePropertyMutations(options?: {
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
-    mutationFn: (data: CreatePropertyDto) => api.createProperty(data),
+    mutationFn: (formData: FormData) => api.createProperty(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] });
       options?.onCreateSuccess?.();

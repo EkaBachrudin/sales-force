@@ -131,7 +131,10 @@ export interface Property {
 
 export interface CreatePropertyDto {
   name: string;
-  property_type: string;
+  city: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
 }
 
 export interface UpdatePropertyDto {

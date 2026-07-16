@@ -3,68 +3,109 @@ import { Search, Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import type { Property, CreatePropertyDto } from '@/lib/types';
+import { Textarea } from '@/components/ui/Textarea';
+import { FileUpload } from '@/components/ui/FileUpload';
+import type { Property } from '@/lib/types';
 import { useProperties, usePropertyMutations } from '@/hooks/useProperties';
 
-const propertyTypeExamples = [
-  'Rumah',
-  'Rumah 1/2 Lantai',
-  'Rumah 2 Lantai',
-  'Apartemen',
-  'Ruko',
-  'Tanah Kavling'
-];
+
 
 interface PropertyModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: { name: string; property_type: string }) => Promise<void>;
+  onSubmit: (data: FormData) => Promise<void>;
   property?: Property;
   isLoading: boolean;
 }
 
 function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: PropertyModalProps) {
   const [name, setName] = useState('');
-  const [propertyType, setPropertyType] = useState('');
-  const [customType, setCustomType] = useState('');
-  const [useCustomType, setUseCustomType] = useState(false);
+  const [city, setCity] = useState('');
+  const [landArea, setLandArea] = useState('');
+  const [address, setAddress] = useState('');
+  const [description, setDescription] = useState('');
+  const [siteplanFile, setSiteplanFile] = useState<File | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (property) {
       setName(property.name);
-      if (propertyTypeExamples.includes(property.property_type)) {
-        setPropertyType(property.property_type);
-        setUseCustomType(false);
-      } else {
-        setCustomType(property.property_type);
-        setUseCustomType(true);
-      }
+      setCity('');
+      setLandArea('');
+      setAddress('');
+      setDescription('');
+      setSiteplanFile(null);
+      setErrors({});
     } else {
       setName('');
-      setPropertyType('');
-      setCustomType('');
-      setUseCustomType(false);
+      setCity('');
+      setLandArea('');
+      setAddress('');
+      setDescription('');
+      setSiteplanFile(null);
+      setErrors({});
     }
   }, [property, isOpen]);
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!name.trim()) {
+      newErrors.name = 'Property name is required';
+    } else if (name.length > 100) {
+      newErrors.name = 'Property name must be less than 100 characters';
+    }
+
+    if (!city.trim()) {
+      newErrors.city = 'City is required';
+    } else if (city.length > 100) {
+      newErrors.city = 'City must be less than 100 characters';
+    }
+
+    if (!landArea.trim()) {
+      newErrors.landArea = 'Land area is required';
+    } else {
+      const area = parseFloat(landArea);
+      if (isNaN(area) || area <= 0) {
+        newErrors.landArea = 'Land area must be a positive number';
+      }
+    }
+
+    if (!address.trim()) {
+      newErrors.address = 'Address is required';
+    } else if (address.length > 500) {
+      newErrors.address = 'Address must be less than 500 characters';
+    }
+
+    if (description.length > 1000) {
+      newErrors.description = 'Description must be less than 1000 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const finalPropertyType = useCustomType ? customType.trim() : propertyType;
-
-    if (!name.trim()) {
-      return;
-    }
-
-    if (!finalPropertyType) {
+    if (!validateForm()) {
       return;
     }
 
     try {
-      await onSubmit({
-        name: name.trim(),
-        property_type: finalPropertyType,
-      });
+      const formData = new FormData();
+      formData.append('name', name.trim());
+      formData.append('city', city.trim());
+      formData.append('land_area', landArea);
+      formData.append('address', address.trim());
+      if (description.trim()) {
+        formData.append('description', description.trim());
+      }
+      if (siteplanFile) {
+        formData.append('siteplan', siteplanFile);
+      }
+
+      await onSubmit(formData);
     } catch (err) {
       throw err;
     }
@@ -72,9 +113,12 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
 
   const handleClose = () => {
     setName('');
-    setPropertyType('');
-    setCustomType('');
-    setUseCustomType(false);
+    setCity('');
+    setLandArea('');
+    setAddress('');
+    setDescription('');
+    setSiteplanFile(null);
+    setErrors({});
     onClose();
   };
 
@@ -82,100 +126,96 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
           <h2 className="text-lg font-semibold text-text-primary">
             {property ? 'Edit Property' : 'Add New Property'}
           </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-1.5">
-              Property Name
-            </label>
-            <Input
-              placeholder="e.g., Cluster A Type 36/60"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={100}
-              required
-            />
-            <p className="text-xs text-text-secondary mt-1">
-              Max 100 characters
-            </p>
-          </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Left Column */}
+            <div className="space-y-5">
+              <Input
+                label="Property Name"
+                placeholder="e.g., Cluster A Type 36/60"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={100}
+                required
+                error={errors.name}
+                helperText={!errors.name ? 'Max 100 characters' : undefined}
+              />
 
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-1.5">
-              Property Type
-            </label>
+              <Input
+                label="City"
+                placeholder="e.g., Jakarta"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                maxLength={100}
+                required
+                error={errors.city}
+                helperText={!errors.city ? 'Max 100 characters' : undefined}
+              />
 
-            <div className="space-y-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="typeOption"
-                  checked={!useCustomType}
-                  onChange={() => {
-                    setUseCustomType(false);
-                    setCustomType('');
-                  }}
-                  className="w-4 h-4 text-primary"
-                />
-                <span className="text-sm text-text-primary">Select from examples</span>
-              </label>
+              <Input
+                label="Land Area"
+                type="number"
+                placeholder="e.g., 500"
+                value={landArea}
+                onChange={(e) => setLandArea(e.target.value)}
+                min="0"
+                step="0.01"
+                required
+                error={errors.landArea}
+                helperText={!errors.landArea ? 'Enter land area in square meters' : undefined}
+              />
 
-              {!useCustomType && (
-                <select
-                  value={propertyType}
-                  onChange={(e) => setPropertyType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
-                  required
-                >
-                  <option value="">Select a type</option>
-                  {propertyTypeExamples.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="typeOption"
-                  checked={useCustomType}
-                  onChange={() => {
-                    setUseCustomType(true);
-                    setPropertyType('');
-                  }}
-                  className="w-4 h-4 text-primary"
-                />
-                <span className="text-sm text-text-primary">Custom type</span>
-              </label>
-
-              {useCustomType && (
-                <Input
-                  placeholder="e.g., Rumah 3 Lantai"
-                  value={customType}
-                  onChange={(e) => setCustomType(e.target.value)}
-                  maxLength={50}
-                  required
-                />
-              )}
+              <Textarea
+                label="Address"
+                placeholder="Enter complete property address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                maxLength={500}
+                required
+                error={errors.address}
+                helperText={!errors.address ? 'Max 500 characters' : undefined}
+                showCharacterCount
+              />
             </div>
 
-            <p className="text-xs text-text-secondary mt-1">
-              Max 50 characters
-            </p>
+            {/* Right Column */}
+            <div className="space-y-5">
+              <Textarea
+                label="Description"
+                placeholder="Enter property description (optional)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={1000}
+                error={errors.description}
+                helperText={!errors.description ? 'Max 1000 characters' : undefined}
+                showCharacterCount
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-1.5">
+                  Siteplan
+                </label>
+                <FileUpload
+                  onFileSelect={setSiteplanFile}
+                  currentFile={siteplanFile}
+                  maxSizeMB={10}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 border-t border-gray-200">
             <Button
               type="button"
               onClick={handleClose}
+              variant="secondary"
               className="flex-1"
               disabled={isLoading}
             >
@@ -184,9 +224,9 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
             <Button
               type="submit"
               className="flex-1"
-              disabled={isLoading || !name.trim() || (!useCustomType && !propertyType) || (useCustomType && !customType.trim())}
+              disabled={isLoading}
             >
-              {isLoading ? 'Saving...' : property ? 'Update' : 'Create'}
+              {isLoading ? 'Creating...' : 'Create'}
             </Button>
           </div>
         </form>
@@ -247,7 +287,6 @@ export default function PropertiesPage() {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [editingProperty, setEditingProperty] = useState<Property | undefined>();
   const [deletingProperty, setDeletingProperty] = useState<Property | undefined>();
   const [error, setError] = useState<string | null>(null);
 
@@ -255,16 +294,10 @@ export default function PropertiesPage() {
   const { data: properties = [], isLoading } = useProperties(search);
 
   // Mutations with custom hook
-  const { createProperty, updateProperty, deleteProperty, isCreating, isUpdating, isDeleting } =
+  const { createProperty, deleteProperty, isCreating, isDeleting } =
     usePropertyMutations({
       onCreateSuccess: () => {
         setIsModalOpen(false);
-        setEditingProperty(undefined);
-        setError(null);
-      },
-      onUpdateSuccess: () => {
-        setIsModalOpen(false);
-        setEditingProperty(undefined);
         setError(null);
       },
       onDeleteSuccess: () => {
@@ -277,13 +310,8 @@ export default function PropertiesPage() {
       },
     });
 
-  const handleCreateProperty = async (data: CreatePropertyDto) => {
-    await createProperty(data);
-  };
-
-  const handleUpdateProperty = async (data: { name: string; property_type: string }) => {
-    if (!editingProperty) return;
-    await updateProperty({ id: editingProperty.id, data });
+  const handleCreateProperty = async (formData: FormData) => {
+    await createProperty(formData);
   };
 
   const handleDeleteProperty = async () => {
@@ -291,19 +319,13 @@ export default function PropertiesPage() {
     await deleteProperty(deletingProperty.id);
   };
 
-  const openEditModal = (property: Property) => {
-    setEditingProperty(property);
-    setIsModalOpen(true);
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   const openDeleteModal = (property: Property) => {
     setDeletingProperty(property);
     setIsDeleteModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingProperty(undefined);
   };
 
   const closeDeleteModal = () => {
@@ -367,15 +389,12 @@ export default function PropertiesPage() {
                     <h3 className="text-sm font-semibold text-text-primary truncate">
                       {property.name}
                     </h3>
-                    <p className="text-xs text-text-secondary mt-0.5">
-                      {property.property_type}
-                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => openEditModal(property)}
-                      className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
-                      title="Edit"
+                      disabled
+                      className="p-2 rounded-lg text-gray-300 cursor-not-allowed"
+                      title="Edit (Coming soon)"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -397,9 +416,8 @@ export default function PropertiesPage() {
       <PropertyModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        onSubmit={editingProperty ? handleUpdateProperty : handleCreateProperty}
-        property={editingProperty}
-        isLoading={isCreating || isUpdating}
+        onSubmit={handleCreateProperty}
+        isLoading={isCreating}
       />
 
       <DeleteConfirmModal

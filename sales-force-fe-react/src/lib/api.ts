@@ -221,14 +221,11 @@ export const api = {
     return data;
   },
 
-  createProperty: async (propertyData: { name: string; property_type: string }) => {
+  createProperty: async (formData: FormData) => {
     const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
-      body: JSON.stringify(propertyData),
+      body: formData,
     });
 
     const data = await response.json();
