@@ -221,6 +221,21 @@ export const api = {
     return data;
   },
 
+  getPropertyDetail: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch property detail', response.status);
+    }
+
+    return data;
+  },
+
   createProperty: async (formData: FormData) => {
     const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties`, {
       method: 'POST',
@@ -237,14 +252,11 @@ export const api = {
     return data;
   },
 
-  updateProperty: async (id: string, propertyData: { name?: string; property_type?: string }) => {
+  updateProperty: async (id: string, formData: FormData) => {
     const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
-      body: JSON.stringify(propertyData),
+      body: formData,
     });
 
     const data = await response.json();

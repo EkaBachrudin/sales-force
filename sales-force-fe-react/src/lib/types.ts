@@ -125,8 +125,28 @@ export interface PaginatedResponse<T> {
 export interface Property {
   id: string;
   name: string;
-  property_type: string;
+  city: string;
+  land_area: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
+  is_active: boolean;
   created_at: string;
+  updated_at: string;
+}
+
+export interface PropertyDetail {
+  property: Property;
+  blocks: BlockListItem[];
+}
+
+export interface BlockListItem {
+  id: string;
+  name: string;
+  is_active: boolean;
+  total_units: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreatePropertyDto {
@@ -139,7 +159,10 @@ export interface CreatePropertyDto {
 
 export interface UpdatePropertyDto {
   name?: string;
-  property_type?: string;
+  city?: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
 }
 
 // User Types

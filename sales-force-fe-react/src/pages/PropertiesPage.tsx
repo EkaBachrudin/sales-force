@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
@@ -284,6 +285,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, propertyName, isLoadin
 }
 
 export default function PropertiesPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -392,9 +394,9 @@ export default function PropertiesPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      disabled
-                      className="p-2 rounded-lg text-gray-300 cursor-not-allowed"
-                      title="Edit (Coming soon)"
+                      onClick={() => navigate(`/properties/${property.id}`)}
+                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors"
+                      title="Edit"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
