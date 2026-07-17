@@ -12,6 +12,7 @@ import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail'
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
@@ -19,6 +20,7 @@ export default function PropertyDetailPage() {
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
   const [siteplanFile, setSiteplanFile] = useState<File | null>(null);
+  const [hideSiteplanPreview, setHideSiteplanPreview] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -115,6 +117,10 @@ export default function PropertyDetailPage() {
 
   const handleDeleteBlock = (block: BlockListItem) => {
     console.log('Delete Block clicked for block:', block.id);
+  };
+
+  const handleDeleteSiteplan = () => {
+    setHideSiteplanPreview(true);
   };
 
   if (isLoading) {
@@ -247,13 +253,10 @@ export default function PropertyDetailPage() {
                 <FileUpload
                   onFileSelect={setSiteplanFile}
                   currentFile={siteplanFile}
+                  currentAssetUrl={!hideSiteplanPreview && property.siteplan_assets ? `${API_URL}${property.siteplan_assets}` : undefined}
+                  onDeleteAsset={handleDeleteSiteplan}
                   maxSizeMB={10}
                 />
-                {property.siteplan_assets && !siteplanFile && (
-                  <p className="mt-2 text-xs text-text-secondary">
-                    Current siteplan: {property.siteplan_assets.split('/').pop()}
-                  </p>
-                )}
               </div>
             </div>
           </div>
