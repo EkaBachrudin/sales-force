@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { FileUpload } from '@/components/ui/FileUpload';
-import type { PropertyDetail, BlockListItem } from '@/lib/types';
+import type { BlockListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 
 export default function PropertyDetailPage() {
@@ -21,6 +21,7 @@ export default function PropertyDetailPage() {
   const [description, setDescription] = useState('');
   const [siteplanFile, setSiteplanFile] = useState<File | null>(null);
   const [hideSiteplanPreview, setHideSiteplanPreview] = useState(false);
+  const [deleteSiteplan, setDeleteSiteplan] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -37,6 +38,9 @@ export default function PropertyDetailPage() {
       setAddress(property.address || '');
       setDescription(property.description || '');
       setErrors({});
+      setHideSiteplanPreview(false);
+      setDeleteSiteplan(false);
+      setSiteplanFile(null);
     }
   }, [propertyData]);
 
@@ -86,6 +90,19 @@ export default function PropertyDetailPage() {
       return;
     }
 
+    const newErrors: Record<string, string> = {};
+
+    if (deleteSiteplan && siteplanFile) {
+      newErrors.siteplan = 'Cannot delete siteplan and upload new file at the same time';
+      setErrors(newErrors);
+      return;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('name', name.trim());
@@ -99,9 +116,11 @@ export default function PropertyDetailPage() {
         formData.append('siteplan_file', siteplanFile);
       }
 
-      await updateMutation.mutateAsync({ propertyId: id, formData });
+      await updateMutation.mutateAsync({ propertyId: id, formData, deleteSiteplan });
       setSuccessMessage('Property updated successfully');
       setSiteplanFile(null);
+      setHideSiteplanPreview(false);
+      setDeleteSiteplan(false);
     } catch (err: any) {
       setErrors({ submit: err.message || 'Failed to update property' });
     }
@@ -119,8 +138,26 @@ export default function PropertyDetailPage() {
     console.log('Delete Block clicked for block:', block.id);
   };
 
+  const handleFileSelect = (file: File | null) => {
+    setSiteplanFile(file);
+    if (file) {
+      setDeleteSiteplan(false);
+      setHideSiteplanPreview(false);
+      setErrors(prev => {
+        const { siteplan, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
   const handleDeleteSiteplan = () => {
     setHideSiteplanPreview(true);
+    setDeleteSiteplan(true);
+    setSiteplanFile(null);
+    setErrors(prev => {
+      const { siteplan, ...rest } = prev;
+      return rest;
+    });
   };
 
   if (isLoading) {
@@ -251,12 +288,15 @@ export default function PropertyDetailPage() {
                   Siteplan
                 </label>
                 <FileUpload
-                  onFileSelect={setSiteplanFile}
+                  onFileSelect={handleFileSelect}
                   currentFile={siteplanFile}
                   currentAssetUrl={!hideSiteplanPreview && property.siteplan_assets ? `${API_URL}${property.siteplan_assets}` : undefined}
                   onDeleteAsset={handleDeleteSiteplan}
                   maxSizeMB={10}
                 />
+                {errors.siteplan && (
+                  <p className="mt-2 text-sm text-red-600">{errors.siteplan}</p>
+                )}
               </div>
             </div>
           </div>

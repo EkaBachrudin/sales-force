@@ -8,7 +8,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 const ALLOWED_MIME_TYPE = 'image/svg+xml';
 
 const storage = multer.diskStorage({
-  destination: async (_req, _file, cb) => {
+  destination: async (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     const destPath = path.join(__dirname, '../../public/uploads/siteplans');
     try {
       await fs.mkdir(destPath, { recursive: true });
@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
       cb(err as Error, destPath);
     }
   },
-  filename: (_req, file, cb) => {
+  filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const uniqueSuffix = `${randomUUID()}-${Date.now()}`;
     const ext = path.extname(file.originalname);
     cb(null, `${uniqueSuffix}${ext}`);
@@ -42,7 +42,7 @@ export const uploadSiteplan = multer({
 
 export const handleMulterError = (error: Error, req: Request, res: any, next: any) => {
   if (error instanceof multer.MulterError) {
-    if (error.code === 'LIMIT_FILE_SIZE') {
+    if ((error as any).code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
         error: {

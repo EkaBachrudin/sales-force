@@ -18,9 +18,9 @@ export function usePropertyUpdate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ propertyId, formData }: { propertyId: string; formData: FormData }) =>
-      api.updateProperty(propertyId, formData),
-    onSuccess: (data, variables) => {
+    mutationFn: ({ propertyId, formData, deleteSiteplan }: { propertyId: string; formData: FormData; deleteSiteplan?: boolean }) =>
+      api.updateProperty(propertyId, formData, deleteSiteplan),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['propertyDetail', variables.propertyId] });
       queryClient.invalidateQueries({ queryKey: ['properties'] });
     },

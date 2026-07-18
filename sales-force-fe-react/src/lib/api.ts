@@ -252,8 +252,12 @@ export const api = {
     return data;
   },
 
-  updateProperty: async (id: string, formData: FormData) => {
-    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}`, {
+  updateProperty: async (id: string, formData: FormData, deleteSiteplan?: boolean) => {
+    let url = `${API_URL}/api/v1/properties/${id}`;
+    if (deleteSiteplan) {
+      url += '?delete_siteplan=true';
+    }
+    const response = await fetchWithInterceptor(url, {
       method: 'PUT',
       credentials: 'include',
       body: formData,

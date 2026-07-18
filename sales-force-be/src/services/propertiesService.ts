@@ -316,7 +316,8 @@ export const updateProperty = async (
   propertyId: string,
   dto: UpdatePropertyDto,
   userId: string,
-  newSiteplanPath: string | null
+  newSiteplanPath: string | null,
+  deleteSiteplan: boolean = false
 ): Promise<Property> => {
   // Check if property exists and belongs to user
   const existingProperty = await pool.query(
@@ -366,16 +367,28 @@ export const updateProperty = async (
     dto.land_area === undefined &&
     dto.address === undefined &&
     dto.description === undefined &&
-    newSiteplanPath === null
+    newSiteplanPath === null &&
+    !deleteSiteplan
   ) {
     throw new AppError('At least one field must be provided', 400);
   }
 
-  // File replacement flow
+  // Handle siteplan operations
   let finalSiteplanPath = oldSiteplanPath;
   
-  if (newSiteplanPath !== null) {
-    // Delete old file if exists
+  if (deleteSiteplan) {
+    // Delete siteplan flow
+    if (oldSiteplanPath) {
+      try {
+        await deleteFile(oldSiteplanPath);
+      } catch (error) {
+        // Graceful no-op if file not found
+        console.log(`Warning: Siteplan file not found or could not be deleted: ${oldSiteplanPath}`);
+      }
+    }
+    finalSiteplanPath = null; // Set to NULL in DB
+  } else if (newSiteplanPath !== null) {
+    // File replacement flow
     if (oldSiteplanPath) {
       try {
         await deleteFile(oldSiteplanPath);
@@ -386,6 +399,7 @@ export const updateProperty = async (
     }
     finalSiteplanPath = newSiteplanPath;
   }
+  // else: preserve existing siteplan (finalSiteplanPath = oldSiteplanPath)
 
   // Update property
   const queryStr = `
@@ -395,7 +409,7 @@ export const updateProperty = async (
         land_area = COALESCE($4, land_area),
         address = COALESCE($5, address),
         description = COALESCE($6, description),
-        siteplan_assets = COALESCE($7, siteplan_assets),
+        siteplan_assets = $7,
         updated_at = NOW()
     WHERE id = $1
       AND assigned_to = $8
@@ -418,11 +432,6 @@ export const updateProperty = async (
     // Rollback file upload if DB update fails
     if (newSiteplanPath && newSiteplanPath !== oldSiteplanPath) {
       await deleteFile(newSiteplanPath);
-    }
-    // Restore old file if it was deleted
-    if (oldSiteplanPath && newSiteplanPath !== null) {
-      // Note: We can't restore the old file since it was already deleted
-      // This is a known limitation, but it's acceptable for this use case
     }
     throw error;
   }

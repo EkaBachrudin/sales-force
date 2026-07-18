@@ -149,6 +149,23 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
   }
 
   const id = req.params.id as string;
+  const deleteSiteplan = req.query.delete_siteplan === 'true';
+
+  // Conflict validation: cannot delete and upload simultaneously
+  if (deleteSiteplan && req.file) {
+    res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Cannot delete siteplan and upload new file at the same time',
+        details: {
+          delete_siteplan: ['Cannot be true when siteplan_file is provided']
+        }
+      }
+    });
+    return;
+  }
+
   const dto: UpdatePropertyDto = {
     name: req.body.name,
     city: req.body.city,
@@ -158,7 +175,7 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
   };
   const siteplanPath = req.file ? `/uploads/siteplans/${req.file.filename}` : null;
 
-  const result = await updatePropertyService(id, dto, userId, siteplanPath);
+  const result = await updatePropertyService(id, dto, userId, siteplanPath, deleteSiteplan);
 
   res.status(200).json({
     success: true,
