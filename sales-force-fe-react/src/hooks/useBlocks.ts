@@ -13,8 +13,19 @@ export function useBlockMutations() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ blockId, name }: { blockId: string; name: string }) =>
+      api.updateBlock(blockId, { name }),
+    onSuccess: (_data, _variables) => {
+      queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+    },
+  });
+
   return {
     createBlock: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
+    updateBlock: updateMutation.mutateAsync,
+    isUpdating: updateMutation.isPending,
   };
 }

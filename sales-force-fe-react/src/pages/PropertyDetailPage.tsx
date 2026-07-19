@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Building2, Trash2, ChevronLeft } from 'lucide-react';
+import { Plus, Building2, Trash2, ChevronLeft, Edit2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { AddBlockModal } from '@/components/properties/AddBlockModal';
+import { EditBlockModal } from '@/components/properties/EditBlockModal';
 import type { BlockListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 import { useBlockMutations } from '@/hooks/useBlocks';
@@ -27,11 +28,13 @@ export default function PropertyDetailPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isAddBlockModalOpen, setIsAddBlockModalOpen] = useState(false);
+  const [isEditBlockModalOpen, setIsEditBlockModalOpen] = useState(false);
+  const [editingBlock, setEditingBlock] = useState<BlockListItem | undefined>(undefined);
 
   const { data: propertyData, isLoading, error } = usePropertyDetail(id || '');
 
   const updateMutation = usePropertyUpdate();
-  const { createBlock, isCreating } = useBlockMutations();
+  const { createBlock, updateBlock, isCreating, isUpdating } = useBlockMutations();
 
   useEffect(() => {
     if (propertyData?.property) {
@@ -142,6 +145,25 @@ export default function PropertyDetailPage() {
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error: any) {
       setErrors({ submit: error.message || 'Failed to create block' });
+    }
+  };
+
+  const handleEditBlock = (block: BlockListItem) => {
+    setEditingBlock(block);
+    setIsEditBlockModalOpen(true);
+  };
+
+  const handleEditBlockSubmit = async (blockName: string) => {
+    if (!editingBlock) return;
+    
+    try {
+      await updateBlock({ blockId: editingBlock.id, name: blockName });
+      setIsEditBlockModalOpen(false);
+      setEditingBlock(undefined);
+      setSuccessMessage('Block updated successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error: any) {
+      setErrors({ submit: error.message || 'Failed to update block' });
     }
   };
 
@@ -378,6 +400,14 @@ export default function PropertyDetailPage() {
                     Manage Unit
                   </Button>
                   <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<Edit2 className="w-4 h-4" />}
+                    onClick={() => handleEditBlock(block)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
                     variant="danger"
                     size="sm"
                     leftIcon={<Trash2 className="w-4 h-4" />}
@@ -397,6 +427,16 @@ export default function PropertyDetailPage() {
         onClose={() => setIsAddBlockModalOpen(false)}
         onSubmit={handleBlockSubmit}
         isLoading={isCreating}
+      />
+      <EditBlockModal
+        isOpen={isEditBlockModalOpen}
+        onClose={() => {
+          setIsEditBlockModalOpen(false);
+          setEditingBlock(undefined);
+        }}
+        onSubmit={handleEditBlockSubmit}
+        isLoading={isUpdating}
+        block={editingBlock}
       />
     </DashboardLayout>
   );
