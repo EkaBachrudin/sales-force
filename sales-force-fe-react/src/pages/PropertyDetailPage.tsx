@@ -392,7 +392,7 @@ export default function PropertyDetailPage() {
 
                 <div className="flex gap-2">
                   <Button
-                    variant="ghost"
+                    variant="primary"
                     size="sm"
                     className="flex-1"
                     onClick={() => handleManageUnit(block)}
@@ -404,17 +404,13 @@ export default function PropertyDetailPage() {
                     size="sm"
                     leftIcon={<Edit2 className="w-4 h-4" />}
                     onClick={() => handleEditBlock(block)}
-                  >
-                    Edit
-                  </Button>
+                  />
                   <Button
                     variant="danger"
                     size="sm"
                     leftIcon={<Trash2 className="w-4 h-4" />}
                     onClick={() => handleDeleteBlock(block)}
-                  >
-                    Delete
-                  </Button>
+                  />
                 </div>
               </div>
             ))}
