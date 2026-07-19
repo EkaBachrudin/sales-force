@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { FileUpload } from '@/components/ui/FileUpload';
+import { AddBlockModal } from '@/components/properties/AddBlockModal';
 import type { BlockListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
+import { useBlockMutations } from '@/hooks/useBlocks';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,10 +26,12 @@ export default function PropertyDetailPage() {
   const [deleteSiteplan, setDeleteSiteplan] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [isAddBlockModalOpen, setIsAddBlockModalOpen] = useState(false);
 
   const { data: propertyData, isLoading, error } = usePropertyDetail(id || '');
 
   const updateMutation = usePropertyUpdate();
+  const { createBlock, isCreating } = useBlockMutations();
 
   useEffect(() => {
     if (propertyData?.property) {
@@ -127,7 +131,18 @@ export default function PropertyDetailPage() {
   };
 
   const handleAddBlock = () => {
-    console.log('Add Block clicked');
+    setIsAddBlockModalOpen(true);
+  };
+
+  const handleBlockSubmit = async (blockName: string) => {
+    try {
+      await createBlock({ propertyId: id || '', name: blockName });
+      setIsAddBlockModalOpen(false);
+      setSuccessMessage('Block created successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error: any) {
+      setErrors({ submit: error.message || 'Failed to create block' });
+    }
   };
 
   const handleManageUnit = (block: BlockListItem) => {
@@ -376,6 +391,13 @@ export default function PropertyDetailPage() {
           </div>
         )}
       </div>
+
+      <AddBlockModal
+        isOpen={isAddBlockModalOpen}
+        onClose={() => setIsAddBlockModalOpen(false)}
+        onSubmit={handleBlockSubmit}
+        isLoading={isCreating}
+      />
     </DashboardLayout>
   );
 }
