@@ -9,9 +9,11 @@ import { FileUpload } from '@/components/ui/FileUpload';
 import { AddBlockModal } from '@/components/properties/AddBlockModal';
 import { EditBlockModal } from '@/components/properties/EditBlockModal';
 import { DeleteBlockModal } from '@/components/properties/DeleteBlockModal';
+import { ManageUnitsModal } from '@/components/properties/ManageUnitsModal';
 import type { BlockListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 import { useBlockMutations } from '@/hooks/useBlocks';
+import { useUnits } from '@/hooks/useUnits';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +35,8 @@ export default function PropertyDetailPage() {
   const [editingBlock, setEditingBlock] = useState<BlockListItem | undefined>(undefined);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingBlock, setDeletingBlock] = useState<BlockListItem | undefined>(undefined);
+  const [isManageUnitsModalOpen, setIsManageUnitsModalOpen] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState<BlockListItem | undefined>(undefined);
 
   const { data: propertyData, isLoading, error } = usePropertyDetail(id || '');
 
@@ -171,7 +175,27 @@ export default function PropertyDetailPage() {
   };
 
   const handleManageUnit = (block: BlockListItem) => {
-    console.log('Manage Unit clicked for block:', block.id);
+    setSelectedBlock(block);
+    setIsManageUnitsModalOpen(true);
+  };
+
+  const handleDeleteUnit = (unitId: string) => {
+    console.log('Delete unit clicked:', unitId);
+  };
+
+  const handleManageUnitDetail = (unitId: string) => {
+    console.log('Manage unit detail clicked:', unitId);
+  };
+
+  const handleAddUnit = () => {
+    console.log('Add unit clicked');
+  };
+
+  const handleDeleteBlockFromModal = () => {
+    if (selectedBlock) {
+      setIsManageUnitsModalOpen(false);
+      handleDeleteBlock(selectedBlock);
+    }
   };
 
   const handleDeleteBlock = (block: BlockListItem) => {
@@ -462,6 +486,61 @@ export default function PropertyDetailPage() {
         isLoading={isDeleting}
         blockName={deletingBlock?.name}
       />
+      {selectedBlock && (
+        <ManageUnitsModalWrapper
+          isOpen={isManageUnitsModalOpen}
+          onClose={() => {
+            setIsManageUnitsModalOpen(false);
+            setSelectedBlock(undefined);
+          }}
+          onAddUnit={handleAddUnit}
+          onDeleteBlock={handleDeleteBlockFromModal}
+          onDeleteUnit={handleDeleteUnit}
+          onManageUnit={handleManageUnitDetail}
+          propertyName={property.name}
+          blockName={selectedBlock.name}
+          blockId={selectedBlock.id}
+        />
+      )}
     </DashboardLayout>
+  );
+}
+
+function ManageUnitsModalWrapper({
+  isOpen,
+  onClose,
+  onAddUnit,
+  onDeleteBlock,
+  onDeleteUnit,
+  onManageUnit,
+  propertyName,
+  blockName,
+  blockId,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddUnit: () => void;
+  onDeleteBlock: () => void;
+  onDeleteUnit: (unitId: string) => void;
+  onManageUnit: (unitId: string) => void;
+  propertyName: string;
+  blockName: string;
+  blockId: string;
+}) {
+  const { data, isLoading } = useUnits(isOpen ? blockId : '');
+
+  return (
+    <ManageUnitsModal
+      isOpen={isOpen}
+      onClose={onClose}
+      onAddUnit={onAddUnit}
+      onDeleteBlock={onDeleteBlock}
+      onDeleteUnit={onDeleteUnit}
+      onManageUnit={onManageUnit}
+      isLoading={isLoading}
+      units={data?.data?.units || []}
+      propertyName={propertyName}
+      blockName={blockName}
+    />
   );
 }

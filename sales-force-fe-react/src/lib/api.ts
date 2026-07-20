@@ -372,6 +372,36 @@ export const api = {
     return data;
   },
 
+  getUnits: async (blockId: string, params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.search) queryParams.append('search', params.search);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/blocks/${blockId}/units${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch units', response.status);
+    }
+
+    return data;
+  },
+
   // Leads API
   getLeads: async (params?: {
     page?: number;

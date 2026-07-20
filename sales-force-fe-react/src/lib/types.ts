@@ -149,6 +149,15 @@ export interface BlockListItem {
   updated_at: string;
 }
 
+export interface UnitListItem {
+  id: string;
+  name: string;
+  land_area?: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CreatePropertyDto {
   name: string;
   city: string;
