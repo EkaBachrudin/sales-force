@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { AddBlockModal } from '@/components/properties/AddBlockModal';
 import { EditBlockModal } from '@/components/properties/EditBlockModal';
+import { DeleteBlockModal } from '@/components/properties/DeleteBlockModal';
 import type { BlockListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 import { useBlockMutations } from '@/hooks/useBlocks';
@@ -30,11 +31,13 @@ export default function PropertyDetailPage() {
   const [isAddBlockModalOpen, setIsAddBlockModalOpen] = useState(false);
   const [isEditBlockModalOpen, setIsEditBlockModalOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState<BlockListItem | undefined>(undefined);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingBlock, setDeletingBlock] = useState<BlockListItem | undefined>(undefined);
 
   const { data: propertyData, isLoading, error } = usePropertyDetail(id || '');
 
   const updateMutation = usePropertyUpdate();
-  const { createBlock, updateBlock, isCreating, isUpdating } = useBlockMutations();
+  const { createBlock, updateBlock, deleteBlock, isCreating, isUpdating, isDeleting } = useBlockMutations();
 
   useEffect(() => {
     if (propertyData?.property) {
@@ -172,7 +175,22 @@ export default function PropertyDetailPage() {
   };
 
   const handleDeleteBlock = (block: BlockListItem) => {
-    console.log('Delete Block clicked for block:', block.id);
+    setDeletingBlock(block);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingBlock) return;
+    
+    try {
+      await deleteBlock({ blockId: deletingBlock.id });
+      setIsDeleteModalOpen(false);
+      setDeletingBlock(undefined);
+      setSuccessMessage('Block deleted successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error: any) {
+      setErrors({ submit: error.message || 'Failed to delete block' });
+    }
   };
 
   const handleFileSelect = (file: File | null) => {
@@ -433,6 +451,16 @@ export default function PropertyDetailPage() {
         onSubmit={handleEditBlockSubmit}
         isLoading={isUpdating}
         block={editingBlock}
+      />
+      <DeleteBlockModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingBlock(undefined);
+        }}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+        blockName={deletingBlock?.name}
       />
     </DashboardLayout>
   );

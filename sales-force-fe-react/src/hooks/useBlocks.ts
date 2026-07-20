@@ -22,10 +22,21 @@ export function useBlockMutations() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: ({ blockId }: { blockId: string }) =>
+      api.deleteBlock(blockId),
+    onSuccess: (_data, _variables) => {
+      queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+    },
+  });
+
   return {
     createBlock: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
     updateBlock: updateMutation.mutateAsync,
     isUpdating: updateMutation.isPending,
+    deleteBlock: deleteMutation.mutateAsync,
+    isDeleting: deleteMutation.isPending,
   };
 }
