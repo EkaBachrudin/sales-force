@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 
 export function useUnits(blockId: string) {
   return useQuery<{
+    success: boolean;
     data: {
       block: {
         id: string;
@@ -23,7 +24,7 @@ export function useUnits(blockId: string) {
     queryKey: ['units', blockId],
     queryFn: async () => {
       const response = await api.getUnits(blockId);
-      return response.data;
+      return response;
     },
     staleTime: 1000 * 60 * 5,
     enabled: !!blockId,

@@ -152,7 +152,7 @@ export interface BlockListItem {
 export interface UnitListItem {
   id: string;
   name: string;
-  land_area?: number;
+  land_area?: number | string;
   status: string;
   created_at: string;
   updated_at: string;

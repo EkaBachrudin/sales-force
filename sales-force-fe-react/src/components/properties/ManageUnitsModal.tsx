@@ -85,7 +85,7 @@ export function ManageUnitsModal({
                         </h4>
                         <div className="flex items-center gap-4 text-sm text-text-secondary">
                           {unit.land_area !== undefined && unit.land_area !== null && (
-                            <span>Land Area: {unit.land_area} m²</span>
+                            <span>Land Area: {typeof unit.land_area === 'string' ? parseFloat(unit.land_area).toFixed(0) : unit.land_area} m²</span>
                           )}
                           <span>Status: {unit.status}</span>
                         </div>
