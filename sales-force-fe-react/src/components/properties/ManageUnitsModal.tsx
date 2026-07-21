@@ -1,4 +1,4 @@
-import { Building2, Trash2 } from 'lucide-react';
+import { Building2, Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import type { UnitListItem } from '@/lib/types';
 
@@ -94,10 +94,9 @@ export function ManageUnitsModal({
                         <Button
                           variant="primary"
                           size="sm"
+                          leftIcon={<Edit2 className="w-4 h-4" />}
                           onClick={() => onManageUnit?.(unit.id)}
-                        >
-                          Manage
-                        </Button>
+                        />
                         <Button
                           variant="danger"
                           size="sm"

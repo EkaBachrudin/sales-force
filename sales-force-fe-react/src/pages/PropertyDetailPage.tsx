@@ -11,7 +11,8 @@ import { EditBlockModal } from '@/components/properties/EditBlockModal';
 import { DeleteBlockModal } from '@/components/properties/DeleteBlockModal';
 import { ManageUnitsModal } from '@/components/properties/ManageUnitsModal';
 import { AddUnitModal } from '@/components/properties/AddUnitModal';
-import type { BlockListItem } from '@/lib/types';
+import { EditUnitModal } from '@/components/properties/EditUnitModal';
+import type { BlockListItem, UnitListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 import { useBlockMutations } from '@/hooks/useBlocks';
 import { useUnits, useUnitMutations } from '@/hooks/useUnits';
@@ -39,12 +40,15 @@ export default function PropertyDetailPage() {
   const [isManageUnitsModalOpen, setIsManageUnitsModalOpen] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState<BlockListItem | undefined>(undefined);
   const [isAddUnitModalOpen, setIsAddUnitModalOpen] = useState(false);
+  const [isEditUnitModalOpen, setIsEditUnitModalOpen] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<UnitListItem | undefined>(undefined);
+  const [unitsData, setUnitsData] = useState<UnitListItem[]>([]);
 
   const { data: propertyData, isLoading, error } = usePropertyDetail(id || '');
 
   const updateMutation = usePropertyUpdate();
   const { createBlock, updateBlock, deleteBlock, isCreating, isUpdating, isDeleting } = useBlockMutations();
-  const { createUnit, isCreating: isCreatingUnit } = useUnitMutations();
+  const { createUnit, updateUnit, deleteUnit, isCreating: isCreatingUnit, isUpdating: isUpdatingUnit } = useUnitMutations();
 
   useEffect(() => {
     if (propertyData?.property) {
@@ -182,12 +186,54 @@ export default function PropertyDetailPage() {
     setIsManageUnitsModalOpen(true);
   };
 
-  const handleDeleteUnit = (unitId: string) => {
-    console.log('Delete unit clicked:', unitId);
+  const handleDeleteUnit = async (unitId: string) => {
+    if (!selectedBlock) return;
+    
+    if (!confirm('Are you sure you want to delete this unit?')) {
+      return;
+    }
+
+    try {
+      await deleteUnit({ unitId, blockId: selectedBlock.id });
+      setSuccessMessage('Unit deleted successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error: any) {
+      setErrors({ submit: error.message || 'Failed to delete unit' });
+    }
+  };
+
+  const handleUnitsLoaded = (units: UnitListItem[]) => {
+    setUnitsData(units);
   };
 
   const handleManageUnitDetail = (unitId: string) => {
-    console.log('Manage unit detail clicked:', unitId);
+    const unit = unitsData?.find((u) => u.id === unitId);
+    if (unit) {
+      setEditingUnit(unit);
+      setIsManageUnitsModalOpen(false);
+      setIsEditUnitModalOpen(true);
+    }
+  };
+
+  const handleEditUnitSubmit = async (unitId: string, unitName: string, landArea?: number) => {
+    if (!selectedBlock) return;
+
+    try {
+      await updateUnit({ unitId, name: unitName, land_area: landArea, blockId: selectedBlock.id });
+      setSuccessMessage('Unit updated successfully');
+      setEditingUnit(undefined);
+      setIsEditUnitModalOpen(false);
+      setIsManageUnitsModalOpen(true);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error: any) {
+      setErrors({ submit: error.message || 'Failed to update unit' });
+    }
+  };
+
+  const handleEditUnitCancel = () => {
+    setIsEditUnitModalOpen(false);
+    setEditingUnit(undefined);
+    setIsManageUnitsModalOpen(true);
   };
 
   const handleAddUnit = (blockId: string) => {
@@ -529,6 +575,7 @@ export default function PropertyDetailPage() {
           propertyName={property.name}
           blockName={selectedBlock.name}
           blockId={selectedBlock.id}
+          onUnitsLoaded={handleUnitsLoaded}
         />
       )}
       <AddUnitModal
@@ -536,6 +583,13 @@ export default function PropertyDetailPage() {
         onClose={handleAddUnitCancel}
         onSubmit={handleAddUnitSubmit}
         isLoading={isCreatingUnit}
+      />
+      <EditUnitModal
+        isOpen={isEditUnitModalOpen}
+        onClose={handleEditUnitCancel}
+        onSubmit={handleEditUnitSubmit}
+        isLoading={isUpdatingUnit}
+        unit={editingUnit}
       />
     </DashboardLayout>
   );
@@ -551,6 +605,7 @@ function ManageUnitsModalWrapper({
   propertyName,
   blockName,
   blockId,
+  onUnitsLoaded,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -561,8 +616,15 @@ function ManageUnitsModalWrapper({
   propertyName: string;
   blockName: string;
   blockId: string;
+  onUnitsLoaded: (units: UnitListItem[]) => void;
 }) {
   const { data, isLoading } = useUnits(isOpen ? blockId : '');
+
+  useEffect(() => {
+    if (data?.data?.units) {
+      onUnitsLoaded(data.data.units);
+    }
+  }, [data, onUnitsLoaded]);
 
   return (
     <ManageUnitsModal

@@ -43,8 +43,30 @@ export function useUnitMutations() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ unitId, name, land_area, blockId: _blockId }: { unitId: string; name: string; land_area?: number; blockId: string }) =>
+      api.updateUnit(unitId, { name, land_area }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['units', variables.blockId] });
+      queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: ({ unitId, blockId: _blockId }: { unitId: string; blockId: string }) =>
+      api.deleteUnit(unitId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['units', variables.blockId] });
+      queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+    },
+  });
+
   return {
     createUnit: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
+    updateUnit: updateMutation.mutateAsync,
+    isUpdating: updateMutation.isPending,
+    deleteUnit: deleteMutation.mutateAsync,
+    isDeleting: deleteMutation.isPending,
   };
 }
