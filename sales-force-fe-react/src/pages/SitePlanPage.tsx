@@ -1,11 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { Menu, Map as MapIcon, ArrowLeft } from 'lucide-react';
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
+import { useState } from 'react';
+import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
 
 export default function SitePlanPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   
   const { data, isLoading, error } = usePropertySiteplan(id || '');
 
@@ -18,7 +21,7 @@ export default function SitePlanPage() {
   };
 
   const handleRightMenuClick = () => {
-    console.log('Right menu click - Block details sidebar toggle');
+    setRightSidebarOpen(true);
   };
 
   if (isLoading) {
@@ -109,6 +112,13 @@ export default function SitePlanPage() {
           </div>
         )}
       </div>
+
+      <UnitsDrawer
+        isOpen={rightSidebarOpen}
+        onClose={() => setRightSidebarOpen(false)}
+        property={property}
+        units={data.units}
+      />
     </div>
   );
 }
