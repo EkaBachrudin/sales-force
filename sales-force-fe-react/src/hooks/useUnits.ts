@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UnitListItem } from '@/lib/types';
 import { api } from '@/lib/api';
 
@@ -29,4 +29,22 @@ export function useUnits(blockId: string) {
     staleTime: 1000 * 60 * 5,
     enabled: !!blockId,
   });
+}
+
+export function useUnitMutations() {
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: ({ blockId, name, land_area }: { blockId: string; name: string; land_area?: number }) =>
+      api.createUnit(blockId, { name, land_area }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['units', variables.blockId] });
+      queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+    },
+  });
+
+  return {
+    createUnit: createMutation.mutateAsync,
+    isCreating: createMutation.isPending,
+  };
 }

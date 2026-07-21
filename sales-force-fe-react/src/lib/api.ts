@@ -402,6 +402,35 @@ export const api = {
     return data;
   },
 
+  createUnit: async (blockId: string, unitData: { name: string; land_area?: number }) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/blocks/${blockId}/units`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify(unitData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to create unit', response.status);
+    }
+
+    return data;
+  },
+
   // Leads API
   getLeads: async (params?: {
     page?: number;

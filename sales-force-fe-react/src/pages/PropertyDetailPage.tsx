@@ -10,10 +10,11 @@ import { AddBlockModal } from '@/components/properties/AddBlockModal';
 import { EditBlockModal } from '@/components/properties/EditBlockModal';
 import { DeleteBlockModal } from '@/components/properties/DeleteBlockModal';
 import { ManageUnitsModal } from '@/components/properties/ManageUnitsModal';
+import { AddUnitModal } from '@/components/properties/AddUnitModal';
 import type { BlockListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 import { useBlockMutations } from '@/hooks/useBlocks';
-import { useUnits } from '@/hooks/useUnits';
+import { useUnits, useUnitMutations } from '@/hooks/useUnits';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,11 +38,13 @@ export default function PropertyDetailPage() {
   const [deletingBlock, setDeletingBlock] = useState<BlockListItem | undefined>(undefined);
   const [isManageUnitsModalOpen, setIsManageUnitsModalOpen] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState<BlockListItem | undefined>(undefined);
+  const [isAddUnitModalOpen, setIsAddUnitModalOpen] = useState(false);
 
   const { data: propertyData, isLoading, error } = usePropertyDetail(id || '');
 
   const updateMutation = usePropertyUpdate();
   const { createBlock, updateBlock, deleteBlock, isCreating, isUpdating, isDeleting } = useBlockMutations();
+  const { createUnit, isCreating: isCreatingUnit } = useUnitMutations();
 
   useEffect(() => {
     if (propertyData?.property) {
@@ -187,8 +190,34 @@ export default function PropertyDetailPage() {
     console.log('Manage unit detail clicked:', unitId);
   };
 
-  const handleAddUnit = () => {
-    console.log('Add unit clicked');
+  const handleAddUnit = (blockId: string) => {
+    if (!selectedBlock || selectedBlock.id !== blockId) {
+      return;
+    }
+    // Tutup ManageUnitsModal dulu, lalu buka AddUnitModal
+    setIsManageUnitsModalOpen(false);
+    setIsAddUnitModalOpen(true);
+  };
+
+  const handleAddUnitCancel = () => {
+    // Tutup AddUnitModal, lalu buka kembali ManageUnitsModal
+    setIsAddUnitModalOpen(false);
+    setIsManageUnitsModalOpen(true);
+  };
+
+  const handleAddUnitSubmit = async (unitName: string, landArea?: number) => {
+    if (!selectedBlock) return;
+
+    try {
+      await createUnit({ blockId: selectedBlock.id, name: unitName, land_area: landArea });
+      setSuccessMessage('Unit created successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      // Tutup AddUnitModal, lalu buka kembali ManageUnitsModal setelah sukses
+      setIsAddUnitModalOpen(false);
+      setIsManageUnitsModalOpen(true);
+    } catch (error: any) {
+      setErrors({ submit: error.message || 'Failed to create unit' });
+    }
   };
 
   const handleDeleteBlockFromModal = () => {
@@ -502,6 +531,12 @@ export default function PropertyDetailPage() {
           blockId={selectedBlock.id}
         />
       )}
+      <AddUnitModal
+        isOpen={isAddUnitModalOpen}
+        onClose={handleAddUnitCancel}
+        onSubmit={handleAddUnitSubmit}
+        isLoading={isCreatingUnit}
+      />
     </DashboardLayout>
   );
 }
@@ -519,7 +554,7 @@ function ManageUnitsModalWrapper({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onAddUnit: () => void;
+  onAddUnit: (blockId: string) => void;
   onDeleteBlock: () => void;
   onDeleteUnit: (unitId: string) => void;
   onManageUnit: (unitId: string) => void;
@@ -533,7 +568,7 @@ function ManageUnitsModalWrapper({
     <ManageUnitsModal
       isOpen={isOpen}
       onClose={onClose}
-      onAddUnit={onAddUnit}
+      onAddUnit={() => onAddUnit(blockId)}
       onDeleteBlock={onDeleteBlock}
       onDeleteUnit={onDeleteUnit}
       onManageUnit={onManageUnit}
