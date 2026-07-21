@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Pencil, Trash2, Building2 } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, Building2, Map } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -392,22 +392,29 @@ export default function PropertiesPage() {
                       {property.name}
                     </h3>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => navigate(`/properties/${property.id}`)}
-                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors"
-                      title="Edit"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(property)}
-                      className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                   <div className="flex items-center gap-2">
+                     <button
+                       onClick={() => navigate(`/properties/${property.id}`)}
+                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors"
+                       title="Edit"
+                     >
+                       <Pencil className="w-4 h-4" />
+                     </button>
+                     <button
+                       onClick={() => navigate(`/properties/${property.id}/siteplan`)}
+                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors"
+                       title="Siteplan"
+                     >
+                       <Map className="w-4 h-4" />
+                     </button>
+                     <button
+                       onClick={() => openDeleteModal(property)}
+                       className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                       title="Delete"
+                     >
+                       <Trash2 className="w-4 h-4" />
+                     </button>
+                   </div>
                 </div>
               ))}
             </div>

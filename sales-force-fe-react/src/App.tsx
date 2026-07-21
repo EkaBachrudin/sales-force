@@ -11,6 +11,7 @@ import PipelinePage from '@/pages/PipelinePage';
 import AnalyticsPage from '@/pages/AnalyticsPage';
 import PropertiesPage from '@/pages/PropertiesPage';
 import PropertyDetailPage from '@/pages/PropertyDetailPage';
+import SitePlanPage from '@/pages/SitePlanPage';
 import UsersPage from '@/pages/UsersPage';
 import SubscriptionsPage from '@/pages/SubscriptionsPage';
 import SettingsPage from '@/pages/SettingsPage';
@@ -32,6 +33,7 @@ function App() {
           <Route path="/pipeline" element={<PipelinePage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/properties" element={<PropertiesPage />} />
+          <Route path="/properties/:id/siteplan" element={<SitePlanPage />} />
           <Route path="/properties/:id" element={<PropertyDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

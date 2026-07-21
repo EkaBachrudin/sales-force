@@ -236,6 +236,21 @@ export const api = {
     return data;
   },
 
+  getPropertySiteplan: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}/siteplan`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch siteplan data', response.status);
+    }
+
+    return data;
+  },
+
   createProperty: async (formData: FormData) => {
     const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties`, {
       method: 'POST',
