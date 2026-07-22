@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { Menu, Map as MapIcon, ArrowLeft } from 'lucide-react';
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
-import { useState } from 'react';
+import { useState, useEffect, useMemo, type MouseEvent } from 'react';
 import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
 
 export default function SitePlanPage() {
@@ -9,8 +9,46 @@ export default function SitePlanPage() {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [svgContent, setSvgContent] = useState<string | null>(null);
   
   const { data, isLoading, error } = usePropertySiteplan(id || '');
+
+  useEffect(() => {
+    if (data && data.property.siteplan_assets) {
+      const siteplanUrl = `${API_URL}${data.property.siteplan_assets}`;
+      fetch(siteplanUrl)
+        .then(res => res.text())
+        .then(setSvgContent)
+        .catch(err => console.error('Failed to load SVG:', err));
+    }
+  }, [data, API_URL]);
+
+  const enhancedSvg = useMemo(() => {
+    if (!svgContent || !data) return null;
+    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgContent, 'image/svg+xml');
+    
+    const style = doc.createElement('style');
+    style.textContent = `
+      [id]:hover {
+        fill: #3b82f6;
+        cursor: pointer;
+        transition: fill 0.2s ease;
+      }
+    `;
+    doc.documentElement.prepend(style);
+    
+    data.units.forEach((unit: { name: string; status: string }) => {
+      const element = doc.getElementById(unit.name);
+      if (element) {
+        element.classList.add('unit-element');
+        element.dataset.status = unit.status;
+      }
+    });
+    
+    return doc.documentElement.outerHTML;
+  }, [svgContent, data]);
 
   const handleBack = () => {
     navigate('/properties');
@@ -56,8 +94,11 @@ export default function SitePlanPage() {
     );
   }
 
-  const { property } = data;
-  const siteplanUrl = property.siteplan_assets ? `${API_URL}${property.siteplan_assets}` : null;
+  const handleMouseMove = (_e: MouseEvent<HTMLDivElement>) => {
+  };
+
+  const handleMouseLeave = () => {
+  };
 
   return (
     <div className="fixed inset-0">
@@ -81,8 +122,8 @@ export default function SitePlanPage() {
         </button>
 
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-medium text-text-primary truncate" title={property.name}>
-            {property.name}
+          <h1 className="text-sm font-medium text-text-primary truncate" title={data?.property.name}>
+            {data?.property.name}
           </h1>
         </div>
 
@@ -97,12 +138,17 @@ export default function SitePlanPage() {
 
       {/* Siteplan Image */}
       <div className="w-full h-full">
-        {siteplanUrl ? (
-          <img
-            src={siteplanUrl}
-            alt={`${property.name} siteplan`}
-            className="w-full h-full object-contain"
-          />
+        {enhancedSvg ? (
+          <div 
+            className="w-full h-full"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div 
+              className="w-full h-full object-contain"
+              dangerouslySetInnerHTML={{ __html: enhancedSvg }} 
+            />
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100">
             <div className="text-center">
@@ -116,7 +162,7 @@ export default function SitePlanPage() {
       <UnitsDrawer
         isOpen={rightSidebarOpen}
         onClose={() => setRightSidebarOpen(false)}
-        property={property}
+        property={data.property}
         units={data.units}
       />
     </div>
