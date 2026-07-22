@@ -31,7 +31,7 @@ export default function SitePlanPage() {
     
     const style = doc.createElement('style');
     style.textContent = `
-      [id]:hover {
+      .unit-element:hover {
         fill: #3b82f6;
         cursor: pointer;
         transition: fill 0.2s ease;
