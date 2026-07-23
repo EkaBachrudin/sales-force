@@ -32,9 +32,13 @@ export default function SitePlanPage() {
     const style = doc.createElement('style');
     style.textContent = `
       .unit-element:hover {
+        cursor: pointer;
+      }
+
+     .unit-element:hover [id^="unitline"] {
         fill: #3b82f6;
         cursor: pointer;
-        transition: fill 0.2s ease;
+        transition: fill 0.5s ease;
       }
     `;
     doc.documentElement.prepend(style);
