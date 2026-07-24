@@ -16,9 +16,9 @@ INSERT INTO units (block_id, name, land_area, status)
 VALUES
     ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A1', 84.00, 'available'),
     ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A2', 84.00, 'available'),
-    ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A3', 84.00, 'available'),
-    ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A4', 84.00, 'available'),
-    ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A5', 84.00, 'available'),
+    ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A3', 84.00, 'sold'),
+    ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A4', 84.00, 'reserved'),
+    ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A5', 84.00, 'booked'),
     ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A6', 84.00, 'available'),
     ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A7', 84.00, 'available'),
     ((SELECT id FROM blocks WHERE name = 'Blok A' AND property_id = (SELECT id FROM properties WHERE name = 'Brassia Garden')), 'A8', 84.00, 'available'),

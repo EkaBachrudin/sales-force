@@ -32,6 +32,18 @@ export default function SitePlanPage() {
     
     const style = doc.createElement('style');
     style.textContent = `
+      * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      }
+
+      text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      }
+
+      tspan {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      }
+
       .unit-element:hover {
         cursor: pointer;
       }
@@ -47,22 +59,22 @@ export default function SitePlanPage() {
       }
 
       .unit-status-available [id^="unitline"] {
-        fill: #10B981;
+        fill: #4C8944;
         transition: fill 0.3s ease;
       }
 
       .unit-status-sold [id^="unitline"] {
-        fill: #EF4444;
+        fill: #A20101;
         transition: fill 0.3s ease;
       }
 
       .unit-status-reserved [id^="unitline"] {
-        fill: #F59E0B;
+        fill: #6a03a6;
         transition: fill 0.3s ease;
       }
 
       .unit-status-booked [id^="unitline"] {
-        fill: #F59E0B;
+        fill: #cf8302;
         transition: fill 0.3s ease;
       }
 

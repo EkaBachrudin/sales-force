@@ -8,6 +8,7 @@
   /* Fonts */
   --font-geist-sans: 'Geist Variable';
   --font-geist-mono: 'Geist Mono Variable';
+  --font-inter: 'Inter';
 
   /* Primary Colors */
   --primary: #2563EB;
@@ -109,7 +110,7 @@
   --transition-slow: var(--transition-slow);
 
   /* Fonts */
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -122,7 +123,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--text-primary);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -178,4 +179,13 @@ small {
 ::selection {
   background: var(--primary);
   color: white;
+}
+
+/* SVG Text Font Styling */
+svg text {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+svg tspan {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
