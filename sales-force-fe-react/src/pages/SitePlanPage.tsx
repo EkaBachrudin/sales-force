@@ -38,10 +38,12 @@ export default function SitePlanPage() {
 
       text {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        text-anchor: middle;
       }
 
       tspan {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        text-anchor: middle;
       }
 
       .unit-element:hover {
