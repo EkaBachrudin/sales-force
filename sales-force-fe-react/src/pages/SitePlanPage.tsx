@@ -40,6 +40,10 @@ export default function SitePlanPage() {
         cursor: pointer;
         transition: fill 0.5s ease;
       }
+      
+      .unit-element:hover [id^="unitline"] ~ text {
+        fill: white;
+      }
     `;
     doc.documentElement.prepend(style);
     
