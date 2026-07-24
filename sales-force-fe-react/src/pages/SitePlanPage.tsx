@@ -36,7 +36,7 @@ export default function SitePlanPage() {
         cursor: pointer;
       }
 
-     .unit-element:hover [id^="unitline"] {
+      .unit-element:hover [id^="unitline"] {
         fill: #3b82f6;
         cursor: pointer;
         transition: fill 0.5s ease;
@@ -45,6 +45,43 @@ export default function SitePlanPage() {
       .unit-element:hover [id^="unitline"] ~ text {
         fill: white;
       }
+
+      .unit-status-available [id^="unitline"] {
+        fill: #10B981;
+        transition: fill 0.3s ease;
+      }
+
+      .unit-status-sold [id^="unitline"] {
+        fill: #EF4444;
+        transition: fill 0.3s ease;
+      }
+
+      .unit-status-reserved [id^="unitline"] {
+        fill: #F59E0B;
+        transition: fill 0.3s ease;
+      }
+
+      .unit-status-booked [id^="unitline"] {
+        fill: #F59E0B;
+        transition: fill 0.3s ease;
+      }
+
+      .unit-status-available [id^="unitline"] ~ text {
+        fill: white;
+      }
+
+      .unit-status-sold [id^="unitline"] ~ text {
+        fill: white;
+      }
+
+      .unit-status-reserved [id^="unitline"] ~ text {
+       fill: white;
+      }
+
+      .unit-status-booked [id^="unitline"] ~ text {
+        fill: white;
+      }
+        
     `;
     doc.documentElement.prepend(style);
     
@@ -52,6 +89,7 @@ export default function SitePlanPage() {
       const element = doc.getElementById(unit.name);
       if (element) {
         element.classList.add('unit-element');
+        element.classList.add(`unit-status-${unit.status}`);
         element.dataset.status = unit.status;
 
         const unitnameTexts = element.querySelectorAll('[id^="unitname"]');

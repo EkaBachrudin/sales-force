@@ -1,7 +1,7 @@
 export function updateSvgTextContent(
   textElement: Element,
   content: string,
-  doc: Document,
+  _doc: Document,
   debugInfo?: { unitName: string; fieldType: string }
 ): void {
   console.log(`[${debugInfo?.unitName || 'unknown'}] Updating ${debugInfo?.fieldType || 'field'}...`);
