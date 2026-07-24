@@ -3,6 +3,7 @@ import { Menu, Map as MapIcon, ArrowLeft } from 'lucide-react';
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
 import { useState, useEffect, useMemo, type MouseEvent } from 'react';
 import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
+import { updateSvgTextContent } from '@/lib/svgUtils';
 
 export default function SitePlanPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,11 +48,49 @@ export default function SitePlanPage() {
     `;
     doc.documentElement.prepend(style);
     
-    data.units.forEach((unit: { name: string; status: string }) => {
+    data.units.forEach((unit: { name: string; land_area?: number; status: string }) => {
       const element = doc.getElementById(unit.name);
       if (element) {
         element.classList.add('unit-element');
         element.dataset.status = unit.status;
+
+        const unitnameTexts = element.querySelectorAll('[id^="unitname"]');
+        if (unitnameTexts.length === 0) {
+          console.log(`No unitname text elements found for unit: ${unit.name}`);
+        } else {
+          unitnameTexts.forEach((text) => {
+            updateSvgTextContent(text, unit.name, doc, {
+              unitName: unit.name,
+              fieldType: 'unitname'
+            });
+          });
+        }
+
+        const landareaTexts = element.querySelectorAll('[id^="landarea"]');
+        if (landareaTexts.length === 0) {
+          console.log(`No landarea text elements found for unit: ${unit.name}`);
+        } else {
+          landareaTexts.forEach((text) => {
+            updateSvgTextContent(text, `${unit.land_area || 0}m2`, doc, {
+              unitName: unit.name,
+              fieldType: 'landarea'
+            });
+          });
+        }
+
+        const statusTexts = element.querySelectorAll('[id^="status"]');
+        if (statusTexts.length === 0) {
+          console.log(`No status text elements found for unit: ${unit.name}`);
+        } else {
+          statusTexts.forEach((text) => {
+            updateSvgTextContent(text, unit.status, doc, {
+              unitName: unit.name,
+              fieldType: 'status'
+            });
+          });
+        }
+      } else {
+        console.log(`No SVG element found for unit: ${unit.name}`);
       }
     });
     
