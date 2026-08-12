@@ -168,11 +168,12 @@ export default function SitePlanPage() {
     scale,
     translateX,
     translateY,
-    isPanning,
     centerContent,
     zoomIn,
     zoomOut,
     resetTransform,
+    onWheel,
+    onMouseDown,
   } = usePanZoom({ padding: 0.85 });
 
   useEffect(() => {
@@ -257,7 +258,9 @@ export default function SitePlanPage() {
         {enhancedSvg ? (
           <div
             ref={containerRef}
-            className={`relative w-full h-full overflow-hidden select-none ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
+            onWheel={onWheel}
+            onMouseDown={onMouseDown}
+            className="relative w-full h-full overflow-hidden select-none touch-none cursor-grab"
           >
             <div
               ref={contentRef}
