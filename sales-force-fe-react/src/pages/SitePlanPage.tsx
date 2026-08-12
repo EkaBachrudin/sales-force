@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Menu, Map as MapIcon, ArrowLeft } from 'lucide-react';
+import { Menu, Map as MapIcon, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
-import { useState, useEffect, useMemo, type MouseEvent } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
 import { updateSvgTextContent } from '@/lib/svgUtils';
+import { usePanZoom } from '@/hooks/usePanZoom';
 
 export default function SitePlanPage() {
   const { id } = useParams<{ id: string }>();
@@ -53,7 +54,7 @@ export default function SitePlanPage() {
       .unit-element:hover [id^="unitline"] {
         fill: #3b82f6;
         cursor: pointer;
-        transition: fill 0.5s ease;
+        transition: fill 0.1s ease;
       }
       
       .unit-element:hover [id^="unitline"] ~ text {
@@ -161,6 +162,28 @@ export default function SitePlanPage() {
     setRightSidebarOpen(true);
   };
 
+  const {
+    containerRef,
+    contentRef,
+    scale,
+    translateX,
+    translateY,
+    isPanning,
+    centerContent,
+    zoomIn,
+    zoomOut,
+    resetTransform,
+  } = usePanZoom({ padding: 0.85 });
+
+  useEffect(() => {
+    if (enhancedSvg) {
+      const raf = requestAnimationFrame(() => {
+        centerContent();
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [enhancedSvg, centerContent]);
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-gray-100 flex items-center justify-center">
@@ -192,12 +215,6 @@ export default function SitePlanPage() {
       </div>
     );
   }
-
-  const handleMouseMove = (_e: MouseEvent<HTMLDivElement>) => {
-  };
-
-  const handleMouseLeave = () => {
-  };
 
   return (
     <div className="fixed inset-0">
@@ -238,14 +255,19 @@ export default function SitePlanPage() {
       {/* Siteplan Image */}
       <div className="w-full h-full">
         {enhancedSvg ? (
-          <div 
-            className="w-full h-full"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
+          <div
+            ref={containerRef}
+            className={`relative w-full h-full overflow-hidden select-none ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
           >
-            <div 
-              className="w-full h-full object-contain"
-              dangerouslySetInnerHTML={{ __html: enhancedSvg }} 
+            <div
+              ref={contentRef}
+              className="absolute top-0 left-0"
+              style={{
+                transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+                transformOrigin: '0 0',
+                willChange: 'transform',
+              }}
+              dangerouslySetInnerHTML={{ __html: enhancedSvg }}
             />
           </div>
         ) : (
@@ -264,6 +286,37 @@ export default function SitePlanPage() {
         property={data.property}
         units={data.units}
       />
+
+      {enhancedSvg && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-gray-200 p-1 flex items-center gap-0.5">
+          <button
+            onClick={zoomOut}
+            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md transition-colors text-gray-700"
+            title="Zoom out"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+          <span className="text-xs font-medium text-gray-600 min-w-[44px] text-center select-none tabular-nums">
+            {Math.round(scale * 100)}%
+          </span>
+          <button
+            onClick={zoomIn}
+            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md transition-colors text-gray-700"
+            title="Zoom in"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+          <div className="w-px h-4 bg-gray-200 mx-1" />
+          <button
+            onClick={resetTransform}
+            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md transition-colors text-gray-700"
+            title="Reset view"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }
