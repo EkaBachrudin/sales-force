@@ -3,6 +3,7 @@ import { Map as MapIcon, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react'
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
 import { useState, useEffect, useMemo } from 'react';
 import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
+import { UnitDetailDrawer } from '@/components/properties/UnitDetailDrawer';
 import { updateSvgTextContent } from '@/lib/svgUtils';
 import { usePanZoom } from '@/hooks/usePanZoom';
 
@@ -11,6 +12,9 @@ export default function SitePlanPage() {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
+  const [selectedUnitId, setSelectedUnitId] = useState('');
+  const [selectedUnitName, setSelectedUnitName] = useState('');
   const [svgContent, setSvgContent] = useState<string | null>(null);
   
   const { data, isLoading, error } = usePropertySiteplan(id || '');
@@ -279,6 +283,18 @@ export default function SitePlanPage() {
         onClose={() => setRightSidebarOpen(false)}
         property={data.property}
         units={data.units}
+        onSeeMore={(unit) => {
+          setSelectedUnitId(unit.id);
+          setSelectedUnitName(unit.name);
+          setDetailDrawerOpen(true);
+        }}
+      />
+
+      <UnitDetailDrawer
+        isOpen={detailDrawerOpen}
+        onClose={() => setDetailDrawerOpen(false)}
+        unitId={selectedUnitId}
+        unitName={selectedUnitName}
       />
 
       {enhancedSvg && (

@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 
 interface Unit {
   id: string;
@@ -22,6 +21,7 @@ interface UnitsDrawerProps {
   onClose: () => void;
   property: Property;
   units: Unit[];
+  onSeeMore?: (unit: Unit) => void;
 }
 
 const getStatusVariant = (status: string): string => {
@@ -34,7 +34,7 @@ const getStatusVariant = (status: string): string => {
   }
 };
 
-export function UnitsDrawer({ isOpen, onClose, property, units }: UnitsDrawerProps) {
+export function UnitsDrawer({ isOpen, onClose, property, units, onSeeMore }: UnitsDrawerProps) {
   return (
     <>
 
@@ -88,9 +88,9 @@ export function UnitsDrawer({ isOpen, onClose, property, units }: UnitsDrawerPro
                       
                     </div>
                     
-                    <button 
-                      className="text-sm font-medium text-primary hover:text-primary-hover transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled
+                    <button
+                      onClick={() => onSeeMore?.(unit)}
+                      className="text-sm font-medium text-primary hover:text-primary-hover transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
                     >
                       See more
                     </button>

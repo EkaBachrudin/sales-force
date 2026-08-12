@@ -31,6 +31,27 @@ export function useUnits(blockId: string) {
   });
 }
 
+export function useUnitDetail(unitId: string) {
+  return useQuery<{
+    success: boolean;
+    data: {
+      unit: UnitListItem & {
+        block_name?: string;
+        property_name?: string;
+        land_area?: number;
+      };
+    };
+  }>({
+    queryKey: ['unitDetail', unitId],
+    queryFn: async () => {
+      const response = await api.getUnitDetail(unitId);
+      return response;
+    },
+    staleTime: 1000 * 60 * 5,
+    enabled: !!unitId,
+  });
+}
+
 export function useUnitMutations() {
   const queryClient = useQueryClient();
 

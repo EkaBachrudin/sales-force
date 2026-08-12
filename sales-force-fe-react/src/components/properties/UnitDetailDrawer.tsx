@@ -1,0 +1,137 @@
+import { cn } from '@/lib/utils';
+import { useUnitDetail } from '@/hooks/useUnits';
+import { X } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { Card } from '@/components/ui/Card';
+
+const getStatusVariant = (status: string): string => {
+  switch (status.toLowerCase()) {
+    case 'available': return 'text-[#168600]';
+    case 'reserved': return 'text-[#007886]';
+    case 'booked': return 'text-[#860000]';
+    case 'sold': return 'text-[#DE0000]';
+    default: return 'text-gray-500';
+  }
+};
+
+interface UnitDetailDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  unitName?: string;
+  unitId?: string;
+}
+
+export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDetailDrawerProps) {
+  const { data, isLoading } = useUnitDetail(unitId || '');
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      closeButtonRef.current?.focus();
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  const unit = data?.data?.unit;
+
+  return (
+    <>
+      <div
+        aria-hidden="true"
+        className={cn(
+          'fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 z-40',
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}
+        onClick={onClose}
+      />
+
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        className={cn(
+          'fixed top-0 left-0 h-full w-full md:w-[350px] lg:w-[450px] bg-white shadow-2xl z-50 transition-transform duration-300 ease-out flex flex-col',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-text-primary">
+              {unitName || (unit?.name ?? 'Unit Detail')}
+            </h2>
+            <p className="text-sm text-text-secondary mt-0.5">
+              View your units detail
+            </p>
+          </div>
+          <button
+            ref={closeButtonRef}
+            onClick={onClose}
+            className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : unit ? (
+            <div className="space-y-4">
+              <Card variant="bordered" padding="md">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-text-secondary">Unit Name</p>
+                    <p className="text-sm font-semibold text-text-primary">{unit.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary">Status</p>
+                    <p className={`${getStatusVariant(unit.status)} text-sm font-semibold`}>{unit.status}</p>
+                  </div>
+                  {unit.land_area && (
+                    <div>
+                      <p className="text-xs text-text-secondary">Land Area</p>
+                      <p className="text-sm font-medium text-text-primary">{unit.land_area} m²</p>
+                    </div>
+                  )}
+                  {unit.block_name && (
+                    <div>
+                      <p className="text-xs text-text-secondary">Block</p>
+                      <p className="text-sm font-medium text-text-primary">{unit.block_name}</p>
+                    </div>
+                  )}
+                  {unit.property_name && (
+                    <div>
+                      <p className="text-xs text-text-secondary">Property</p>
+                      <p className="text-sm font-medium text-text-primary">{unit.property_name}</p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-sm text-text-secondary">Unit data not available</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}

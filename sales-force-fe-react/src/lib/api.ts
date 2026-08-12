@@ -502,6 +502,24 @@ export const api = {
     return data;
   },
 
+  getUnitDetail: async (unitId: string) => {
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/units/${unitId}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch unit detail', response.status);
+    }
+
+    return data;
+  },
+
   // Leads API
   getLeads: async (params?: {
     page?: number;
