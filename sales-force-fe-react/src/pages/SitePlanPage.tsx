@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Menu, Map as MapIcon, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
+import { Map as MapIcon, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
 import { useState, useEffect, useMemo } from 'react';
 import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
@@ -150,12 +150,8 @@ export default function SitePlanPage() {
     return doc.documentElement.outerHTML;
   }, [svgContent, data]);
 
-  const handleBack = () => {
-    navigate('/properties');
-  };
-
   const handleLeftMenuClick = () => {
-    console.log('Left menu click - Main sidebar toggle');
+    navigate('/properties');
   };
 
   const handleRightMenuClick = () => {
@@ -207,7 +203,7 @@ export default function SitePlanPage() {
             {error instanceof Error ? error.message : 'An error occurred while loading the siteplan.'}
           </p>
           <button
-            onClick={handleBack}
+            onClick={() => navigate('/properties')}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
           >
             Back to Properties
@@ -219,15 +215,6 @@ export default function SitePlanPage() {
 
   return (
     <div className="fixed inset-0">
-      {/* Back Button */}
-      <button
-        onClick={handleBack}
-        className="fixed top-4 right-4 z-50 bg-white rounded-lg p-2 shadow-md hover:bg-gray-100 transition-colors"
-        title="Back to Properties"
-      >
-        <ArrowLeft className="w-5 h-5 text-gray-700" />
-      </button>
-
       {/* Floating Menu */}
       <div className="fixed top-4 left-4 z-50 bg-white rounded-lg shadow-md p-3 flex items-center gap-4 min-w-[280px] max-w-[400px]">
         <button
@@ -235,7 +222,7 @@ export default function SitePlanPage() {
           className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
           title="Main sidebar"
         >
-          <Menu className="w-5 h-5 text-gray-600 hover:text-primary transition-colors" />
+          <ArrowLeft className="w-5 h-5 text-gray-600 hover:text-primary transition-colors" />
         </button>
 
         <div className="flex-1 min-w-0">
@@ -249,7 +236,11 @@ export default function SitePlanPage() {
           className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
           title="Block details sidebar"
         >
-          <Menu className="w-5 h-5 text-gray-600 hover:text-primary transition-colors" />
+          <div className="w-5 h-5 text-gray-600">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M0 2.97515C0 1.33202 1.33202 0 2.97515 0H16.8592C18.5023 0 19.8344 1.33202 19.8344 2.97515V16.8592C19.8344 18.5023 18.5023 19.8344 16.8592 19.8344H2.97515C1.33202 19.8344 0 18.5023 0 16.8592V2.97515ZM6.94203 17.8509H16.8592C17.4069 17.8509 17.8509 17.4069 17.8509 16.8592V2.97515C17.8509 2.42744 17.4069 1.98344 16.8592 1.98344H6.94203V17.8509ZM4.95859 1.98344V17.8509H2.97515C2.42744 17.8509 1.98344 17.4069 1.98344 16.8592V2.97515C1.98344 2.42744 2.42744 1.98344 2.97515 1.98344H4.95859Z" fill="black"/>
+            </svg>
+          </div>
         </button>
       </div>
 
