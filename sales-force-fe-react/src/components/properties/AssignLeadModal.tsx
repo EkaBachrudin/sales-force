@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, ArrowRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/utils';
 import { useLeads, type LeadsFilters } from '@/hooks/useLeads';
 import { useAssignLeadToUnit } from '@/hooks/useUnits';
 
@@ -10,8 +12,19 @@ interface AssignLeadModalProps {
   onClose: () => void;
   unitId?: string;
   unitName?: string;
+  propertyName?: string;
   onAssigned?: () => void;
 }
+
+const leadStatusVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
+  new: 'gray',
+  contacted: 'blue',
+  surveyed: 'purple',
+  negotiating: 'orange',
+  booked: 'orange',
+  closed: 'green',
+  cancelled: 'red',
+};
 
 const formatDateLocal = (date: Date): string => {
   const year = date.getFullYear();
@@ -20,13 +33,15 @@ const formatDateLocal = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-export function AssignLeadModal({ isOpen, onClose, unitId, unitName, onAssigned }: AssignLeadModalProps) {
+export function AssignLeadModal({ isOpen, onClose, unitId, unitName, propertyName, onAssigned }: AssignLeadModalProps) {
   const [selectedLeadId, setSelectedLeadId] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
   const { assignLead, isAssigning } = useAssignLeadToUnit();
 
   const filters: LeadsFilters = {
     stage: 'all',
-    search: '',
+    search: appliedSearch,
     propertyType: 'all',
     source: 'all',
     dateFrom: '2000-01-01',
@@ -37,10 +52,9 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, onAssigned 
 
   const availableLeads = (leadsData?.data ?? []).filter((lead) => !lead.unit);
 
-  const leadOptions = availableLeads.map((lead) => ({
-    value: lead.id,
-    label: `${lead.name} — ${lead.phone}`,
-  }));
+  const handleSearch = () => {
+    setAppliedSearch(searchInput.trim());
+  };
 
   const handleAssign = async () => {
     if (!selectedLeadId) {
@@ -51,6 +65,8 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, onAssigned 
     try {
       await assignLead({ unitId: unitId || '', leadId: selectedLeadId });
       setSelectedLeadId('');
+      setSearchInput('');
+      setAppliedSearch('');
       onAssigned?.();
       onClose();
     } catch (error) {
@@ -71,9 +87,11 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, onAssigned 
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
           <div className="flex items-center justify-between p-5 border-b border-border">
             <div>
-              <h2 className="text-lg font-semibold text-text-primary">Assign Lead</h2>
+              <h2 className="text-lg font-semibold text-text-primary">
+                Assign lead for {unitName}
+              </h2>
               <p className="text-sm text-text-secondary mt-0.5">
-                {unitName ? `Assign a lead to ${unitName}` : 'Assign a lead to this unit'}
+                <span className='font-bold'>{propertyName ? `${propertyName} ` : ''} </span>Choose lead for {unitName}
               </p>
             </div>
             <button
@@ -84,7 +102,25 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, onAssigned 
             </button>
           </div>
 
-          <div className="p-5">
+          <div className="p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Search leads..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+                leftIcon={<Search className="w-4 h-4" />}
+              />
+              <Button
+                onClick={handleSearch}
+                rightIcon={<ArrowRight className="w-4 h-4" />}
+              >
+                Go
+              </Button>
+            </div>
+
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -94,28 +130,52 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, onAssigned 
                 No available leads to assign
               </p>
             ) : (
-              <Select
-                label="Select Lead"
-                value={selectedLeadId}
-                onChange={(e) => setSelectedLeadId(e.target.value)}
-                options={[
-                  { value: '', label: 'Select a lead', disabled: true },
-                  ...leadOptions,
-                ]}
-              />
+              <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                {availableLeads.map((lead) => {
+                  const isActive = selectedLeadId === lead.id;
+                  return (
+                    <button
+                      key={lead.id}
+                      type="button"
+                      onClick={() => setSelectedLeadId(isActive ? '' : lead.id)}
+                      className={cn(
+                        'w-full text-left rounded-[12px] border bg-white p-4 transition-all duration-200',
+                        isActive
+                          ? 'border-primary ring-primary shadow-md bg-[#E4EFFF]'
+                          : 'border-border hover:border-gray-300'
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-text-primary truncate">
+                            {lead.name}
+                          </p>
+                          <p className="text-xs text-text-secondary truncate mt-0.5">
+                            {lead.email || lead.phone}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={leadStatusVariantMap[lead.status] || 'gray'}
+                          size="sm"
+                        >
+                          {lead.status}
+                        </Badge>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
 
-          <div className="flex justify-end gap-2 p-5 border-t border-border">
-            <Button variant="secondary" onClick={onClose} disabled={isAssigning}>
-              Cancel
-            </Button>
+          <div className="p-5 border-t border-border">
             <Button
+              fullWidth
               onClick={handleAssign}
               isLoading={isAssigning}
-              disabled={availableLeads.length === 0}
+              disabled={!selectedLeadId || availableLeads.length === 0}
             >
-              Assign
+              Assign lead
             </Button>
           </div>
         </div>

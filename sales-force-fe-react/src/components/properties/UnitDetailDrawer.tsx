@@ -165,10 +165,10 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
                           <p className="text-sm font-medium text-text-primary truncate">{lead.name}</p>
                           <p className="text-xs text-text-secondary truncate">{lead.email || lead.phone}</p>
                         </div>
-                        <Badge variant={leadStatusVariantMap[lead.status] || 'gray'} size="sm">
-                          {lead.status}
+                        <Badge variant={leadStatusVariantMap[lead.status] || 'gray'} size="lg">
+                          <span className='font-bold'>{lead.status}</span>
                         </Badge>
-                        <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <ChevronRight className="w-6 h-6 text-gray-400 flex-shrink-0" />
                       </button>
                     ))}
                   </div>
@@ -188,6 +188,7 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
         onClose={() => setIsAssignOpen(false)}
         unitId={unitId}
         unitName={unitName || unit?.name}
+        propertyName={unit?.property_name}
       />
     </>
   );
