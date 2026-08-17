@@ -41,12 +41,12 @@ export default function SitePlanPage() {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       }
 
-      text {
+      .unit-element text {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         text-anchor: middle;
       }
 
-      tspan {
+      .unit-element tspan {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         text-anchor: middle;
       }

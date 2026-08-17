@@ -40,6 +40,16 @@ export function useUnitDetail(unitId: string) {
         property_name?: string;
         land_area?: number;
       };
+      leads: {
+        id: string;
+        name: string;
+        phone: string;
+        email?: string;
+        status: string;
+        assigned_to: string | null;
+        assigned_to_name: string | null;
+        created_at: string;
+      }[];
     };
   }>({
     queryKey: ['unitDetail', unitId],
@@ -89,5 +99,25 @@ export function useUnitMutations() {
     isUpdating: updateMutation.isPending,
     deleteUnit: deleteMutation.mutateAsync,
     isDeleting: deleteMutation.isPending,
+  };
+}
+
+export function useAssignLeadToUnit() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ unitId, leadId }: { unitId: string; leadId: string }) =>
+      api.assignLeadToUnit(unitId, leadId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['unitDetail', variables.unitId] });
+      queryClient.invalidateQueries({ queryKey: ['units'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] });
+    },
+  });
+
+  return {
+    assignLead: mutation.mutateAsync,
+    isAssigning: mutation.isPending,
   };
 }

@@ -452,9 +452,8 @@ export const assignLeadToUnit = async (
 
   // Check if lead exists and belongs to the same user
   const leadQuery = `
-    SELECT l.*, p.assigned_to AS lead_property_owner
+    SELECT l.*
     FROM leads l
-    LEFT JOIN properties p ON p.id = l.property_id
     WHERE l.id = $1
   `;
 

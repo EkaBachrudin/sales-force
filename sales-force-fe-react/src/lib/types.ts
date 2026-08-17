@@ -55,6 +55,13 @@ export interface Lead {
   interest_rate?: number;
   loan_term_years?: number;
   property_id: string;
+  unit?: {
+    id: string;
+    name: string;
+    block_name: string;
+    property_name: string;
+    property_id: string;
+  };
 }
 
 // Reminder (dashboard display type)

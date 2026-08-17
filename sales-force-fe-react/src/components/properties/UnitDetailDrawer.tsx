@@ -1,8 +1,22 @@
 import { cn } from '@/lib/utils';
 import { useUnitDetail } from '@/hooks/useUnits';
-import { X } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { UserPlus, X, ChevronRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { AssignLeadModal } from '@/components/properties/AssignLeadModal';
+
+const leadStatusVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
+  new: 'gray',
+  contacted: 'blue',
+  surveyed: 'purple',
+  negotiating: 'orange',
+  booked: 'orange',
+  closed: 'green',
+  cancelled: 'red',
+};
 
 const getStatusVariant = (status: string): string => {
   switch (status.toLowerCase()) {
@@ -23,6 +37,8 @@ interface UnitDetailDrawerProps {
 
 export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDetailDrawerProps) {
   const { data, isLoading } = useUnitDetail(unitId || '');
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -48,6 +64,7 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
   }, [isOpen, onClose]);
 
   const unit = data?.data?.unit;
+  const leads = data?.data?.leads ?? [];
 
   return (
     <>
@@ -97,10 +114,6 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
               <Card variant="bordered" padding="md">
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-text-secondary">Unit Name</p>
-                    <p className="text-sm font-semibold text-text-primary">{unit.name}</p>
-                  </div>
-                  <div>
                     <p className="text-xs text-text-secondary">Status</p>
                     <p className={`${getStatusVariant(unit.status)} text-sm font-semibold`}>{unit.status}</p>
                   </div>
@@ -124,6 +137,43 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
                   )}
                 </div>
               </Card>
+
+              <Button
+                fullWidth
+                leftIcon={<UserPlus className="w-4 h-4" />}
+                onClick={() => setIsAssignOpen(true)}
+                disabled={unit.status.toLowerCase() === 'sold'}
+              >
+                Assign Lead
+              </Button>
+
+              <Card variant="bordered" padding="md">
+                <h3 className="text-sm font-semibold text-text-primary mb-3">
+                  Manage your interested leads
+                </h3>
+                {leads.length === 0 ? (
+                  <p className="text-sm text-text-secondary">No leads assigned yet</p>
+                ) : (
+                  <div className="space-y-1">
+                    {leads.map((lead) => (
+                      <button
+                        key={lead.id}
+                        onClick={() => navigate(`/leads/${lead.id}`)}
+                        className="w-full flex items-center gap-3 rounded-lg px-2 py-2 -mx-2 hover:bg-gray-50 transition-colors text-left"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-text-primary truncate">{lead.name}</p>
+                          <p className="text-xs text-text-secondary truncate">{lead.email || lead.phone}</p>
+                        </div>
+                        <Badge variant={leadStatusVariantMap[lead.status] || 'gray'} size="sm">
+                          {lead.status}
+                        </Badge>
+                        <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Card>
             </div>
           ) : (
             <div className="text-center py-12">
@@ -132,6 +182,13 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
           )}
         </div>
       </div>
+
+      <AssignLeadModal
+        isOpen={isAssignOpen}
+        onClose={() => setIsAssignOpen(false)}
+        unitId={unitId}
+        unitName={unitName || unit?.name}
+      />
     </>
   );
 }
