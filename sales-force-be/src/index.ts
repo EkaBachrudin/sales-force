@@ -6,6 +6,8 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import cron from 'node-cron';
 import dotenv from 'dotenv';
+import path from 'path';
+import fs from 'fs/promises';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -15,6 +17,8 @@ import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import leadsRoutes from './routes/leadsRoutes';
 import propertiesRoutes from './routes/propertiesRoutes';
+import blocksRoutes from './routes/blocksRoutes';
+import unitsRoutes from './routes/unitsRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 import remindersRoutes from './routes/remindersRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
@@ -71,6 +75,9 @@ app.use(cookieParser());
 // Compression middleware
 app.use(compression());
 
+// Static file serving for uploaded siteplan files
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
 // Logging middleware
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('combined'));
@@ -103,6 +110,8 @@ app.use(`${API_VERSION}/auth`, authRoutes);
 app.use(`${API_VERSION}/admin`, adminRoutes);
 app.use(`${API_VERSION}/leads`, leadsRoutes);
 app.use(`${API_VERSION}/properties`, propertiesRoutes);
+app.use(`${API_VERSION}`, blocksRoutes);
+app.use(`${API_VERSION}`, unitsRoutes);
 app.use(`${API_VERSION}/dashboard`, dashboardRoutes);
 app.use(`${API_VERSION}/reminders`, remindersRoutes);
 app.use(`${API_VERSION}/analytics`, analyticsRoutes);
@@ -125,6 +134,14 @@ const startServer = async () => {
   if (!dbConnected) {
     console.error('Failed to connect to database. Server will not start.');
     process.exit(1);
+  }
+
+  const uploadDir = path.join(__dirname, '../public/uploads/siteplans');
+  try {
+    await fs.mkdir(uploadDir, { recursive: true });
+    console.log('Upload directory ready');
+  } catch (err) {
+    console.error('Failed to create upload directory:', err);
   }
 
   // Schedule cleanup job - runs daily at 2 AM

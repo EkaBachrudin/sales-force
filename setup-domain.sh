@@ -1,13 +1,13 @@
 #!/bin/bash
 # ============================================
-# Setup Domain & SSL untuk sforce.my.id
+# Setup Domain & SSL untuk example.com
 # ============================================
 
 set -e
 
-DOMAIN="sforce.my.id"
-VPS_IP="103.181.142.248"
-EMAIL="admin@sforce.my.id"  # Ganti dengan email Anda
+DOMAIN="example.com"
+VPS_IP="203.0.113.10"
+EMAIL="admin@example.com"  # Ganti dengan email Anda
 
 echo "=========================================="
 echo "Setup Domain: $DOMAIN"

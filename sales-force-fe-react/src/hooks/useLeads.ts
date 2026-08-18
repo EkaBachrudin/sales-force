@@ -9,6 +9,7 @@ export interface LeadsFilters {
   source: string;
   dateFrom: string;
   dateTo: string;
+  statuses?: string;
 }
 
 export function useLeads(
@@ -24,6 +25,7 @@ export function useLeads(
         page,
         pageSize,
         stage: filters.stage,
+        statuses: filters.statuses,
         search: filters.search || undefined,
         propertyType: filters.propertyType,
         source: filters.source,

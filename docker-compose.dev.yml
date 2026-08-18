@@ -27,6 +27,7 @@ services:
       target: development
     volumes:
       - ./sales-force-be/src:/app/src
+      - ./sales-force-be/public:/app/public
       - ./sales-force-be/package.json:/app/package.json
       - ./sales-force-be/package-lock.json:/app/package-lock.json
       - /app/node_modules

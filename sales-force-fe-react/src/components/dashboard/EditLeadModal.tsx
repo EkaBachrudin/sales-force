@@ -17,12 +17,13 @@ export interface EditLeadModalProps {
 }
 
 const stageOptions = [
-  { value: 'new', label: 'Baru Masuk' },
-  { value: 'contacted', label: 'Dikontak' },
-  { value: 'surveyed', label: 'Survey' },
-  { value: 'negotiating', label: 'Negosiasi' },
-  { value: 'closed', label: 'Closing' },
-  { value: 'cancelled', label: 'Batal' },
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'surveyed', label: 'Surveyed' },
+  { value: 'negotiating', label: 'Negotiating' },
+  { value: 'booked', label: 'Booked' },
+  { value: 'closed', label: 'Closed' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 const sourceOptions = [

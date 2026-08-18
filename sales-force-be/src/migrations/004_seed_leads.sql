@@ -12,11 +12,11 @@
 -- ============================================================================
 -- 1. Generate 300 Leads with Random Data
 -- assigned_to: Randomly picked from actual users (hanya admin di kasus ini)
--- property_id: Randomly picked from actual available properties
+-- unit_id: Randomly picked from actual available units
 -- ============================================================================
 
 INSERT INTO leads (
-    assigned_to, property_id, name, nik, npwp, phone, email, source, 
+    assigned_to, unit_id, name, nik, npwp, phone, email, source, 
     budget_range, property_price, down_payment, down_payment_percentage, 
     interest_rate, loan_term_years, estimated_monthly_payment, status, 
     notes, last_followed_up_at, next_follow_up_at, created_at, updated_at
@@ -27,13 +27,13 @@ SELECT
      WHERE role_id IN (SELECT id FROM roles WHERE name IN ('Admin'))
      ORDER BY random() 
      LIMIT 1),
-    
-    -- property_id: Ambil random dari properties yang available
-    (SELECT id FROM properties 
+     
+    -- unit_id: Ambil random dari units yang available
+    (SELECT id FROM units 
      WHERE status = 'available' 
      ORDER BY random() 
      LIMIT 1),
-    
+     
     'Lead Customer ' || i,
     
     -- Generator NIK (16 digit) - aman dari scientific notation
@@ -76,7 +76,7 @@ SELECT
     0,
     
     -- Status
-    (ARRAY['new', 'new', 'new', 'contacted', 'contacted', 'surveyed', 'surveyed', 'negotiating', 'closed', 'cancelled'])[floor(random() * 10 + 1)],
+    (ARRAY['new', 'new', 'new', 'contacted', 'contacted', 'surveyed', 'surveyed', 'negotiating', 'booked', 'closed', 'cancelled'])[floor(random() * 11 + 1)],
     
     -- Notes (varied)
     (ARRAY[
@@ -146,14 +146,14 @@ UPDATE leads SET
 
 -- Lead dengan status 'new' tanpa follow up
 INSERT INTO leads (
-    assigned_to, property_id, name, nik, npwp, phone, email, source, 
+    assigned_to, unit_id, name, nik, npwp, phone, email, source, 
     budget_range, property_price, down_payment, down_payment_percentage, 
     interest_rate, loan_term_years, estimated_monthly_payment, status, 
     notes, last_followed_up_at, next_follow_up_at, created_at, updated_at
 )
 SELECT 
     (SELECT id FROM users WHERE email = 'admin@example.com'),
-    (SELECT id FROM properties WHERE status = 'available' LIMIT 1),
+    (SELECT id FROM units WHERE status = 'available' LIMIT 1),
     'Ahmad Fauzi',
     (SELECT string_agg(floor(random() * 10)::text, '') FROM generate_series(1, 16)),
     (SELECT string_agg(floor(random() * 10)::text, '') FROM generate_series(1, 15)),
@@ -179,14 +179,14 @@ WHERE NOT EXISTS (
 
 -- Lead dengan status 'closed' (berhasil closing)
 INSERT INTO leads (
-    assigned_to, property_id, name, nik, npwp, phone, email, source, 
+    assigned_to, unit_id, name, nik, npwp, phone, email, source, 
     budget_range, property_price, down_payment, down_payment_percentage, 
     interest_rate, loan_term_years, estimated_monthly_payment, status, 
     notes, last_followed_up_at, next_follow_up_at, created_at, updated_at
 )
 SELECT 
     (SELECT id FROM users WHERE email = 'admin@example.com'),
-    (SELECT id FROM properties WHERE status = 'available' LIMIT 1),
+    (SELECT id FROM units WHERE status = 'available' LIMIT 1),
     'Siti Rahayu',
     (SELECT string_agg(floor(random() * 10)::text, '') FROM generate_series(1, 16)),
     (SELECT string_agg(floor(random() * 10)::text, '') FROM generate_series(1, 15)),
@@ -212,14 +212,14 @@ WHERE NOT EXISTS (
 
 -- Lead dengan status 'cancelled'
 INSERT INTO leads (
-    assigned_to, property_id, name, nik, npwp, phone, email, source, 
+    assigned_to, unit_id, name, nik, npwp, phone, email, source, 
     budget_range, property_price, down_payment, down_payment_percentage, 
     interest_rate, loan_term_years, estimated_monthly_payment, status, 
     notes, last_followed_up_at, next_follow_up_at, created_at, updated_at
 )
 SELECT 
     (SELECT id FROM users WHERE email = 'admin@example.com'),
-    (SELECT id FROM properties WHERE status = 'available' LIMIT 1),
+    (SELECT id FROM units WHERE status = 'available' LIMIT 1),
     'Budi Santoso',
     (SELECT string_agg(floor(random() * 10)::text, '') FROM generate_series(1, 16)),
     (SELECT string_agg(floor(random() * 10)::text, '') FROM generate_series(1, 15)),
@@ -255,10 +255,10 @@ WHERE NOT EXISTS (
 -- FROM leads l JOIN users u ON l.assigned_to = u.id 
 -- GROUP BY u.email ORDER BY total_leads DESC;
 
--- Leads per property
--- SELECT p.name, COUNT(l.id) as total_leads 
--- FROM leads l JOIN properties p ON l.property_id = p.id 
--- GROUP BY p.name ORDER BY total_leads DESC;
+-- Leads per unit
+-- SELECT u.name, COUNT(l.id) as total_leads 
+-- FROM leads l JOIN units u ON l.unit_id = u.id 
+-- GROUP BY u.name ORDER BY total_leads DESC;
 
 -- Source distribution
 -- SELECT source, COUNT(*) as total FROM leads GROUP BY source ORDER BY total DESC;

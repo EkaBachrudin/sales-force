@@ -6,9 +6,12 @@ import LoginPage from '@/pages/LoginPage';
 import FeaturesPage from '@/pages/FeaturesPage';
 import DashboardPage from '@/pages/DashboardPage';
 import LeadsPage from '@/pages/LeadsPage';
+import LeadDetailPage from '@/pages/LeadDetailPage';
 import PipelinePage from '@/pages/PipelinePage';
 import AnalyticsPage from '@/pages/AnalyticsPage';
 import PropertiesPage from '@/pages/PropertiesPage';
+import PropertyDetailPage from '@/pages/PropertyDetailPage';
+import SitePlanPage from '@/pages/SitePlanPage';
 import UsersPage from '@/pages/UsersPage';
 import SubscriptionsPage from '@/pages/SubscriptionsPage';
 import SettingsPage from '@/pages/SettingsPage';
@@ -26,9 +29,12 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/leads" element={<LeadsPage />} />
+          <Route path="/leads/:id" element={<LeadDetailPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/properties" element={<PropertiesPage />} />
+          <Route path="/properties/:id/siteplan" element={<SitePlanPage />} />
+          <Route path="/properties/:id" element={<PropertyDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
 

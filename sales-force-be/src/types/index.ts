@@ -263,15 +263,9 @@ export enum CrmLeadStatus {
   CONTACTED = 'contacted',
   SURVEYED = 'surveyed',
   NEGOTIATING = 'negotiating',
+  BOOKED = 'booked',
   CLOSED = 'closed',
   CANCELLED = 'cancelled',
-}
-
-export enum CrmLeadSource {
-  LANDING_PAGE = 'landing_page',
-  WHATSAPP = 'whatsapp',
-  MANUAL = 'manual',
-  VISIT = 'visit'
 }
 
 export enum CrmActivityType {
@@ -296,6 +290,30 @@ export interface KPRSimulation {
   estimated_monthly_payment?: number;
 }
 
+export interface UnitInfo {
+  id: string;
+  name: string;
+  land_area?: number;
+  status: string;
+  block: {
+    id: string;
+    name: string;
+  };
+  property: {
+    id: string;
+    name: string;
+    city: string;
+  };
+}
+
+export interface UnitBasicInfo {
+  id: string;
+  name: string;
+  block_name: string;
+  property_name: string;
+  property_id: string;
+}
+
 export interface Reminder {
   id?: string;
   remind_at: Date;
@@ -311,20 +329,11 @@ export interface CrmLead {
   phone: string;
   email?: string;
   status: CrmLeadStatus;
-  source: CrmLeadSource;
-  property_id?: string;
-  property_url?: string;
-  property?: {
-    id: string;
-    name: string;
-    property_type: string;
-    price: number;
-    city: string;
-    province?: string;
-  };
-  property_price?: number;
+  source: string;
+  unit_id?: string;
   budget_range?: BudgetRange;
   kpr_simulation?: KPRSimulation;
+  down_payment?: number;
   down_payment_percentage?: number;
   interest_rate?: number;
   loan_term_years?: number;
@@ -336,6 +345,7 @@ export interface CrmLead {
   last_followed_up_at?: Date;
   created_at: Date;
   updated_at: Date;
+  unit?: UnitInfo;
 }
 
 export interface CrmLeadActivity {
@@ -354,8 +364,11 @@ export interface CrmLeadActivity {
 export interface CrmWhatsAppMessage {
   id: string;
   lead_id: string;
-  message_type: 'incoming' | 'outgoing';
-  content: string;
+  user_id: string;
+  direction: 'incoming' | 'outgoing';
+  message_text: string;
+  message_id?: string;
+  status?: string;
   sent_at: Date;
   created_at: Date;
 }
@@ -368,16 +381,12 @@ export interface CrmReminderSchedule {
   message?: string;
   is_completed: boolean;
   created_at: Date;
-  updated_at: Date;
 }
 
 export interface CrmProperty {
   id: string;
   name: string;
-  property_type: string;
-  price: number;
   city: string;
-  province?: string;
 }
 
 // List Leads Query Parameters
@@ -385,11 +394,12 @@ export interface GetLeadsQuery {
   page?: number;
   limit?: number;
   status?: CrmLeadStatus;
+  statuses?: CrmLeadStatus[];
   search?: string;
   start_date?: string;
   end_date?: string;
   property_id?: string;
-  source?: CrmLeadSource;
+  source?: string;
   sort_by?: 'created_at' | 'name' | 'status' | 'next_follow_up_at';
   sort_order?: 'asc' | 'desc';
 }
@@ -399,14 +409,11 @@ export interface CrmLeadListItem {
   id: string;
   name: string;
   phone: string;
-  email?: string;
   status: CrmLeadStatus;
-  source: CrmLeadSource;
-  property?: {
-    id: string;
-    name: string;
-  };
+  source: string;
+  unit?: UnitBasicInfo;
   created_at: Date;
+  updated_at: Date;
 }
 
 export interface GetLeadsResponse {
@@ -434,9 +441,8 @@ export interface CrmCreateLeadDto {
   email?: string;
   nik?: string;
   npwp?: string;
-  source?: CrmLeadSource;
-  property_id?: string;
-  property_url?: string;
+  source?: string;
+  unit_id?: string;
   budget_range?: BudgetRange;
   status?: CrmLeadStatus;
   notes?: string;
@@ -451,9 +457,8 @@ export interface CrmUpdateLeadDto {
   email?: string;
   nik?: string;
   npwp?: string;
-  source?: CrmLeadSource;
-  property_id?: string;
-  property_url?: string;
+  source?: string;
+  unit_id?: string;
   budget_range?: BudgetRange;
   status?: CrmLeadStatus;
   notes?: string;
@@ -478,25 +483,210 @@ export interface GetPropertiesQuery {
 }
 
 // Properties Module Types
+export enum UnitStatus {
+  AVAILABLE = 'available',
+  RESERVED = 'reserved',
+  BOOKED = 'booked',
+  SOLD = 'sold',
+}
+
+export interface PropertyListItem {
+  id: string;
+  name: string;
+  city: string;
+  land_area: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
+  is_active: boolean;
+  total_blocks: number;
+  total_units: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface Property {
   id: string;
   name: string;
-  property_type: string;
+  city: string;
+  land_area: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
+  is_active: boolean;
   created_at: Date;
+  updated_at: Date;
 }
 
-export interface GetPropertiesQueryV2 {
+export interface PropertyDetail {
+  property: Property;
+  blocks: BlockListItem[];
+}
+
+export interface GetPropertiesQuery {
+  page?: number;
+  limit?: number;
   search?: string;
+  city?: string;
 }
 
 export interface CreatePropertyDto {
   name: string;
-  property_type: string;
+  city: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
 }
 
 export interface UpdatePropertyDto {
   name?: string;
-  property_type?: string;
+  city?: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
+}
+
+export interface Block {
+  id: string;
+  property_id: string;
+  name: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface BlockListItem {
+  id: string;
+  name: string;
+  is_active: boolean;
+  total_units: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CreateBlockDto {
+  name: string;
+}
+
+export interface UpdateBlockDto {
+  name: string;
+}
+
+export interface Unit {
+  id: string;
+  block_id: string;
+  name: string;
+  land_area?: number;
+  status: UnitStatus;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface UnitListItem {
+  id: string;
+  name: string;
+  land_area?: number;
+  status: UnitStatus;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface UnitDetail {
+  unit: {
+    id: string;
+    block_id: string;
+    block_name: string;
+    property_id: string;
+    property_name: string;
+    name: string;
+    land_area?: number;
+    status: UnitStatus;
+    created_at: Date;
+    updated_at: Date;
+  };
+  leads: CrmLead[];
+}
+
+export interface CreateUnitDto {
+  name: string;
+  land_area?: number;
+}
+
+export interface UpdateUnitDto {
+  name?: string;
+  land_area?: number;
+}
+
+export interface GetUnitsQuery {
+  page?: number;
+  limit?: number;
+  status?: UnitStatus;
+  search?: string;
+}
+
+// Pagination Types
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total_items: number;
+  total_pages: number;
+}
+
+export interface PaginatedPropertiesResponse {
+  properties: PropertyListItem[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginatedUnitsResponse {
+  block: {
+    id: string;
+    name: string;
+    property_id: string;
+    property_name: string;
+  };
+  units: UnitListItem[];
+  pagination: PaginationMeta;
+}
+
+// Siteplan Types
+export interface SiteplanData {
+  property: {
+    id: string;
+    name: string;
+    siteplan_assets?: string;
+  };
+  units: SiteplanUnit[];
+}
+
+export interface SiteplanUnit {
+  id: string;
+  block_id: string;
+  block_name: string;
+  name: string;
+  land_area?: number;
+  status: UnitStatus;
+}
+
+// Lead Assignment Types
+export interface AssignLeadToUnitDto {
+  lead_id: string;
+}
+
+export interface AssignLeadResponse {
+  lead: {
+    id: string;
+    name: string;
+    unit_id: string;
+    unit_name: string;
+    status: CrmLeadStatus;
+    updated_at: Date;
+  };
+  unit: {
+    id: string;
+    name: string;
+    status: UnitStatus;
+    updated_at: Date;
+  };
 }
 
 // Dashboard Types
@@ -531,11 +721,22 @@ export interface ReminderLeadInfo {
   name: string;
   phone: string;
   email?: string;
-  property?: {
+  status: string;
+  property_price?: number;
+  unit?: {
     id: string;
     name: string;
-    property_type: string;
-    price: number;
+    land_area?: number;
+    status: string;
+    block: {
+      id: string;
+      name: string;
+      property: {
+        id: string;
+        name: string;
+        city: string;
+      };
+    };
   };
 }
 
@@ -545,6 +746,7 @@ export interface ReminderItem {
   remind_at_formatted: string;
   message?: string;
   is_completed: boolean;
+  created_at: Date;
   lead: ReminderLeadInfo;
 }
 
@@ -714,6 +916,8 @@ export interface PipelineStage {
 export interface PipelineLeadItem {
   id: string;
   name: string;
+  unit_name?: string;
+  block_name?: string;
   property_name?: string;
   next_follow_up_at?: Date;
   created_at: Date;
@@ -731,6 +935,7 @@ export interface PipelineStagesSummary {
   contacted: number;
   surveyed: number;
   negotiating: number;
+  booked: number;
   closed: number;
   cancelled: number;
 }
@@ -757,7 +962,20 @@ export interface PipelineMetricsResponse {
   total_leads: number;
   this_month: number;
   surveyed: number;
+  booked: number;
   closed: number;
   conversion_rate: number;
   avg_time_to_close: number;
+}
+
+// File Upload Error Types
+export interface FileUploadError {
+  success: false;
+  error: {
+    code: 'INVALID_FILE_TYPE' | 'FILE_TOO_LARGE';
+    message: string;
+    details: {
+      siteplan_file: string[];
+    };
+  };
 }

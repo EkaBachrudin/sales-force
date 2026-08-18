@@ -14,19 +14,21 @@ export interface LeadDetailPanelProps {
 }
 
 const stageOptions = [
-  { value: 'new', label: 'Baru Masuk' },
-  { value: 'contacted', label: 'Dikontak' },
-  { value: 'surveyed', label: 'Survey' },
-  { value: 'negotiating', label: 'Negosiasi' },
-  { value: 'closed', label: 'Closing' },
-  { value: 'cancelled', label: 'Batal' },
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'surveyed', label: 'Surveyed' },
+  { value: 'negotiating', label: 'Negotiating' },
+  { value: 'booked', label: 'Booked' },
+  { value: 'closed', label: 'Closed' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
-const stageVariantMap: Record<PipelineStage, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
+const stageVariantMap: Record<PipelineStage, 'gray' | 'blue' | 'purple' | 'orange' | 'teal' | 'green' | 'red'> = {
   new: 'gray',
   contacted: 'blue',
   surveyed: 'purple',
   negotiating: 'orange',
+  booked: 'teal',
   closed: 'green',
   cancelled: 'red',
 };
@@ -36,6 +38,7 @@ const stageGradientMap: Record<PipelineStage, string> = {
   contacted: 'from-blue-100 to-indigo-100',
   surveyed: 'from-purple-100 to-violet-100',
   negotiating: 'from-orange-100 to-amber-100',
+  booked: 'from-cyan-100 to-teal-100',
   closed: 'from-emerald-100 to-green-100',
   cancelled: 'from-red-100 to-rose-100',
 };
@@ -45,6 +48,7 @@ const stageColorMap: Record<PipelineStage, string> = {
   contacted: 'text-blue-600',
   surveyed: 'text-purple-600',
   negotiating: 'text-orange-600',
+  booked: 'text-cyan-600',
   closed: 'text-emerald-600',
   cancelled: 'text-red-600',
 };

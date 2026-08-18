@@ -2,7 +2,7 @@
 // Core domain types defined here to avoid circular dependencies with components
 
 // Pipeline Stage
-export type PipelineStage = 'new' | 'contacted' | 'surveyed' | 'negotiating' | 'closed' | 'cancelled';
+export type PipelineStage = 'new' | 'contacted' | 'surveyed' | 'negotiating' | 'booked' | 'closed' | 'cancelled';
 
 // Reminder Data (backend format, used in Lead)
 export interface ReminderData {
@@ -55,6 +55,13 @@ export interface Lead {
   interest_rate?: number;
   loan_term_years?: number;
   property_id: string;
+  unit?: {
+    id: string;
+    name: string;
+    block_name: string;
+    property_name: string;
+    property_id: string;
+  };
 }
 
 // Reminder (dashboard display type)
@@ -125,18 +132,53 @@ export interface PaginatedResponse<T> {
 export interface Property {
   id: string;
   name: string;
-  property_type: string;
+  city: string;
+  land_area: number;
+  address?: string;
+  description?: string;
+  siteplan_assets?: string;
+  is_active: boolean;
   created_at: string;
+  updated_at: string;
+}
+
+export interface PropertyDetail {
+  property: Property;
+  blocks: BlockListItem[];
+}
+
+export interface BlockListItem {
+  id: string;
+  name: string;
+  is_active: boolean;
+  total_units: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UnitListItem {
+  id: string;
+  name: string;
+  land_area?: number | string;
+  status: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreatePropertyDto {
   name: string;
-  property_type: string;
+  city: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
 }
 
 export interface UpdatePropertyDto {
   name?: string;
-  property_type?: string;
+  city?: string;
+  land_area?: number;
+  address?: string;
+  description?: string;
 }
 
 // User Types

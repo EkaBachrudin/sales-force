@@ -16,7 +16,6 @@ import {
   GetLeadsQuery,
   GetPropertiesQuery,
   CrmLeadStatus as LeadStatusEnum,
-  CrmLeadSource as LeadSourceEnum,
 } from '../types';
 
 /**
@@ -27,11 +26,14 @@ export const getLeadsController = async (req: Request, res: Response): Promise<v
     page: req.query.page ? Number.parseInt(req.query.page as string) : undefined,
     limit: req.query.limit ? Number.parseInt(req.query.limit as string) : undefined,
     status: req.query.status as LeadStatusEnum | undefined,
+    statuses: (req.query.statuses as string | undefined)
+      ? (req.query.statuses as string).split(',').map((s) => s.trim()).filter(Boolean) as LeadStatusEnum[]
+      : undefined,
     search: req.query.search as string | undefined,
     start_date: req.query.start_date as string | undefined,
     end_date: req.query.end_date as string | undefined,
     property_id: req.query.property_id as string | undefined,
-    source: req.query.source as LeadSourceEnum | undefined,
+    source: req.query.source as string | undefined,
     sort_by: req.query.sort_by as any,
     sort_order: req.query.sort_order as any,
   };
@@ -160,7 +162,7 @@ export const exportLeadsController = async (req: Request, res: Response): Promis
     start_date: req.query.start_date as string | undefined,
     end_date: req.query.end_date as string | undefined,
     property_id: req.query.property_id as string | undefined,
-    source: req.query.source as LeadSourceEnum | undefined,
+    source: req.query.source as string | undefined,
   };
   const userId = req.user?.sub;
 

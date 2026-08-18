@@ -14,6 +14,7 @@ import {
   CrmLead,
   CrmLeadActivity,
 } from '../types';
+import { lockUnitForBooking, findBookedLeadOnUnit, revokeOtherLeadsOnUnit } from './leadUnitRules';
 
 /**
  * Pipeline Stage Configuration
@@ -49,17 +50,24 @@ const PIPELINE_STAGES: Omit<PipelineStage, 'lead_count' | 'leads'>[] = [
     color: '#F59E0B',
   },
   {
+    id: CrmLeadStatus.BOOKED,
+    name: 'Booking Fee',
+    name_en: 'Booked',
+    order: 5,
+    color: '#06B6D4',
+  },
+  {
     id: CrmLeadStatus.CLOSED,
     name: 'Closing',
     name_en: 'Closed',
-    order: 5,
+    order: 6,
     color: '#10B981',
   },
   {
     id: CrmLeadStatus.CANCELLED,
     name: 'Batal',
     name_en: 'Cancelled',
-    order: 6,
+    order: 7,
     color: '#EF4444',
   },
 ];
@@ -94,6 +102,7 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
     contacted: 0,
     surveyed: 0,
     negotiating: 0,
+    booked: 0,
     closed: 0,
     cancelled: 0,
   };
@@ -118,9 +127,13 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
         l.next_follow_up_at,
         l.created_at,
         l.updated_at,
+        u.name as unit_name,
+        b.name as block_name,
         p.name as property_name
       FROM leads l
-      LEFT JOIN properties p ON l.property_id = p.id
+      LEFT JOIN units u ON l.unit_id = u.id
+      LEFT JOIN blocks b ON u.block_id = b.id
+      LEFT JOIN properties p ON b.property_id = p.id
       WHERE l.status = $1 AND l.assigned_to = $2${searchFilter}
       ORDER BY l.updated_at DESC
       LIMIT $${search ? '4' : '3'} OFFSET $${search ? '5' : '4'}
@@ -130,6 +143,8 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
     const leads: PipelineLeadItem[] = leadsResult.rows.map((row) => ({
       id: row.id,
       name: row.name,
+      unit_name: row.unit_name || undefined,
+      block_name: row.block_name || undefined,
       property_name: row.property_name || undefined,
       next_follow_up_at: row.next_follow_up_at || undefined,
       created_at: row.created_at,
@@ -164,8 +179,16 @@ export const updateLeadStatus = async (
   // Validate status
   if (!validateStatus(dto.status)) {
     throw new AppError(
-      'Status must be one of: new, contacted, surveyed, negotiating, closed, cancelled',
-      422
+      'Status must be one of: new, contacted, surveyed, negotiating, booked, closed, cancelled',
+      400
+    );
+  }
+
+  // Validate reason when status is cancelled
+  if (dto.status === CrmLeadStatus.CANCELLED && !dto.reason) {
+    throw new AppError(
+      'Reason is required when moving lead to cancelled status',
+      400
     );
   }
 
@@ -174,14 +197,19 @@ export const updateLeadStatus = async (
   try {
     await client.query('BEGIN');
 
-    // Check if lead exists and is assigned to this user
+    // Check if lead exists
     const leadCheck = await client.query(
-      'SELECT * FROM leads WHERE id = $1 AND assigned_to = $2',
-      [leadId, userId]
+      'SELECT * FROM leads WHERE id = $1',
+      [leadId]
     );
 
     if (leadCheck.rows.length === 0) {
-      throw new AppError('Lead not found or access denied', 404);
+      throw new AppError('Lead not found', 404);
+    }
+
+    // Check if lead is assigned to this user
+    if (leadCheck.rows[0].assigned_to !== userId) {
+      throw new AppError('You do not have permission to modify this lead', 403);
     }
 
     const currentLead = leadCheck.rows[0];
@@ -193,14 +221,14 @@ export const updateLeadStatus = async (
       SET
         status = $2,
         updated_at = NOW()
-      WHERE id = $1 AND assigned_to = $3
+      WHERE id = $1
       RETURNING *
     `;
-    const updateResult = await client.query(updateQuery, [leadId, dto.status, userId]);
+    const updateResult = await client.query(updateQuery, [leadId, dto.status]);
     const updatedLead = updateResult.rows[0];
 
     // Insert activity log
-    const notes = dto.reason || (dto.status === CrmLeadStatus.CANCELLED ? 'cancelled' : `Status changed from ${oldStatus} to ${dto.status}`);
+    const notes = dto.reason || `Status changed from ${oldStatus} to ${dto.status}`;
 
     const activityQuery = `
       INSERT INTO lead_activities (id, lead_id, user_id, activity_type, old_status, new_status, notes)
@@ -217,23 +245,61 @@ export const updateLeadStatus = async (
     ]);
     const activity = activityResult.rows[0];
 
+    // Booked business rule: the booked lead claims the unit exclusively
+    if (dto.status === CrmLeadStatus.BOOKED && updatedLead.unit_id) {
+      const unit = await lockUnitForBooking(client, updatedLead.unit_id);
+
+      if (!unit) {
+        throw new AppError('Unit not found', 404);
+      }
+
+      const existingBooked = await findBookedLeadOnUnit(client, updatedLead.unit_id, leadId);
+
+      if (existingBooked) {
+        throw new AppError('Unit already has a booked lead', 409);
+      }
+
+      await revokeOtherLeadsOnUnit(client, updatedLead.unit_id, leadId);
+    }
+
     await client.query('COMMIT');
 
-    // Get property details if property_id exists
-    let property;
-    if (updatedLead.property_id) {
-      const propertyResult = await client.query(
-        'SELECT id, name, property_type, price, city FROM properties WHERE id = $1',
-        [updatedLead.property_id]
+    // Get unit details if unit_id exists
+    let unit;
+    if (updatedLead.unit_id) {
+      const unitResult = await client.query(
+        `SELECT
+          u.id,
+          u.name,
+          u.land_area,
+          u.status,
+          b.id as block_id,
+          b.name as block_name,
+          p.id as property_id,
+          p.name as property_name,
+          p.city
+        FROM units u
+        JOIN blocks b ON u.block_id = b.id
+        JOIN properties p ON b.property_id = p.id
+        WHERE u.id = $1`,
+        [updatedLead.unit_id]
       );
-      if (propertyResult.rows.length > 0) {
-        const propRow = propertyResult.rows[0];
-        property = {
-          id: propRow.id,
-          name: propRow.name,
-          property_type: propRow.property_type,
-          price: propRow.price,
-          city: propRow.city,
+      if (unitResult.rows.length > 0) {
+        const unitRow = unitResult.rows[0];
+        unit = {
+          id: unitRow.id,
+          name: unitRow.name,
+          land_area: unitRow.land_area,
+          status: unitRow.status,
+          block: {
+            id: unitRow.block_id,
+            name: unitRow.block_name,
+          },
+          property: {
+            id: unitRow.property_id,
+            name: unitRow.property_name,
+            city: unitRow.city,
+          },
         };
       }
     }
@@ -246,9 +312,9 @@ export const updateLeadStatus = async (
       email: updatedLead.email || undefined,
       status: updatedLead.status,
       source: updatedLead.source,
-      property_id: updatedLead.property_id || undefined,
-      property_price: updatedLead.property_price || undefined,
+      unit_id: updatedLead.unit_id || undefined,
       budget_range: updatedLead.budget_range || undefined,
+      down_payment: updatedLead.down_payment || undefined,
       down_payment_percentage: updatedLead.down_payment_percentage || undefined,
       interest_rate: updatedLead.interest_rate || undefined,
       loan_term_years: updatedLead.loan_term_years || undefined,
@@ -257,7 +323,7 @@ export const updateLeadStatus = async (
       next_follow_up_at: updatedLead.next_follow_up_at || undefined,
       created_at: updatedLead.created_at,
       updated_at: updatedLead.updated_at,
-      property,
+      unit,
     };
 
     // Build activity response
@@ -293,10 +359,11 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
     WITH metrics AS (
       SELECT
         COUNT(*) FILTER (WHERE status = 'closed') as closed_count,
+        COUNT(*) FILTER (WHERE status = 'booked') as booked_count,
         COUNT(*) FILTER (WHERE status = 'surveyed') as surveyed_count,
         COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE)) as this_month_count,
         COUNT(*) as total_count,
-        AVG(EXTRACT(DAY FROM (updated_at - created_at))) FILTER (WHERE status = 'closed') as avg_days_to_close
+        AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) FILTER (WHERE status = 'closed') as avg_days_to_close
       FROM leads
       WHERE assigned_to = $1
     )
@@ -304,6 +371,7 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
       total_count as total_leads,
       this_month_count as this_month,
       surveyed_count as surveyed,
+      booked_count as booked,
       closed_count as closed,
       CASE
         WHEN total_count > 0 THEN ROUND((closed_count::NUMERIC / total_count::NUMERIC) * 100, 2)
@@ -320,6 +388,7 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
     total_leads: parseInt(row.total_leads, 10),
     this_month: parseInt(row.this_month, 10),
     surveyed: parseInt(row.surveyed, 10),
+    booked: parseInt(row.booked, 10),
     closed: parseInt(row.closed, 10),
     conversion_rate: parseFloat(row.conversion_rate),
     avg_time_to_close: parseFloat(row.avg_time_to_close),

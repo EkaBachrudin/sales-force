@@ -11,7 +11,10 @@ import {
  * Get Upcoming Reminders
  * @access Private (requires authentication)
  */
-export const getUpcomingRemindersController = async (req: Request, res: Response): Promise<void> => {
+export const getUpcomingRemindersController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const userId = req.user?.sub;
 
   if (!userId) {
@@ -27,8 +30,7 @@ export const getUpcomingRemindersController = async (req: Request, res: Response
 
   try {
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 3;
-    // 7 days = 168 hours, but allow override via query param
-    const hoursAhead = req.query.hours_ahead ? parseInt(req.query.hours_ahead as string, 10) : 168;
+    const hoursAhead = req.query.hours_ahead ? parseInt(req.query.hours_ahead as string, 10) : 24;
 
     const result = await getUpcomingReminders(userId, limit, hoursAhead);
 
@@ -81,7 +83,7 @@ export const createReminderController = async (req: Request, res: Response): Pro
 
     // Validate required fields
     if (!lead_id) {
-      res.status(422).json({
+      res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
@@ -95,7 +97,7 @@ export const createReminderController = async (req: Request, res: Response): Pro
     }
 
     if (!remind_at) {
-      res.status(422).json({
+      res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
@@ -111,7 +113,7 @@ export const createReminderController = async (req: Request, res: Response): Pro
     // Validate remind_at is a valid date
     const remindAtDate = new Date(remind_at);
     if (isNaN(remindAtDate.getTime())) {
-      res.status(422).json({
+      res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
@@ -135,13 +137,15 @@ export const createReminderController = async (req: Request, res: Response): Pro
 
     res.status(201).json({
       success: true,
-      data: reminder,
+      data: {
+        reminder: reminder,
+      },
     });
   } catch (error: any) {
     const statusCode = error.message.includes('not found')
       ? 404
       : error.message.includes('must be in the future')
-        ? 422
+        ? 400
         : error.message.includes('already exists')
           ? 409
           : 500;
@@ -159,7 +163,8 @@ export const createReminderController = async (req: Request, res: Response): Pro
                 : 'INTERNAL_ERROR',
         message: error.message,
         details:
-          error.message.includes('must be in the future') || error.message.includes('already exists')
+          error.message.includes('must be in the future') ||
+          error.message.includes('already exists')
             ? {
                 remind_at: error.message.includes('must be in the future')
                   ? ['remind_at must be in the future']
@@ -208,7 +213,7 @@ export const updateReminderController = async (req: Request, res: Response): Pro
 
     // Validate at least one field is provided
     if (is_completed === undefined && !remind_at && !message) {
-      res.status(422).json({
+      res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
@@ -223,7 +228,7 @@ export const updateReminderController = async (req: Request, res: Response): Pro
     if (remind_at) {
       remindAtDate = new Date(remind_at);
       if (isNaN(remindAtDate.getTime())) {
-        res.status(422).json({
+        res.status(400).json({
           success: false,
           error: {
             code: 'VALIDATION_ERROR',
@@ -249,13 +254,15 @@ export const updateReminderController = async (req: Request, res: Response): Pro
 
     res.status(200).json({
       success: true,
-      data: reminder,
+      data: {
+        reminder: reminder,
+      },
     });
   } catch (error: any) {
     const statusCode = error.message.includes('not found')
       ? 404
       : error.message.includes('must be in the future')
-        ? 422
+        ? 400
         : 500;
 
     res.status(statusCode).json({
@@ -268,12 +275,11 @@ export const updateReminderController = async (req: Request, res: Response): Pro
               ? 'VALIDATION_ERROR'
               : 'INTERNAL_ERROR',
         message: error.message,
-        details:
-          error.message.includes('must be in the future')
-            ? {
-                remind_at: ['remind_at must be in the future'],
-              }
-            : undefined,
+        details: error.message.includes('must be in the future')
+          ? {
+              remind_at: ['remind_at must be in the future'],
+            }
+          : undefined,
       },
     });
   }
@@ -312,19 +318,23 @@ export const deleteReminderController = async (req: Request, res: Response): Pro
   }
 
   try {
-    const result = await deleteReminder(reminder_id, userId);
+    await deleteReminder(reminder_id, userId);
 
     res.status(200).json({
       success: true,
-      data: result,
+      message: 'Reminder deleted successfully',
     });
   } catch (error: any) {
-    const statusCode = error.message.includes('not found') || error.message.includes('owned by you') ? 404 : 500;
+    const statusCode =
+      error.message.includes('not found') || error.message.includes('owned by you') ? 404 : 500;
 
     res.status(statusCode).json({
       success: false,
       error: {
-        code: error.message.includes('not found') || error.message.includes('owned by you') ? 'NOT_FOUND' : 'INTERNAL_ERROR',
+        code:
+          error.message.includes('not found') || error.message.includes('owned by you')
+            ? 'NOT_FOUND'
+            : 'INTERNAL_ERROR',
         message: error.message,
       },
     });

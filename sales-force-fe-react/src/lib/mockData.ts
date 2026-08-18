@@ -82,15 +82,17 @@ export const stageColors: Record<PipelineStage, string> = {
   contacted: '#3B82F6',
   surveyed: '#8B5CF6',
   negotiating: '#F59E0B',
+  booked: '#06B6D4',
   closed: '#10B981',
   cancelled: '#EF4444',
 };
 
 export const stageLabels: Record<PipelineStage, string> = {
-  new: 'Baru Masuk',
-  contacted: 'Dikontak',
-  surveyed: 'Survey',
-  negotiating: 'Negosiasi',
-  closed: 'Closing',
-  cancelled: 'Batal',
+  new: 'New',
+  contacted: 'Contacted',
+  surveyed: 'Surveyed',
+  negotiating: 'Negotiating',
+  booked: 'Booked',
+  closed: 'Closed',
+  cancelled: 'Cancelled',
 };

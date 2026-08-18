@@ -221,14 +221,41 @@ export const api = {
     return data;
   },
 
-  createProperty: async (propertyData: { name: string; property_type: string }) => {
+  getPropertyDetail: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch property detail', response.status);
+    }
+
+    return data;
+  },
+
+  getPropertySiteplan: async (id: string) => {
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}/siteplan`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch siteplan data', response.status);
+    }
+
+    return data;
+  },
+
+  createProperty: async (formData: FormData) => {
     const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
-      body: JSON.stringify(propertyData),
+      body: formData,
     });
 
     const data = await response.json();
@@ -240,14 +267,15 @@ export const api = {
     return data;
   },
 
-  updateProperty: async (id: string, propertyData: { name?: string; property_type?: string }) => {
-    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${id}`, {
+  updateProperty: async (id: string, formData: FormData, deleteSiteplan?: boolean) => {
+    let url = `${API_URL}/api/v1/properties/${id}`;
+    if (deleteSiteplan) {
+      url += '?delete_siteplan=true';
+    }
+    const response = await fetchWithInterceptor(url, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
-      body: JSON.stringify(propertyData),
+      body: formData,
     });
 
     const data = await response.json();
@@ -274,11 +302,259 @@ export const api = {
     return data;
   },
 
+  createBlock: async (propertyId: string, blockData: { name: string }) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/properties/${propertyId}/blocks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify(blockData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to create block', response.status);
+    }
+
+    return data;
+  },
+
+  updateBlock: async (blockId: string, blockData: { name: string }) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/blocks/${blockId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify(blockData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to update block', response.status);
+    }
+
+    return data;
+  },
+
+  deleteBlock: async (blockId: string) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/blocks/${blockId}`, {
+      method: 'DELETE',
+      headers: {
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to delete block', response.status);
+    }
+
+    return data;
+  },
+
+  getUnits: async (blockId: string, params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.search) queryParams.append('search', params.search);
+
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/blocks/${blockId}/units${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch units', response.status);
+    }
+
+    return data;
+  },
+
+  createUnit: async (blockId: string, unitData: { name: string; land_area?: number }) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/blocks/${blockId}/units`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify(unitData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to create unit', response.status);
+    }
+
+    return data;
+  },
+
+  updateUnit: async (unitId: string, unitData: { name: string; land_area?: number }) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/units/${unitId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify(unitData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to update unit', response.status);
+    }
+
+    return data;
+  },
+
+  deleteUnit: async (unitId: string) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/units/${unitId}`, {
+      method: 'DELETE',
+      headers: {
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || 'Failed to delete unit', response.status);
+    }
+
+    return data;
+  },
+
+  getUnitDetail: async (unitId: string) => {
+    const response = await fetchWithInterceptor(
+      `${API_URL}/api/v1/units/${unitId}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to fetch unit detail', response.status);
+    }
+
+    return data;
+  },
+
+  assignLeadToUnit: async (unitId: string, leadId: string) => {
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    };
+
+    const csrfToken = getCookie('csrf_token');
+
+    const response = await fetchWithInterceptor(`${API_URL}/api/v1/units/${unitId}/leads`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify({ lead_id: leadId }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.error?.message || data.message || 'Failed to assign lead to unit', response.status);
+    }
+
+    return data;
+  },
+
   // Leads API
   getLeads: async (params?: {
     page?: number;
     pageSize?: number;
     stage?: string;
+    statuses?: string;
     search?: string;
     propertyType?: string;
     source?: string;
@@ -290,6 +566,7 @@ export const api = {
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.pageSize) queryParams.append('limit', params.pageSize.toString());
     if (params?.stage && params.stage !== 'all') queryParams.append('status', params.stage);
+    if (params?.statuses) queryParams.append('statuses', params.statuses);
     if (params?.search) queryParams.append('search', params.search);
     if (params?.propertyType && params.propertyType !== 'all') queryParams.append('property_id', params.propertyType);
     if (params?.source && params.source !== 'all') queryParams.append('source', params.source);
