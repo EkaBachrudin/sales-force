@@ -719,13 +719,17 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
     downPayment = kpr.property_price * (kpr.down_payment_percentage / 100);
   }
 
+  // Special handling for unit_id:
+  // - omitted (undefined): keep existing value
+  // - string: assign to that unit
+  // - explicit null: clear assignment
+  const unitIdValue = dto.unit_id === undefined ? currentLead.unit_id : dto.unit_id;
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
     // Update lead
-    // Special handling for unit_id: if explicitly null/undefined, allow clearing it
-    // Otherwise use COALESCE to keep existing value if not provided
     const updateQuery = `
       UPDATE leads SET
         name = COALESCE($2, name),
@@ -734,10 +738,7 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
         nik = COALESCE($5, nik),
         npwp = COALESCE($6, npwp),
         source = COALESCE($7, source),
-        unit_id = CASE
-          WHEN $8::uuid IS NULL THEN NULL
-          ELSE COALESCE($8::uuid, unit_id)
-        END,
+        unit_id = $8::uuid,
         budget_range = COALESCE($9, budget_range),
         status = COALESCE($10, status),
         notes = COALESCE($11, notes),
@@ -762,7 +763,7 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
       dto.nik,
       dto.npwp,
       dto.source,
-      dto.unit_id,
+      unitIdValue,
       dto.budget_range ? JSON.stringify(dto.budget_range) : null,
       dto.status,
       dto.notes,

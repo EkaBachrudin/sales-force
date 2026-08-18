@@ -644,7 +644,7 @@ INSERT INTO lead_activities (
 | **nik** | string | No | `leads.nik` | Validasi: wajib 16 digit jika diisi |
 | **npwp** | string | No | `leads.npwp` | Validasi: wajib 15-20 digit jika diisi |
 | **source** | string | No | `leads.source` | Free text, max 50 chars |
-| **unit_id** | UUID | No | `leads.unit_id` | Harus eksis di tabel `units` dan berada di property milik user. Kirim `null` untuk melepas assign unit dari lead. Jika unit diubah, trigger DB akan mengupdate status unit lama dan baru |
+| **unit_id** | UUID | No | `leads.unit_id` | Harus eksis di tabel `units` dan berada di property milik user. Jika field ini **tidak dikirim** (omitted), `unit_id` tetap dipertahankan (existing value dipertahankan). Kirim `null` untuk melepas assign unit dari lead. Jika unit diubah, trigger DB akan mengupdate status unit lama dan baru |
 | **budget_range** | object | No | `leads.budget_range` | Format JSONB: `{"min": number, "max": number}` |
 | **status** | string | No | `leads.status` | Jika berubah dari status lama, otomatis memicu Activity Log |
 | **notes** | string | No | `leads.notes` | Catatan tambahan internal |
@@ -684,10 +684,7 @@ UPDATE leads SET
     nik = COALESCE($5, nik),
     npwp = COALESCE($6, npwp),
     source = COALESCE($7, source),
-    unit_id = CASE
-      WHEN $8::uuid IS NULL THEN NULL
-      ELSE COALESCE($8::uuid, unit_id)
-    END,
+    unit_id = $8::uuid,
     budget_range = COALESCE($9, budget_range),
     status = COALESCE($10, status),
     notes = COALESCE($11, notes),
@@ -704,6 +701,11 @@ WHERE id = $1
   AND assigned_to = $20
 RETURNING *;
 ```
+
+> **Catatan `$8` (unit_id)**: Nilai `$8` dihitung di sisi aplikasi, bukan dikirim mentah dari request:
+> - `unit_id` tidak dikirim (omitted) → `$8` = `unit_id` existing (tidak berubah)
+> - `unit_id` bernilai string → `$8` = unit baru
+> - `unit_id` = `null` → `$8` = `NULL` (melepas assign unit)
 
 1. **Update/Insert `reminder_schedules`** (jika reminder disediakan):
 
