@@ -142,7 +142,7 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
                 fullWidth
                 leftIcon={<UserPlus className="w-4 h-4" />}
                 onClick={() => setIsAssignOpen(true)}
-                disabled={unit.status.toLowerCase() === 'sold'}
+                disabled={unit.status.toLowerCase() === 'sold' || unit.status.toLowerCase() === 'booked'}
               >
                 Assign Lead
               </Button>

@@ -14,6 +14,7 @@ import {
   CrmLead,
   CrmLeadActivity,
 } from '../types';
+import { lockUnitForBooking, findBookedLeadOnUnit, revokeOtherLeadsOnUnit } from './leadUnitRules';
 
 /**
  * Pipeline Stage Configuration
@@ -243,6 +244,23 @@ export const updateLeadStatus = async (
       notes,
     ]);
     const activity = activityResult.rows[0];
+
+    // Booked business rule: the booked lead claims the unit exclusively
+    if (dto.status === CrmLeadStatus.BOOKED && updatedLead.unit_id) {
+      const unit = await lockUnitForBooking(client, updatedLead.unit_id);
+
+      if (!unit) {
+        throw new AppError('Unit not found', 404);
+      }
+
+      const existingBooked = await findBookedLeadOnUnit(client, updatedLead.unit_id, leadId);
+
+      if (existingBooked) {
+        throw new AppError('Unit already has a booked lead', 409);
+      }
+
+      await revokeOtherLeadsOnUnit(client, updatedLead.unit_id, leadId);
+    }
 
     await client.query('COMMIT');
 

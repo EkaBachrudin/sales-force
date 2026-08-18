@@ -2,7 +2,7 @@
 // Core domain types defined here to avoid circular dependencies with components
 
 // Pipeline Stage
-export type PipelineStage = 'new' | 'contacted' | 'surveyed' | 'negotiating' | 'closed' | 'cancelled';
+export type PipelineStage = 'new' | 'contacted' | 'surveyed' | 'negotiating' | 'booked' | 'closed' | 'cancelled';
 
 // Reminder Data (backend format, used in Lead)
 export interface ReminderData {

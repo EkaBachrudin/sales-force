@@ -26,6 +26,9 @@ export const getLeadsController = async (req: Request, res: Response): Promise<v
     page: req.query.page ? Number.parseInt(req.query.page as string) : undefined,
     limit: req.query.limit ? Number.parseInt(req.query.limit as string) : undefined,
     status: req.query.status as LeadStatusEnum | undefined,
+    statuses: (req.query.statuses as string | undefined)
+      ? (req.query.statuses as string).split(',').map((s) => s.trim()).filter(Boolean) as LeadStatusEnum[]
+      : undefined,
     search: req.query.search as string | undefined,
     start_date: req.query.start_date as string | undefined,
     end_date: req.query.end_date as string | undefined,

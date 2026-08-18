@@ -17,6 +17,7 @@ import {
   CrmLeadStatus as LeadStatusEnum,
   CrmActivityType as ActivityTypeEnum,
 } from '../types';
+import { lockUnitForBooking, findBookedLeadOnUnit, revokeOtherLeadsOnUnit } from './leadUnitRules';
 
 /**
  * Calculate estimated monthly payment for KPR simulation
@@ -92,6 +93,7 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
     page = 1,
     limit = 50,
     status,
+    statuses,
     search,
     start_date,
     end_date,
@@ -119,7 +121,14 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
   conditions.push(`l.created_at <= $${paramIndex++}`);
   params.push(endDate);
 
-  if (status) {
+  if (statuses && statuses.length > 0) {
+    const validStatuses = statuses.filter((s) => Object.values(LeadStatusEnum).includes(s));
+    if (validStatuses.length > 0) {
+      const placeholders = validStatuses.map(() => `$${paramIndex++}`).join(', ');
+      conditions.push(`l.status IN (${placeholders})`);
+      params.push(...validStatuses);
+    }
+  } else if (status) {
     conditions.push(`l.status = $${paramIndex++}`);
     params.push(status);
   }
@@ -440,6 +449,9 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
     if (unitCheck.rows[0].status === 'sold') {
       throw new AppError('Unit is already sold', 409);
     }
+    if (await findBookedLeadOnUnit(pool, dto.unit_id)) {
+      throw new AppError('Unit already has a booked lead', 409);
+    }
   }
 
   // Validate KPR simulation if provided
@@ -513,6 +525,23 @@ export const createLead = async (dto: CreateLeadDto, userId?: string): Promise<L
 
     const leadResult = await client.query(leadQuery, leadValues);
     const newLead = leadResult.rows[0];
+
+    // Booked business rule: the booked lead claims the unit exclusively
+    if (newLead.status === LeadStatusEnum.BOOKED && newLead.unit_id) {
+      const unit = await lockUnitForBooking(client, newLead.unit_id);
+
+      if (!unit) {
+        throw new AppError('Unit not found', 404);
+      }
+
+      const existingBooked = await findBookedLeadOnUnit(client, newLead.unit_id, newLead.id);
+
+      if (existingBooked) {
+        throw new AppError('Unit already has a booked lead', 409);
+      }
+
+      await revokeOtherLeadsOnUnit(client, newLead.unit_id, newLead.id);
+    }
 
     // Insert activity log
     await client.query(
@@ -658,6 +687,9 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
     if (unitCheck.rows[0].status === 'sold') {
       throw new AppError('Unit is already sold', 409);
     }
+    if (await findBookedLeadOnUnit(pool, dto.unit_id, leadId)) {
+      throw new AppError('Unit already has a booked lead', 409);
+    }
   }
 
   // Calculate new monthly payment if KPR fields are updated
@@ -746,6 +778,23 @@ export const updateLead = async (leadId: string, dto: UpdateLeadDto, userId?: st
 
     const updateResult = await client.query(updateQuery, updateValues);
     const updatedLead = updateResult.rows[0];
+
+    // Booked business rule: the booked lead claims the unit exclusively
+    if (updatedLead.status === LeadStatusEnum.BOOKED && updatedLead.unit_id) {
+      const unit = await lockUnitForBooking(client, updatedLead.unit_id);
+
+      if (!unit) {
+        throw new AppError('Unit not found', 404);
+      }
+
+      const existingBooked = await findBookedLeadOnUnit(client, updatedLead.unit_id, leadId);
+
+      if (existingBooked) {
+        throw new AppError('Unit already has a booked lead', 409);
+      }
+
+      await revokeOtherLeadsOnUnit(client, updatedLead.unit_id, leadId);
+    }
 
     // Log activity if status changed
     if (dto.status && dto.status !== currentLead.status) {

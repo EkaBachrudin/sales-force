@@ -10,7 +10,7 @@
 | --- | --- |
 | **Module** | Leads Management |
 | **Version** | 2.0 |
-| **Last Updated** | 2026-07-14 |
+| **Last Updated** | 2026-08-18 |
 | **Related Docs** | [BRD](https://www.notion.so/BRD-Sales-Force-Automation-System-2e4b2c42720c819793e5c67df4e0172f), [ERD](https://www.notion.so/ERD-Sales-Force-Automation-System-2e4b2c42720c81608681d8ec647c6954), [API Design - Properties V2](https://www.notion.so/API-Design-Properties-V2-2e4b2c42720c818093ffc3728d4807a9) |
 
 ### Changelog dari v1.1 → v2.0
@@ -74,6 +74,7 @@
 | `page` | number | No | 1 | Page number (starts from 1) |
 | `limit` | number | No | 50 | Max rows per page (max 50) |
 | `status` | string | No | - | Filter by stage: `new`, `contacted`, `surveyed`, `negotiating`, `booked`, `closed`, `cancelled` |
+| `statuses` | string (comma-separated) | No | - | Filter by multiple statuses, e.g. `new,contacted,surveyed,negotiating`. Setiap nilai harus salah satu dari: `new`, `contacted`, `surveyed`, `negotiating`, `booked`, `closed`, `cancelled` |
 | `search` | string | No | - | Search by name or phone number |
 | `start_date` | string (ISO date) | No | 1 year ago | Filter leads created after this date |
 | `end_date` | string (ISO date) | No | today | Filter leads before this date |
@@ -86,6 +87,7 @@
 
 ```
 GET /api/v1/leads?page=1&limit=50&status=new&search=budi&start_date=2025-01-12&end_date=2026-01-12&source=landing_page&property_id=e2696123-cf18-44f7-ba63-481896c08d31&sort_by=created_at&sort_order=desc
+GET /api/v1/leads?page=1&limit=200&start_date=2000-01-01&end_date=2026-08-18&statuses=new,contacted,surveyed,negotiating
 ```
 
 **Response Structure**:
@@ -174,7 +176,9 @@ LEFT JOIN properties p ON b.property_id = p.id
 WHERE l.assigned_to = $1                              -- Wajib: Filter User ID dari JWT
     AND l.created_at >= $2                            -- Wajib: Start Date (Default: 1 tahun lalu)
     AND l.created_at <= $3                            -- Wajib: End Date (Default: Hari ini)
-    AND ($4::varchar(50) IS NULL OR l.status = $4)   -- Opsional: Jika status diisi
+    AND ($4::varchar(50) IS NULL OR l.status = $4)   -- Opsional: single status
+    -- Opsional: multiple statuses (param `statuses`):
+    -- AND l.status IN ($n, $n+1, ...)               -- contoh: 'new','contacted','surveyed','negotiating'
     AND ($5::text IS NULL OR l.name ILIKE '%' || $5 || '%' OR l.phone ILIKE '%' || $5 || '%')  -- Opsional: Jika search diisi
     AND ($6::uuid IS NULL OR p.id = $6)              -- Opsional: Jika property_id diisi (filter via join chain)
     AND ($7::text IS NULL OR l.source ILIKE '%' || $7 || '%')  -- Opsional: Jika source diisi
@@ -188,6 +192,8 @@ LIMIT $10 OFFSET $11
 ```
 
 > **Note**: `property_id` filter di-resolve melalui join chain `leads → units → blocks → properties`. Jika `property_id` diberikan, hanya lead yang unit-nya berada di property tersebut yang akan muncul. Jika lead tidak punya unit (`unit_id` IS NULL), lead tersebut **tidak** akan muncul saat filter `property_id` aktif.
+> 
+> **Note**: `statuses` menerima daftar status comma-separated (mis. `new,contacted,surveyed,negotiating`); lead dengan status di luar daftar akan di-exclude dari hasil. Nilai yang tidak valid diabaikan. `statuses` dan `status` bersifat mutual exclusive — jika `statuses` diberikan, `status` diabaikan.
 > 
 
 ---
@@ -659,7 +665,8 @@ INSERT INTO lead_activities (
 1. Trigger DB akan mengevaluasi status lead terhadap unit A (jika tidak ada lead aktif lain, unit A kembali `available`)
 2. Trigger DB akan mengevaluasi status lead terhadap unit B (unit B berubah sesuai status lead)
 3. Validasi: unit B tidak boleh berstatus `sold`
-4. Validasi: unit B tidak boleh sudah ada lead aktif lain
+4. Validasi: unit B tidak boleh sudah memiliki lead berstatus `booked`
+5. Business Rule: Jika status lead berubah menjadi `booked`, semua lead lain di unit tersebut akan di-unassign (unit diklaim eksklusif oleh lead `booked`)
 > 
 
 > **Kalkulasi down_payment**: Sama seperti create, `down_payment` dihitung ulang jika `kpr_simulation` disediakan.
@@ -1122,7 +1129,7 @@ cancelled            │  available*    │  Kembali tersedia (jika tidak ada le
 | `NOT_FOUND` | 404 | Lead tidak ditemukan |
 | `UNIT_NOT_FOUND` | 404 | Unit tidak ditemukan |
 | `UNIT_SOLD` | 409 | Unit sudah terjual, tidak bisa di-assign ke lead |
-| `UNIT_ALREADY_ASSIGNED` | 409 | Unit sudah ada lead aktif lain |
+| `UNIT_BOOKED` | 409 | Unit sudah ada lead berstatus `booked` |
 | `UNIT_OWNERSHIP_MISMATCH` | 403 | Unit berada di property yang bukan milik user |
 
 ---

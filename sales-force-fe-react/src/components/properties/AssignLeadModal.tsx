@@ -46,6 +46,7 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, propertyNam
     source: 'all',
     dateFrom: '2000-01-01',
     dateTo: formatDateLocal(new Date()),
+    statuses: 'new,contacted,surveyed,negotiating',
   };
 
   const { data: leadsData, isLoading } = useLeads(1, 200, filters, isOpen);

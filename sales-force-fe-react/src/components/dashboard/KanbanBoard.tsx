@@ -10,17 +10,18 @@ export type { Lead, PipelineStage };
 export interface PipelineColumn {
   id: PipelineStage;
   label: string;
-  color: 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red';
+  color: 'gray' | 'blue' | 'purple' | 'orange' | 'teal' | 'green' | 'red';
   leads: Lead[];
 }
 
 const stageConfig: Record<PipelineStage, { label: string; color: PipelineColumn['color'] }> = {
-  new: { label: 'Baru Masuk', color: 'gray' },
-  contacted: { label: 'Dikontak', color: 'blue' },
-  surveyed: { label: 'Survey', color: 'purple' },
-  negotiating: { label: 'Negosiasi', color: 'orange' },
-  closed: { label: 'Closing', color: 'green' },
-  cancelled: { label: 'Batal', color: 'red' },
+  new: { label: 'New', color: 'gray' },
+  contacted: { label: 'Contacted', color: 'blue' },
+  surveyed: { label: 'Surveyed', color: 'purple' },
+  negotiating: { label: 'Negotiating', color: 'orange' },
+  booked: { label: 'Booked', color: 'teal' },
+  closed: { label: 'Closed', color: 'green' },
+  cancelled: { label: 'Cancelled', color: 'red' },
 };
 
 const colorStyles = {
@@ -28,6 +29,7 @@ const colorStyles = {
   blue: 'bg-blue-50 border-blue-200',
   purple: 'bg-purple-50 border-purple-200',
   orange: 'bg-orange-50 border-orange-200',
+  teal: 'bg-cyan-50 border-cyan-200',
   green: 'bg-green-50 border-green-200',
   red: 'bg-red-50 border-red-200',
 };
@@ -37,6 +39,7 @@ const headerColorStyles = {
   blue: 'text-blue-700 bg-blue-100',
   purple: 'text-purple-700 bg-purple-100',
   orange: 'text-orange-700 bg-orange-100',
+  teal: 'text-cyan-700 bg-cyan-100',
   green: 'text-green-700 bg-green-100',
   red: 'text-red-700 bg-red-100',
 };

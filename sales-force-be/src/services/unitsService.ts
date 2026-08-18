@@ -11,6 +11,7 @@ import {
   PaginationMeta,
 } from '../types';
 import { CrmLead, CrmLeadStatus } from '../types';
+import { findBookedLeadOnUnit } from './leadUnitRules';
 
 /**
  * GET /api/v1/blocks/:blockId/units - Get Units List
@@ -436,18 +437,10 @@ export const assignLeadToUnit = async (
     throw new AppError('Cannot assign lead to sold unit', 409);
   }
 
-  // Check if there's already an active lead assigned to this unit
-  const activeLeadQuery = `
-    SELECT id FROM leads
-    WHERE unit_id = $1
-      AND status NOT IN ('cancelled')
-    LIMIT 1
-  `;
+  const bookedLeadId = await findBookedLeadOnUnit(pool, unitId);
 
-  const activeLeadResult = await pool.query(activeLeadQuery, [unitId]);
-
-  if (activeLeadResult.rows.length > 0) {
-    throw new AppError('Unit already has an active lead assigned', 409);
+  if (bookedLeadId) {
+    throw new AppError('Unit already has a booked lead', 409);
   }
 
   // Check if lead exists and belongs to the same user

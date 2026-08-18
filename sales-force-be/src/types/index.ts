@@ -394,6 +394,7 @@ export interface GetLeadsQuery {
   page?: number;
   limit?: number;
   status?: CrmLeadStatus;
+  statuses?: CrmLeadStatus[];
   search?: string;
   start_date?: string;
   end_date?: string;

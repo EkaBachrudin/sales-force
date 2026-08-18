@@ -719,7 +719,8 @@ ON DELETE: SET NULL
 **Business Rule:**
 
 - Lead langsung memilih **unit spesifik** (bukan properti umum).
-- Satu unit hanya boleh memiliki **satu lead aktif** (di-handle via partial unique index & trigger).
+- Satu unit boleh memiliki **banyak lead aktif** sekaligus.
+- Saat salah satu lead berstatus `booked`, lead lain di unit tersebut akan di-unassign (unit diklaim eksklusif oleh lead `booked`); unit tidak bisa di-assign lead baru selama masih ada lead `booked`.
 - Jika unit dihapus, `unit_id` di lead menjadi NULL.
 - Perubahan status lead akan **mengubah status unit secara otomatis** via Database Trigger.
 

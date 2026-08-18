@@ -1276,8 +1276,8 @@ ORDER BY l.created_at DESC
 ```
 
 **Notes**:
-- `leads` bisa berisi multiple leads (historical), tapi secara bisnis hanya boleh ada **1 lead aktif** per unit (di-enforce di application layer / partial unique index)
-- Frontend bisa memfilter leads berdasarkan status untuk menampilkan hanya lead aktif
+- `leads` bisa berisi multiple leads; secara bisnis unit boleh memiliki **banyak lead aktif** sekaligus
+- Saat salah satu lead berstatus `booked`, lead lain di unit tersebut otomatis di-unassign (unit diklaim eksklusif oleh lead `booked`)
 
 ---
 
@@ -1313,7 +1313,8 @@ ORDER BY l.created_at DESC
 - Lead harus dimiliki oleh user yang sama dengan pemilik property (assigned_to match)
 - Unit harus milik property yang dimiliki user yang login
 - Unit tidak boleh berstatus `sold`
-- **Business Rule**: Jika unit sudah ada lead aktif (status != `cancelled`), harus ditolak
+- Unit tidak boleh sudah memiliki lead berstatus `booked`
+- **Business Rule**: Saat sebuah lead masuk status `booked`, semua lead lain di unit tersebut akan di-unassign (unit diklaim eksklusif oleh lead `booked`)
 - Setelah assign, trigger DB akan mengubah status unit berdasarkan status lead
 
 **Success Response** `200`:
@@ -1396,7 +1397,7 @@ cancelled      →  available
 | `FORBIDDEN` | 403 | Resource bukan milik user | GET/PUT/DELETE by ID |
 | `NOT_FOUND` | 404 | Resource tidak ditemukan | GET/PUT/DELETE by ID |
 | `CONFLICT` | 409 | Nama sudah ada (unique violation) | POST Block, POST Unit |
-| `UNIT_ALREADY_ASSIGNED` | 409 | Unit sudah ada lead aktif | POST Lead to Unit |
+| `UNIT_BOOKED` | 409 | Unit sudah ada lead berstatus `booked` | POST Lead to Unit |
 | `UNIT_SOLD` | 409 | Unit sudah terjual, tidak bisa di-assign | POST Lead to Unit |
 | `LEAD_ALREADY_ASSIGNED` | 409 | Lead sudah di-assign ke unit lain | POST Lead to Unit |
 | `INVALID_FILE_TYPE` | 400 | File bukan bertipe SVG (`image/svg+xml`) | POST/PUT Property (siteplan_file) |

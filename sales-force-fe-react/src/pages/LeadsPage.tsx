@@ -185,12 +185,13 @@ export default function LeadsPage() {
               className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
             >
               <option value="all">All Stages</option>
-              <option value="new">Baru Masuk</option>
-              <option value="contacted">Dikontak</option>
-              <option value="surveyed">Survey</option>
-              <option value="negotiating">Negosiasi</option>
-              <option value="closed">Closing</option>
-              <option value="cancelled">Batal</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="surveyed">Surveyed</option>
+              <option value="negotiating">Negotiating</option>
+              <option value="booked">Booked</option>
+              <option value="closed">Closed</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
 

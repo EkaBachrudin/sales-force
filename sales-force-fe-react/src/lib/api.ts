@@ -554,6 +554,7 @@ export const api = {
     page?: number;
     pageSize?: number;
     stage?: string;
+    statuses?: string;
     search?: string;
     propertyType?: string;
     source?: string;
@@ -565,6 +566,7 @@ export const api = {
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.pageSize) queryParams.append('limit', params.pageSize.toString());
     if (params?.stage && params.stage !== 'all') queryParams.append('status', params.stage);
+    if (params?.statuses) queryParams.append('statuses', params.statuses);
     if (params?.search) queryParams.append('search', params.search);
     if (params?.propertyType && params.propertyType !== 'all') queryParams.append('property_id', params.propertyType);
     if (params?.source && params.source !== 'all') queryParams.append('source', params.source);
