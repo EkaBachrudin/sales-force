@@ -12,6 +12,6 @@ sudo certbot renew --quiet
 # Restart nginx container (certificate langsung terbaca dari /etc/letsencrypt)
 echo "[$(date)] Restarting nginx container..."
 cd /var/www/sales-force
-docker compose -f docker-compose.registry.yml --env-file .env restart nginx
+docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml restart nginx
 
 echo "[$(date)] SSL renewal completed!"

@@ -34,6 +34,5 @@ Index seluruh dokumentasi proyek. Dokumentasi dikelompokkan berdasarkan kategori
 
 | Dokumen | Deskripsi |
 | --- | --- |
-| [CI-CD-SETUP](03-infrastructure/CI-CD-SETUP.md) | Setup CI/CD dengan GitHub Actions & VPS |
 | [Database Backup & Recovery Scripts](03-infrastructure/Database%20Backup%20%26%20Recovery%20Scripts.md) | Sistem backup & recovery PostgreSQL |
 | [DEPLOYMENT](03-infrastructure/DEPLOYMENT.md) | Panduan deployment (Docker, nginx, environment) |
