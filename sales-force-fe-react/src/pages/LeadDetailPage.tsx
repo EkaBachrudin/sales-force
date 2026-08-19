@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
-import { Phone, MessageCircle, Mail, Calculator, Bell, ArrowLeft } from 'lucide-react';
+import { Phone, MessageCircle, Mail, Calculator, Bell, ArrowLeft, Building2, MapPin, UserMinus } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { Badge } from '@/components/ui/Badge';
 import { useLeadDetail, useLeadMutations } from '@/hooks/useLeads';
-import { useProperties } from '@/hooks/useProperties';
-import { propertyService } from '@/services/propertyService';
+import { UnitPickerModal } from '@/components/leads/UnitPickerModal';
+import { UnassignLeadModal } from '@/components/properties/UnassignLeadModal';
 
 const stageOptions = [
   { value: 'new', label: 'New' },
@@ -47,13 +48,6 @@ export default function LeadDetailPage() {
       // Optionally show success message or navigate
     },
   });
-  const { data: properties, isLoading: isLoadingProperties } = useProperties();
-
-  const propertyOptions = [
-    { value: '', label: 'No Property Selected' },
-    ...(properties ? propertyService.toPropertyOptions(properties) : []),
-  ];
-
   // Form state
   const [formData, setFormData] = useState({
     name: '',
@@ -62,7 +56,6 @@ export default function LeadDetailPage() {
     nik: '',
     npwp: '',
     source: '',
-    property_id: '',
     budgetMin: 0,
     budgetMax: 0,
     kprPrice: 0,
@@ -80,6 +73,8 @@ export default function LeadDetailPage() {
   const [showKprCalculator, setShowKprCalculator] = useState(false);
   const [kprResult, setKprResult] = useState<number | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isUnitPickerOpen, setIsUnitPickerOpen] = useState(false);
+  const [unassignTarget, setUnassignTarget] = useState<{ id: string; name: string } | null>(null);
 
   // Initialize form data when lead changes
   useEffect(() => {
@@ -96,7 +91,6 @@ export default function LeadDetailPage() {
         nik: lead.nik || '',
         npwp: lead.npwp || '',
         source: lead.source || '',
-        property_id: lead.property_id || '',
         budgetMin: lead.budget_range?.min || 0,
         budgetMax: lead.budget_range?.max || 0,
         kprPrice: lead.kpr_simulation?.property_price || 0,
@@ -159,12 +153,6 @@ export default function LeadDetailPage() {
       notes: formData.notes || undefined,
       status: formData.stage
     };
-
-    if (formData.property_id === '') {
-      submitData.property_id = null;
-    } else if (formData.property_id) {
-      submitData.property_id = formData.property_id;
-    }
 
     if (formData.kprPrice && formData.kprDownPayment && formData.kprInterestRate && formData.kprTerm) {
       submitData.kpr_simulation = {
@@ -363,20 +351,89 @@ export default function LeadDetailPage() {
             />
           </div>
 
-          {/* Property Interest */}
+          {/* Unit Assignment */}
           <div className="bg-white rounded-xl border border-border p-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
-              Property Interest
+              Unit Assignment
             </h3>
             <div className="pl-3">
-              <Select
-                label="Property Type"
-                options={propertyOptions}
-                value={formData.property_id}
-                onChange={(e) => handleInputChange('property_id', e.target.value)}
-                disabled={isLoadingProperties}
-              />
+              {lead.unit ? (
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-text-primary">
+                          Unit {lead.unit.name}
+                        </p>
+                        <Badge
+                          variant={
+                            lead.unit.status === 'available' ? 'green'
+                              : lead.unit.status === 'reserved' ? 'purple'
+                              : lead.unit.status === 'booked' ? 'orange'
+                              : 'gray'
+                          }
+                          size="sm"
+                        >
+                          {lead.unit.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                        {lead.unit.block.name} · {lead.unit.property.name} ({lead.unit.property.city})
+                      </p>
+                      {lead.unit.land_area && (
+                        <p className="text-xs text-text-secondary mt-0.5">
+                          {lead.unit.land_area} m²
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:flex-shrink-0">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="w-full sm:w-auto"
+                      onClick={() => setIsUnitPickerOpen(true)}
+                    >
+                      Change Unit
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setUnassignTarget({ id: id || '', name: lead.name })}
+                      leftIcon={<UserMinus className="w-4 h-4 text-red-500" />}
+                      className="w-full sm:w-auto hover:bg-red-50 hover:border-red-300"
+                    >
+                      Unassign
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <p className="text-sm text-text-secondary">
+                      No unit assigned yet
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                    onClick={() => setIsUnitPickerOpen(true)}
+                  >
+                    Assign to Unit
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -626,6 +683,22 @@ export default function LeadDetailPage() {
           </div>
         </div>
       </form>
+
+      <UnitPickerModal
+        isOpen={isUnitPickerOpen}
+        onClose={() => setIsUnitPickerOpen(false)}
+        leadId={id || ''}
+        currentUnit={lead?.unit}
+        onAssigned={() => setHasUnsavedChanges(false)}
+      />
+
+      <UnassignLeadModal
+        isOpen={!!unassignTarget}
+        onClose={() => setUnassignTarget(null)}
+        unitId={lead?.unit?.id}
+        unitName={lead?.unit?.name}
+        lead={unassignTarget}
+      />
     </DashboardLayout>
   );
 }

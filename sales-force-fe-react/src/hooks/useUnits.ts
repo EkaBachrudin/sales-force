@@ -2,7 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UnitListItem } from '@/lib/types';
 import { api } from '@/lib/api';
 
-export function useUnits(blockId: string) {
+export function useUnits(
+  blockId: string,
+  params?: { limit?: number; status?: string; search?: string }
+) {
   return useQuery<{
     success: boolean;
     data: {
@@ -21,9 +24,9 @@ export function useUnits(blockId: string) {
       };
     };
   }>({
-    queryKey: ['units', blockId],
+    queryKey: ['units', blockId, params],
     queryFn: async () => {
-      const response = await api.getUnits(blockId);
+      const response = await api.getUnits(blockId, params);
       return response;
     },
     staleTime: 1000 * 60 * 5,
@@ -115,6 +118,7 @@ export function useAssignLeadToUnit() {
       queryClient.invalidateQueries({ queryKey: ['unitDetail', variables.unitId] });
       queryClient.invalidateQueries({ queryKey: ['units'] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['lead'] });
       queryClient.invalidateQueries({ queryKey: ['pipeline'] });
       queryClient.invalidateQueries({ queryKey: ['propertySiteplan'] });
     },
@@ -136,6 +140,7 @@ export function useUnassignLeadFromUnit() {
       queryClient.invalidateQueries({ queryKey: ['unitDetail', variables.unitId] });
       queryClient.invalidateQueries({ queryKey: ['units'] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['lead'] });
       queryClient.invalidateQueries({ queryKey: ['pipeline'] });
       queryClient.invalidateQueries({ queryKey: ['propertySiteplan'] });
     },

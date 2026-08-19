@@ -54,13 +54,22 @@ export interface Lead {
   kprDownPayment?: number;
   interest_rate?: number;
   loan_term_years?: number;
-  property_id: string;
+  property_id?: string;
+  unit_id?: string;
   unit?: {
     id: string;
     name: string;
-    block_name: string;
-    property_name: string;
-    property_id: string;
+    land_area: string;
+    status: string;
+    block: {
+      id: string;
+      name: string;
+    };
+    property: {
+      id: string;
+      name: string;
+      city: string;
+    };
   };
 }
 
