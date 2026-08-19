@@ -689,6 +689,23 @@ export interface AssignLeadResponse {
   };
 }
 
+export interface UnassignLeadResponse {
+  lead: {
+    id: string;
+    name: string;
+    unit_id: string | null;
+    unit_name: string | null;
+    status: CrmLeadStatus;
+    updated_at: Date;
+  };
+  unit: {
+    id: string;
+    name: string;
+    status: UnitStatus;
+    updated_at: Date;
+  };
+}
+
 // Dashboard Types
 export interface DashboardOverviewMetrics {
   total_leads: {

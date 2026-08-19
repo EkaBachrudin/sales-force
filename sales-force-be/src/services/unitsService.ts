@@ -9,6 +9,7 @@ import {
   UpdateUnitDto,
   PaginatedUnitsResponse,
   PaginationMeta,
+  UnassignLeadResponse,
 } from '../types';
 import { CrmLead, CrmLeadStatus } from '../types';
 import { findBookedLeadOnUnit } from './leadUnitRules';
@@ -490,6 +491,84 @@ export const assignLeadToUnit = async (
       name: updatedLead.name,
       unit_id: updatedLead.unit_id,
       unit_name: unitRow.name,
+      status: updatedLead.status,
+      updated_at: updatedLead.updated_at,
+    },
+    unit: {
+      id: updatedUnit.id,
+      name: updatedUnit.name,
+      status: updatedUnit.status,
+      updated_at: updatedUnit.updated_at,
+    },
+  };
+};
+
+/**
+ * DELETE /api/v1/units/:id/leads/:leadId - Unassign Lead from Unit
+ */
+export const unassignLeadFromUnit = async (
+  unitId: string,
+  leadId: string,
+  userId: string
+): Promise<UnassignLeadResponse> => {
+  // Check if unit exists and belongs to user's property
+  const unitQuery = `
+    SELECT u.id, u.name
+    FROM units u
+    JOIN blocks b ON b.id = u.block_id
+    JOIN properties p ON p.id = b.property_id
+    WHERE u.id = $1 AND p.assigned_to = $2
+  `;
+
+  const unitResult = await pool.query(unitQuery, [unitId, userId]);
+
+  if (unitResult.rows.length === 0) {
+    throw new AppError('Unit not found', 404);
+  }
+
+  // Check if lead exists and belongs to the same user
+  const leadQuery = `
+    SELECT l.id, l.name, l.status, l.unit_id
+    FROM leads l
+    WHERE l.id = $1 AND l.assigned_to = $2
+  `;
+
+  const leadResult = await pool.query(leadQuery, [leadId, userId]);
+
+  if (leadResult.rows.length === 0) {
+    throw new AppError('Lead not found', 404);
+  }
+
+  const leadRow = leadResult.rows[0];
+
+  if (leadRow.unit_id !== unitId) {
+    throw new AppError('Lead is not assigned to this unit', 409);
+  }
+
+  // Unassign lead from unit (unit status recomputed via DB trigger)
+  const updateLeadQuery = `
+    UPDATE leads
+    SET unit_id = NULL,
+        updated_at = NOW()
+    WHERE id = $1
+      AND assigned_to = $2
+      AND unit_id = $3
+    RETURNING *
+  `;
+
+  const updateLeadResult = await pool.query(updateLeadQuery, [leadId, userId, unitId]);
+  const updatedLead = updateLeadResult.rows[0];
+
+  // Get updated unit (status should have changed via trigger)
+  const updatedUnitResult = await pool.query('SELECT * FROM units WHERE id = $1', [unitId]);
+  const updatedUnit = updatedUnitResult.rows[0];
+
+  return {
+    lead: {
+      id: updatedLead.id,
+      name: updatedLead.name,
+      unit_id: updatedLead.unit_id,
+      unit_name: null,
       status: updatedLead.status,
       updated_at: updatedLead.updated_at,
     },

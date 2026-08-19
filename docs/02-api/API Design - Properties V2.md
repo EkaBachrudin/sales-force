@@ -1373,6 +1373,69 @@ cancelled      →  available
 
 ---
 
+### 6.4 DELETE /api/v1/units/:id/leads/:leadId — Remove Lead from Unit
+
+**Purpose**: Unassign (melepas) lead dari unit tertentu
+
+**Method**: `DELETE`
+
+**Path Parameters**:
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | UUID | Yes | Unit ID |
+| `leadId` | UUID | Yes | Lead ID yang akan di-unassign |
+
+**Validation Rules**:
+- Unit harus ada dan milik property yang dimiliki user yang login
+- Lead harus ada dan dimiliki oleh user yang sama dengan pemilik property (assigned_to match)
+- Lead harus sedang di-assign ke unit tersebut (`leads.unit_id = id`), jika tidak → error `409 LEAD_NOT_ASSIGNED`
+- Tidak ada pembatasan berdasarkan status lead — lead berstatus apapun (termasuk `booked`/`closed`) tetap dapat di-unassign
+- Setelah unassign, trigger DB akan mengubah status unit berdasarkan lead yang tersisa di unit tersebut
+
+**Success Response** `200`:
+
+```json
+{
+    "success": true,
+    "message": "Lead unassigned from unit successfully",
+    "data": {
+        "lead": {
+            "id": "x1y2z3a4-b5c6-7890-abcd-ef1234567890",
+            "name": "Budi Santoso",
+            "unit_id": null,
+            "unit_name": null,
+            "status": "negotiating",
+            "updated_at": "2026-07-10T17:00:00.000Z"
+        },
+        "unit": {
+            "id": "e5f6a7b8-c9d0-1234-efab-567890123456",
+            "name": "A-1",
+            "status": "available",
+            "updated_at": "2026-07-10T17:00:00.000Z"
+        }
+    }
+}
+```
+
+**Database Impact — UPDATE**:
+
+```sql
+-- Unassign lead from unit
+UPDATE leads
+SET unit_id = NULL,
+    updated_at = NOW()
+WHERE id = $1
+  AND assigned_to = $2
+  AND unit_id = $3
+RETURNING *;
+
+-- Unit status akan otomatis berubah via DB trigger
+-- berdasarkan lead yang masih tersisa di unit tersebut
+```
+
+---
+
 ## 7. Error Response Format
 
 ```json
@@ -1400,6 +1463,7 @@ cancelled      →  available
 | `UNIT_BOOKED` | 409 | Unit sudah ada lead berstatus `booked` | POST Lead to Unit |
 | `UNIT_SOLD` | 409 | Unit sudah terjual, tidak bisa di-assign | POST Lead to Unit |
 | `LEAD_ALREADY_ASSIGNED` | 409 | Lead sudah di-assign ke unit lain | POST Lead to Unit |
+| `LEAD_NOT_ASSIGNED` | 409 | Lead tidak sedang di-assign ke unit ini | DELETE Lead from Unit |
 | `INVALID_FILE_TYPE` | 400 | File bukan bertipe SVG (`image/svg+xml`) | POST/PUT Property (siteplan_file) |
 | `FILE_TOO_LARGE` | 400 | Ukuran file melebihi batas 5MB | POST/PUT Property (siteplan_file) |
 
@@ -1456,6 +1520,7 @@ cancelled      →  available
 | 13 | `GET` | `/api/v1/properties/:id/siteplan` | - | Gambar siteplan + semua units |
 | 14 | `GET` | `/api/v1/units/:id` | - | Detail unit + leads |
 | 15 | `POST` | `/api/v1/units/:id/leads` | `application/json` | Assign lead ke unit |
+| 16 | `DELETE` | `/api/v1/units/:id/leads/:leadId` | - | Unassign lead dari unit |
 
 ---
 

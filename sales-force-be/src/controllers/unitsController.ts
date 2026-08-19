@@ -6,6 +6,7 @@ import {
   deleteUnit as deleteUnitService,
   getUnitDetail as getUnitDetailService,
   assignLeadToUnit as assignLeadToUnitService,
+  unassignLeadFromUnit as unassignLeadFromUnitService,
 } from '../services/unitsService';
 import { GetUnitsQuery, CreateUnitDto, UpdateUnitDto, AssignLeadToUnitDto } from '../types';
 
@@ -178,6 +179,34 @@ export const assignLeadToUnitController = async (req: Request, res: Response): P
   res.status(200).json({
     success: true,
     message: 'Lead assigned to unit successfully',
+    data: result,
+  });
+};
+
+/**
+ * DELETE /api/v1/units/:id/leads/:leadId - Unassign Lead from Unit
+ */
+export const unassignLeadFromUnitController = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?.sub;
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required',
+      },
+    });
+    return;
+  }
+
+  const id = req.params.id as string;
+  const leadId = req.params.leadId as string;
+
+  const result = await unassignLeadFromUnitService(id, leadId, userId);
+
+  res.status(200).json({
+    success: true,
+    message: 'Lead unassigned from unit successfully',
     data: result,
   });
 };
