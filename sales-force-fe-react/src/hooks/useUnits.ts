@@ -121,3 +121,23 @@ export function useAssignLeadToUnit() {
     isAssigning: mutation.isPending,
   };
 }
+
+export function useUnassignLeadFromUnit() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ unitId, leadId }: { unitId: string; leadId: string }) =>
+      api.unassignLeadFromUnit(unitId, leadId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['unitDetail', variables.unitId] });
+      queryClient.invalidateQueries({ queryKey: ['units'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] });
+    },
+  });
+
+  return {
+    unassignLead: mutation.mutateAsync,
+    isUnassigning: mutation.isPending,
+  };
+}
