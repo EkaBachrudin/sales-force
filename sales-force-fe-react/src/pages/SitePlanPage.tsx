@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { Map as MapIcon, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
 import { UnitDetailDrawer } from '@/components/properties/UnitDetailDrawer';
 import { updateSvgTextContent } from '@/lib/svgUtils';
@@ -16,18 +16,19 @@ export default function SitePlanPage() {
   const [selectedUnitId, setSelectedUnitId] = useState('');
   const [selectedUnitName, setSelectedUnitName] = useState('');
   const [svgContent, setSvgContent] = useState<string | null>(null);
+  const hasCenteredRef = useRef(false);
   
   const { data, isLoading, error } = usePropertySiteplan(id || '');
 
   useEffect(() => {
-    if (data && data.property.siteplan_assets) {
+    if (data?.property.siteplan_assets) {
       const siteplanUrl = `${API_URL}${data.property.siteplan_assets}`;
       fetch(siteplanUrl)
         .then(res => res.text())
         .then(setSvgContent)
         .catch(err => console.error('Failed to load SVG:', err));
     }
-  }, [data, API_URL]);
+  }, [data?.property.siteplan_assets, API_URL]);
 
   const enhancedSvg = useMemo(() => {
     if (!svgContent || !data) return null;
@@ -177,7 +178,12 @@ export default function SitePlanPage() {
   } = usePanZoom({ padding: 0.85 });
 
   useEffect(() => {
-    if (enhancedSvg) {
+    hasCenteredRef.current = false;
+  }, [id]);
+
+  useEffect(() => {
+    if (enhancedSvg && !hasCenteredRef.current) {
+      hasCenteredRef.current = true;
       const raf = requestAnimationFrame(() => {
         centerContent();
       });
