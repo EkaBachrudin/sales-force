@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
+import { Combobox, type ComboboxOption } from '@/components/ui/Combobox';
 import { NewLeadModal } from '@/components/dashboard/NewLeadModal';
 import { stageLabels } from '@/lib/mockData';
 import type { Lead, PipelineStage } from '@/lib/types';
@@ -31,6 +32,16 @@ const sourceOptions = [
   { value: 'instagram', label: 'Instagram' },
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'other', label: 'Other' },
+];
+
+const stageOptions: ComboboxOption[] = [
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'surveyed', label: 'Surveyed' },
+  { value: 'negotiating', label: 'Negotiating' },
+  { value: 'booked', label: 'Booked' },
+  { value: 'closed', label: 'Closed' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 // Helper function to format date as YYYY-MM-DD in local timezone
@@ -229,50 +240,39 @@ export default function LeadsPage() {
                 leftIcon={<Search className="w-4 h-4" />}
               />
             </div>
-            <select
-              value={filters.stage}
-              onChange={(e) => updateFilter('stage', e.target.value)}
-              className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
-            >
-              <option value="all">All Stages</option>
-              <option value="new">New</option>
-              <option value="contacted">Contacted</option>
-              <option value="surveyed">Surveyed</option>
-              <option value="negotiating">Negotiating</option>
-              <option value="booked">Booked</option>
-              <option value="closed">Closed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+            <Combobox
+              className="sm:w-auto sm:min-w-[180px]"
+              multiple
+              options={stageOptions}
+              value={filters.stage === 'all' ? [] : filters.stage.split(',')}
+              onChange={(value) => {
+                const next = Array.isArray(value) ? value.join(',') : value;
+                updateFilter('stage', next);
+              }}
+              placeholder="All Stages"
+              searchPlaceholder="Search stage..."
+            />
           </div>
 
           {/* Property, Source, and Date Range - Mobile: stacked, Tablet+: grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <select
+            <Combobox
+              options={properties?.map((property) => ({ value: property.id, label: property.name })) ?? []}
               value={filters.propertyType}
-              onChange={(e) => updateFilter('propertyType', e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
+              onChange={(value) => updateFilter('propertyType', Array.isArray(value) ? value[0] ?? '' : value)}
+              placeholder="All Properties"
+              searchPlaceholder="Search property..."
               disabled={isLoadingProperties}
-            >
-              <option value="all">All Properties</option>
-              {properties?.map((property) => (
-                <option key={property.id} value={property.id}>
-                  {property.name}
-                </option>
-              ))}
-            </select>
+              isLoading={isLoadingProperties}
+            />
 
-            <select
+            <Combobox
+              options={sourceOptions}
               value={filters.source}
-              onChange={(e) => updateFilter('source', e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
-            >
-              <option value="all">All Sources</option>
-              {sourceOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => updateFilter('source', Array.isArray(value) ? value[0] ?? '' : value)}
+              placeholder="All Sources"
+              searchPlaceholder="Search source..."
+            />
 
             <button
               onClick={() => setShowDateRange(!showDateRange)}

@@ -24,8 +24,7 @@ export function useLeads(
       const response = await api.getLeads({
         page,
         pageSize,
-        stage: filters.stage,
-        statuses: filters.statuses,
+        statuses: filters.stage && filters.stage !== 'all' ? filters.stage : filters.statuses,
         search: filters.search || undefined,
         propertyType: filters.propertyType,
         source: filters.source,
