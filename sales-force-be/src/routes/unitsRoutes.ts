@@ -6,6 +6,7 @@ import {
   deleteUnitController,
   getUnitDetailController,
   assignLeadToUnitController,
+  unassignLeadFromUnitController,
 } from '../controllers/unitsController';
 import { authenticate, subscriptionCheck } from '../middleware';
 
@@ -38,6 +39,13 @@ router.get('/units/:id', authenticate, subscriptionCheck, getUnitDetailControlle
  * @access Private (requires authentication and active subscription)
  */
 router.post('/units/:id/leads', authenticate, subscriptionCheck, assignLeadToUnitController);
+
+/**
+ * DELETE /api/v1/units/:id/leads/:leadId
+ * Unassign lead from unit
+ * @access Private (requires authentication and active subscription)
+ */
+router.delete('/units/:id/leads/:leadId', authenticate, subscriptionCheck, unassignLeadFromUnitController);
 
 /**
  * PUT /api/v1/units/:id
