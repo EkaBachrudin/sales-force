@@ -258,7 +258,7 @@ export default function LeadsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Combobox
               options={properties?.map((property) => ({ value: property.id, label: property.name })) ?? []}
-              value={filters.propertyType}
+              value={filters.propertyType === 'all' ? '' : filters.propertyType}
               onChange={(value) => updateFilter('propertyType', Array.isArray(value) ? value[0] ?? '' : value)}
               placeholder="All Properties"
               searchPlaceholder="Search property..."
@@ -268,7 +268,7 @@ export default function LeadsPage() {
 
             <Combobox
               options={sourceOptions}
-              value={filters.source}
+              value={filters.source === 'all' ? '' : filters.source}
               onChange={(value) => updateFilter('source', Array.isArray(value) ? value[0] ?? '' : value)}
               placeholder="All Sources"
               searchPlaceholder="Search source..."

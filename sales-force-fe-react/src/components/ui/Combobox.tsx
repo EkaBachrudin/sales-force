@@ -172,7 +172,7 @@ const Combobox = React.forwardRef<HTMLDivElement, ComboboxProps>(
           )}
         >
           <span className="flex-1 min-w-0">{triggerContent()}</span>
-          {!disabled && multiple && selectedValues.length > 0 && (
+          {!disabled && selectedValues.length > 0 && (
             <span
               role="button"
               tabIndex={-1}
