@@ -90,7 +90,7 @@ export function UnitsDrawer({ isOpen, onClose, property, units, onSeeMore }: Uni
                     
                     <button
                       onClick={() => onSeeMore?.(unit)}
-                      className="text-sm font-medium text-primary hover:text-primary-hover transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
+                      className="text-sm font-medium text-white hover:font-bold transition-colors px-3 py-1.5 rounded-lg hover:bg-[#043398] bg-[#2563EB] cursor-pointer"
                     >
                       See more
                     </button>

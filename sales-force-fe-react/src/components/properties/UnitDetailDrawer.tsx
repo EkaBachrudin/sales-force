@@ -67,6 +67,9 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
 
   const unit = data?.data?.unit;
   const leads = data?.data?.leads ?? [];
+  const unitSubtitle = [unit?.block_name, unit?.property_name]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <>
@@ -91,10 +94,10 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
         <div className="flex items-center justify-between p-5 border-b border-border">
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-text-primary">
-              {unitName || (unit?.name ?? 'Unit Detail')}
+              Unit {unitName || (unit?.name ?? 'Unit Detail')}
             </h2>
             <p className="text-sm text-text-secondary mt-0.5">
-              View your units detail
+              {unitSubtitle || 'View your units detail'}
             </p>
           </div>
           <button
