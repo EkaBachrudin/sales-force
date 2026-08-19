@@ -19,6 +19,8 @@ export default function SitePlanPage() {
   const hasCenteredRef = useRef(false);
   const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
   const mouseDownTargetRef = useRef<Element | null>(null);
+  const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
+  const touchStartTargetRef = useRef<Element | null>(null);
   
   const { data, isLoading, error } = usePropertySiteplan(id || '');
 
@@ -217,6 +219,60 @@ export default function SitePlanPage() {
   useEffect(() => {
     hasCenteredRef.current = false;
   }, [id]);
+
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        touchStartPosRef.current = { x: t.clientX, y: t.clientY };
+        touchStartTargetRef.current = e.target as Element;
+      } else {
+        touchStartPosRef.current = null;
+        touchStartTargetRef.current = null;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const start = touchStartPosRef.current;
+      if (!start) return;
+      if (e.touches.length !== 1) {
+        touchStartTargetRef.current = null;
+        return;
+      }
+      const t = e.touches[0];
+      if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 10) {
+        touchStartTargetRef.current = null;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      const target = touchStartTargetRef.current;
+      touchStartPosRef.current = null;
+      touchStartTargetRef.current = null;
+      if (!target) return;
+      openUnitFromTarget(target);
+    };
+
+    const handleTouchCancel = () => {
+      touchStartPosRef.current = null;
+      touchStartTargetRef.current = null;
+    };
+
+    content.addEventListener('touchstart', handleTouchStart, { passive: true });
+    content.addEventListener('touchmove', handleTouchMove, { passive: true });
+    content.addEventListener('touchend', handleTouchEnd);
+    content.addEventListener('touchcancel', handleTouchCancel);
+
+    return () => {
+      content.removeEventListener('touchstart', handleTouchStart);
+      content.removeEventListener('touchmove', handleTouchMove);
+      content.removeEventListener('touchend', handleTouchEnd);
+      content.removeEventListener('touchcancel', handleTouchCancel);
+    };
+  }, [enhancedSvg, contentRef, openUnitFromTarget]);
 
   useEffect(() => {
     if (enhancedSvg && !hasCenteredRef.current) {
