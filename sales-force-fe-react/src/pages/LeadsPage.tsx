@@ -460,7 +460,7 @@ export default function LeadsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-text-primary">{lead.property ? lead.property.name : '-'}</p>
+                            <p className="text-sm text-text-primary">{lead.unit ? lead.unit.name : '-'}</p>
                             {lead.source && (
                               <p className="text-xs text-text-secondary mt-0.5">via {lead.source}</p>
                             )}
