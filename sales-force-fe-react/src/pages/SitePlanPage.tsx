@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { Map as MapIcon, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
 import { usePropertySiteplan } from '@/hooks/usePropertySiteplan';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
 import { UnitDetailDrawer } from '@/components/properties/UnitDetailDrawer';
 import { updateSvgTextContent } from '@/lib/svgUtils';
@@ -17,6 +17,8 @@ export default function SitePlanPage() {
   const [selectedUnitName, setSelectedUnitName] = useState('');
   const [svgContent, setSvgContent] = useState<string | null>(null);
   const hasCenteredRef = useRef(false);
+  const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
+  const mouseDownTargetRef = useRef<Element | null>(null);
   
   const { data, isLoading, error } = usePropertySiteplan(id || '');
 
@@ -105,12 +107,14 @@ export default function SitePlanPage() {
     `;
     doc.documentElement.prepend(style);
     
-    data.units.forEach((unit: { name: string; land_area?: number; status: string }) => {
+    data.units.forEach((unit: { id: string; name: string; land_area?: number; status: string }) => {
       const element = doc.getElementById(unit.name);
       if (element) {
         element.classList.add('unit-element');
         element.classList.add(`unit-status-${unit.status}`);
         element.dataset.status = unit.status;
+        element.dataset.unitId = unit.id;
+        element.dataset.unitName = unit.name;
 
         const unitnameTexts = element.querySelectorAll('[id^="unitname"]');
         if (unitnameTexts.length === 0) {
@@ -161,6 +165,39 @@ export default function SitePlanPage() {
 
   const handleRightMenuClick = () => {
     setRightSidebarOpen(true);
+  };
+
+  const openUnitFromTarget = useCallback((target: Element) => {
+    const unitEl = target.closest('.unit-element');
+    if (!unitEl) return;
+
+    const unitId = unitEl.getAttribute('data-unit-id');
+    const unitName = unitEl.getAttribute('data-unit-name');
+    if (!unitId) return;
+
+    setSelectedUnitId(unitId);
+    setSelectedUnitName(unitName || '');
+    setDetailDrawerOpen(true);
+  }, []);
+
+  const handleContainerMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
+    mouseDownTargetRef.current = e.target as Element;
+    onMouseDown(e);
+  };
+
+  const handleContainerMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    const down = mouseDownPosRef.current;
+    const target = mouseDownTargetRef.current;
+    const moved = down ? Math.hypot(e.clientX - down.x, e.clientY - down.y) : 0;
+    if (!target || (down && moved > 5)) {
+      mouseDownPosRef.current = null;
+      mouseDownTargetRef.current = null;
+      return;
+    }
+    openUnitFromTarget(target);
+    mouseDownPosRef.current = null;
+    mouseDownTargetRef.current = null;
   };
 
   const {
@@ -260,7 +297,8 @@ export default function SitePlanPage() {
           <div
             ref={containerRef}
             onWheel={onWheel}
-            onMouseDown={onMouseDown}
+            onMouseDown={handleContainerMouseDown}
+            onMouseUp={handleContainerMouseUp}
             className="relative w-full h-full overflow-hidden select-none touch-none cursor-grab"
           >
             <div
