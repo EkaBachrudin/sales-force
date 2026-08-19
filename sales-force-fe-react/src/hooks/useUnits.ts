@@ -71,6 +71,7 @@ export function useUnitMutations() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['units', variables.blockId] });
       queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['propertySiteplan'] });
     },
   });
 
@@ -80,6 +81,7 @@ export function useUnitMutations() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['units', variables.blockId] });
       queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['propertySiteplan'] });
     },
   });
 
@@ -89,6 +91,7 @@ export function useUnitMutations() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['units', variables.blockId] });
       queryClient.invalidateQueries({ queryKey: ['propertyDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['propertySiteplan'] });
     },
   });
 
@@ -113,6 +116,7 @@ export function useAssignLeadToUnit() {
       queryClient.invalidateQueries({ queryKey: ['units'] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['pipeline'] });
+      queryClient.invalidateQueries({ queryKey: ['propertySiteplan'] });
     },
   });
 
@@ -133,6 +137,7 @@ export function useUnassignLeadFromUnit() {
       queryClient.invalidateQueries({ queryKey: ['units'] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['pipeline'] });
+      queryClient.invalidateQueries({ queryKey: ['propertySiteplan'] });
     },
   });
 
