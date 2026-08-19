@@ -638,7 +638,7 @@ export const api = {
     email?: string;
     nik?: string;
     npwp?: string;
-    property_id?: string;
+    unit_id?: string;
     source?: string;
     sourceOther?: string;
     budget_range?: { min: number; max: number };
@@ -662,7 +662,7 @@ export const api = {
     if (leadData.email) payload.email = leadData.email;
     if (leadData.nik) payload.nik = leadData.nik;
     if (leadData.npwp) payload.npwp = leadData.npwp;
-    if (leadData.property_id) payload.property_id = leadData.property_id;
+    if (leadData.unit_id) payload.unit_id = leadData.unit_id;
     if (leadData.source) payload.source = leadData.source;
     if (leadData.budget_range) payload.budget_range = leadData.budget_range;
     if (leadData.note) payload.notes = leadData.note;

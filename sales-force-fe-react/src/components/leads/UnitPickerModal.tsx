@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Combobox } from '@/components/ui/Combobox';
-import { useProperties } from '@/hooks/useProperties';
-import { usePropertyDetail } from '@/hooks/usePropertyDetail';
-import { useUnits, useAssignLeadToUnit } from '@/hooks/useUnits';
+import {
+  UnitAssignmentFields,
+  type UnitAssignmentValue,
+} from '@/components/leads/UnitAssignmentFields';
+import { useAssignLeadToUnit } from '@/hooks/useUnits';
 
 interface UnitPickerModalProps {
   isOpen: boolean;
@@ -20,8 +21,6 @@ interface UnitPickerModalProps {
   onAssigned?: () => void;
 }
 
-const unavailableStatuses = ['sold', 'booked'];
-
 export function UnitPickerModal({
   isOpen,
   onClose,
@@ -29,54 +28,31 @@ export function UnitPickerModal({
   currentUnit,
   onAssigned,
 }: UnitPickerModalProps) {
-  const [propertyId, setPropertyId] = useState('');
-  const [blockId, setBlockId] = useState('');
-  const [unitId, setUnitId] = useState('');
+  const [value, setValue] = useState<UnitAssignmentValue>({
+    propertyId: '',
+    blockId: '',
+    unitId: '',
+  });
 
-  const { data: properties, isLoading: isLoadingProperties } = useProperties();
-  const { data: propertyDetail, isLoading: isLoadingBlocks } = usePropertyDetail(propertyId);
-  const { data: unitsData, isLoading: isLoadingUnits } = useUnits(blockId, { limit: 500 });
   const { assignLead, isAssigning } = useAssignLeadToUnit();
 
   useEffect(() => {
     if (isOpen) {
-      setPropertyId(currentUnit?.property.id || '');
-      setBlockId(currentUnit?.block.id || '');
-      setUnitId(currentUnit?.id || '');
+      setValue({
+        propertyId: currentUnit?.property.id || '',
+        blockId: currentUnit?.block.id || '',
+        unitId: currentUnit?.id || '',
+      });
     }
   }, [isOpen, currentUnit]);
 
   if (!isOpen) return null;
 
-  const propertyOptions = (properties ?? []).map((p) => ({ value: p.id, label: p.name }));
-
-  const blocks = propertyDetail?.blocks ?? [];
-  const blockOptions = blocks.map((b) => ({ value: b.id, label: b.name }));
-
-  const units = unitsData?.data?.units ?? [];
-  const unitOptions = units.map((u) => ({
-    value: u.id,
-    label: `${u.name} · ${u.status}`,
-    disabled: unavailableStatuses.includes(u.status.toLowerCase()),
-  }));
-
-  if (
-    currentUnit &&
-    unitId === currentUnit.id &&
-    !units.some((u) => u.id === currentUnit.id)
-  ) {
-    unitOptions.splice(0, 0, {
-      value: currentUnit.id,
-      label: `${currentUnit.name} · ${currentUnit.status}`,
-      disabled: unavailableStatuses.includes(currentUnit.status.toLowerCase()),
-    });
-  }
-
   const handleAssign = async () => {
-    if (!unitId) return;
+    if (!value.unitId) return;
 
     try {
-      await assignLead({ unitId, leadId });
+      await assignLead({ unitId: value.unitId, leadId });
       onAssigned?.();
       onClose();
     } catch (error) {
@@ -112,58 +88,10 @@ export function UnitPickerModal({
           </div>
 
           <div className="p-5 flex flex-col gap-4">
-            <Combobox
-              label="Property"
-              options={propertyOptions}
-              value={propertyId}
-              onChange={(value) => {
-                setPropertyId(Array.isArray(value) ? value[0] ?? '' : value);
-                setBlockId('');
-                setUnitId('');
-              }}
-              placeholder="Select Property"
-              searchPlaceholder="Search property..."
-              disabled={isLoadingProperties}
-              isLoading={isLoadingProperties}
-            />
-
-            <Combobox
-              label="Block"
-              options={blockOptions}
-              value={blockId}
-              onChange={(value) => {
-                setBlockId(Array.isArray(value) ? value[0] ?? '' : value);
-                setUnitId('');
-              }}
-              placeholder="Select Block"
-              searchPlaceholder="Search block..."
-              disabled={!propertyId || isLoadingBlocks}
-              isLoading={isLoadingBlocks}
-              helperText={
-                !propertyId
-                  ? 'Select a property first'
-                  : isLoadingBlocks
-                  ? 'Loading blocks...'
-                  : undefined
-              }
-            />
-
-            <Combobox
-              label="Unit"
-              options={unitOptions}
-              value={unitId}
-              onChange={(value) => setUnitId(Array.isArray(value) ? value[0] ?? '' : value)}
-              placeholder="Select Unit"
-              searchPlaceholder="Search unit..."
-              disabled={!blockId || isLoadingUnits}
-              isLoading={isLoadingUnits}
-              helperText={
-                !blockId
-                  ? 'Select a block first'
-                  : isLoadingUnits
-                  ? 'Loading units...'
-                  : 'Units marked sold/booked cannot be selected'
-              }
+            <UnitAssignmentFields
+              value={value}
+              onChange={setValue}
+              currentUnit={currentUnit}
             />
           </div>
 
@@ -172,7 +100,7 @@ export function UnitPickerModal({
               fullWidth
               onClick={handleAssign}
               isLoading={isAssigning}
-              disabled={!unitId}
+              disabled={!value.unitId}
             >
               {currentUnit ? 'Change Unit' : 'Assign to Unit'}
             </Button>

@@ -4,8 +4,10 @@ import { X, Calculator, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { useProperties } from '@/hooks/useProperties';
-import { propertyService } from '@/services/propertyService';
+import {
+  UnitAssignmentFields,
+  type UnitAssignmentValue,
+} from '@/components/leads/UnitAssignmentFields';
 
 export interface ReminderData {
   scheduledFor?: string;
@@ -21,7 +23,6 @@ export interface LeadFormData {
   npwp?: string;
   source: string;
   sourceOther?: string;
-  property_id: string;
   budgetMin: number;
   budgetMax: number;
   kprPrice?: number;
@@ -41,7 +42,7 @@ export interface NewLeadData {
   npwp?: string;
   source: string;
   sourceOther?: string;
-  property_id?: string;
+  unit_id?: string;
   budget_range: { min: number; max: number };
   kpr_simulation?: {
     property_price: number;
@@ -83,12 +84,6 @@ export function NewLeadModal({
   onSubmit,
   isLoading = false,
 }: NewLeadModalProps) {
-  const { data: properties, isLoading: isLoadingProperties } = useProperties();
-  const propertyOptions = [
-    { value: '', label: 'No Property Selected' },
-    ...(properties ? propertyService.toPropertyOptions(properties) : []),
-  ];
-
   const [formData, setFormData] = useState<LeadFormData>({
     name: '',
     phone: '',
@@ -97,7 +92,6 @@ export function NewLeadModal({
     npwp: '',
     source: '',
     sourceOther: '',
-    property_id: '',
     budgetMin: 0,
     budgetMax: 0,
     kprPrice: 0,
@@ -105,6 +99,12 @@ export function NewLeadModal({
     kprInterestRate: 0,
     kprTerm: 0,
     note: '',
+  });
+
+  const [unitAssignment, setUnitAssignment] = useState<UnitAssignmentValue>({
+    propertyId: '',
+    blockId: '',
+    unitId: '',
   });
 
   const [showKprCalculator, setShowKprCalculator] = useState(false);
@@ -123,7 +123,6 @@ export function NewLeadModal({
         npwp: '',
         source: '',
         sourceOther: '',
-        property_id: '',
         budgetMin: 0,
         budgetMax: 0,
         kprPrice: 0,
@@ -132,6 +131,7 @@ export function NewLeadModal({
         kprTerm: 0,
         note: '',
       });
+      setUnitAssignment({ propertyId: '', blockId: '', unitId: '' });
       setShowKprCalculator(false);
       setKprResult(null);
       setShowReminderForm(false);
@@ -214,9 +214,9 @@ export function NewLeadModal({
       reminder: formData.reminder,
     };
 
-    // Only include property_id if selected
-    if (formData.property_id) {
-      submitData.property_id = formData.property_id;
+    // Only include unit_id if selected
+    if (unitAssignment.unitId) {
+      submitData.unit_id = unitAssignment.unitId;
     }
 
     // Only include kpr_simulation if values are present
@@ -362,19 +362,16 @@ export function NewLeadModal({
                 </div>
               </div>
 
-              {/* Property Interest */}
+              {/* Unit Assignment */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
-                  Property Interest
+                  Unit Assignment
                 </h3>
                 <div className="space-y-3 pl-1 sm:pl-3">
-                  <Select
-                    label="Property Type"
-                    options={propertyOptions}
-                    value={formData.property_id}
-                    onChange={(e) => handleInputChange('property_id', e.target.value)}
-                    disabled={isLoadingProperties}
+                  <UnitAssignmentFields
+                    value={unitAssignment}
+                    onChange={setUnitAssignment}
                   />
                 </div>
               </div>
