@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Pencil, Trash2, Building2, Map } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, Building2, Map, MapPin, Ruler } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -391,6 +391,20 @@ export default function PropertiesPage() {
                     <h3 className="text-sm font-semibold text-text-primary truncate">
                       {property.name}
                     </h3>
+                    <div className="mt-1 space-y-1">
+                      {property.city && (
+                        <p className="text-xs text-text-secondary flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                          {property.city}
+                        </p>
+                      )}
+                      {property.land_area != null && (
+                        <p className="text-xs text-text-secondary flex items-center gap-1.5">
+                          <Ruler className="w-3.5 h-3.5 flex-shrink-0" />
+                          {property.land_area} m²
+                        </p>
+                      )}
+                    </div>
                   </div>
                    <div className="flex items-center gap-2">
                      <button
