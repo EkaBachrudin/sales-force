@@ -13,6 +13,7 @@ import {
 } from '../types';
 import { CrmLead, CrmLeadStatus } from '../types';
 import { findBookedLeadOnUnit } from './leadUnitRules';
+import { naturalCompare } from '../utils/naturalSort';
 
 /**
  * GET /api/v1/blocks/:blockId/units - Get Units List
@@ -90,22 +91,22 @@ export const getUnits = async (
     JOIN blocks b ON b.id = u.block_id
     JOIN properties p ON p.id = b.property_id
     ${whereClause}
-    ORDER BY u.name ASC
-    LIMIT $${paramIndex++} OFFSET $${paramIndex++}
   `;
-
-  params.push(limit, offset);
 
   const result = await pool.query(queryStr, params);
 
-  const units: UnitListItem[] = result.rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    land_area: row.land_area,
-    status: row.status,
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-  }));
+  const units: UnitListItem[] = result.rows
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      land_area: row.land_area,
+      status: row.status,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+    }))
+    .sort((a, b) => naturalCompare(a.name, b.name));
+
+  const pagedUnits = units.slice(offset, offset + limit);
 
   const pagination: PaginationMeta = {
     page,
@@ -121,7 +122,7 @@ export const getUnits = async (
       property_id: blockInfo.property_id,
       property_name: blockInfo.property_name,
     },
-    units,
+    units: pagedUnits,
     pagination,
   };
 };

@@ -1,6 +1,7 @@
 import { pool } from '../config/database';
 import { AppError } from '../utils/AppError';
 import { deleteFile } from '../utils/fileCleanup';
+import { naturalCompare } from '../utils/naturalSort';
 import {
   PropertyListItem,
   Property,
@@ -209,7 +210,7 @@ export const getPropertySiteplan = async (propertyId: string, userId: string): P
     JOIN properties p ON p.id = b.property_id
     WHERE p.id = $1
       AND p.assigned_to = $2
-    ORDER BY b.name ASC, u.name ASC
+    ORDER BY b.name ASC
     `,
     [propertyId, userId]
   );
@@ -222,6 +223,11 @@ export const getPropertySiteplan = async (propertyId: string, userId: string): P
     land_area: row.land_area,
     status: row.status,
   }));
+
+  units.sort((a, b) => {
+    const blockCmp = naturalCompare(a.block_name, b.block_name);
+    return blockCmp !== 0 ? blockCmp : naturalCompare(a.name, b.name);
+  });
 
   return {
     property: {
