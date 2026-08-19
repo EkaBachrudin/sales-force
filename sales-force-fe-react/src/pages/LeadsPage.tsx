@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { Search, Plus, Phone, ChevronLeft, ChevronRight, Calendar, Download, Trash2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -52,6 +52,8 @@ const defaultFilters: UseLeadsFilters = {
 
 export default function LeadsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: properties, isLoading: isLoadingProperties } = useProperties();
 
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
@@ -59,22 +61,67 @@ export default function LeadsPage() {
   const [deleteConfirmLead, setDeleteConfirmLead] = useState<Lead | null>(null);
 
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(20);
+  const pageSize = 20;
 
-  // Filter state
-  const [filters, setFilters] = useState<UseLeadsFilters>(defaultFilters);
+  // Derive filters from URL query params (single source of truth)
+  const filters: UseLeadsFilters = {
+    stage: searchParams.get('stage') || 'all',
+    search: searchParams.get('search') || '',
+    propertyType: searchParams.get('propertyType') || 'all',
+    source: searchParams.get('source') || 'all',
+    dateFrom: searchParams.get('dateFrom') || defaultFilters.dateFrom,
+    dateTo: searchParams.get('dateTo') || defaultFilters.dateTo,
+  };
+
+  const parsedPage = parseInt(searchParams.get('page') || '1', 10);
+  const currentPage = Number.isFinite(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
+
   const [searchInput, setSearchInput] = useState(filters.search);
-  const [showDateRange, setShowDateRange] = useState(false);
+  const [showDateRange, setShowDateRange] = useState(
+    () => !!(searchParams.get('dateFrom') || searchParams.get('dateTo'))
+  );
 
   // Debounce search input
   const debouncedSearch = useDebounce(searchInput, 500);
 
-  // Update filters when debounced search changes
+  // Write query params to URL; omit defaults and optionally reset page
+  const updateQueryParams = (
+    updates: Record<string, string | null | undefined>,
+    options?: { resetPage?: boolean; replace?: boolean }
+  ) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [key, value] of Object.entries(updates)) {
+          if (value === undefined || value === null || value === '' || value === 'all') {
+            next.delete(key);
+          } else {
+            next.set(key, value);
+          }
+        }
+        if (options?.resetPage) next.delete('page');
+        return next;
+      },
+      { replace: options?.replace ?? false }
+    );
+  };
+
+  // Update search param from debounced input
   useEffect(() => {
-    setFilters((prev: UseLeadsFilters) => ({ ...prev, search: debouncedSearch }));
-    setCurrentPage(1);
+    if (debouncedSearch !== (searchParams.get('search') || '')) {
+      updateQueryParams({ search: debouncedSearch }, { resetPage: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
+
+  // Sync search input when URL changes (back/forward navigation)
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== searchInput) {
+      setSearchInput(urlSearch);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Fetch leads with filters and pagination
   const { data: leadsData, isLoading: isLoadingLeads } = useLeads(currentPage, pageSize, filters);
@@ -89,14 +136,17 @@ export default function LeadsPage() {
     },
   });
 
-  // Reset to first page when filters change
+  // Update filter in URL and reset to first page
   const updateFilter = (key: keyof UseLeadsFilters, value: string) => {
-    setFilters((prev: UseLeadsFilters) => ({ ...prev, [key]: value }));
-    setCurrentPage(1);
+    updateQueryParams({ [key]: value }, { resetPage: true });
+  };
+
+  const setPage = (page: number) => {
+    updateQueryParams({ page: page === 1 ? null : String(page) });
   };
 
   const handleLeadClick = (lead: Lead) => {
-    navigate(`/leads/${lead.id}`, { state: { from: '/leads' } });
+    navigate(`/leads/${lead.id}`, { state: { from: `/leads${location.search}` } });
   };
 
   const handleNewLead = async (data: any) => {
@@ -256,8 +306,9 @@ export default function LeadsPage() {
               </div>
               <button
                 onClick={() => {
-                  setFilters({ ...defaultFilters });
                   setSearchInput('');
+                  setShowDateRange(false);
+                  setSearchParams(new URLSearchParams(), { replace: true });
                 }}
                 className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary hover:bg-gray-50"
               >
@@ -474,7 +525,7 @@ export default function LeadsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      onClick={() => setPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
                       className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Previous page"
@@ -485,7 +536,7 @@ export default function LeadsPage() {
                       {currentPage} / {leadsData.totalPages}
                     </span>
                     <button
-                      onClick={() => setCurrentPage((prev) => Math.min(leadsData.totalPages || 1, prev + 1))}
+                      onClick={() => setPage(Math.min(leadsData.totalPages || 1, currentPage + 1))}
                       disabled={currentPage === leadsData.totalPages}
                       className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Next page"
