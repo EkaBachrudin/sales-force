@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import './MetricsCard.css';
 
 export interface MetricsCardProps {
   label: string;
@@ -26,50 +27,41 @@ export function MetricsCard({
   className,
 }: MetricsCardProps) {
   return (
-    <div
-      className={cn(
-        'bg-white rounded-xl border border-border p-4 sm:p-5 hover:shadow-lg transition-all duration-200',
-        className
-      )}
-    >
+    <div className={cn('metrics-card', className)}>
       {/* Header: Label + Icon */}
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="text-sm sm:text-base font-semibold text-text-secondary uppercase tracking-wide">
-          {label}
-        </p>
+      <div className="metrics-card__header">
+        <p className="metrics-card__label">{label}</p>
 
         {/* Icon with subtle background */}
         <div
-          className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+          className="metrics-card__icon"
           style={{ backgroundColor: `${iconColor}12` }}
         >
           <span style={{ color: iconColor }}>
-            <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+            <Icon className="metrics-card__icon-svg" />
           </span>
         </div>
       </div>
 
       {/* Main Value */}
-      <div className="mb-3">
-        <p className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
-          {value}
-        </p>
+      <div className="metrics-card__body">
+        <p className="metrics-card__value">{value}</p>
       </div>
 
       {/* Footer: Trend + Secondary Info */}
-      <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+      <div className="metrics-card__footer">
         {/* Trend Indicator */}
         {trend ? (
           <div
             className={cn(
-              'flex items-center gap-1.5 text-sm sm:text-base font-semibold',
-              trend.isPositive ? 'text-success' : 'text-danger'
+              'metrics-card__trend',
+              trend.isPositive ? 'metrics-card__trend--up' : 'metrics-card__trend--down'
             )}
           >
             {trend.isPositive ? (
-              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+              <TrendingUp className="metrics-card__trend-icon" />
             ) : (
-              <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
+              <TrendingDown className="metrics-card__trend-icon" />
             )}
             <span>{trend.value}</span>
           </div>
@@ -79,9 +71,7 @@ export function MetricsCard({
 
         {/* Secondary Info */}
         {secondaryInfo && (
-          <p className="text-xs sm:text-sm text-text-secondary text-right line-clamp-1 max-w-[60%]">
-            {secondaryInfo}
-          </p>
+          <p className="metrics-card__secondary">{secondaryInfo}</p>
         )}
       </div>
     </div>
