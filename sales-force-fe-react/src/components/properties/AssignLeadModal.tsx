@@ -37,6 +37,7 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, propertyNam
   const [selectedLeadId, setSelectedLeadId] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
+  const [error, setError] = useState('');
   const { assignLead, isAssigning } = useAssignLeadToUnit();
 
   const filters: LeadsFilters = {
@@ -59,7 +60,7 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, propertyNam
 
   const handleAssign = async () => {
     if (!selectedLeadId) {
-      alert('Please select a lead');
+      setError('Please select a lead');
       return;
     }
 
@@ -68,10 +69,11 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, propertyNam
       setSelectedLeadId('');
       setSearchInput('');
       setAppliedSearch('');
+      setError('');
       onAssigned?.();
       onClose();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to assign lead');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to assign lead');
     }
   };
 
@@ -142,7 +144,7 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, propertyNam
                       className={cn(
                         'w-full text-left rounded-[12px] border bg-white p-4 transition-all duration-200',
                         isActive
-                          ? 'border-primary ring-primary shadow-md bg-[#E4EFFF]'
+                          ? 'border-primary ring-primary shadow-md bg-primary-light'
                           : 'border-border hover:border-gray-300'
                       )}
                     >
@@ -170,6 +172,9 @@ export function AssignLeadModal({ isOpen, onClose, unitId, unitName, propertyNam
           </div>
 
           <div className="p-5 border-t border-border">
+            {error && (
+              <p className="text-sm text-danger mb-3">{error}</p>
+            )}
             <Button
               fullWidth
               onClick={handleAssign}

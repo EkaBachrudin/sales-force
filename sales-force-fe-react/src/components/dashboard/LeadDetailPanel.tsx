@@ -1,6 +1,6 @@
 
-import { useState, useEffect, useRef } from 'react';
-import { X, Edit2, Phone, Mail, MapPin, Calendar, Calculator, MessageCircle, Bell, IdCard, FileText, Check, Copy, ChevronDown, ChevronUp, User } from 'lucide-react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { X, Edit2, Phone, Mail, MapPin, Calendar, Calculator, MessageCircle, Bell, IdCard, FileText, Check, Copy, ChevronDown, ChevronUp, User, Globe, Camera, Users, Handshake, Pin } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { cn, formatCurrency, formatPhone, formatDate } from '@/lib/utils';
@@ -53,13 +53,13 @@ const stageColorMap: Record<PipelineStage, string> = {
   cancelled: 'text-red-600',
 };
 
-const sourceConfig: Record<string, { icon: string; color: string; bgGradient: string; label: string }> = {
-  'Website': { icon: '🌐', color: 'text-blue-600', bgGradient: 'from-blue-50 to-cyan-50', label: 'Website' },
-  'Instagram': { icon: '📸', color: 'text-pink-600', bgGradient: 'from-pink-50 to-rose-50', label: 'Instagram' },
-  'Facebook': { icon: '👥', color: 'text-blue-700', bgGradient: 'from-blue-50 to-indigo-50', label: 'Facebook' },
-  'WhatsApp': { icon: '💬', color: 'text-green-600', bgGradient: 'from-green-50 to-emerald-50', label: 'WhatsApp' },
-  'Referral': { icon: '🤝', color: 'text-purple-600', bgGradient: 'from-purple-50 to-violet-50', label: 'Referral' },
-  'Other': { icon: '📌', color: 'text-slate-600', bgGradient: 'from-slate-50 to-gray-50', label: 'Lainnya' },
+const sourceConfig: Record<string, { icon: ReactNode; color: string; bgGradient: string; label: string }> = {
+  'Website': { icon: <Globe className="w-5 h-5" />, color: 'text-blue-600', bgGradient: 'from-blue-50 to-cyan-50', label: 'Website' },
+  'Instagram': { icon: <Camera className="w-5 h-5" />, color: 'text-pink-600', bgGradient: 'from-pink-50 to-rose-50', label: 'Instagram' },
+  'Facebook': { icon: <Users className="w-5 h-5" />, color: 'text-blue-700', bgGradient: 'from-blue-50 to-indigo-50', label: 'Facebook' },
+  'WhatsApp': { icon: <MessageCircle className="w-5 h-5" />, color: 'text-green-600', bgGradient: 'from-green-50 to-emerald-50', label: 'WhatsApp' },
+  'Referral': { icon: <Handshake className="w-5 h-5" />, color: 'text-purple-600', bgGradient: 'from-purple-50 to-violet-50', label: 'Referral' },
+  'Other': { icon: <Pin className="w-5 h-5" />, color: 'text-slate-600', bgGradient: 'from-slate-50 to-gray-50', label: 'Lainnya' },
 };
 
 export function LeadDetailPanel({
@@ -346,7 +346,7 @@ export function LeadDetailPanel({
                 <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
                   <div className="flex items-center gap-2 mb-2">
                     <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br ${sourceConfig[lead.source]?.bgGradient || 'from-slate-100 to-gray-100'} flex items-center justify-center flex-shrink-0`}>
-                      <span className="text-lg sm:text-xl">{sourceConfig[lead.source]?.icon || '📌'}</span>
+                      {sourceConfig[lead.source]?.icon || <Pin className="w-5 h-5" />}
                     </div>
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Sumber</span>
                   </div>

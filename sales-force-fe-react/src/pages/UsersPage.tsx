@@ -82,7 +82,6 @@ export default function UsersPage() {
 
   const handleDeleteClick = (user: User) => {
     if (user.id === currentUser?.id) {
-      alert('You cannot delete your own account');
       return;
     }
     setSelectedUserId(user.id);

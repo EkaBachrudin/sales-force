@@ -23,8 +23,7 @@ export function MetricsCard({
   icon: Icon,
   trend,
   secondaryInfo,
-  iconColor = 'var(--primary)',
-  className,
+  iconColor = 'var(--primary)',  className,
 }: MetricsCardProps) {
   return (
     <div className={cn('metrics-card', className)}>
@@ -35,7 +34,7 @@ export function MetricsCard({
         {/* Icon with subtle background */}
         <div
           className="metrics-card__icon"
-          style={{ backgroundColor: `${iconColor}12` }}
+          style={{ backgroundColor: `color-mix(in srgb, ${iconColor} 12%, transparent)` }}
         >
           <span style={{ color: iconColor }}>
             <Icon className="metrics-card__icon-svg" />

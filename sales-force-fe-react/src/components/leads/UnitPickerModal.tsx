@@ -33,6 +33,7 @@ export function UnitPickerModal({
     blockId: '',
     unitId: '',
   });
+  const [error, setError] = useState('');
 
   const { assignLead, isAssigning } = useAssignLeadToUnit();
 
@@ -53,10 +54,11 @@ export function UnitPickerModal({
 
     try {
       await assignLead({ unitId: value.unitId, leadId });
+      setError('');
       onAssigned?.();
       onClose();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to assign lead to unit');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to assign lead to unit');
     }
   };
 
@@ -96,6 +98,7 @@ export function UnitPickerModal({
           </div>
 
           <div className="p-5 border-t border-border">
+            {error && <p className="text-sm text-danger mb-3">{error}</p>}
             <Button
               fullWidth
               onClick={handleAssign}

@@ -70,10 +70,10 @@ export function TrendChart(
           <Line
             dataKey="closings"
             type="monotone"
-            stroke="#3b82f6"
+            stroke="#3B6FE0"
             strokeWidth={2}
             dot={{
-              fill: '#3b82f6',
+              fill: '#3B6FE0',
               r: 4,
             }}
           >

@@ -21,10 +21,10 @@ const leadStatusVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange'
 
 const getStatusVariant = (status: string): string => {
   switch (status.toLowerCase()) {
-    case 'available': return 'text-[#168600]';
-    case 'reserved': return 'text-[#007886]';
-    case 'booked': return 'text-[#860000]';
-    case 'sold': return 'text-[#DE0000]';
+    case 'available': return 'text-[var(--status-available)]';
+    case 'reserved': return 'text-[var(--status-reserved)]';
+    case 'booked': return 'text-[var(--status-booked)]';
+    case 'sold': return 'text-[var(--status-sold)]';
     default: return 'text-gray-500';
   }
 };

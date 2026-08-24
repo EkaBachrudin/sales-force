@@ -68,21 +68,21 @@ export const mockTrendData: TrendData[] = [
 
 // Mock Source Data
 export const mockSourceData: SourceData[] = [
-  { source: 'Website', count: 45, color: '#2563EB' },
-  { source: 'Instagram', count: 32, color: '#EC4899' },
-  { source: 'Facebook', count: 28, color: '#3B82F6' },
-  { source: 'WhatsApp', count: 22, color: '#10B981' },
-  { source: 'Referral', count: 18, color: '#F59E0B' },
-  { source: 'Other', count: 12, color: '#6B7280' },
+  { source: 'Website', count: 45, color: '#3B6FE0' },
+  { source: 'Instagram', count: 32, color: '#A8C0F2' },
+  { source: 'Facebook', count: 28, color: '#2F5CC4' },
+  { source: 'WhatsApp', count: 22, color: '#7C9DE8' },
+  { source: 'Referral', count: 18, color: '#5479C8' },
+  { source: 'Other', count: 12, color: '#9CA3AF' },
 ];
 
 // Stage colors for charts
 export const stageColors: Record<PipelineStage, string> = {
   new: '#9CA3AF',
-  contacted: '#3B82F6',
-  surveyed: '#8B5CF6',
-  negotiating: '#F59E0B',
-  booked: '#06B6D4',
+  contacted: '#A8C0F2',
+  surveyed: '#7C9DE8',
+  negotiating: '#5479C8',
+  booked: '#3B6FE0',
   closed: '#10B981',
   cancelled: '#EF4444',
 };

@@ -1,4 +1,5 @@
 import { UserMinus } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useUnassignLeadFromUnit } from '@/hooks/useUnits';
 
@@ -15,6 +16,7 @@ interface UnassignLeadModalProps {
 
 export function UnassignLeadModal({ isOpen, onClose, unitId, unitName, lead }: UnassignLeadModalProps) {
   const { unassignLead, isUnassigning } = useUnassignLeadFromUnit();
+  const [error, setError] = useState('');
 
   const handleConfirm = async () => {
     if (!lead || !unitId) return;
@@ -22,8 +24,8 @@ export function UnassignLeadModal({ isOpen, onClose, unitId, unitName, lead }: U
     try {
       await unassignLead({ unitId, leadId: lead.id });
       onClose();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to unassign lead');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to unassign lead');
     }
   };
 
@@ -54,6 +56,7 @@ export function UnassignLeadModal({ isOpen, onClose, unitId, unitName, lead }: U
               <p className="text-sm text-text-secondary">
                 The lead will no longer be linked to this unit. This action cannot be undone.
               </p>
+              {error && <p className="text-sm text-danger">{error}</p>}
             </div>
           </div>
 

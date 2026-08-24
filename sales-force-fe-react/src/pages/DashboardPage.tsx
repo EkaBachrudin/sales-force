@@ -112,7 +112,7 @@ export default function DashboardPage() {
           label="Total Leads"
           value={metrics?.total_leads.value ?? 0}
           icon={Users}
-          iconColor="#2563EB"
+          iconColor="var(--primary)"
           trend={{
             value: metrics?.total_leads.trend_label ?? '+0',
             isPositive: (metrics?.total_leads.trend_value ?? 0) >= 0,
@@ -123,7 +123,7 @@ export default function DashboardPage() {
           label="This Month"
           value={metrics?.new_leads_this_month.value ?? 0}
           icon={Calendar}
-          iconColor="#10B981"
+          iconColor="var(--primary)"
           trend={{
             value: metrics?.new_leads_this_month.trend_label ?? '+0%',
             isPositive: (metrics?.new_leads_this_month.trend_value ?? 0) >= 0,
@@ -133,7 +133,7 @@ export default function DashboardPage() {
           label="Surveyed"
           value={metrics?.surveyed.value ?? 0}
           icon={ClipboardCheck}
-          iconColor="#8B5CF6"
+          iconColor="var(--primary)"
           trend={{
             value: metrics?.surveyed.trend_label ?? '+0',
             isPositive: (metrics?.surveyed.trend_value ?? 0) >= 0,
@@ -143,7 +143,7 @@ export default function DashboardPage() {
           label="Closed"
           value={metrics?.closed.value ?? 0}
           icon={CheckCircle}
-          iconColor="#10B981"
+          iconColor="var(--success)"
           trend={{
             value: metrics?.closed.trend_label ?? '+0',
             isPositive: (metrics?.closed.trend_value ?? 0) >= 0,

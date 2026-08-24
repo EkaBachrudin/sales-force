@@ -172,3 +172,9 @@ docker/nginx/ssl/*.key
 docker/nginx/ssl/*.crt
 docker/nginx/ssl/*.pem
 !docker/nginx/ssl/*.example
+
+# ============================================
+# AGENT SKILLS (local)
+# ============================================
+.agents/
+skills-lock.json

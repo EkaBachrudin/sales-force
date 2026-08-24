@@ -5,11 +5,12 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'gray' | 'blue' | 'purple' | 'orange' | 'teal' | 'green' | 'red';
   size?: 'sm' | 'md' | 'lg';
   dot?: boolean;
+  square?: boolean;
 }
 
 const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
-  ({ className, variant = 'gray', size = 'md', dot, children, ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center gap-1.5 rounded-full font-medium';
+  ({ className, variant = 'gray', size = 'md', dot, square = false, children, ...props }, ref) => {
+    const baseStyles = 'inline-flex items-center gap-1.5 font-medium';
 
     const variantStyles = {
       gray: 'bg-gray-100 text-gray-700',
@@ -40,10 +41,16 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
     return (
       <div
         ref={ref}
-        className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}
+        className={cn(
+          baseStyles,
+          square ? 'rounded-[6px]' : 'rounded-full',
+          variantStyles[variant],
+          sizeStyles[size],
+          className
+        )}
         {...props}
       >
-        {dot && <span className={cn('w-1.5 h-1.5 rounded-full', dotStyles[variant])} />}
+        {dot && <span className={cn(square ? 'rounded-[2px]' : 'rounded-full', 'w-1.5 h-1.5', dotStyles[variant])} />}
         {children}
       </div>
     );

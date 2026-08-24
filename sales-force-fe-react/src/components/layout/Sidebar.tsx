@@ -128,12 +128,12 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
                   'flex items-center gap-3 pr-3 pl-8 py-4 rounded-md transition-all duration-200 relative h-[53px]',
                   collapsed ? 'pl-3' : 'pl-8',
                   isActive
-                    ? 'bg-[#4880FF] text-primary border-primary text-white'
+                    ? 'bg-primary text-white border-primary'
                     : 'text-text-secondary hover:bg-gray-50 border-l-4 border-transparent'
                 )}
               >
                 {isActive && (
-                  <div className={cn('absolute bg-[#4880FF] h-full w-[8px] rounded-[20px]', collapsed ? 'left-[-20px]' : 'left-[-28px]')}></div>
+                  <div className={cn('absolute bg-primary h-full w-[8px] rounded-[20px]', collapsed ? 'left-[-20px]' : 'left-[-28px]')}></div>
                 )}
                 
                 <Icon className="w-5 h-5 flex-shrink-0" />

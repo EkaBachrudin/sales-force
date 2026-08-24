@@ -8,12 +8,11 @@
   /* Fonts */
   --font-geist-sans: 'Geist Variable';
   --font-geist-mono: 'Geist Mono Variable';
-  --font-inter: 'Inter';
 
   /* Primary Colors */
-  --primary: #2563EB;
-  --primary-hover: #1D4ED8;
-  --primary-light: rgba(37, 99, 235, 0.1);
+  --primary: #3B6FE0;
+  --primary-hover: #2F5CC4;
+  --primary-light: rgba(59, 111, 224, 0.12);
 
   /* Status Colors */
   --success: #10B981;
@@ -21,6 +20,12 @@
   --danger: #EF4444;
   --info: #3B82F6;
   --neutral: #6B7280;
+
+  /* Unit Status Colors */
+  --status-available: #3E8A3E;
+  --status-reserved: #7A5CC0;
+  --status-booked: #C98A0B;
+  --status-sold: #C53A34;
 
   /* Surface Colors */
   --background: #F9FAFB;
@@ -48,10 +53,10 @@
   --radius-pill: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
 
   /* Transitions */
   --transition-fast: 150ms ease-out;
@@ -76,6 +81,10 @@
   --color-danger: var(--danger);
   --color-info: var(--info);
   --color-neutral: var(--neutral);
+  --color-status-available: var(--status-available);
+  --color-status-reserved: var(--status-reserved);
+  --color-status-booked: var(--status-booked);
+  --color-status-sold: var(--status-sold);
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-border: var(--border);
@@ -110,7 +119,7 @@
   --transition-slow: var(--transition-slow);
 
   /* Fonts */
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -123,7 +132,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--text-primary);
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -131,17 +140,23 @@ body {
 }
 
 /* Typography Scale */
+h1 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
 h2 {
   font-size: 24px;
   font-weight: 600;
   line-height: 32px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 h3 {
   font-size: 18px;
   font-weight: 600;
   line-height: 28px;
+  letter-spacing: -0.01em;
 }
 
 small {
@@ -183,9 +198,9 @@ small {
 
 /* SVG Text Font Styling */
 svg text {
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 svg tspan {
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }

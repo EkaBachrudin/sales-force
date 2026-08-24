@@ -19,7 +19,7 @@
   @apply mb-3;
 }
 .metrics-card__value {
-  @apply text-2xl sm:text-3xl font-bold text-text-primary leading-tight;
+  @apply text-2xl sm:text-3xl font-bold text-text-primary leading-tight tabular-nums;
 }
 .metrics-card__footer {
   @apply flex items-center justify-between gap-2 pt-3 border-t border-border;

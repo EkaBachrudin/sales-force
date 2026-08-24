@@ -7,6 +7,7 @@ export function InstallPWABanner() {
   const { isShowable, isIOS, promptInstall } = usePWAInstall();
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+  const [showIosHelp, setShowIosHelp] = useState(false);
 
   useEffect(() => {
     // Check if user has dismissed the banner before
@@ -22,10 +23,8 @@ export function InstallPWABanner() {
 
   const handleInstall = async () => {
     if (isIOS) {
-      // For iOS, show instructions
-      alert(
-        'To install this app:\n\n1. Tap the Share button\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" in the top right'
-      );
+      // For iOS, show inline instructions instead of a blocking dialog
+      setShowIosHelp(true);
       return;
     }
 
@@ -47,7 +46,7 @@ export function InstallPWABanner() {
   }
 
   return (
-    <div className="mb-4 bg-gradient-to-r from-[var(--primary)] to-blue-600 rounded-xl shadow-lg p-4 relative animate-in slide-in-from-top duration-300">
+    <div className="mb-4 bg-gradient-to-r from-primary to-primary-hover rounded-xl shadow-lg p-4 relative animate-in slide-in-from-top duration-300">
       <button
         onClick={handleDismiss}
         className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors p-1"
@@ -66,7 +65,7 @@ export function InstallPWABanner() {
             Install Sales Force App
           </h3>
           <p className="text-white/80 text-xs mt-0.5">
-           
+            Add to your home screen for quick access
           </p>
         </div>
 
@@ -77,6 +76,14 @@ export function InstallPWABanner() {
           Install
         </button>
       </div>
+
+      {showIosHelp && (
+        <ol className="mt-3 pt-3 border-t border-white/20 text-white/90 text-xs space-y-1 list-decimal list-inside">
+          <li>Tap the Share button in Safari</li>
+          <li>Scroll down and tap &quot;Add to Home Screen&quot;</li>
+          <li>Tap &quot;Add&quot; in the top right</li>
+        </ol>
+      )}
     </div>
   );
 }

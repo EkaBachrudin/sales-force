@@ -26,10 +26,10 @@ interface UnitsDrawerProps {
 
 const getStatusVariant = (status: string): string => {
   switch (status.toLowerCase()) {
-    case 'available': return 'text-[#168600]';
-    case 'reserved': return 'text-[#007886]';
-    case 'booked': return 'text-[#860000]';
-    case 'sold': return 'text-[#DE0000]';
+    case 'available': return 'text-[var(--status-available)]';
+    case 'reserved': return 'text-[var(--status-reserved)]';
+    case 'booked': return 'text-[var(--status-booked)]';
+    case 'sold': return 'text-[var(--status-sold)]';
     default: return 'text-gray-500';
   }
 };
@@ -61,7 +61,7 @@ export function UnitsDrawer({ isOpen, onClose, property, units, onSeeMore }: Uni
               >
                 <div className="w-5 h-5 text-gray-600">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 2.97515C0 1.33202 1.33202 0 2.97515 0H16.8592C18.5023 0 19.8344 1.33202 19.8344 2.97515V16.8592C19.8344 18.5023 18.5023 19.8344 16.8592 19.8344H2.97515C1.33202 19.8344 0 18.5023 0 16.8592V2.97515ZM6.94203 17.8509H16.8592C17.4069 17.8509 17.8509 17.4069 17.8509 16.8592V2.97515C17.8509 2.42744 17.4069 1.98344 16.8592 1.98344H6.94203V17.8509ZM4.95859 1.98344V17.8509H2.97515C2.42744 17.8509 1.98344 17.4069 1.98344 16.8592V2.97515C1.98344 2.42744 2.42744 1.98344 2.97515 1.98344H4.95859Z" fill="black"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 2.97515C0 1.33202 1.33202 0 2.97515 0H16.8592C18.5023 0 19.8344 1.33202 19.8344 2.97515V16.8592C19.8344 18.5023 18.5023 19.8344 16.8592 19.8344H2.97515C1.33202 19.8344 0 18.5023 0 16.8592V2.97515ZM6.94203 17.8509H16.8592C17.4069 17.8509 17.8509 17.4069 17.8509 16.8592V2.97515C17.8509 2.42744 17.4069 1.98344 16.8592 1.98344H6.94203V17.8509ZM4.95859 1.98344V17.8509H2.97515C2.42744 17.8509 1.98344 17.4069 1.98344 16.8592V2.97515C1.98344 2.42744 2.42744 1.98344 2.97515 1.98344H4.95859Z" fill="currentColor"/>
                   </svg>
                 </div>
               </button>
@@ -90,7 +90,7 @@ export function UnitsDrawer({ isOpen, onClose, property, units, onSeeMore }: Uni
                     
                     <button
                       onClick={() => onSeeMore?.(unit)}
-                      className="text-sm font-medium text-white hover:font-bold transition-colors px-3 py-1.5 rounded-lg hover:bg-[#043398] bg-[#2563EB] cursor-pointer"
+                      className="text-sm font-medium text-white hover:font-bold transition-colors px-3 py-1.5 rounded-lg hover:bg-primary-hover bg-primary cursor-pointer"
                     >
                       See more
                     </button>

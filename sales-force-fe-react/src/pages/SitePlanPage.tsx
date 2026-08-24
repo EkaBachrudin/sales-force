@@ -43,16 +43,16 @@ export default function SitePlanPage() {
     const style = doc.createElement('style');
     style.textContent = `
       * {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        font-family: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       }
 
       .unit-element text {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        font-family: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         text-anchor: middle;
       }
 
       .unit-element tspan {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        font-family: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         text-anchor: middle;
       }
 
@@ -61,7 +61,7 @@ export default function SitePlanPage() {
       }
 
       .unit-element:hover [id^="unitline"] {
-        fill: #3b82f6;
+        fill: var(--primary);
         cursor: pointer;
         transition: fill 0.1s ease;
       }
@@ -71,22 +71,22 @@ export default function SitePlanPage() {
       }
 
       .unit-status-available [id^="unitline"] {
-        fill: #4C8944;
+        fill: var(--status-available);
         transition: fill 0.3s ease;
       }
 
       .unit-status-sold [id^="unitline"] {
-        fill: #A20101;
+        fill: var(--status-sold);
         transition: fill 0.3s ease;
       }
 
       .unit-status-reserved [id^="unitline"] {
-        fill: #6a03a6;
+        fill: var(--status-reserved);
         transition: fill 0.3s ease;
       }
 
       .unit-status-booked [id^="unitline"] {
-        fill: #cf8302;
+        fill: var(--status-booked);
         transition: fill 0.3s ease;
       }
 
@@ -341,7 +341,7 @@ export default function SitePlanPage() {
         >
           <div className="w-5 h-5 text-gray-600">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M0 2.97515C0 1.33202 1.33202 0 2.97515 0H16.8592C18.5023 0 19.8344 1.33202 19.8344 2.97515V16.8592C19.8344 18.5023 18.5023 19.8344 16.8592 19.8344H2.97515C1.33202 19.8344 0 18.5023 0 16.8592V2.97515ZM6.94203 17.8509H16.8592C17.4069 17.8509 17.8509 17.4069 17.8509 16.8592V2.97515C17.8509 2.42744 17.4069 1.98344 16.8592 1.98344H6.94203V17.8509ZM4.95859 1.98344V17.8509H2.97515C2.42744 17.8509 1.98344 17.4069 1.98344 16.8592V2.97515C1.98344 2.42744 2.42744 1.98344 2.97515 1.98344H4.95859Z" fill="black"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M0 2.97515C0 1.33202 1.33202 0 2.97515 0H16.8592C18.5023 0 19.8344 1.33202 19.8344 2.97515V16.8592C19.8344 18.5023 18.5023 19.8344 16.8592 19.8344H2.97515C1.33202 19.8344 0 18.5023 0 16.8592V2.97515ZM6.94203 17.8509H16.8592C17.4069 17.8509 17.8509 17.4069 17.8509 16.8592V2.97515C17.8509 2.42744 17.4069 1.98344 16.8592 1.98344H6.94203V17.8509ZM4.95859 1.98344V17.8509H2.97515C2.42744 17.8509 1.98344 17.4069 1.98344 16.8592V2.97515C1.98344 2.42744 2.42744 1.98344 2.97515 1.98344H4.95859Z" fill="currentColor"/>
             </svg>
           </div>
         </button>

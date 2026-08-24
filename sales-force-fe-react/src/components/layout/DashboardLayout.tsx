@@ -61,7 +61,7 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
 
       <main
         className={cn(
-          'transition-all duration-300 min-h-screen bg-[#F5F6FA]',
+          'transition-all duration-300 min-h-screen bg-background',
           // Desktop margins
           'lg:ml-64',
           sidebarCollapsed && 'lg:ml-20',

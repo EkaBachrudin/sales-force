@@ -12,6 +12,7 @@ export interface RemindersSectionProps {
   onWhatsApp?: (reminder: Reminder) => void;
   onCall?: (reminder: Reminder) => void;
   onSnooze?: (reminder: Reminder) => void;
+  onSeeAll?: () => void;
   maxItems?: number;
   className?: string;
 }
@@ -22,6 +23,7 @@ export function RemindersSection({
   onWhatsApp,
   onCall,
   onSnooze,
+  onSeeAll,
   maxItems = 3,
   className,
 }: RemindersSectionProps) {
@@ -75,8 +77,11 @@ export function RemindersSection({
             Menampilkan jadwal follow-up untuk hari ini hingga 7 hari ke depan
           </p>
         </div>
-        {reminders.length > maxItems && (
-          <button className="text-sm text-primary hover:underline font-medium self-start sm:self-auto">
+        {onSeeAll && reminders.length > maxItems && (
+          <button
+            onClick={onSeeAll}
+            className="text-sm text-primary hover:underline font-medium self-start sm:self-auto"
+          >
             See all →
           </button>
         )}
