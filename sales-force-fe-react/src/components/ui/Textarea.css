@@ -1,0 +1,29 @@
+@reference "../../index.css";
+
+.textarea__wrapper {
+  @apply w-full;
+}
+.textarea__label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.textarea__field {
+  @apply w-full px-3 py-2 rounded-[8px] border bg-white text-sm transition-all duration-200 placeholder:text-text-secondary resize-y focus:outline-none focus-visible:outline-none min-h-[80px] border-border focus:border-primary focus:ring-1 focus:ring-primary;
+}
+.textarea__field--error {
+  @apply border-danger focus:border-danger focus:ring-danger bg-danger/5;
+}
+.textarea__footer {
+  @apply flex items-center justify-between mt-1.5;
+}
+.textarea__footer-messages {
+  @apply flex-1;
+}
+.textarea__error {
+  @apply text-xs text-danger;
+}
+.textarea__helper {
+  @apply text-xs text-text-secondary;
+}
+.textarea__counter {
+  @apply text-xs text-text-secondary ml-2;
+}

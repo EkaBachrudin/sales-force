@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import { cn } from '@/lib/utils';
+import './Input.css';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -30,70 +31,42 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || `input-${generatedId}`;
     const hasError = !!error;
 
-    const baseStyles = 'w-full px-3 py-2 rounded-[8px] border bg-white text-sm transition-all duration-200 placeholder:text-gray-400';
-
-    const stateStyles = hasError
-      ? 'border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)] bg-red-50/50'
-      : 'border-border focus:border-primary focus:ring-1 focus:ring-[var(--primary)]';
-
-    const paddingStyles = leftIcon
-      ? 'pl-10'
-      : rightIcon || rightAction
-      ? 'pr-10'
-      : '';
-
     return (
-      <div className="w-full">
+      <div className="input__wrapper">
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-text-primary mb-1.5"
-          >
+          <label htmlFor={inputId} className="input__label">
             {label}
           </label>
         )}
 
-        <div className="relative">
-          {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-              {leftIcon}
-            </div>
-          )}
+        <div className="input__field-wrapper">
+          {leftIcon && <div className="input__left-icon">{leftIcon}</div>}
 
           <input
             ref={ref}
             type={type}
             id={inputId}
             className={cn(
-              baseStyles,
-              stateStyles,
-              paddingStyles,
-              'focus:outline-none focus-visible:outline-none',
+              'input__field',
+              hasError && 'input__field--error',
+              leftIcon
+                ? 'input__field--with-left-icon'
+                : rightIcon || rightAction
+                  ? 'input__field--with-right-icon'
+                  : '',
               className
             )}
             {...props}
           />
 
-          {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-              {rightIcon}
-            </div>
-          )}
+          {rightIcon && <div className="input__right-icon">{rightIcon}</div>}
 
-          {rightAction && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-              {rightAction}
-            </div>
-          )}
+          {rightAction && <div className="input__right-action">{rightAction}</div>}
         </div>
 
-        {error && (
-          <p className="mt-1.5 text-xs text-danger">{error}</p>
-        )}
+        {error && <p className="input__error">{error}</p>}
 
-        {helperText && !error && (
-          <p className="mt-1.5 text-xs text-text-secondary">{helperText}</p>
-        )}
+        {helperText && !error && <p className="input__helper">{helperText}</p>}
       </div>
     );
   }

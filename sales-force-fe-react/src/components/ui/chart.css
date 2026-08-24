@@ -1,0 +1,81 @@
+@reference "../../index.css";
+
+.chart {
+  @apply w-full h-full;
+}
+
+.chart-tooltip {
+  @apply rounded-lg border bg-background p-2 shadow-md;
+}
+.chart-tooltip__grid {
+  @apply grid gap-2;
+}
+.chart-tooltip__item {
+  @apply flex items-center gap-2 text-sm;
+}
+.chart-tooltip__swatch {
+  @apply h-2 w-2 rounded-full;
+}
+.chart-tooltip__name {
+  @apply font-medium;
+}
+.chart-tooltip__value {
+  @apply font-semibold;
+}
+
+.chart-tooltip-content {
+  @apply rounded-lg border bg-surface text-text-primary shadow-sm;
+}
+.chart-tooltip-content__header {
+  @apply border-b px-3 py-2;
+}
+.chart-tooltip-content__label {
+  @apply text-sm font-medium;
+}
+.chart-tooltip-content__body {
+  @apply space-y-1 px-3 py-2;
+}
+.chart-tooltip-content__item {
+  @apply flex items-center justify-between gap-2 text-sm;
+}
+.chart-tooltip-content__item-label {
+  @apply flex items-center gap-2;
+}
+.chart-tooltip-content__indicator {
+  @apply shrink-0 rounded-[1px];
+}
+.chart-tooltip-content__indicator--dot {
+  @apply h-2 w-2 rounded-full;
+}
+.chart-tooltip-content__indicator--line {
+  @apply h-1 w-8;
+}
+.chart-tooltip-content__indicator--dashed {
+  @apply h-1 w-8 border-dashed border-b-2;
+}
+.chart-tooltip-content__name {
+  @apply text-text-secondary;
+}
+.chart-tooltip-content__value {
+  @apply font-semibold tabular-nums;
+}
+
+.chart-legend {
+  @apply flex items-center justify-center gap-4;
+}
+.chart-legend__item {
+  @apply flex items-center gap-1 text-sm;
+}
+.chart-legend__swatch {
+  @apply h-2 w-2 rounded-full;
+}
+
+.chart-legend-content {
+  @apply flex items-center justify-center gap-4;
+}
+.chart-legend-content__item {
+  @apply flex items-center gap-1 text-sm;
+}
+.chart-legend-content__swatch {
+  @apply h-2 w-2 rounded-full;
+}

@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import './chart.css';
 
 // ============= CHART CONFIG =============
 
@@ -40,12 +41,7 @@ const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerProps>(
     }, [config]);
 
     return (
-      <div
-        ref={ref}
-        className={cn('w-full h-full', className)}
-        style={cssVars}
-        {...props}
-      >
+      <div ref={ref} className={cn('chart', className)} style={cssVars} {...props}>
         {children}
       </div>
     );
@@ -72,16 +68,13 @@ const ChartTooltip = ({ active, payload, content }: ChartTooltipProps) => {
   }
 
   return (
-    <div className="rounded-lg border bg-background p-2 shadow-md">
-      <div className="grid gap-2">
+    <div className="chart-tooltip">
+      <div className="chart-tooltip__grid">
         {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
-            <div
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="font-medium">{entry.name}:</span>
-            <span className="font-semibold">{entry.value}</span>
+          <div key={index} className="chart-tooltip__item">
+            <div className="chart-tooltip__swatch" style={{ backgroundColor: entry.color }} />
+            <span className="chart-tooltip__name">{entry.name}:</span>
+            <span className="chart-tooltip__value">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -114,32 +107,27 @@ const ChartTooltipContent = ({
   }
 
   return (
-    <div className="rounded-lg border bg-popover text-popover-foreground shadow-sm">
+    <div className="chart-tooltip-content">
       {!hideLabel && (
-        <div className="border-b px-3 py-2">
-          <p className="text-sm font-medium">{label}</p>
+        <div className="chart-tooltip-content__header">
+          <p className="chart-tooltip-content__label">{label}</p>
         </div>
       )}
-      <div className="space-y-1 px-3 py-2">
+      <div className="chart-tooltip-content__body">
         {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center justify-between gap-2 text-sm">
-            <div className="flex items-center gap-2">
+          <div key={index} className="chart-tooltip-content__item">
+            <div className="chart-tooltip-content__item-label">
               {!hideIndicator && (
                 <div
-                  className={cn(
-                    'shrink-0 rounded-[1px]',
-                    indicator === 'dot' && 'h-2 w-2 rounded-full',
-                    indicator === 'line' && 'h-1 w-8',
-                    indicator === 'dashed' && 'h-1 w-8 border-dashed border-b-2'
-                  )}
+                  className={cn('chart-tooltip-content__indicator', `chart-tooltip-content__indicator--${indicator}`)}
                   style={{ backgroundColor: entry.color }}
                 />
               )}
-              <span className="text-muted-foreground">
+              <span className="chart-tooltip-content__name">
                 {nameKey ? entry.payload[nameKey] : entry.name}
               </span>
             </div>
-            <span className="font-semibold tabular-nums">{entry.value}</span>
+            <span className="chart-tooltip-content__value">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -164,13 +152,10 @@ const ChartLegend = ({ payload, content }: ChartLegendProps) => {
   }
 
   return (
-    <div className="flex items-center justify-center gap-4">
+    <div className="chart-legend">
       {payload.map((entry: any, index: number) => (
-        <div key={index} className="flex items-center gap-1 text-sm">
-          <div
-            className="h-2 w-2 rounded-full"
-            style={{ backgroundColor: entry.color }}
-          />
+        <div key={index} className="chart-legend__item">
+          <div className="chart-legend__swatch" style={{ backgroundColor: entry.color }} />
           <span>{entry.value}</span>
         </div>
       ))}
@@ -189,13 +174,10 @@ const ChartLegendContent = ({ payload, nameKey }: ChartLegendContentProps) => {
   }
 
   return (
-    <div className="flex items-center justify-center gap-4">
+    <div className="chart-legend-content">
       {payload.map((entry: any, index: number) => (
-        <div key={index} className="flex items-center gap-1 text-sm">
-          <div
-            className="h-2 w-2 rounded-full"
-            style={{ backgroundColor: entry.color }}
-          />
+        <div key={index} className="chart-legend-content__item">
+          <div className="chart-legend-content__swatch" style={{ backgroundColor: entry.color }} />
           <span>{nameKey ? entry.payload[nameKey] : entry.value}</span>
         </div>
       ))}

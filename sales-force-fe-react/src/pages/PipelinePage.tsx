@@ -5,6 +5,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { usePipeline, usePipelineMutations } from '@/hooks/usePipeline';
 import type { PipelineLeadItem } from '@/lib/types';
+import './PipelinePage.css';
 
 // Transform backend PipelineLeadItem to frontend Lead format
 function transformPipelineLeadToLead(pipelineLead: PipelineLeadItem, status: string): Lead {
@@ -103,12 +104,9 @@ export default function PipelinePage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout
-        title="Pipeline"
-        subtitle="Manage your leads through the sales pipeline"
-      >
-        <div className="flex items-center justify-center h-64">
-          <div className="text-text-secondary">Loading pipeline...</div>
+      <DashboardLayout title="Pipeline" subtitle="Manage your leads through the sales pipeline">
+        <div className="pipeline-page__loading">
+          <div className="pipeline-page__loading-text">Loading pipeline...</div>
         </div>
       </DashboardLayout>
     );
@@ -116,12 +114,11 @@ export default function PipelinePage() {
 
   if (error) {
     return (
-      <DashboardLayout
-        title="Pipeline"
-        subtitle="Manage your leads through the sales pipeline"
-      >
-        <div className="flex items-center justify-center h-64">
-          <div className="text-red-500">Failed to load pipeline: {(error as Error).message}</div>
+      <DashboardLayout title="Pipeline" subtitle="Manage your leads through the sales pipeline">
+        <div className="pipeline-page__loading">
+          <div className="pipeline-page__error">
+            Failed to load pipeline: {(error as Error).message}
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -129,25 +126,22 @@ export default function PipelinePage() {
 
   return (
     <>
-      <DashboardLayout
-        title="Pipeline"
-        subtitle="Manage your leads through the sales pipeline"
-      >
+      <DashboardLayout title="Pipeline" subtitle="Manage your leads through the sales pipeline">
         {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <div className="pipeline-page__search">
+          <div className="pipeline-page__search-inner">
+            <Search className="pipeline-page__search-icon" />
             <input
               type="text"
               placeholder="Search leads by name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pipeline-page__search-input"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="pipeline-page__clear"
               >
                 ✕
               </button>
@@ -164,27 +158,25 @@ export default function PipelinePage() {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-6">
+          <div className="pipeline-page__pagination">
             <button
               onClick={handlePrevPage}
               disabled={!hasPrevPage || isFetching}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="pipeline-page__page-button"
             >
               Previous
             </button>
 
-            <span className="text-text-secondary text-sm">
+            <span className="pipeline-page__page-info">
               Page {page} of {totalPages} ({leads.length} of {totalLeads} leads)
             </span>
 
             <button
               onClick={handleNextPage}
               disabled={!hasNextPage || isFetching}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="pipeline-page__page-button pipeline-page__page-button--primary"
             >
-              {isFetching && (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              )}
+              {isFetching && <Loader2 className="pipeline-page__spinner" />}
               Next
             </button>
           </div>
@@ -193,9 +185,9 @@ export default function PipelinePage() {
 
       {/* Loading overlay for refetching pipeline data */}
       {isFetching && !isLoading && (
-        <div className="fixed top-4 right-4 z-50 bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 border border-gray-200">
-          <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-          <span className="text-sm font-medium">Syncing...</span>
+        <div className="pipeline-page__sync">
+          <Loader2 className="pipeline-page__sync-icon" />
+          <span className="pipeline-page__sync-text">Syncing...</span>
         </div>
       )}
     </>

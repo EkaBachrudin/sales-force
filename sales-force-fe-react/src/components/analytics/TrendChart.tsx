@@ -1,6 +1,7 @@
 
 import { Line, LineChart as RechartsLineChart, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
 import { cn } from '@/lib/utils';
+import './TrendChart.css';
 
 export interface TrendDataPoint {
   month: string;
@@ -28,11 +29,9 @@ export function TrendChart(
 
   if (chartData.length === 0) {
     return (
-      <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
-        <h3 className="text-base font-semibold text-text-primary mb-6">
-          {title}
-        </h3>
-        <p className="text-sm text-text-secondary">No data available</p>
+      <div className={cn('trend-chart', className)}>
+        <h3 className="trend-chart__title">{title}</h3>
+        <p className="trend-chart__empty">No data available</p>
       </div>
     );
   }
@@ -40,12 +39,10 @@ export function TrendChart(
   const totalClosings = chartData.reduce((sum, point) => sum + point.closings, 0);
 
   return (
-    <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
-      <h3 className="text-base font-semibold text-text-primary mb-6">
-        {title}
-      </h3>
+    <div className={cn('trend-chart', className)}>
+      <h3 className="trend-chart__title">{title}</h3>
 
-      <div className="h-64 w-full overflow-x-auto">
+      <div className="trend-chart__container">
         <RechartsLineChart
           width="100%"
           height={256}
@@ -59,13 +56,13 @@ export function TrendChart(
             tickMargin={10}
             axisLine={false}
             tickFormatter={(value) => value.slice(0, 3)}
-            className="text-xs"
+            className="trend-chart__axis"
           />
           <YAxis
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => value.toString()}
-            className="text-xs"
+            className="trend-chart__axis"
           />
           <Line
             dataKey="closings"
@@ -77,18 +74,16 @@ export function TrendChart(
               r: 4,
             }}
           >
-            <LabelList dataKey="closings" position="top" className="text-xs" />
+            <LabelList dataKey="closings" position="top" className="trend-chart__axis" />
           </Line>
         </RechartsLineChart>
       </div>
 
       {/* Summary */}
-      <div className="mt-4 pt-4 border-t border-border">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-text-secondary">Total Closings</span>
-          <span className="text-lg font-semibold text-text-primary">
-            {totalClosings}
-          </span>
+      <div className="trend-chart__summary">
+        <div className="trend-chart__summary-row">
+          <span className="trend-chart__summary-label">Total Closings</span>
+          <span className="trend-chart__summary-value">{totalClosings}</span>
         </div>
       </div>
     </div>

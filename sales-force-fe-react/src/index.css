@@ -20,6 +20,7 @@
   --danger: #EF4444;
   --info: #3B82F6;
   --neutral: #6B7280;
+  --neutral-soft: #F3F4F6;
 
   /* Unit Status Colors */
   --status-available: #3E8A3E;
@@ -81,6 +82,7 @@
   --color-danger: var(--danger);
   --color-info: var(--info);
   --color-neutral: var(--neutral);
+  --color-neutral-soft: var(--neutral-soft);
   --color-status-available: var(--status-available);
   --color-status-reserved: var(--status-reserved);
   --color-status-booked: var(--status-booked);

@@ -1,0 +1,191 @@
+@reference "../index.css";
+
+.users-page__add-icon {
+  @apply w-4 h-4;
+}
+.users-page__filters {
+  @apply flex flex-col sm:flex-row gap-3 mb-6;
+}
+.users-page__search {
+  @apply flex-1;
+}
+.users-page__search-icon {
+  @apply w-4 h-4;
+}
+.users-page__select {
+  @apply w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary;
+}
+.users-page__table-container {
+  @apply bg-white rounded-xl border border-border overflow-hidden;
+}
+.users-page__loading {
+  @apply px-4 py-8 text-center text-sm text-text-secondary;
+}
+.users-page__mobile {
+  @apply block lg:hidden;
+}
+.users-page__list {
+  @apply divide-y divide-border;
+}
+.users-page__empty {
+  @apply px-4 py-8 text-center text-sm text-text-secondary;
+}
+.users-page__mobile-card {
+  @apply p-4 hover:bg-background transition-colors;
+}
+.users-page__mobile-card-row {
+  @apply flex items-start justify-between gap-3;
+}
+.users-page__mobile-card-info {
+  @apply flex-1 min-w-0;
+}
+.users-page__name-row {
+  @apply flex items-center gap-2 mb-1;
+}
+.users-page__name {
+  @apply text-sm font-semibold text-text-primary truncate;
+}
+.users-page__details {
+  @apply space-y-1;
+}
+.users-page__meta {
+  @apply text-xs text-text-secondary flex items-center gap-1;
+}
+.users-page__meta-icon {
+  @apply w-3 h-3;
+}
+.users-page__mobile-actions {
+  @apply flex gap-1;
+}
+.users-page__action-btn {
+  @apply p-2 rounded text-text-secondary transition-colors;
+}
+.users-page__action-btn--edit {
+  @apply hover:bg-primary/5 hover:text-primary;
+}
+.users-page__action-btn--delete {
+  @apply hover:bg-danger/10 hover:text-danger;
+}
+.users-page__action-btn--table {
+  @apply p-1.5;
+}
+.users-page__mobile-action-icon {
+  @apply w-5 h-5;
+}
+.users-page__table-action-icon {
+  @apply w-4 h-4;
+}
+
+.users-page__desktop {
+  @apply hidden lg:block overflow-x-auto;
+}
+.users-page__table {
+  @apply w-full;
+}
+.users-page__table-head {
+  @apply border-b border-border bg-background;
+}
+.users-page__th {
+  @apply px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider;
+}
+.users-page__th--right {
+  @apply text-right;
+}
+.users-page__table-body {
+  @apply divide-y divide-border;
+}
+.users-page__table-row {
+  @apply hover:bg-background transition-colors;
+}
+.users-page__td {
+  @apply px-4 py-3;
+}
+.users-page__table-name {
+  @apply text-sm font-medium text-text-primary;
+}
+.users-page__table-name-row {
+  @apply flex items-center gap-2 mt-0.5;
+}
+.users-page__email {
+  @apply flex items-center gap-1 text-xs text-text-secondary hover:text-primary;
+}
+.users-page__email-icon {
+  @apply w-3 h-3;
+}
+.users-page__phone {
+  @apply flex items-center gap-1 text-xs text-text-secondary;
+}
+.users-page__phone-icon {
+  @apply w-3 h-3;
+}
+.users-page__status {
+  @apply inline-flex items-center gap-1 text-xs;
+}
+.users-page__status--active {
+  @apply text-success;
+}
+.users-page__status--inactive {
+  @apply text-text-secondary;
+}
+.users-page__status-icon {
+  @apply w-3 h-3;
+}
+.users-page__created {
+  @apply text-sm text-text-secondary;
+}
+.users-page__table-actions {
+  @apply flex items-center justify-end gap-1;
+}
+
+.users-page__pagination {
+  @apply flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border;
+}
+.users-page__pagination-info {
+  @apply text-xs sm:text-sm text-text-secondary text-center sm:text-left;
+}
+.users-page__pagination-buttons {
+  @apply flex items-center gap-2;
+}
+.users-page__page-btn {
+  @apply p-2 rounded-lg border border-border hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed;
+}
+.users-page__page-btn-icon {
+  @apply w-4 h-4;
+}
+.users-page__page-indicator {
+  @apply text-xs sm:text-sm text-text-secondary whitespace-nowrap;
+}
+
+.users-page__delete-modal {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+}
+.users-page__delete-modal-panel {
+  @apply bg-white rounded-xl w-full max-w-md p-6;
+}
+.users-page__delete-modal-body {
+  @apply mb-4;
+}
+.users-page__delete-modal-icon {
+  @apply w-12 h-12 rounded-full bg-danger/15 flex items-center justify-center mb-4;
+}
+.users-page__delete-modal-icon-svg {
+  @apply w-6 h-6 text-danger;
+}
+.users-page__delete-modal-title {
+  @apply text-lg font-semibold text-text-primary mb-2;
+}
+.users-page__delete-modal-text {
+  @apply text-sm text-text-secondary;
+}
+.users-page__delete-modal-highlight {
+  @apply font-medium text-text-primary;
+}
+.users-page__delete-modal-actions {
+  @apply flex gap-3;
+}
+.users-page__delete-modal-button {
+  @apply flex-1;
+}
+.users-page__delete-modal-button--danger {
+  @apply bg-danger hover:bg-danger/90;
+}

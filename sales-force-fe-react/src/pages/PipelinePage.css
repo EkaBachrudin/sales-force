@@ -1,0 +1,50 @@
+@reference "../index.css";
+
+.pipeline-page__loading {
+  @apply flex items-center justify-center h-64;
+}
+.pipeline-page__loading-text {
+  @apply text-text-secondary;
+}
+.pipeline-page__error {
+  @apply text-danger;
+}
+.pipeline-page__search {
+  @apply mb-6;
+}
+.pipeline-page__search-inner {
+  @apply relative max-w-md;
+}
+.pipeline-page__search-icon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary w-5 h-5;
+}
+.pipeline-page__search-input {
+  @apply w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+}
+.pipeline-page__clear {
+  @apply absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary;
+}
+.pipeline-page__pagination {
+  @apply flex justify-center items-center gap-4 mt-6;
+}
+.pipeline-page__page-button {
+  @apply px-4 py-2 bg-border hover:bg-neutral-soft disabled:bg-neutral-soft disabled:text-text-secondary rounded-lg font-medium transition-colors flex items-center gap-2;
+}
+.pipeline-page__page-button--primary {
+  @apply bg-primary hover:bg-primary-hover disabled:bg-primary/30 text-white;
+}
+.pipeline-page__page-info {
+  @apply text-text-secondary text-sm;
+}
+.pipeline-page__spinner {
+  @apply w-4 h-4 animate-spin;
+}
+.pipeline-page__sync {
+  @apply fixed top-4 right-4 z-50 bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 border border-border;
+}
+.pipeline-page__sync-icon {
+  @apply w-4 h-4 animate-spin text-primary;
+}
+.pipeline-page__sync-text {
+  @apply text-sm font-medium;
+}

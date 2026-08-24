@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import { cn } from '@/lib/utils';
+import './Textarea.css';
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -29,19 +30,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const hasError = !!error;
     const characterCount = typeof value === 'string' ? value.length : 0;
 
-    const baseStyles = 'w-full px-3 py-2 rounded-[8px] border bg-white text-sm transition-all duration-200 placeholder:text-gray-400 resize-y';
-
-    const stateStyles = hasError
-      ? 'border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)] bg-red-50/50'
-      : 'border-border focus:border-primary focus:ring-1 focus:ring-[var(--primary)]';
-
     return (
-      <div className="w-full">
+      <div className="textarea__wrapper">
         {label && (
-          <label
-            htmlFor={textareaId}
-            className="block text-sm font-medium text-text-primary mb-1.5"
-          >
+          <label htmlFor={textareaId} className="textarea__label">
             {label}
           </label>
         )}
@@ -49,29 +41,20 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           ref={ref}
           id={textareaId}
-          className={cn(
-            baseStyles,
-            stateStyles,
-            'focus:outline-none focus-visible:outline-none min-h-[80px]',
-            className
-          )}
+          className={cn('textarea__field', hasError && 'textarea__field--error', className)}
           maxLength={maxLength}
           value={value}
           {...props}
         />
 
-        <div className="flex items-center justify-between mt-1.5">
-          <div className="flex-1">
-            {error && (
-              <p className="text-xs text-danger">{error}</p>
-            )}
-            {helperText && !error && (
-              <p className="text-xs text-text-secondary">{helperText}</p>
-            )}
+        <div className="textarea__footer">
+          <div className="textarea__footer-messages">
+            {error && <p className="textarea__error">{error}</p>}
+            {helperText && !error && <p className="textarea__helper">{helperText}</p>}
           </div>
 
           {showCharacterCount && maxLength && (
-            <p className="text-xs text-text-secondary ml-2">
+            <p className="textarea__counter">
               {characterCount}/{maxLength}
             </p>
           )}

@@ -1,0 +1,218 @@
+@reference "../index.css";
+
+.lead-detail-page__action {
+  @apply flex items-center gap-2;
+}
+.lead-detail-page__loading {
+  @apply flex items-center justify-center h-64;
+}
+.lead-detail-page__loading-inner {
+  @apply text-center;
+}
+.lead-detail-page__spinner {
+  @apply inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary;
+}
+.lead-detail-page__loading-text {
+  @apply mt-4 text-sm text-text-secondary;
+}
+.lead-detail-page__not-found-inner {
+  @apply text-center;
+}
+.lead-detail-page__not-found-text {
+  @apply text-lg text-text-secondary mb-4;
+}
+.lead-detail-page__back-icon {
+  @apply w-4 h-4 mr-2;
+}
+.lead-detail-page__breadcrumb {
+  @apply mb-6 flex items-center gap-2 text-sm;
+}
+.lead-detail-page__breadcrumb-link {
+  @apply text-primary hover:underline;
+}
+.lead-detail-page__breadcrumb-separator {
+  @apply text-text-secondary;
+}
+.lead-detail-page__breadcrumb-current {
+  @apply text-text-primary;
+}
+.lead-detail-page__form {
+  @apply max-w-4xl;
+}
+.lead-detail-page__sections {
+  @apply space-y-6;
+}
+.lead-detail-page__card {
+  @apply bg-white rounded-xl border border-border p-6;
+}
+.lead-detail-page__section-title {
+  @apply text-sm font-semibold text-text-primary mb-4 flex items-center gap-2;
+}
+.lead-detail-page__section-accent {
+  @apply w-1 h-4 rounded-full;
+}
+.lead-detail-page__section-accent--primary {
+  @apply bg-primary;
+}
+.lead-detail-page__section-accent--success {
+  @apply bg-success;
+}
+.lead-detail-page__section-accent--warning {
+  @apply bg-warning;
+}
+.lead-detail-page__section-accent--reserved {
+  @apply bg-status-reserved;
+}
+.lead-detail-page__section-body {
+  @apply space-y-4 pl-3;
+}
+.lead-detail-page__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+.lead-detail-page__field-label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.lead-detail-page__textarea {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none;
+}
+.lead-detail-page__char-count {
+  @apply text-xs text-text-secondary mt-1 text-right;
+}
+.lead-detail-page__stage {
+  @apply bg-linear-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20 p-6;
+}
+.lead-detail-page__unit-row {
+  @apply flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between;
+}
+.lead-detail-page__unit-main {
+  @apply flex items-start gap-3 min-w-0;
+}
+.lead-detail-page__unit-icon {
+  @apply w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center flex-shrink-0;
+}
+.lead-detail-page__unit-icon--empty {
+  @apply bg-neutral-soft;
+}
+.lead-detail-page__unit-icon-svg {
+  @apply w-5 h-5 text-primary;
+}
+.lead-detail-page__unit-icon-svg--empty {
+  @apply text-text-secondary;
+}
+.lead-detail-page__unit-info {
+  @apply min-w-0;
+}
+.lead-detail-page__unit-name-row {
+  @apply flex items-center gap-2 flex-wrap;
+}
+.lead-detail-page__unit-name {
+  @apply text-sm font-semibold text-text-primary;
+}
+.lead-detail-page__unit-meta {
+  @apply text-xs text-text-secondary mt-1 flex items-center gap-1;
+}
+.lead-detail-page__unit-map-icon {
+  @apply w-3.5 h-3.5 flex-shrink-0;
+}
+.lead-detail-page__unit-area {
+  @apply text-xs text-text-secondary mt-0.5;
+}
+.lead-detail-page__unit-actions {
+  @apply flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:flex-shrink-0;
+}
+.lead-detail-page__unit-button {
+  @apply w-full sm:w-auto cursor-pointer;
+}
+.lead-detail-page__unassign-icon {
+  @apply w-4 h-4 text-danger;
+}
+.lead-detail-page__unassign-button {
+  @apply w-full sm:w-auto hover:bg-danger/10 hover:border-danger/40;
+}
+.lead-detail-page__unit-empty {
+  @apply flex items-center gap-3;
+}
+.lead-detail-page__unit-empty-text {
+  @apply text-sm text-text-secondary;
+}
+.lead-detail-page__budget-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 pl-3;
+}
+.lead-detail-page__currency-wrapper {
+  @apply relative;
+}
+.lead-detail-page__currency-prefix {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-secondary;
+}
+.lead-detail-page__currency-input {
+  @apply w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
+}
+.lead-detail-page__collapsible {
+  @apply bg-white rounded-xl border border-border overflow-hidden;
+}
+.lead-detail-page__toggle {
+  @apply w-full flex items-center justify-between p-6 hover:bg-background transition-colors;
+}
+.lead-detail-page__toggle-title {
+  @apply text-sm font-semibold text-text-primary flex items-center gap-2;
+}
+.lead-detail-page__toggle-icon {
+  @apply w-4 h-4 text-warning;
+}
+.lead-detail-page__toggle-icon--reserved {
+  @apply text-status-reserved;
+}
+.lead-detail-page__optional {
+  @apply text-xs font-normal text-text-secondary;
+}
+.lead-detail-page__toggle-state {
+  @apply text-xs text-text-secondary;
+}
+.lead-detail-page__collapsible-body {
+  @apply p-6 border-t border-border bg-background space-y-4;
+}
+.lead-detail-page__input {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary;
+}
+.lead-detail-page__calculate-button {
+  @apply w-full;
+}
+.lead-detail-page__result {
+  @apply text-center p-4 bg-primary/10 rounded-lg;
+}
+.lead-detail-page__result-label {
+  @apply text-sm text-text-secondary;
+}
+.lead-detail-page__result-value {
+  @apply text-2xl font-bold text-primary;
+}
+.lead-detail-page__datetime {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
+}
+.lead-detail-page__quick-actions {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-3 pl-3;
+}
+.lead-detail-page__action-button {
+  @apply bg-white shadow-sm transition-all justify-start text-sm border-border;
+}
+.lead-detail-page__action-button--whatsapp {
+  @apply hover:bg-success/10 hover:border-success/40;
+}
+.lead-detail-page__action-button--call {
+  @apply hover:bg-primary/5 hover:border-primary/40;
+}
+.lead-detail-page__action-button--email {
+  @apply hover:bg-primary/5 hover:border-primary/40;
+}
+.lead-detail-page__action-icon {
+  @apply w-4 h-4;
+}
+.lead-detail-page__action-icon--whatsapp {
+  @apply text-success;
+}
+.lead-detail-page__action-icon--call {
+  @apply text-primary;
+}
+.lead-detail-page__action-icon--email {
+  @apply text-primary;
+}

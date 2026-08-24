@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import type { User, CreateUserDto, UpdateUserDto } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import './UserModal.css';
 
 const roleOptions = [
   { value: 'Admin', label: 'Admin' },
@@ -172,37 +173,31 @@ export function UserModal({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-        onClick={onClose}
-      />
+      <div className="user-modal__backdrop" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="user-modal__overlay">
+        <div className="user-modal__panel">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-text-primary">
+          <div className="user-modal__header">
+            <h2 className="user-modal__title">
               {mode === 'create' ? 'Add New User' : 'Edit User'}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
+            <button onClick={onClose} className="user-modal__close">
+              <X className="user-modal__close-icon" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="user-modal__content">
+            <form onSubmit={handleSubmit} className="user-modal__form">
               {/* Personal Information */}
               <div>
-                <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
+                <h3 className="user-modal__section-title">
+                  <Shield className="user-modal__section-icon" />
                   User Information
                 </h3>
-                <div className="space-y-4">
+                <div className="user-modal__section-body">
                   <Input
                     label="Full Name *"
                     placeholder="Enter full name"
@@ -219,7 +214,7 @@ export function UserModal({
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     error={errors.email}
-                    leftIcon={<Mail className="w-4 h-4" />}
+                    leftIcon={<Mail className="user-modal__input-icon" />}
                     required
                   />
 
@@ -229,20 +224,15 @@ export function UserModal({
                     placeholder="0812-3456-7890"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    leftIcon={<Phone className="w-4 h-4" />}
+                    leftIcon={<Phone className="user-modal__input-icon" />}
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Role *
-                    </label>
+                    <label className="user-modal__field-label">Role *</label>
                     <select
                       value={formData.role}
                       onChange={(e) => handleInputChange('role', e.target.value)}
-                      className={cn(
-                        'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary',
-                        errors.role ? 'border-red-500' : 'border-border'
-                      )}
+                      className={cn('user-modal__select', errors.role && 'user-modal__select--error')}
                       required
                       disabled={isEditingSelf}
                     >
@@ -253,12 +243,10 @@ export function UserModal({
                       ))}
                     </select>
                     {errors.role && (
-                      <p className="text-xs text-red-500 mt-1">{errors.role}</p>
+                      <p className="user-modal__error">{errors.role}</p>
                     )}
                     {isEditingSelf && (
-                      <p className="text-xs text-text-secondary mt-1">
-                        You cannot change your own role
-                      </p>
+                      <p className="user-modal__hint">You cannot change your own role</p>
                     )}
                   </div>
                 </div>
@@ -266,12 +254,12 @@ export function UserModal({
 
               {/* Password Section */}
               <div>
-                <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
-                  <Key className="w-4 h-4" />
+                <h3 className="user-modal__section-title">
+                  <Key className="user-modal__section-icon" />
                   {mode === 'create' ? 'Password' : 'Change Password (Optional)'}
                 </h3>
-                <div className="space-y-4">
-                  <div className="relative">
+                <div className="user-modal__section-body">
+                  <div className="user-modal__password-wrapper">
                     <Input
                       label={mode === 'create' ? 'Password *' : 'New Password'}
                       type={showPassword ? 'text' : 'password'}
@@ -284,14 +272,14 @@ export function UserModal({
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-7 text-gray-400 hover:text-gray-600"
+                      className="user-modal__password-toggle"
                     >
                       {showPassword ? (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="user-modal__password-toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                         </svg>
                       ) : (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="user-modal__password-toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -316,42 +304,40 @@ export function UserModal({
               {/* Status (Edit Mode Only) */}
               {mode === 'edit' && (
                 <div>
-                  <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+                  <h3 className="user-modal__section-title">
                     {formData.is_active ? (
-                      <UserCheck className="w-4 h-4 text-green-600" />
+                      <UserCheck className="user-modal__status-icon user-modal__status-icon--active" />
                     ) : (
-                      <UserX className="w-4 h-4 text-gray-500" />
+                      <UserX className="user-modal__status-icon user-modal__status-icon--inactive" />
                     )}
                     Account Status
                   </h3>
-                  <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-2">
+                  <div className="user-modal__status-options">
+                    <label className="user-modal__status-option">
                       <input
                         type="radio"
                         name="status"
                         checked={formData.is_active === true}
                         onChange={() => handleInputChange('is_active', true)}
-                        className="w-4 h-4 text-primary"
+                        className="user-modal__radio"
                         disabled={isEditingSelf}
                       />
-                      <span className="text-sm text-text-primary">Active</span>
+                      <span className="user-modal__status-option-text">Active</span>
                     </label>
-                    <label className="flex items-center gap-2">
+                    <label className="user-modal__status-option">
                       <input
                         type="radio"
                         name="status"
                         checked={formData.is_active === false}
                         onChange={() => handleInputChange('is_active', false)}
-                        className="w-4 h-4 text-primary"
+                        className="user-modal__radio"
                         disabled={isEditingSelf}
                       />
-                      <span className="text-sm text-text-primary">Inactive</span>
+                      <span className="user-modal__status-option-text">Inactive</span>
                     </label>
                   </div>
                   {isEditingSelf && (
-                    <p className="text-xs text-text-secondary mt-2">
-                      You cannot deactivate your own account
-                    </p>
+                    <p className="user-modal__hint">You cannot deactivate your own account</p>
                   )}
                 </div>
               )}
@@ -359,7 +345,7 @@ export function UserModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+          <div className="user-modal__footer">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

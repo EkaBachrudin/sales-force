@@ -1,0 +1,44 @@
+@reference "../index.css";
+
+.login-page {
+  @apply min-h-screen flex items-center justify-center bg-linear-to-br from-primary/5 via-white to-primary/5 px-4;
+}
+.login-page__container {
+  @apply w-full max-w-md;
+}
+.login-page__brand {
+  @apply text-center mb-8;
+}
+.login-page__logo {
+  @apply inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-lg mb-4;
+}
+.login-page__logo-svg {
+  @apply w-8 h-8 text-white;
+}
+.login-page__title {
+  @apply text-2xl font-bold text-text-primary;
+}
+.login-page__tagline {
+  @apply text-sm text-text-secondary mt-1;
+}
+.login-page__subtitle {
+  @apply text-xs text-text-secondary mt-2;
+}
+.login-page__card {
+  @apply bg-white rounded-2xl shadow-xl border border-neutral-soft p-8;
+}
+.login-page__form {
+  @apply space-y-5;
+}
+.login-page__input-icon {
+  @apply w-5 h-5;
+}
+.login-page__password-toggle {
+  @apply p-0 bg-transparent border-none cursor-pointer;
+}
+.login-page__password-toggle-icon {
+  @apply w-5 h-5;
+}
+.login-page__submit {
+  @apply mt-6;
+}

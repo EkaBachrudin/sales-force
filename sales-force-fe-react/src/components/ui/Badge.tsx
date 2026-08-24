@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import './Badge.css';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'gray' | 'blue' | 'purple' | 'orange' | 'teal' | 'green' | 'red';
@@ -10,47 +11,27 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
   ({ className, variant = 'gray', size = 'md', dot, square = false, children, ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center gap-1.5 font-medium';
-
-    const variantStyles = {
-      gray: 'bg-gray-100 text-gray-700',
-      blue: 'bg-blue-50 text-blue-700',
-      purple: 'bg-purple-50 text-purple-700',
-      orange: 'bg-orange-50 text-orange-700',
-      teal: 'bg-cyan-50 text-cyan-700',
-      green: 'bg-green-50 text-green-700',
-      red: 'bg-red-50 text-red-700',
-    };
-
-    const sizeStyles = {
-      sm: 'px-2 py-0.5 text-[10px] uppercase tracking-wide',
-      md: 'px-2.5 py-1 text-xs',
-      lg: 'px-3 py-1.5 text-sm',
-    };
-
-    const dotStyles = {
-      gray: 'bg-gray-500',
-      blue: 'bg-blue-500',
-      purple: 'bg-purple-500',
-      orange: 'bg-orange-500',
-      teal: 'bg-cyan-500',
-      green: 'bg-green-500',
-      red: 'bg-red-500',
-    };
-
     return (
       <div
         ref={ref}
         className={cn(
-          baseStyles,
-          square ? 'rounded-[6px]' : 'rounded-full',
-          variantStyles[variant],
-          sizeStyles[size],
+          'badge',
+          `badge--${variant}`,
+          `badge--${size}`,
+          square ? 'badge--square' : 'badge--rounded',
           className
         )}
         {...props}
       >
-        {dot && <span className={cn(square ? 'rounded-[2px]' : 'rounded-full', 'w-1.5 h-1.5', dotStyles[variant])} />}
+        {dot && (
+          <span
+            className={cn(
+              'badge__dot',
+              `badge__dot--${variant}`,
+              square ? 'badge__dot--square' : 'badge__dot--rounded'
+            )}
+          />
+        )}
         {children}
       </div>
     );

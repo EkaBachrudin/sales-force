@@ -1,0 +1,32 @@
+@reference "../index.css";
+
+.dashboard-page__action {
+  @apply flex items-center gap-3;
+}
+.dashboard-page__action-icon {
+  @apply w-4 h-4;
+}
+.dashboard-page__action-text {
+  @apply hidden sm:inline;
+}
+.dashboard-page__action-text-mobile {
+  @apply sm:hidden;
+}
+.dashboard-page__loading {
+  @apply flex items-center justify-center h-64;
+}
+.dashboard-page__loading-inner {
+  @apply text-center;
+}
+.dashboard-page__spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2;
+}
+.dashboard-page__loading-text {
+  @apply text-sm text-text-secondary;
+}
+.dashboard-page__error-icon {
+  @apply w-12 h-12 text-danger mx-auto mb-2;
+}
+.dashboard-page__metrics {
+  @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6;
+}

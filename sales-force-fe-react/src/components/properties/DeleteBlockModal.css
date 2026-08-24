@@ -1,0 +1,38 @@
+@reference "../../index.css";
+
+.delete-block-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-40 transition-opacity duration-300;
+}
+.delete-block-modal__overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+}
+.delete-block-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col;
+}
+.delete-block-modal__body {
+  @apply p-6;
+}
+.delete-block-modal__heading {
+  @apply flex items-center gap-4 mb-4;
+}
+.delete-block-modal__icon {
+  @apply w-12 h-12 bg-danger/15 rounded-full flex items-center justify-center flex-shrink-0;
+}
+.delete-block-modal__icon-svg {
+  @apply w-6 h-6 text-danger;
+}
+.delete-block-modal__title {
+  @apply text-xl font-semibold text-text-primary;
+}
+.delete-block-modal__text {
+  @apply space-y-3;
+}
+.delete-block-modal__paragraph {
+  @apply text-sm text-text-secondary;
+}
+.delete-block-modal__highlight {
+  @apply font-semibold text-text-primary;
+}
+.delete-block-modal__footer {
+  @apply flex items-center justify-end gap-3 p-6 border-t border-border bg-background;
+}

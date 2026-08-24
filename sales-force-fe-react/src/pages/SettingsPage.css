@@ -1,0 +1,68 @@
+@reference "../index.css";
+
+.settings-page {
+  @apply w-full space-y-6;
+}
+.settings-page__card-header {
+  @apply flex items-center gap-3 mb-4;
+}
+.settings-page__icon {
+  @apply w-10 h-10 rounded-full flex items-center justify-center;
+}
+.settings-page__icon--primary {
+  @apply bg-primary-light;
+}
+.settings-page__icon--reserved {
+  @apply bg-status-reserved/15;
+}
+.settings-page__icon--success {
+  @apply bg-success/15;
+}
+.settings-page__icon-svg {
+  @apply w-5 h-5;
+}
+.settings-page__icon-svg--primary {
+  @apply text-primary;
+}
+.settings-page__icon-svg--reserved {
+  @apply text-status-reserved;
+}
+.settings-page__icon-svg--success {
+  @apply text-success;
+}
+.settings-page__card-title {
+  @apply text-base font-semibold text-text-primary;
+}
+.settings-page__card-subtitle {
+  @apply text-sm text-text-secondary;
+}
+.settings-page__info {
+  @apply space-y-4;
+}
+.settings-page__info-row {
+  @apply flex items-center justify-between py-3 border-b border-border;
+}
+.settings-page__info-row--last {
+  @apply border-b-0;
+}
+.settings-page__info-label {
+  @apply text-sm font-medium text-text-primary;
+}
+.settings-page__info-value {
+  @apply text-sm text-text-secondary;
+}
+.settings-page__appearance-row {
+  @apply flex items-center justify-between py-2;
+}
+.settings-page__appearance-label {
+  @apply text-sm text-text-primary;
+}
+.settings-page__toggle {
+  @apply relative w-11 h-6 rounded-full bg-border transition-colors;
+}
+.settings-page__toggle-knob {
+  @apply absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform;
+}
+.settings-page__button {
+  @apply w-full;
+}

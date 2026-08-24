@@ -1,0 +1,71 @@
+@reference "../../index.css";
+
+.badge {
+  @apply inline-flex items-center gap-1.5 font-medium;
+}
+.badge--rounded {
+  @apply rounded-full;
+}
+.badge--square {
+  @apply rounded-[6px];
+}
+.badge--gray {
+  @apply bg-neutral-soft text-text-secondary;
+}
+.badge--blue {
+  @apply bg-primary-light text-primary;
+}
+.badge--purple {
+  @apply bg-[color-mix(in_srgb,var(--status-reserved)_10%,white)] text-status-reserved;
+}
+.badge--orange {
+  @apply bg-[color-mix(in_srgb,var(--warning)_12%,white)] text-status-booked;
+}
+.badge--teal {
+  @apply bg-[color-mix(in_srgb,var(--info)_10%,white)] text-info;
+}
+.badge--green {
+  @apply bg-[color-mix(in_srgb,var(--success)_10%,white)] text-success;
+}
+.badge--red {
+  @apply bg-[color-mix(in_srgb,var(--danger)_10%,white)] text-danger;
+}
+.badge--sm {
+  @apply px-2 py-0.5 text-[10px] uppercase tracking-wide;
+}
+.badge--md {
+  @apply px-2.5 py-1 text-xs;
+}
+.badge--lg {
+  @apply px-3 py-1.5 text-sm;
+}
+.badge__dot {
+  @apply w-1.5 h-1.5;
+}
+.badge__dot--rounded {
+  @apply rounded-full;
+}
+.badge__dot--square {
+  @apply rounded-[2px];
+}
+.badge__dot--gray {
+  @apply bg-neutral;
+}
+.badge__dot--blue {
+  @apply bg-primary;
+}
+.badge__dot--purple {
+  @apply bg-status-reserved;
+}
+.badge__dot--orange {
+  @apply bg-warning;
+}
+.badge__dot--teal {
+  @apply bg-info;
+}
+.badge__dot--green {
+  @apply bg-success;
+}
+.badge__dot--red {
+  @apply bg-danger;
+}

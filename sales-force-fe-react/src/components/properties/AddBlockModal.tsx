@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import './AddBlockModal.css';
 
 interface AddBlockModalProps {
   isOpen?: boolean;
@@ -64,24 +65,18 @@ export function AddBlockModal({
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-        onClick={onClose}
-      />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-text-primary">Add New Block</h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
+      <div className="add-block-modal__backdrop" onClick={onClose} />
+      <div className="add-block-modal__overlay">
+        <div className="add-block-modal__panel">
+          <div className="add-block-modal__header">
+            <h2 className="add-block-modal__title">Add New Block</h2>
+            <button onClick={onClose} className="add-block-modal__close">
+              <X className="add-block-modal__close-icon" />
             </button>
           </div>
 
-          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="add-block-modal__content">
+            <form onSubmit={handleSubmit} className="add-block-modal__form">
               <Input
                 label="Block Name"
                 placeholder="e.g., Block A"
@@ -95,7 +90,7 @@ export function AddBlockModal({
             </form>
           </div>
 
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+          <div className="add-block-modal__footer">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

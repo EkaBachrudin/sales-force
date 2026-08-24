@@ -1,0 +1,23 @@
+@reference "../../index.css";
+
+.card {
+  @apply rounded-[12px] bg-surface transition-shadow duration-200;
+}
+.card--default {
+  @apply border border-border;
+}
+.card--bordered {
+  @apply border-2 border-border;
+}
+.card--elevated {
+  @apply border border-border shadow-md hover:shadow-lg;
+}
+.card--sm {
+  @apply p-3;
+}
+.card--md {
+  @apply p-4;
+}
+.card--lg {
+  @apply p-6;
+}

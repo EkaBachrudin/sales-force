@@ -1,0 +1,35 @@
+@reference "../../index.css";
+
+.select__wrapper {
+  @apply w-full;
+}
+.select__label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.select__field-wrapper {
+  @apply relative;
+}
+.select__field {
+  @apply w-full px-3 py-2 rounded-[8px] border text-sm transition-all duration-200 appearance-none focus:outline-none focus-visible:outline-none pr-10 border-border focus:border-primary bg-white cursor-pointer;
+}
+.select__field--error {
+  @apply border-danger focus:border-danger bg-danger/5;
+}
+.select__field--disabled {
+  @apply bg-neutral-soft text-text-secondary border-border cursor-not-allowed opacity-70;
+}
+.select__chevron {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary;
+}
+.select__chevron--disabled {
+  @apply text-border;
+}
+.select__chevron-icon {
+  @apply w-4 h-4;
+}
+.select__error {
+  @apply mt-1.5 text-xs text-danger;
+}
+.select__helper {
+  @apply mt-1.5 text-xs text-text-secondary;
+}

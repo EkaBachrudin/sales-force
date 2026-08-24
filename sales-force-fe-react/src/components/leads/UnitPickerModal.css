@@ -1,0 +1,35 @@
+@reference "../../index.css";
+
+.unit-picker-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-60 transition-opacity duration-300;
+}
+.unit-picker-modal__overlay {
+  @apply fixed inset-0 z-70 flex items-center justify-center p-4;
+}
+.unit-picker-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col;
+}
+.unit-picker-modal__header {
+  @apply flex items-center justify-between p-5 border-b border-border;
+}
+.unit-picker-modal__title {
+  @apply text-lg font-semibold text-text-primary;
+}
+.unit-picker-modal__subtitle {
+  @apply text-sm text-text-secondary mt-0.5;
+}
+.unit-picker-modal__close {
+  @apply flex-shrink-0 p-2 hover:bg-neutral-soft rounded-lg transition-colors;
+}
+.unit-picker-modal__close-icon {
+  @apply w-5 h-5 text-text-secondary;
+}
+.unit-picker-modal__content {
+  @apply p-5 flex flex-col gap-4;
+}
+.unit-picker-modal__footer {
+  @apply p-5 border-t border-border;
+}
+.unit-picker-modal__error {
+  @apply text-sm text-danger mb-3;
+}

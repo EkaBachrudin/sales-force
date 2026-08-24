@@ -2,6 +2,7 @@ import { UserMinus } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useUnassignLeadFromUnit } from '@/hooks/useUnits';
+import './UnassignLeadModal.css';
 
 interface UnassignLeadModalProps {
   isOpen: boolean;
@@ -33,34 +34,31 @@ export function UnassignLeadModal({ isOpen, onClose, unitId, unitName, lead }: U
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300"
-        onClick={onClose}
-      />
-      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
-          <div className="p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <UserMinus className="w-6 h-6 text-red-600" />
+      <div className="unassign-lead-modal__backdrop" onClick={onClose} />
+      <div className="unassign-lead-modal__overlay">
+        <div className="unassign-lead-modal__panel">
+          <div className="unassign-lead-modal__body">
+            <div className="unassign-lead-modal__heading">
+              <div className="unassign-lead-modal__icon">
+                <UserMinus className="unassign-lead-modal__icon-svg" />
               </div>
-              <h2 className="text-xl font-semibold text-text-primary">Unassign Lead</h2>
+              <h2 className="unassign-lead-modal__title">Unassign Lead</h2>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-sm text-text-secondary">
+            <div className="unassign-lead-modal__text">
+              <p className="unassign-lead-modal__paragraph">
                 Are you sure you want to unassign{' '}
-                <span className="font-semibold text-text-primary">{lead?.name}</span> from{' '}
-                <span className="font-semibold text-text-primary">{unitName}</span>?
+                <span className="unassign-lead-modal__highlight">{lead?.name}</span> from{' '}
+                <span className="unassign-lead-modal__highlight">{unitName}</span>?
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="unassign-lead-modal__paragraph">
                 The lead will no longer be linked to this unit. This action cannot be undone.
               </p>
-              {error && <p className="text-sm text-danger">{error}</p>}
+              {error && <p className="unassign-lead-modal__error">{error}</p>}
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border bg-gray-50">
+          <div className="unassign-lead-modal__footer">
             <Button variant="secondary" onClick={onClose} disabled={isUnassigning}>
               Cancel
             </Button>

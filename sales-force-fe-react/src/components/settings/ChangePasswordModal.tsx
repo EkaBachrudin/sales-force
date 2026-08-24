@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { api } from '@/lib/api';
+import './ChangePasswordModal.css';
 
 export interface ChangePasswordModalProps {
   isOpen?: boolean;
@@ -106,49 +107,44 @@ export function ChangePasswordModal({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-        onClick={onClose}
-      />
+      <div className="change-password-modal__backdrop" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+      <div className="change-password-modal__overlay">
+        <div className="change-password-modal__panel">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-text-primary">
-              Change Password
-            </h2>
+          <div className="change-password-modal__header">
+            <h2 className="change-password-modal__title">Change Password</h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="change-password-modal__close"
               disabled={isLoading}
             >
-              <X className="w-5 h-5" />
+              <X className="change-password-modal__close-icon" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="change-password-modal__content">
             {showSuccess ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="change-password-modal__success">
+                <div className="change-password-modal__success-icon">
+                  <svg className="change-password-modal__success-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-text-primary mb-2">
+                <h3 className="change-password-modal__success-title">
                   Password Changed Successfully
                 </h3>
-                <p className="text-sm text-text-secondary">
+                <p className="change-password-modal__success-text">
                   Please login again with your new password.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="change-password-modal__form">
                 {errors.general && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600">{errors.general}</p>
+                  <div className="change-password-modal__error-box">
+                    <p className="change-password-modal__error-text">{errors.general}</p>
                   </div>
                 )}
 
@@ -185,7 +181,7 @@ export function ChangePasswordModal({
                   required
                 />
 
-                <p className="text-xs text-text-secondary">
+                <p className="change-password-modal__hint">
                   Password must be at least 6 characters long.
                 </p>
               </form>
@@ -194,7 +190,7 @@ export function ChangePasswordModal({
 
           {/* Footer */}
           {!showSuccess && (
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+            <div className="change-password-modal__footer">
               <Button variant="secondary" onClick={onClose} disabled={isLoading}>
                 Cancel
               </Button>

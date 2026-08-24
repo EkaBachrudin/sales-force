@@ -2,6 +2,7 @@
 import { X, Download } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useState, useEffect } from 'react';
+import './InstallPWABanner.css';
 
 export function InstallPWABanner() {
   const { isShowable, isIOS, promptInstall } = usePWAInstall();
@@ -46,39 +47,34 @@ export function InstallPWABanner() {
   }
 
   return (
-    <div className="mb-4 bg-gradient-to-r from-primary to-primary-hover rounded-xl shadow-lg p-4 relative animate-in slide-in-from-top duration-300">
+    <div className="install-pwa-banner">
       <button
         onClick={handleDismiss}
-        className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors p-1"
+        className="install-pwa-banner__dismiss"
         aria-label="Close"
       >
-        <X className="w-4 h-4" />
+        <X className="install-pwa-banner__dismiss-icon" />
       </button>
 
-      <div className="flex items-center gap-3 pr-6">
-        <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-          <Download className="w-6 h-6 text-white" />
+      <div className="install-pwa-banner__row">
+        <div className="install-pwa-banner__icon">
+          <Download className="install-pwa-banner__icon-svg" />
         </div>
 
-        <div className="flex-1 min-w-0">
-          <h3 className="text-white font-semibold text-sm">
-            Install Sales Force App
-          </h3>
-          <p className="text-white/80 text-xs mt-0.5">
+        <div className="install-pwa-banner__content">
+          <h3 className="install-pwa-banner__title">Install Sales Force App</h3>
+          <p className="install-pwa-banner__subtitle">
             Add to your home screen for quick access
           </p>
         </div>
 
-        <button
-          onClick={handleInstall}
-          className="flex-shrink-0 bg-white text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
-        >
+        <button onClick={handleInstall} className="install-pwa-banner__install">
           Install
         </button>
       </div>
 
       {showIosHelp && (
-        <ol className="mt-3 pt-3 border-t border-white/20 text-white/90 text-xs space-y-1 list-decimal list-inside">
+        <ol className="install-pwa-banner__ios-help">
           <li>Tap the Share button in Safari</li>
           <li>Scroll down and tap &quot;Add to Home Screen&quot;</li>
           <li>Tap &quot;Add&quot; in the top right</li>

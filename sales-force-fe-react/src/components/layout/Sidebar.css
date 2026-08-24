@@ -1,0 +1,103 @@
+@reference "../../index.css";
+
+.sidebar {
+  @apply fixed top-0 h-screen bg-white border-r border-border transition-all duration-300 z-40 lg:z-20 lg:translate-x-0 w-64 lg:w-64;
+}
+.sidebar--collapsed {
+  @apply lg:w-20;
+}
+.sidebar--mobile-closed {
+  @apply -translate-x-full lg:translate-x-0;
+}
+
+.sidebar__logo {
+  @apply h-20 flex items-center justify-center px-4;
+}
+.sidebar__logo-link {
+  @apply flex items-center gap-2 mt-3;
+}
+.sidebar__logo-img {
+  @apply h-14;
+}
+.sidebar__close {
+  @apply lg:hidden p-1.5 rounded-lg hover:bg-neutral-soft transition-colors;
+}
+.sidebar__close-icon {
+  @apply w-5 h-5 text-text-secondary;
+}
+
+.sidebar__nav {
+  @apply py-4 pr-4 pl-6 space-y-1;
+}
+.sidebar__nav--collapsed {
+  @apply p-4 space-y-1;
+}
+
+.sidebar__link {
+  @apply flex items-center gap-3 pr-3 pl-8 py-4 rounded-md transition-all duration-200 relative h-[53px] text-text-secondary hover:bg-gray-200 border-l-4 border-transparent;
+}
+.sidebar__link--collapsed {
+  @apply pl-3;
+}
+.sidebar__link--active {
+  @apply bg-primary text-white border-primary hover:bg-primary;
+}
+.sidebar__link-indicator {
+  @apply absolute bg-primary h-full w-[8px] rounded-[20px] left-[-28px];
+}
+.sidebar__link-indicator--collapsed {
+  @apply left-[-20px];
+}
+.sidebar__link-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+.sidebar__link-label {
+  @apply font-medium;
+}
+.sidebar__link-badge {
+  @apply ml-auto bg-danger text-white text-xs font-medium px-2 py-0.5 rounded-full;
+}
+
+.sidebar__mobile-user {
+  @apply lg:hidden absolute bottom-16 left-0 right-0 px-4;
+}
+.sidebar__mobile-user-inner {
+  @apply border-t border-border pt-4;
+}
+.sidebar__user {
+  @apply flex items-center gap-3 mb-3;
+}
+.sidebar__user-avatar {
+  @apply w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium;
+}
+.sidebar__user-info {
+  @apply flex-1 min-w-0;
+}
+.sidebar__user-name {
+  @apply text-sm font-medium text-text-primary truncate;
+}
+.sidebar__user-email {
+  @apply text-xs text-text-secondary truncate;
+}
+.sidebar__role {
+  @apply mb-3;
+}
+.sidebar__role-badge {
+  @apply inline-block px-2 py-0.5 text-xs font-medium bg-primary-light text-primary rounded;
+}
+.sidebar__mobile-actions {
+  @apply space-y-1;
+}
+.sidebar__logout {
+  @apply flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-danger hover:bg-danger/10 transition-colors;
+}
+.sidebar__logout-icon {
+  @apply w-4 h-4;
+}
+
+.sidebar__toggle {
+  @apply hidden lg:flex absolute bottom-4 right-4 w-8 h-8 items-center justify-center rounded-lg bg-neutral-soft hover:bg-border transition-colors;
+}
+.sidebar__toggle-icon {
+  @apply w-4 h-4 text-text-secondary;
+}

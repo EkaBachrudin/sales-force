@@ -1,6 +1,7 @@
 
 import { Cell, Pie, PieChart as RechartsPieChart } from 'recharts';
 import { cn } from '@/lib/utils';
+import './DoughnutChart.css';
 
 export interface DoughnutSegment {
   label?: string;
@@ -35,14 +36,12 @@ export function DoughnutChart({
   }));
 
   return (
-    <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
-      <h3 className="text-base font-semibold text-text-primary mb-6">
-        {title}
-      </h3>
+    <div className={cn('doughnut-chart', className)}>
+      <h3 className="doughnut-chart__title">{title}</h3>
 
-      <div className="block sm:flex items-center gap-8">
+      <div className="doughnut-chart__layout">
         {/* Chart */}
-        <div className="relative flex-shrink-0 w-48 h-48">
+        <div className="doughnut-chart__chart">
           <RechartsPieChart width={192} height={192} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <Pie
               data={chartData}
@@ -63,43 +62,32 @@ export function DoughnutChart({
 
           {/* Center text - absolutely positioned */}
           {centerText && (
-            <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-              <span className="text-xl font-bold text-text-primary">
-                {centerText}
-              </span>
+            <div className="doughnut-chart__center">
+              <span className="doughnut-chart__center-text">{centerText}</span>
               {centerSubtext && (
-                <span className="text-xs text-text-secondary">
-                  {centerSubtext}
-                </span>
+                <span className="doughnut-chart__center-subtext">{centerSubtext}</span>
               )}
             </div>
           )}
         </div>
 
         {/* Legend */}
-        <div className="flex-1 space-y-3">
+        <div className="doughnut-chart__legend">
           {data.map((segment, index) => {
             const segmentValue = segment.value ?? segment.count ?? 0;
             const percentage = total > 0 ? ((segmentValue / total) * 100).toFixed(1) : '0.0';
 
             return (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: segment.color }}
-                  />
-                  <span className="text-sm text-text-primary">
+              <div key={index} className="doughnut-chart__legend-item">
+                <div className="doughnut-chart__legend-item-label">
+                  <div className="doughnut-chart__legend-swatch" style={{ backgroundColor: segment.color }} />
+                  <span className="doughnut-chart__legend-label">
                     {segment.label ?? segment.source}
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="text-sm font-medium text-text-primary">
-                    {segmentValue}
-                  </span>
-                  <span className="text-xs text-text-secondary ml-1">
-                    ({percentage}%)
-                  </span>
+                <div className="doughnut-chart__legend-values">
+                  <span className="doughnut-chart__legend-value">{segmentValue}</span>
+                  <span className="doughnut-chart__legend-percentage">({percentage}%)</span>
                 </div>
               </div>
             );

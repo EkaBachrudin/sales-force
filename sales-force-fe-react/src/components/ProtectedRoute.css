@@ -1,0 +1,8 @@
+@reference "../index.css";
+
+.protected-route__loading {
+  @apply min-h-screen flex items-center justify-center bg-background;
+}
+.protected-route__spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-primary;
+}

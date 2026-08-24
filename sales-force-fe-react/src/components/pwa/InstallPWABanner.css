@@ -1,0 +1,35 @@
+@reference "../../index.css";
+
+.install-pwa-banner {
+  @apply mb-4 bg-linear-to-r from-primary to-primary-hover rounded-xl shadow-lg p-4 relative;
+}
+.install-pwa-banner__dismiss {
+  @apply absolute top-2 right-2 text-white/70 hover:text-white transition-colors p-1;
+}
+.install-pwa-banner__dismiss-icon {
+  @apply w-4 h-4;
+}
+.install-pwa-banner__row {
+  @apply flex items-center gap-3 pr-6;
+}
+.install-pwa-banner__icon {
+  @apply flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center;
+}
+.install-pwa-banner__icon-svg {
+  @apply w-6 h-6 text-white;
+}
+.install-pwa-banner__content {
+  @apply flex-1 min-w-0;
+}
+.install-pwa-banner__title {
+  @apply text-white font-semibold text-sm;
+}
+.install-pwa-banner__subtitle {
+  @apply text-white/80 text-xs mt-0.5;
+}
+.install-pwa-banner__install {
+  @apply flex-shrink-0 bg-white text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors;
+}
+.install-pwa-banner__ios-help {
+  @apply mt-3 pt-3 border-t border-white/20 text-white/90 text-xs space-y-1 list-decimal list-inside;
+}

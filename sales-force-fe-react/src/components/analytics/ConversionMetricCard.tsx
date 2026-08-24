@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown, Info } from 'lucide-react';
+import './ConversionMetricCard.css';
 
 export interface ConversionMetricCardProps {
   label: string;
@@ -49,54 +50,51 @@ export function ConversionMetricCard({
   }, [showTooltip]);
 
   return (
-    <div
-      className={cn(
-        'bg-white rounded-xl border border-border p-5 relative',
-        className
-      )}
-    >
-      <div className="flex items-center gap-1 mb-1">
-        <p className="text-sm text-text-secondary">{label}</p>
+    <div className={cn('conversion-metric-card', className)}>
+      <div className="conversion-metric-card__header">
+        <p className="conversion-metric-card__label">{label}</p>
         {tooltip && (
-          <div className="relative">
+          <div className="conversion-metric-card__tooltip">
             <button
               ref={buttonRef}
               type="button"
               onClick={() => setShowTooltip(!showTooltip)}
-              className="text-text-secondary hover:text-text-primary transition-colors"
+              className="conversion-metric-card__tooltip-trigger"
               aria-label="Show info"
             >
-              <Info className="w-3.5 h-3.5" />
+              <Info className="conversion-metric-card__tooltip-icon" />
             </button>
 
             {showTooltip && (
               <>
                 <div
-                  className="fixed inset-0 z-40"
+                  className="conversion-metric-card__tooltip-overlay"
                   onClick={() => setShowTooltip(false)}
                   aria-hidden="true"
                 />
                 <div
                   ref={tooltipRef}
                   className={cn(
-                    'absolute top-6 z-50 w-72 max-w-[calc(100vw-2rem)] bg-gray-900 text-white rounded-lg p-4 shadow-xl',
-                    position === 'left' ? 'left-0' : 'right-0'
+                    'conversion-metric-card__tooltip-content',
+                    position === 'left'
+                      ? 'conversion-metric-card__tooltip-content--left'
+                      : 'conversion-metric-card__tooltip-content--right'
                   )}
                 >
-                  <h4 className="font-semibold text-sm mb-2">{tooltip.title}</h4>
-                  <p className="text-xs text-gray-300 mb-3">{tooltip.description}</p>
+                  <h4 className="conversion-metric-card__tooltip-title">{tooltip.title}</h4>
+                  <p className="conversion-metric-card__tooltip-description">{tooltip.description}</p>
 
                   {tooltip.meaning && (
-                    <div className="mb-2">
-                      <p className="text-xs font-medium text-gray-400 mb-1">Artinya:</p>
-                      <p className="text-xs text-gray-300">{tooltip.meaning}</p>
+                    <div className="conversion-metric-card__tooltip-section">
+                      <p className="conversion-metric-card__tooltip-section-label">Artinya:</p>
+                      <p className="conversion-metric-card__tooltip-section-text">{tooltip.meaning}</p>
                     </div>
                   )}
 
                   {tooltip.benefit && (
                     <div>
-                      <p className="text-xs font-medium text-gray-400 mb-1">Gunanya:</p>
-                      <p className="text-xs text-gray-300">{tooltip.benefit}</p>
+                      <p className="conversion-metric-card__tooltip-section-label">Gunanya:</p>
+                      <p className="conversion-metric-card__tooltip-section-text">{tooltip.benefit}</p>
                     </div>
                   )}
                 </div>
@@ -106,26 +104,22 @@ export function ConversionMetricCard({
         )}
       </div>
 
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-text-primary">
-          {value}
-        </span>
-        {unit && (
-          <span className="text-sm text-text-secondary">{unit}</span>
-        )}
+      <div className="conversion-metric-card__value-row">
+        <span className="conversion-metric-card__value">{value}</span>
+        {unit && <span className="conversion-metric-card__unit">{unit}</span>}
       </div>
 
       {trend && (
         <div
           className={cn(
-            'flex items-center gap-1 mt-2 text-xs font-medium',
-            trend.isPositive ? 'text-success' : 'text-danger'
+            'conversion-metric-card__trend',
+            trend.isPositive ? 'conversion-metric-card__trend--up' : 'conversion-metric-card__trend--down'
           )}
         >
           {trend.isPositive ? (
-            <TrendingUp className="w-3.5 h-3.5" />
+            <TrendingUp className="conversion-metric-card__trend-icon" />
           ) : (
-            <TrendingDown className="w-3.5 h-3.5" />
+            <TrendingDown className="conversion-metric-card__trend-icon" />
           )}
           <span>
             {trend.isPositive ? '+' : ''}

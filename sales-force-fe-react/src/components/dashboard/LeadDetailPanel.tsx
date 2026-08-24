@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { cn, formatCurrency, formatPhone, formatDate } from '@/lib/utils';
 import type { Lead, PipelineStage } from '@/lib/types';
+import './LeadDetailPanel.css';
 
 export interface LeadDetailPanelProps {
   lead?: Lead | null;
@@ -34,32 +35,32 @@ const stageVariantMap: Record<PipelineStage, 'gray' | 'blue' | 'purple' | 'orang
 };
 
 const stageGradientMap: Record<PipelineStage, string> = {
-  new: 'from-slate-100 to-gray-100',
-  contacted: 'from-blue-100 to-indigo-100',
-  surveyed: 'from-purple-100 to-violet-100',
-  negotiating: 'from-orange-100 to-amber-100',
-  booked: 'from-cyan-100 to-teal-100',
-  closed: 'from-emerald-100 to-green-100',
-  cancelled: 'from-red-100 to-rose-100',
+  new: 'lead-detail-panel__stage-icon--new',
+  contacted: 'lead-detail-panel__stage-icon--contacted',
+  surveyed: 'lead-detail-panel__stage-icon--surveyed',
+  negotiating: 'lead-detail-panel__stage-icon--negotiating',
+  booked: 'lead-detail-panel__stage-icon--booked',
+  closed: 'lead-detail-panel__stage-icon--closed',
+  cancelled: 'lead-detail-panel__stage-icon--cancelled',
 };
 
 const stageColorMap: Record<PipelineStage, string> = {
-  new: 'text-slate-600',
-  contacted: 'text-blue-600',
-  surveyed: 'text-purple-600',
-  negotiating: 'text-orange-600',
-  booked: 'text-cyan-600',
-  closed: 'text-emerald-600',
-  cancelled: 'text-red-600',
+  new: 'lead-detail-panel__stage-icon-svg--new',
+  contacted: 'lead-detail-panel__stage-icon-svg--contacted',
+  surveyed: 'lead-detail-panel__stage-icon-svg--surveyed',
+  negotiating: 'lead-detail-panel__stage-icon-svg--negotiating',
+  booked: 'lead-detail-panel__stage-icon-svg--booked',
+  closed: 'lead-detail-panel__stage-icon-svg--closed',
+  cancelled: 'lead-detail-panel__stage-icon-svg--cancelled',
 };
 
-const sourceConfig: Record<string, { icon: ReactNode; color: string; bgGradient: string; label: string }> = {
-  'Website': { icon: <Globe className="w-5 h-5" />, color: 'text-blue-600', bgGradient: 'from-blue-50 to-cyan-50', label: 'Website' },
-  'Instagram': { icon: <Camera className="w-5 h-5" />, color: 'text-pink-600', bgGradient: 'from-pink-50 to-rose-50', label: 'Instagram' },
-  'Facebook': { icon: <Users className="w-5 h-5" />, color: 'text-blue-700', bgGradient: 'from-blue-50 to-indigo-50', label: 'Facebook' },
-  'WhatsApp': { icon: <MessageCircle className="w-5 h-5" />, color: 'text-green-600', bgGradient: 'from-green-50 to-emerald-50', label: 'WhatsApp' },
-  'Referral': { icon: <Handshake className="w-5 h-5" />, color: 'text-purple-600', bgGradient: 'from-purple-50 to-violet-50', label: 'Referral' },
-  'Other': { icon: <Pin className="w-5 h-5" />, color: 'text-slate-600', bgGradient: 'from-slate-50 to-gray-50', label: 'Lainnya' },
+const sourceConfig: Record<string, { icon: ReactNode; iconBoxClass: string; valueClass: string; label: string }> = {
+  'Website': { icon: <Globe className="lead-detail-panel__source-icon-svg" />, iconBoxClass: 'lead-detail-panel__source-icon--website', valueClass: 'lead-detail-panel__source-value--website', label: 'Website' },
+  'Instagram': { icon: <Camera className="lead-detail-panel__source-icon-svg" />, iconBoxClass: 'lead-detail-panel__source-icon--instagram', valueClass: 'lead-detail-panel__source-value--instagram', label: 'Instagram' },
+  'Facebook': { icon: <Users className="lead-detail-panel__source-icon-svg" />, iconBoxClass: 'lead-detail-panel__source-icon--facebook', valueClass: 'lead-detail-panel__source-value--facebook', label: 'Facebook' },
+  'WhatsApp': { icon: <MessageCircle className="lead-detail-panel__source-icon-svg" />, iconBoxClass: 'lead-detail-panel__source-icon--whatsapp', valueClass: 'lead-detail-panel__source-value--whatsapp', label: 'WhatsApp' },
+  'Referral': { icon: <Handshake className="lead-detail-panel__source-icon-svg" />, iconBoxClass: 'lead-detail-panel__source-icon--referral', valueClass: 'lead-detail-panel__source-value--referral', label: 'Referral' },
+  'Other': { icon: <Pin className="lead-detail-panel__source-icon-svg" />, iconBoxClass: 'lead-detail-panel__source-icon--other', valueClass: 'lead-detail-panel__source-value--other', label: 'Lainnya' },
 };
 
 export function LeadDetailPanel({
@@ -155,10 +156,7 @@ export function LeadDetailPanel({
       {/* Backdrop */}
       <div
         aria-hidden="true"
-        className={cn(
-          'fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 z-40',
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        )}
+        className={cn('lead-detail-panel__backdrop', !isOpen && 'lead-detail-panel__backdrop--closed')}
         onClick={onClose}
       />
 
@@ -168,52 +166,46 @@ export function LeadDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-labelledby="lead-detail-title"
-        className={cn(
-          'fixed top-0 right-0 h-full w-full md:w-[500px] lg:w-[540px] bg-white shadow-2xl z-50 transition-transform duration-300 ease-out flex flex-col',
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        )}
+        className={cn('lead-detail-panel', !isOpen && 'lead-detail-panel--closed')}
       >
         {/* Header */}
-        <header className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+        <header className="lead-detail-panel__header">
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="lead-detail-panel__close"
             aria-label="Tutup panel detail"
           >
-            <X className="w-5 h-5" />
-            <span className="text-xs sm:text-sm font-medium hidden sm:inline">Tutup</span>
+            <X className="lead-detail-panel__close-icon" />
+            <span className="lead-detail-panel__close-text">Tutup</span>
           </button>
-          <h1 id="lead-detail-title" className="text-base sm:text-lg font-semibold text-slate-800">
+          <h1 id="lead-detail-title" className="lead-detail-panel__title">
             Detail Lead
           </h1>
           <Button
             variant="primary"
             size="sm"
-            leftIcon={<Edit2 className="w-4 h-4" />}
+            leftIcon={<Edit2 className="lead-detail-panel__edit-icon" />}
             onClick={onEdit}
-            className="shadow-sm hover:shadow text-xs sm:text-sm"
+            className="lead-detail-panel__edit-button"
             aria-label="Edit data lead"
           >
-            <span className="hidden sm:inline">Edit</span>
+            <span className="lead-detail-panel__edit-text">Edit</span>
           </Button>
         </header>
 
         {/* Content */}
-        <div className="overflow-y-auto flex-1 scroll-smooth">
+        <div className="lead-detail-panel__content">
           {/* Lead Info Card */}
-          <section aria-labelledby="lead-info-heading" className="p-4 sm:p-6 bg-gradient-to-br from-indigo-50 via-white to-purple-50 border-b border-slate-200">
-            <div className="flex items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
-              <div className="flex-1 min-w-0">
-                <h2 id="lead-info-heading" className="text-lg sm:text-xl font-bold text-slate-900 mb-1">
+          <section aria-labelledby="lead-info-heading" className="lead-detail-panel__info">
+            <div className="lead-detail-panel__info-header">
+              <div className="lead-detail-panel__info-main">
+                <h2 id="lead-info-heading" className="lead-detail-panel__name">
                   {lead.name}
                 </h2>
-                <a
-                  href={`tel:${lead.phone}`}
-                  className="inline-flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-1"
-                >
-                  <Phone className="w-4 h-4" aria-hidden="true" />
-                  <span className="font-medium text-sm">{formatPhone(lead.phone)}</span>
+                <a href={`tel:${lead.phone}`} className="lead-detail-panel__phone">
+                  <Phone className="lead-detail-panel__phone-icon" aria-hidden="true" />
+                  <span className="lead-detail-panel__phone-text">{formatPhone(lead.phone)}</span>
                 </a>
               </div>
               <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="lg" className="shadow-sm">
@@ -222,34 +214,31 @@ export function LeadDetailPanel({
             </div>
 
             {lead.email && (
-              <a
-                href={`mailto:${lead.email}`}
-                className="inline-flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors mb-3 sm:mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-1"
-              >
-                <Mail className="w-4 h-4" aria-hidden="true" />
-                <span className="text-sm truncate">{lead.email}</span>
+              <a href={`mailto:${lead.email}`} className="lead-detail-panel__email">
+                <Mail className="lead-detail-panel__email-icon" aria-hidden="true" />
+                <span className="lead-detail-panel__email-text">{lead.email}</span>
               </a>
             )}
 
             {/* ID Cards Grid */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="lead-detail-panel__id-cards">
               {lead.nik && (
                 <button
                   onClick={() => handleCopy(lead.nik!, 'nik')}
-                  className="flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 bg-white/70 backdrop-blur rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-white hover:shadow-md transition-all group focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="lead-detail-panel__id-card"
                   aria-label={`Salin NIK: ${lead.nik}`}
                 >
-                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                    <IdCard className="w-4 h-4 text-slate-400 flex-shrink-0" aria-hidden="true" />
-                    <div className="text-left min-w-0">
-                      <span className="block text-xs font-medium text-slate-500">NIK</span>
-                      <span className="block text-xs sm:text-sm text-slate-700 truncate">{lead.nik}</span>
+                  <div className="lead-detail-panel__id-card-content">
+                    <IdCard className="lead-detail-panel__id-card-icon" aria-hidden="true" />
+                    <div className="lead-detail-panel__id-card-text">
+                      <span className="lead-detail-panel__id-card-label">NIK</span>
+                      <span className="lead-detail-panel__id-card-value">{lead.nik}</span>
                     </div>
                   </div>
                   {copiedField === 'nik' ? (
-                    <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" aria-hidden="true" />
+                    <Check className="lead-detail-panel__id-card-copy lead-detail-panel__id-card-copy--check" aria-hidden="true" />
                   ) : (
-                    <Copy className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 flex-shrink-0 transition-colors" aria-hidden="true" />
+                    <Copy className="lead-detail-panel__id-card-copy" aria-hidden="true" />
                   )}
                 </button>
               )}
@@ -257,49 +246,45 @@ export function LeadDetailPanel({
               {lead.npwp && (
                 <button
                   onClick={() => handleCopy(lead.npwp!, 'npwp')}
-                  className="flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 bg-white/70 backdrop-blur rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-white hover:shadow-md transition-all group focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="lead-detail-panel__id-card"
                   aria-label={`Salin NPWP: ${lead.npwp}`}
                 >
-                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                    <FileText className="w-4 h-4 text-slate-400 flex-shrink-0" aria-hidden="true" />
-                    <div className="text-left min-w-0">
-                      <span className="block text-xs font-medium text-slate-500">NPWP</span>
-                      <span className="block text-xs sm:text-sm text-slate-700 truncate">{lead.npwp}</span>
+                  <div className="lead-detail-panel__id-card-content">
+                    <FileText className="lead-detail-panel__id-card-icon" aria-hidden="true" />
+                    <div className="lead-detail-panel__id-card-text">
+                      <span className="lead-detail-panel__id-card-label">NPWP</span>
+                      <span className="lead-detail-panel__id-card-value">{lead.npwp}</span>
                     </div>
                   </div>
                   {copiedField === 'npwp' ? (
-                    <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" aria-hidden="true" />
+                    <Check className="lead-detail-panel__id-card-copy lead-detail-panel__id-card-copy--check" aria-hidden="true" />
                   ) : (
-                    <Copy className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 flex-shrink-0 transition-colors" aria-hidden="true" />
+                    <Copy className="lead-detail-panel__id-card-copy" aria-hidden="true" />
                   )}
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true" />
-              <span className="text-xs">Dibuat sejak {formatDate(lead.created_at)}</span>
+            <div className="lead-detail-panel__created">
+              <Calendar className="lead-detail-panel__created-icon" aria-hidden="true" />
+              <span className="lead-detail-panel__created-text">Dibuat sejak {formatDate(lead.created_at)}</span>
             </div>
           </section>
 
           {/* Property Interest */}
           {lead.property && (
-            <section aria-labelledby="property-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
-              <h3 id="property-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
+            <section aria-labelledby="property-heading" className="lead-detail-panel__section">
+              <h3 id="property-heading" className="lead-detail-panel__section-title">
                 Property Interest
               </h3>
-              <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+              <div className="lead-detail-panel__card">
+                <div className="lead-detail-panel__card-row">
+                  <div className="lead-detail-panel__property-icon">
+                    <MapPin className="lead-detail-panel__property-icon-svg" />
                   </div>
-                  <div className="min-w-0">
-                    <span className="text-sm sm:text-base font-semibold text-slate-800 truncate block">
-                      {lead.property.name}
-                    </span>
-                    <span className="text-xs text-slate-500 truncate block">
-                      {lead.property.property_type}
-                    </span>
+                  <div className="lead-detail-panel__property-info">
+                    <span className="lead-detail-panel__property-name">{lead.property.name}</span>
+                    <span className="lead-detail-panel__property-type">{lead.property.property_type}</span>
                   </div>
                 </div>
               </div>
@@ -308,26 +293,26 @@ export function LeadDetailPanel({
 
           {/* Budget Range */}
           {((lead.budget_range?.min ?? 0) > 0 || (lead.budget_range?.max ?? 0) > 0) && (
-            <section aria-labelledby="budget-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
-              <h3 id="budget-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
+            <section aria-labelledby="budget-heading" className="lead-detail-panel__section">
+              <h3 id="budget-heading" className="lead-detail-panel__section-title">
                 Budget Range
               </h3>
-              <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                    <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              <div className="lead-detail-panel__card">
+                <div className="lead-detail-panel__card-row">
+                  <div className="lead-detail-panel__budget-icon">
+                    <Calculator className="lead-detail-panel__budget-icon-svg" />
                   </div>
-                  <div className="flex-1">
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="lead-detail-panel__budget-content">
+                    <div className="lead-detail-panel__budget-grid">
                       <div>
-                        <span className="block text-xs text-slate-500 mb-1">Minimum</span>
-                        <span className="block text-sm sm:text-base font-bold text-blue-600">
+                        <span className="lead-detail-panel__budget-label">Minimum</span>
+                        <span className="lead-detail-panel__budget-value">
                           {formatCurrency(lead.budget_range?.min ?? 0)}
                         </span>
                       </div>
                       <div>
-                        <span className="block text-xs text-slate-500 mb-1">Maksimum</span>
-                        <span className="block text-sm sm:text-base font-bold text-blue-600">
+                        <span className="lead-detail-panel__budget-label">Maksimum</span>
+                        <span className="lead-detail-panel__budget-value">
                           {formatCurrency(lead.budget_range?.max ?? 0)}
                         </span>
                       </div>
@@ -339,30 +324,30 @@ export function LeadDetailPanel({
           )}
 
           {/* Source & Pipeline Stage */}
-          <section className="p-4 sm:p-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-gray-50">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <section className="lead-detail-panel__meta-section">
+            <div className="lead-detail-panel__meta-grid">
               {/* Source */}
               {lead.source && (
-                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br ${sourceConfig[lead.source]?.bgGradient || 'from-slate-100 to-gray-100'} flex items-center justify-center flex-shrink-0`}>
-                      {sourceConfig[lead.source]?.icon || <Pin className="w-5 h-5" />}
+                <div className="lead-detail-panel__meta-card">
+                  <div className="lead-detail-panel__meta-card-header">
+                    <div className={`lead-detail-panel__source-icon ${sourceConfig[lead.source]?.iconBoxClass || 'lead-detail-panel__source-icon--other'}`}>
+                      {sourceConfig[lead.source]?.icon || <Pin className="lead-detail-panel__source-icon-svg" />}
                     </div>
-                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Sumber</span>
+                    <span className="lead-detail-panel__meta-card-label">Sumber</span>
                   </div>
-                  <span className={`text-lg sm:text-base font-bold ${sourceConfig[lead.source]?.color || 'text-slate-700'}`}>
+                  <span className={`lead-detail-panel__source-value ${sourceConfig[lead.source]?.valueClass || 'lead-detail-panel__source-value--other'}`}>
                     {sourceConfig[lead.source]?.label || lead.source}
                   </span>
                 </div>
               )}
 
               {/* Pipeline Stage */}
-              <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br ${stageGradientMap[lead.status as PipelineStage]} flex items-center justify-center flex-shrink-0`}>
-                    <User className={`w-4 h-4 sm:w-5 sm:h-5 ${stageColorMap[lead.status as PipelineStage]}`} />
+              <div className="lead-detail-panel__meta-card">
+                <div className="lead-detail-panel__meta-card-header">
+                  <div className={`lead-detail-panel__stage-icon ${stageGradientMap[lead.status as PipelineStage]}`}>
+                    <User className={`lead-detail-panel__stage-icon-svg ${stageColorMap[lead.status as PipelineStage]}`} />
                   </div>
-                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Tahap</span>
+                  <span className="lead-detail-panel__meta-card-label">Tahap</span>
                 </div>
                 <Badge variant={stageVariantMap[lead.status as PipelineStage]} size="lg" className="shadow-sm">
                   {stageOptions.find((s) => s.value === lead.status)?.label}
@@ -373,65 +358,65 @@ export function LeadDetailPanel({
 
           {/* KPR Simulation */}
           {((lead.kpr_simulation?.interest_rate ?? 0) > 0 || (lead.kpr_simulation?.loan_term_years ?? 0) > 0) && (
-            <section aria-labelledby="kpr-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
+            <section aria-labelledby="kpr-heading" className="lead-detail-panel__section">
               <button
               onClick={() => setShowKprCalculator(!showKprCalculator)}
-              className="flex items-center justify-between w-full mb-3 sm:mb-4 group focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg"
+              className="lead-detail-panel__kpr-toggle"
               aria-expanded={showKprCalculator}
               aria-controls="kpr-content"
             >
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                  <Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" />
+              <div className="lead-detail-panel__kpr-toggle-inner">
+                <div className="lead-detail-panel__kpr-icon">
+                  <Calculator className="lead-detail-panel__kpr-icon-svg" />
                 </div>
-                <h3 id="kpr-heading" className="text-sm sm:text-base font-semibold text-slate-800">
+                <h3 id="kpr-heading" className="lead-detail-panel__kpr-heading">
                   Simulasi KPR
                 </h3>
               </div>
-              <span className="flex items-center gap-1 text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full group-hover:bg-indigo-100 transition-colors">
+              <span className="lead-detail-panel__kpr-toggle-badge">
                 {showKprCalculator ? (
                   <>
-                    <span className="hidden xs:inline">Tutup</span>
-                    <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" aria-hidden="true" />
+                    <span className="lead-detail-panel__kpr-toggle-label">Tutup</span>
+                    <ChevronUp className="lead-detail-panel__kpr-toggle-chevron" aria-hidden="true" />
                   </>
                 ) : (
                   <>
-                    <span className="hidden xs:inline">Lihat</span>
-                    <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" aria-hidden="true" />
+                    <span className="lead-detail-panel__kpr-toggle-label">Lihat</span>
+                    <ChevronDown className="lead-detail-panel__kpr-toggle-chevron" aria-hidden="true" />
                   </>
                 )}
               </span>
             </button>
 
             {showKprCalculator && (
-              <div id="kpr-content" className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm animate-in slide-in-from-top-2 duration-300">
-                <div className="p-3 sm:p-4 space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-slate-100">
-                    <span className="text-slate-600">Harga Properti:</span>
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">{formatCurrency(propertyPrice)}</span>
+              <div id="kpr-content" className="lead-detail-panel__kpr-content">
+                <div className="lead-detail-panel__kpr-body">
+                  <div className="lead-detail-panel__kpr-row">
+                    <span className="lead-detail-panel__kpr-row-label">Harga Properti:</span>
+                    <span className="lead-detail-panel__kpr-row-value">{formatCurrency(propertyPrice)}</span>
                   </div>
-                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-slate-100">
-                    <span className="text-slate-600">Uang Muka ({lead.kpr_simulation?.down_payment_percentage}%):</span>
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">{formatCurrency(downPayment)}</span>
+                  <div className="lead-detail-panel__kpr-row">
+                    <span className="lead-detail-panel__kpr-row-label">Uang Muka ({lead.kpr_simulation?.down_payment_percentage}%):</span>
+                    <span className="lead-detail-panel__kpr-row-value">{formatCurrency(downPayment)}</span>
                   </div>
-                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-slate-100">
-                    <span className="text-slate-600">Plafon Pinjaman:</span>
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">{formatCurrency(loanAmount)}</span>
+                  <div className="lead-detail-panel__kpr-row">
+                    <span className="lead-detail-panel__kpr-row-label">Plafon Pinjaman:</span>
+                    <span className="lead-detail-panel__kpr-row-value">{formatCurrency(loanAmount)}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3 py-1.5 sm:py-2 border-b border-slate-100">
+                  <div className="lead-detail-panel__kpr-grid">
                     <div>
-                      <span className="text-slate-600">Bunga:</span>
-                      <span className="ml-1 sm:ml-2 font-semibold text-slate-900 text-xs sm:text-sm">{interestRate}% p.a.</span>
+                      <span className="lead-detail-panel__kpr-row-label">Bunga:</span>
+                      <span className="lead-detail-panel__kpr-cell-value">{interestRate}% p.a.</span>
                     </div>
                     <div>
-                      <span className="text-slate-600">Tenor:</span>
-                      <span className="ml-1 sm:ml-2 font-semibold text-slate-900 text-xs sm:text-sm">{termYears} tahun</span>
+                      <span className="lead-detail-panel__kpr-row-label">Tenor:</span>
+                      <span className="lead-detail-panel__kpr-cell-value">{termYears} tahun</span>
                     </div>
                   </div>
-                  <div className="pt-2 sm:pt-3 mt-1 sm:mt-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium text-xs sm:text-sm">Angsuran per bulan:</span>
-                      <span className="font-bold text-base sm:text-xl text-indigo-600">
+                  <div className="lead-detail-panel__kpr-monthly">
+                    <div className="lead-detail-panel__kpr-monthly-row">
+                      <span className="lead-detail-panel__kpr-monthly-label">Angsuran per bulan:</span>
+                      <span className="lead-detail-panel__kpr-monthly-value">
                         {formatCurrency(Math.round(monthlyPayment))}
                       </span>
                     </div>
@@ -443,17 +428,17 @@ export function LeadDetailPanel({
           )}
 
           {/* Quick Actions */}
-          <section aria-labelledby="actions-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
-            <h3 id="actions-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
+          <section aria-labelledby="actions-heading" className="lead-detail-panel__section">
+            <h3 id="actions-heading" className="lead-detail-panel__section-title">
               Aksi Cepat
             </h3>
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="lead-detail-panel__actions-grid">
               <Button
                 variant="secondary"
                 size="md"
-                leftIcon={<MessageCircle className="w-4 h-4 text-emerald-600" />}
+                leftIcon={<MessageCircle className="lead-detail-panel__action-icon lead-detail-panel__action-icon--whatsapp" />}
                 onClick={() => window.open(`https://wa.me/${lead.phone.replace(/\D/g, '')}`, '_blank')}
-                className="bg-white hover:bg-emerald-50 hover:border-emerald-300 border-slate-200 shadow-sm transition-all justify-start text-xs sm:text-sm"
+                className="lead-detail-panel__action-button lead-detail-panel__action-button--whatsapp"
                 aria-label="Hubungi via WhatsApp"
               >
                 WhatsApp
@@ -461,9 +446,9 @@ export function LeadDetailPanel({
               <Button
                 variant="secondary"
                 size="md"
-                leftIcon={<Phone className="w-4 h-4 text-blue-600" />}
+                leftIcon={<Phone className="lead-detail-panel__action-icon lead-detail-panel__action-icon--telepon" />}
                 onClick={() => (window.location.href = `tel:${lead.phone}`)}
-                className="bg-white hover:bg-blue-50 hover:border-blue-300 border-slate-200 shadow-sm transition-all justify-start text-xs sm:text-sm"
+                className="lead-detail-panel__action-button lead-detail-panel__action-button--telepon"
                 aria-label="Telepon lead"
               >
                 Telepon
@@ -471,9 +456,9 @@ export function LeadDetailPanel({
               <Button
                 variant="secondary"
                 size="md"
-                leftIcon={<Mail className="w-4 h-4 text-indigo-600" />}
+                leftIcon={<Mail className="lead-detail-panel__action-icon lead-detail-panel__action-icon--email" />}
                 onClick={() => lead.email && (window.location.href = `mailto:${lead.email}`)}
-                className="bg-white hover:bg-indigo-50 hover:border-indigo-300 border-slate-200 shadow-sm transition-all justify-start text-xs sm:text-sm"
+                className="lead-detail-panel__action-button lead-detail-panel__action-button--email"
                 aria-label="Kirim email"
                 disabled={!lead.email}
               >
@@ -484,34 +469,34 @@ export function LeadDetailPanel({
 
           {/* Notes Section */}
           {lead.notes && (
-            <section aria-labelledby="notes-heading" className="p-4 sm:p-6 bg-white">
-              <h3 id="notes-heading" className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3 sm:mb-4">
+            <section aria-labelledby="notes-heading" className="lead-detail-panel__notes">
+              <h3 id="notes-heading" className="lead-detail-panel__section-title">
                 Catatan
               </h3>
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 sm:p-5 border border-slate-200">
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{lead.notes}</p>
+              <div className="lead-detail-panel__notes-box">
+                <p className="lead-detail-panel__notes-text">{lead.notes}</p>
               </div>
             </section>
           )}
 
            {/* Reminder */}
           {lead.reminders && lead.reminders.length > 0 && (
-            <section aria-labelledby="reminder-heading" className="p-4 sm:p-6 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 mb-10">
-              <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+            <section aria-labelledby="reminder-heading" className="lead-detail-panel__reminder">
+              <div className="lead-detail-panel__reminder-header">
+                <div className="lead-detail-panel__reminder-icon">
+                  <Bell className="lead-detail-panel__reminder-icon-svg" />
                 </div>
-                <h3 id="reminder-heading" className="text-sm sm:text-base font-semibold text-amber-900">
+                <h3 id="reminder-heading" className="lead-detail-panel__reminder-heading">
                   Reminder
                 </h3>
               </div>
-              <div className="space-y-3">
+              <div className="lead-detail-panel__reminder-list">
                 {lead.reminders.map((reminder, index) => (
-                  <div key={reminder.id || index} className="bg-white/80 backdrop-blur rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                      <span className="text-xs sm:text-sm text-slate-600">Dijadwalkan:</span>
+                  <div key={reminder.id || index} className="lead-detail-panel__reminder-item">
+                    <div className="lead-detail-panel__reminder-item-row">
+                      <span className="lead-detail-panel__reminder-label">Dijadwalkan:</span>
                       <time
-                        className="text-xs sm:text-sm font-semibold text-slate-900 bg-amber-100 px-2 sm:px-3 py-1 rounded-full"
+                        className="lead-detail-panel__reminder-time"
                         dateTime={reminder.remind_at}
                       >
                         {new Date(reminder.remind_at).toLocaleString('id-ID', {
@@ -524,8 +509,8 @@ export function LeadDetailPanel({
                       </time>
                     </div>
                     {reminder.message && (
-                      <div className="pt-2 sm:pt-3 border-t border-amber-200">
-                        <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{reminder.message}</p>
+                      <div className="lead-detail-panel__reminder-message">
+                        <p className="lead-detail-panel__reminder-message-text">{reminder.message}</p>
                       </div>
                     )}
                   </div>

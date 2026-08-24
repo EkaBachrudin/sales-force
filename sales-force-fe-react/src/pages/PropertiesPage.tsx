@@ -8,8 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { FileUpload } from '@/components/ui/FileUpload';
 import type { Property } from '@/lib/types';
 import { useProperties, usePropertyMutations } from '@/hooks/useProperties';
-
-
+import './PropertiesPage.css';
 
 interface PropertyModalProps {
   isOpen: boolean;
@@ -126,18 +125,18 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <h2 className="text-lg font-semibold text-text-primary">
+    <div className="property-modal">
+      <div className="property-modal__panel">
+        <div className="property-modal__header">
+          <h2 className="property-modal__title">
             {property ? 'Edit Property' : 'Add New Property'}
           </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <form onSubmit={handleSubmit} className="property-modal__form">
+          <div className="property-modal__grid">
             {/* Left Column */}
-            <div className="space-y-5">
+            <div className="property-modal__column">
               <Input
                 label="Property Name"
                 placeholder="e.g., Cluster A Type 36/60"
@@ -187,7 +186,7 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
             </div>
 
             {/* Right Column */}
-            <div className="space-y-5">
+            <div className="property-modal__column">
               <Textarea
                 label="Description"
                 placeholder="Enter property description (optional)"
@@ -200,9 +199,7 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
               />
 
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Siteplan
-                </label>
+                <label className="property-modal__field-label">Siteplan</label>
                 <FileUpload
                   onFileSelect={setSiteplanFile}
                   currentFile={siteplanFile}
@@ -212,21 +209,17 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="property-modal__footer">
             <Button
               type="button"
               onClick={handleClose}
               variant="secondary"
-              className="flex-1"
+              className="property-modal__footer-button"
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="property-modal__footer-button" disabled={isLoading}>
               {isLoading ? 'Creating...' : 'Create'}
             </Button>
           </div>
@@ -248,32 +241,27 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, propertyName, isLoadin
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md p-6">
-        <div className="mb-4">
-          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
-            <Trash2 className="w-6 h-6 text-red-600" />
+    <div className="property-delete-modal">
+      <div className="property-delete-modal__panel">
+        <div className="property-delete-modal__body">
+          <div className="property-delete-modal__icon">
+            <Trash2 className="property-delete-modal__icon-svg" />
           </div>
-          <h2 className="text-lg font-semibold text-text-primary mb-2">
-            Delete Property
-          </h2>
-          <p className="text-sm text-text-secondary">
-            Are you sure you want to delete <span className="font-medium text-text-primary">{propertyName}</span>?
+          <h2 className="property-delete-modal__title">Delete Property</h2>
+          <p className="property-delete-modal__text">
+            Are you sure you want to delete{' '}
+            <span className="property-delete-modal__highlight">{propertyName}</span>?
             This action cannot be undone.
           </p>
         </div>
 
-        <div className="flex gap-3">
-          <Button
-            onClick={onClose}
-            className="flex-1"
-            disabled={isLoading}
-          >
+        <div className="property-delete-modal__actions">
+          <Button onClick={onClose} className="property-delete-modal__button" disabled={isLoading}>
             Cancel
           </Button>
           <Button
             onClick={onConfirm}
-            className="flex-1 bg-red-600 hover:bg-red-700"
+            className="property-delete-modal__button property-delete-modal__button--danger"
             disabled={isLoading}
           >
             {isLoading ? 'Deleting...' : 'Delete'}
@@ -341,94 +329,87 @@ export default function PropertiesPage() {
         title="Properties"
         subtitle="Manage your property types"
         action={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsModalOpen(true)}>
+          <Button leftIcon={<Plus className="properties-page__add-icon" />} onClick={() => setIsModalOpen(true)}>
             Add Property
           </Button>
         }
       >
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="properties-page__error">
+            <p className="properties-page__error-text">{error}</p>
           </div>
         )}
 
         {/* Search */}
-        <div className="mb-6">
+        <div className="properties-page__search">
           <Input
             placeholder="Search properties..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            leftIcon={<Search className="w-4 h-4" />}
+            leftIcon={<Search className="properties-page__search-icon" />}
           />
         </div>
 
         {/* Properties List */}
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <div className="properties-page__list-container">
           {isLoading ? (
-            <div className="px-4 py-8 text-center text-sm text-text-secondary">
-              Loading properties...
-            </div>
+            <div className="properties-page__loading">Loading properties...</div>
           ) : properties.length === 0 ? (
-            <div className="px-4 py-12 text-center">
-              <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-sm text-text-secondary mb-4">
+            <div className="properties-page__empty">
+              <Building2 className="properties-page__empty-icon" />
+              <p className="properties-page__empty-text">
                 {search ? 'No properties found matching your search' : 'No properties yet'}
               </p>
               {!search && (
-                <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsModalOpen(true)}>
+                <Button leftIcon={<Plus className="properties-page__add-icon" />} onClick={() => setIsModalOpen(true)}>
                   Add Your First Property
                 </Button>
               )}
             </div>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="properties-page__list">
               {properties.map((property) => (
-                <div
-                  key={property.id}
-                  className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-text-primary truncate">
-                      {property.name}
-                    </h3>
-                    <div className="mt-1 space-y-1">
+                <div key={property.id} className="properties-page__property">
+                  <div className="properties-page__property-info">
+                    <h3 className="properties-page__property-name">{property.name}</h3>
+                    <div className="properties-page__property-meta">
                       {property.city && (
-                        <p className="text-xs text-text-secondary flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                        <p className="properties-page__property-meta-item">
+                          <MapPin className="properties-page__property-meta-icon" />
                           {property.city}
                         </p>
                       )}
                       {property.land_area != null && (
-                        <p className="text-xs text-text-secondary flex items-center gap-1.5">
-                          <Ruler className="w-3.5 h-3.5 flex-shrink-0" />
+                        <p className="properties-page__property-meta-item">
+                          <Ruler className="properties-page__property-meta-icon" />
                           {property.land_area} m²
                         </p>
                       )}
                     </div>
                   </div>
-                   <div className="flex items-center gap-2">
-                     <button
-                       onClick={() => navigate(`/properties/${property.id}`)}
-                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors"
-                       title="Edit"
-                     >
-                       <Pencil className="w-4 h-4" />
-                     </button>
-                     <button
-                       onClick={() => navigate(`/properties/${property.id}/siteplan`)}
-                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors"
-                       title="Siteplan"
-                     >
-                       <Map className="w-4 h-4" />
-                     </button>
-                     <button
-                       onClick={() => openDeleteModal(property)}
-                       className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
-                       title="Delete"
-                     >
-                       <Trash2 className="w-4 h-4" />
-                     </button>
-                   </div>
+                  <div className="properties-page__actions">
+                    <button
+                      onClick={() => navigate(`/properties/${property.id}`)}
+                      className="properties-page__action-btn"
+                      title="Edit"
+                    >
+                      <Pencil className="properties-page__action-btn-icon" />
+                    </button>
+                    <button
+                      onClick={() => navigate(`/properties/${property.id}/siteplan`)}
+                      className="properties-page__action-btn"
+                      title="Siteplan"
+                    >
+                      <Map className="properties-page__action-btn-icon" />
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(property)}
+                      className="properties-page__action-btn properties-page__action-btn--delete"
+                      title="Delete"
+                    >
+                      <Trash2 className="properties-page__action-btn-icon" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

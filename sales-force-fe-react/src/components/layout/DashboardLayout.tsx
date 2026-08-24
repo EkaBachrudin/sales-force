@@ -6,6 +6,7 @@ import type { HeaderProps } from './Header';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionBanner } from '@/components/subscription/SubscriptionBanner';
+import './DashboardLayout.css';
 
 export interface DashboardLayoutProps extends Omit<HeaderProps, 'user' | 'onLogout'> {
   children: React.ReactNode;
@@ -34,20 +35,17 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
   // Don't render layout while loading auth state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="dashboard-layout__loading">
+        <div className="dashboard-layout__spinner"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="dashboard-layout">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="dashboard-layout__overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
       <Sidebar
@@ -61,12 +59,8 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
 
       <main
         className={cn(
-          'transition-all duration-300 min-h-screen bg-background',
-          // Desktop margins
-          'lg:ml-64',
-          sidebarCollapsed && 'lg:ml-20',
-          // Mobile - no margin since sidebar is overlay
-          'ml-0'
+          'dashboard-layout__main',
+          sidebarCollapsed && 'dashboard-layout__main--collapsed'
         )}
       >
         <Header
@@ -77,7 +71,7 @@ export function DashboardLayout({ children, ...headerProps }: DashboardLayoutPro
           showMenuButton={isMobile}
         />
 
-        <div className="p-3 sm:p-4 md:p-6">
+        <div className="dashboard-layout__content">
           <SubscriptionBanner />
           {children}
         </div>

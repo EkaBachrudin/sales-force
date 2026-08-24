@@ -1,0 +1,116 @@
+@reference "../../index.css";
+
+.unit-detail-drawer {
+  @apply fixed top-0 left-0 h-full w-full md:w-[350px] lg:w-[450px] bg-white shadow-2xl z-50 transition-transform duration-300 ease-out flex flex-col translate-x-0;
+}
+.unit-detail-drawer--closed {
+  @apply -translate-x-full;
+}
+.unit-detail-drawer__backdrop {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 z-40 opacity-100;
+}
+.unit-detail-drawer__backdrop--closed {
+  @apply opacity-0 pointer-events-none;
+}
+.unit-detail-drawer__header {
+  @apply flex items-center justify-between p-5 border-b border-border;
+}
+.unit-detail-drawer__header-info {
+  @apply flex-1;
+}
+.unit-detail-drawer__title {
+  @apply text-lg font-semibold text-text-primary;
+}
+.unit-detail-drawer__subtitle {
+  @apply text-sm text-text-secondary mt-0.5;
+}
+.unit-detail-drawer__close {
+  @apply flex-shrink-0 p-2 hover:bg-neutral-soft rounded-lg transition-colors;
+}
+.unit-detail-drawer__close-icon {
+  @apply w-5 h-5 text-text-secondary;
+}
+.unit-detail-drawer__content {
+  @apply flex-1 overflow-y-auto p-4;
+}
+.unit-detail-drawer__loading {
+  @apply flex items-center justify-center py-12;
+}
+.unit-detail-drawer__spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-primary;
+}
+.unit-detail-drawer__body {
+  @apply space-y-4;
+}
+.unit-detail-drawer__info {
+  @apply space-y-3;
+}
+.unit-detail-drawer__field-label {
+  @apply text-xs text-text-secondary;
+}
+.unit-detail-drawer__field-value {
+  @apply text-sm font-medium text-text-primary;
+}
+.unit-detail-drawer__status {
+  @apply text-sm font-semibold;
+}
+.unit-detail-drawer__status--available {
+  @apply text-status-available;
+}
+.unit-detail-drawer__status--reserved {
+  @apply text-status-reserved;
+}
+.unit-detail-drawer__status--booked {
+  @apply text-status-booked;
+}
+.unit-detail-drawer__status--sold {
+  @apply text-status-sold;
+}
+.unit-detail-drawer__status--unknown {
+  @apply text-text-secondary;
+}
+.unit-detail-drawer__assign-icon {
+  @apply w-4 h-4;
+}
+.unit-detail-drawer__leads-title {
+  @apply text-sm font-semibold text-text-primary mb-3;
+}
+.unit-detail-drawer__empty {
+  @apply text-sm text-text-secondary;
+}
+.unit-detail-drawer__leads {
+  @apply space-y-1;
+}
+.unit-detail-drawer__lead {
+  @apply w-full flex items-center gap-2 rounded-lg px-2 py-2 -mx-2 hover:bg-background transition-colors;
+}
+.unit-detail-drawer__unassign {
+  @apply flex-shrink-0 p-1.5 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors;
+}
+.unit-detail-drawer__unassign-icon {
+  @apply w-4 h-4;
+}
+.unit-detail-drawer__lead-link {
+  @apply flex-1 min-w-0 flex items-center gap-3 text-left;
+}
+.unit-detail-drawer__lead-info {
+  @apply flex-1 min-w-0;
+}
+.unit-detail-drawer__lead-name {
+  @apply text-sm font-medium text-text-primary truncate;
+}
+.unit-detail-drawer__lead-contact {
+  @apply text-xs text-text-secondary truncate;
+}
+.unit-detail-drawer__lead-status {
+  @apply font-bold;
+}
+.unit-detail-drawer__lead-chevron {
+  @apply w-6 h-6 text-text-secondary flex-shrink-0;
+}
+.unit-detail-drawer__unavailable {
+  @apply text-center py-12;
+}
+.unit-detail-drawer__unavailable-text {
+  @apply text-sm text-text-secondary;
+}

@@ -1,0 +1,50 @@
+@reference "../../index.css";
+
+.subscription-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-40 transition-opacity duration-300;
+}
+.subscription-modal__overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+}
+.subscription-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col;
+}
+.subscription-modal__header {
+  @apply flex items-center justify-between p-6 border-b border-border;
+}
+.subscription-modal__title {
+  @apply text-xl font-semibold text-text-primary;
+}
+.subscription-modal__close {
+  @apply p-2 rounded-lg hover:bg-neutral-soft transition-colors;
+}
+.subscription-modal__close-icon {
+  @apply w-5 h-5;
+}
+.subscription-modal__content {
+  @apply overflow-y-auto flex-1 p-4 sm:p-6;
+}
+.subscription-modal__form {
+  @apply space-y-5;
+}
+.subscription-modal__field-label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.subscription-modal__select {
+  @apply w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary border-border;
+}
+.subscription-modal__select--error {
+  @apply border-danger;
+}
+.subscription-modal__error {
+  @apply text-xs text-danger mt-1;
+}
+.subscription-modal__amount-icon {
+  @apply w-4 h-4;
+}
+.subscription-modal__textarea {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none;
+}
+.subscription-modal__footer {
+  @apply flex items-center justify-end gap-3 p-6 border-t border-border;
+}

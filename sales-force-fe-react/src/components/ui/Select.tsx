@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import { cn } from '@/lib/utils';
+import './Select.css';
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -15,56 +16,42 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const hasError = !!error;
     const isDisabled = !!disabled;
 
-    const baseStyles = 'w-full px-3 py-2 rounded-[8px] border text-sm transition-all duration-200 appearance-none';
-
-    const stateStyles = hasError
-      ? 'border-[var(--danger)] focus:border-[var(--danger)] bg-red-50/50'
-      : 'border-border focus:border-primary';
-
-    const cursorStyles = isDisabled ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-70' : 'bg-white cursor-pointer';
-
     return (
-      <div className="w-full">
+      <div className="select__wrapper">
         {label && (
-          <label
-            htmlFor={selectId}
-            className="block text-sm font-medium text-text-primary mb-1.5"
-          >
+          <label htmlFor={selectId} className="select__label">
             {label}
           </label>
         )}
 
-        <div className="relative">
+        <div className="select__field-wrapper">
           <select
             ref={ref}
             id={selectId}
             disabled={disabled}
             className={cn(
-              baseStyles,
-              stateStyles,
-              cursorStyles,
-              'focus:outline-none focus-visible:outline-none pr-10',
+              'select__field',
+              hasError && 'select__field--error',
+              isDisabled && 'select__field--disabled',
               className
             )}
             {...props}
           >
             {options.map((option) => (
-              <option
-                key={option.value}
-                value={option.value}
-                disabled={option.disabled}
-              >
+              <option key={option.value} value={option.value} disabled={option.disabled}>
                 {option.label}
               </option>
             ))}
           </select>
 
-          <div className={cn(
-            'absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none',
-            isDisabled ? 'text-gray-300' : 'text-gray-500'
-          )}>
+          <div
+            className={cn(
+              'select__chevron',
+              isDisabled && 'select__chevron--disabled'
+            )}
+          >
             <svg
-              className="w-4 h-4"
+              className="select__chevron-icon"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -79,13 +66,9 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </div>
         </div>
 
-        {error && (
-          <p className="mt-1.5 text-xs text-danger">{error}</p>
-        )}
+        {error && <p className="select__error">{error}</p>}
 
-        {helperText && !error && (
-          <p className="mt-1.5 text-xs text-text-secondary">{helperText}</p>
-        )}
+        {helperText && !error && <p className="select__helper">{helperText}</p>}
       </div>
     );
   }

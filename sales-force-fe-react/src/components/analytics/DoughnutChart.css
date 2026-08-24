@@ -1,0 +1,47 @@
+@reference "../../index.css";
+
+.doughnut-chart {
+  @apply bg-white rounded-xl border border-border p-6;
+}
+.doughnut-chart__title {
+  @apply text-base font-semibold text-text-primary mb-6;
+}
+.doughnut-chart__layout {
+  @apply block sm:flex items-center gap-8;
+}
+.doughnut-chart__chart {
+  @apply relative flex-shrink-0 w-48 h-48;
+}
+.doughnut-chart__center {
+  @apply absolute inset-0 flex items-center justify-center flex-col pointer-events-none;
+}
+.doughnut-chart__center-text {
+  @apply text-xl font-bold text-text-primary;
+}
+.doughnut-chart__center-subtext {
+  @apply text-xs text-text-secondary;
+}
+.doughnut-chart__legend {
+  @apply flex-1 space-y-3;
+}
+.doughnut-chart__legend-item {
+  @apply flex items-center justify-between;
+}
+.doughnut-chart__legend-item-label {
+  @apply flex items-center gap-2;
+}
+.doughnut-chart__legend-swatch {
+  @apply w-3 h-3 rounded-full;
+}
+.doughnut-chart__legend-label {
+  @apply text-sm text-text-primary;
+}
+.doughnut-chart__legend-values {
+  @apply text-right;
+}
+.doughnut-chart__legend-value {
+  @apply text-sm font-medium text-text-primary;
+}
+.doughnut-chart__legend-percentage {
+  @apply text-xs text-text-secondary ml-1;
+}

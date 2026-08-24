@@ -5,6 +5,7 @@ import { FunnelChart } from '@/components/analytics/FunnelChart';
 import { TrendChart } from '@/components/analytics/TrendChart';
 import { DoughnutChart } from '@/components/analytics/DoughnutChart';
 import { useAnalyticsDashboard } from '@/hooks/useAnalytics';
+import './AnalyticsPage.css';
 
 type DataRangeOption = 1 | 3 | 6 | 12 | 24;
 
@@ -29,12 +30,9 @@ export default function AnalyticsPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout
-        title="Analytics"
-        subtitle="Track your sales performance and metrics"
-      >
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <DashboardLayout title="Analytics" subtitle="Track your sales performance and metrics">
+        <div className="analytics-page__loading">
+          <div className="analytics-page__spinner"></div>
         </div>
       </DashboardLayout>
     );
@@ -42,12 +40,11 @@ export default function AnalyticsPage() {
 
   if (error) {
     return (
-      <DashboardLayout
-        title="Analytics"
-        subtitle="Track your sales performance and metrics"
-      >
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">Failed to load analytics data. Please try again later.</p>
+      <DashboardLayout title="Analytics" subtitle="Track your sales performance and metrics">
+        <div className="analytics-page__error">
+          <p className="analytics-page__error-text">
+            Failed to load analytics data. Please try again later.
+          </p>
         </div>
       </DashboardLayout>
     );
@@ -55,12 +52,9 @@ export default function AnalyticsPage() {
 
   if (!dashboardData) {
     return (
-      <DashboardLayout
-        title="Analytics"
-        subtitle="Track your sales performance and metrics"
-      >
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <p className="text-gray-800">No analytics data available.</p>
+      <DashboardLayout title="Analytics" subtitle="Track your sales performance and metrics">
+        <div className="analytics-page__empty">
+          <p className="analytics-page__empty-text">No analytics data available.</p>
         </div>
       </DashboardLayout>
     );
@@ -89,22 +83,19 @@ export default function AnalyticsPage() {
   }));
 
   return (
-    <DashboardLayout
-      title="Analytics"
-      subtitle="Track your sales performance and metrics"
-    >
+    <DashboardLayout title="Analytics" subtitle="Track your sales performance and metrics">
       {/* Filter - Data Range Selection */}
-      <div className="mb-6 flex items-center gap-3 flex-wrap">
-        <span className="text-sm font-medium text-gray-700">Filter Data:</span>
-        <div className="flex gap-2 flex-wrap">
+      <div className="analytics-page__filter">
+        <span className="analytics-page__filter-label">Filter Data:</span>
+        <div className="analytics-page__filter-buttons">
           {DATA_RANGE_OPTIONS.map((option) => (
             <button
               key={option.value}
               onClick={() => setDataRangeMonths(option.value)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`analytics-page__range-button ${
                 dataRangeMonths === option.value
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'analytics-page__range-button--active'
+                  : ''
               }`}
             >
               {option.label}
@@ -112,8 +103,9 @@ export default function AnalyticsPage() {
           ))}
         </div>
       </div>
+
       {/* Conversion Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="analytics-page__metrics">
         <ConversionMetricCard
           label="Conversion Rate"
           value={metrics.conversion_rate.value.toString()}
@@ -181,14 +173,9 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Charts - Full Width */}
-      <div className="space-y-6">
-        {/* Lead Funnel */}
+      <div className="analytics-page__charts">
         <FunnelChart data={funnelData} total={funnel.total} />
-
-        {/* Monthly Closing Trend */}
         <TrendChart data={trendData} title="Monthly Closing Trend" />
-
-        {/* Source Breakdown */}
         <DoughnutChart
           data={sourceData}
           title="Source Breakdown"

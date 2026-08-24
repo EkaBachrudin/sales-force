@@ -6,6 +6,7 @@ import {
   type UnitAssignmentValue,
 } from '@/components/leads/UnitAssignmentFields';
 import { useAssignLeadToUnit } from '@/hooks/useUnits';
+import './UnitPickerModal.css';
 
 interface UnitPickerModalProps {
   isOpen: boolean;
@@ -64,41 +65,30 @@ export function UnitPickerModal({
 
   return (
     <>
-      <div
-        aria-hidden="true"
-        className="fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300"
-        onClick={onClose}
-      />
+      <div aria-hidden="true" className="unit-picker-modal__backdrop" onClick={onClose} />
 
-      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col">
-          <div className="flex items-center justify-between p-5 border-b border-border">
+      <div className="unit-picker-modal__overlay">
+        <div className="unit-picker-modal__panel">
+          <div className="unit-picker-modal__header">
             <div>
-              <h2 className="text-lg font-semibold text-text-primary">
+              <h2 className="unit-picker-modal__title">
                 {currentUnit ? 'Change Unit' : 'Assign to Unit'}
               </h2>
-              <p className="text-sm text-text-secondary mt-0.5">
+              <p className="unit-picker-modal__subtitle">
                 Select the property, block and unit for this lead
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-600" />
+            <button onClick={onClose} className="unit-picker-modal__close">
+              <X className="unit-picker-modal__close-icon" />
             </button>
           </div>
 
-          <div className="p-5 flex flex-col gap-4">
-            <UnitAssignmentFields
-              value={value}
-              onChange={setValue}
-              currentUnit={currentUnit}
-            />
+          <div className="unit-picker-modal__content">
+            <UnitAssignmentFields value={value} onChange={setValue} currentUnit={currentUnit} />
           </div>
 
-          <div className="p-5 border-t border-border">
-            {error && <p className="text-sm text-danger mb-3">{error}</p>}
+          <div className="unit-picker-modal__footer">
+            {error && <p className="unit-picker-modal__error">{error}</p>}
             <Button
               fullWidth
               onClick={handleAssign}

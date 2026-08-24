@@ -1,0 +1,86 @@
+@reference "../index.css";
+
+.site-plan-page {
+  @apply fixed inset-0;
+}
+.site-plan-page__loading {
+  @apply fixed inset-0 bg-background flex items-center justify-center;
+}
+.site-plan-page__spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-primary;
+}
+.site-plan-page__error {
+  @apply fixed inset-0 bg-background flex items-center justify-center p-4;
+}
+.site-plan-page__error-card {
+  @apply bg-white rounded-xl p-6 max-w-md text-center;
+}
+.site-plan-page__error-icon {
+  @apply w-16 h-16 bg-danger/15 rounded-full flex items-center justify-center mx-auto mb-4;
+}
+.site-plan-page__error-icon-svg {
+  @apply w-8 h-8 text-danger;
+}
+.site-plan-page__error-title {
+  @apply text-lg font-semibold text-text-primary mb-2;
+}
+.site-plan-page__error-text {
+  @apply text-sm text-text-secondary mb-4;
+}
+.site-plan-page__back-button {
+  @apply px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors;
+}
+
+.site-plan-page__menu {
+  @apply fixed top-4 left-4 z-50 bg-white rounded-lg shadow-md p-3 flex items-center gap-4 min-w-[280px] max-w-[400px];
+}
+.site-plan-page__menu-button {
+  @apply flex-shrink-0 p-2 hover:bg-neutral-soft rounded-lg transition-colors;
+}
+.site-plan-page__menu-icon {
+  @apply w-5 h-5 text-text-secondary hover:text-primary transition-colors;
+}
+.site-plan-page__menu-title-wrapper {
+  @apply flex-1 min-w-0;
+}
+.site-plan-page__menu-title {
+  @apply text-sm font-medium text-text-primary truncate;
+}
+
+.site-plan-page__content {
+  @apply w-full h-full;
+}
+.site-plan-page__pan {
+  @apply relative w-full h-full overflow-hidden select-none touch-none cursor-grab;
+}
+.site-plan-page__svg {
+  @apply absolute top-0 left-0;
+}
+.site-plan-page__empty {
+  @apply w-full h-full flex items-center justify-center bg-background;
+}
+.site-plan-page__empty-inner {
+  @apply text-center;
+}
+.site-plan-page__empty-icon {
+  @apply w-16 h-16 text-text-secondary mx-auto mb-4;
+}
+.site-plan-page__empty-text {
+  @apply text-sm text-text-secondary;
+}
+
+.site-plan-page__zoom {
+  @apply fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-border p-1 flex items-center gap-0.5;
+}
+.site-plan-page__zoom-button {
+  @apply w-8 h-8 flex items-center justify-center hover:bg-neutral-soft rounded-md transition-colors text-text-primary;
+}
+.site-plan-page__zoom-icon {
+  @apply w-4 h-4;
+}
+.site-plan-page__zoom-label {
+  @apply text-xs font-medium text-text-secondary min-w-[44px] text-center select-none tabular-nums;
+}
+.site-plan-page__zoom-divider {
+  @apply w-px h-4 bg-border mx-1;
+}

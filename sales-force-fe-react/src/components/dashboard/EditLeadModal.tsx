@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/Select';
 import type { Lead } from '@/lib/types';
 import { useProperties } from '@/hooks/useProperties';
 import { propertyService } from '@/services/propertyService';
+import './EditLeadModal.css';
 
 export interface EditLeadModalProps {
   isOpen?: boolean;
@@ -209,37 +210,29 @@ export function EditLeadModal({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-60 transition-opacity duration-300"
-        onClick={onClose}
-      />
+      <div className="edit-lead-modal__backdrop" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-150 max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="edit-lead-modal__overlay">
+        <div className="edit-lead-modal__panel">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-text-primary">
-              Edit Lead
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
+          <div className="edit-lead-modal__header">
+            <h2 className="edit-lead-modal__title">Edit Lead</h2>
+            <button onClick={onClose} className="edit-lead-modal__close">
+              <X className="edit-lead-modal__close-icon" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="edit-lead-modal__content">
+            <form onSubmit={handleSubmit} className="edit-lead-modal__form">
               {/* Personal Information */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-primary rounded-full"></span>
+                <h3 className="edit-lead-modal__section-title">
+                  <span className="edit-lead-modal__section-accent edit-lead-modal__section-accent--primary"></span>
                   Personal Information
                 </h3>
-                <div className="space-y-3 pl-1 sm:pl-3">
+                <div className="edit-lead-modal__section-body">
                   <Input
                     label="Name *"
                     placeholder="Enter lead name"
@@ -283,18 +276,16 @@ export function EditLeadModal({
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Notes
-                    </label>
+                    <label className="edit-lead-modal__field-label">Notes</label>
                     <textarea
                       placeholder="Add any notes about this lead..."
-                      className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                      className="edit-lead-modal__textarea"
                       rows={4}
                       maxLength={500}
                       value={formData.notes}
                       onChange={(e) => handleInputChange('notes', e.target.value)}
                     />
-                    <p className="text-xs text-text-secondary mt-1 text-right">
+                    <p className="edit-lead-modal__char-count">
                       {formData.notes.length}/500
                     </p>
                   </div>
@@ -309,9 +300,9 @@ export function EditLeadModal({
               </div>
 
               {/* Stage - Prominent section with colored background */}
-              <div className="p-4 rounded-lg bg-primary/5">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-primary rounded-full"></span>
+              <div className="edit-lead-modal__stage">
+                <h3 className="edit-lead-modal__section-title">
+                  <span className="edit-lead-modal__section-accent edit-lead-modal__section-accent--primary"></span>
                   Lead Stage *
                 </h3>
                 <Select
@@ -325,11 +316,11 @@ export function EditLeadModal({
 
               {/* Property Interest */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+                <h3 className="edit-lead-modal__section-title">
+                  <span className="edit-lead-modal__section-accent edit-lead-modal__section-accent--primary"></span>
                   Property Interest
                 </h3>
-                <div className="space-y-3 pl-1 sm:pl-3">
+                <div className="edit-lead-modal__section-body">
                   <Select
                     label="Property Type"
                     options={propertyOptions}
@@ -342,22 +333,18 @@ export function EditLeadModal({
 
               {/* Budget Range */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-green-500 rounded-full"></span>
+                <h3 className="edit-lead-modal__section-title">
+                  <span className="edit-lead-modal__section-accent edit-lead-modal__section-accent--success"></span>
                   Budget Range
                 </h3>
-                <div className="grid grid-cols-2 gap-3 pl-1 sm:pl-3">
+                <div className="edit-lead-modal__budget-grid">
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Min Budget
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                        Rp
-                      </span>
+                    <label className="edit-lead-modal__field-label">Min Budget</label>
+                    <div className="edit-lead-modal__currency-wrapper">
+                      <span className="edit-lead-modal__currency-prefix">Rp</span>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        className="edit-lead-modal__currency-input"
                         value={formatCurrencyInput(formData.budgetMin)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -367,16 +354,12 @@ export function EditLeadModal({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Max Budget
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                        Rp
-                      </span>
+                    <label className="edit-lead-modal__field-label">Max Budget</label>
+                    <div className="edit-lead-modal__currency-wrapper">
+                      <span className="edit-lead-modal__currency-prefix">Rp</span>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        className="edit-lead-modal__currency-input"
                         value={formatCurrencyInput(formData.budgetMax)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -389,37 +372,33 @@ export function EditLeadModal({
               </div>
 
               {/* KPR Simulation */}
-              <div className="rounded-lg overflow-hidden">
+              <div className="edit-lead-modal__collapsible">
                 <button
                   type="button"
                   onClick={() => setShowKprCalculator(!showKprCalculator)}
-                  className="w-full flex items-center justify-between hover:bg-gray-50 transition-colors mb-3"
+                  className="edit-lead-modal__toggle"
                 >
-                  <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
-                    <span className="w-1 h-4 bg-orange-500 rounded-full"></span>
-                    <Calculator className="w-4 h-4 text-orange-500" />
+                  <h3 className="edit-lead-modal__toggle-title">
+                    <span className="edit-lead-modal__section-accent edit-lead-modal__section-accent--warning"></span>
+                    <Calculator className="edit-lead-modal__toggle-icon" />
                     KPR Calculator
-                    <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                    <span className="edit-lead-modal__optional">(Optional)</span>
                   </h3>
-                  <span className="text-xs text-gray-500">
+                  <span className="edit-lead-modal__toggle-state">
                     {showKprCalculator ? '▲ Hide' : '▼ Show'}
                   </span>
                 </button>
 
                 {showKprCalculator && (
-                  <div className="p-4 bg-gray-50 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
+                  <div className="edit-lead-modal__collapsible-body">
+                    <div className="edit-lead-modal__grid">
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1.5">
-                          Property Price
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                            Rp
-                          </span>
+                        <label className="edit-lead-modal__field-label">Property Price</label>
+                        <div className="edit-lead-modal__currency-wrapper">
+                          <span className="edit-lead-modal__currency-prefix">Rp</span>
                           <input
                             type="text"
-                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
+                            className="edit-lead-modal__input-with-prefix"
                             value={formatCurrencyInput(formData.kprPrice)}
                             onChange={(e) => {
                               const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -429,12 +408,10 @@ export function EditLeadModal({
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1.5">
-                          Down Payment %
-                        </label>
+                        <label className="edit-lead-modal__field-label">Down Payment %</label>
                         <input
                           type="number"
-                          className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
+                          className="edit-lead-modal__input"
                           value={formData.kprDownPayment}
                           onChange={(e) => handleInputChange('kprDownPayment', parseFloat(e.target.value))}
                           min="0"
@@ -444,14 +421,12 @@ export function EditLeadModal({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="edit-lead-modal__grid">
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1.5">
-                          Interest Rate %
-                        </label>
+                        <label className="edit-lead-modal__field-label">Interest Rate %</label>
                         <input
                           type="number"
-                          className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
+                          className="edit-lead-modal__input"
                           value={formData.kprInterestRate}
                           onChange={(e) => handleInputChange('kprInterestRate', parseFloat(e.target.value))}
                           min="0"
@@ -460,9 +435,7 @@ export function EditLeadModal({
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1.5">
-                          Term
-                        </label>
+                        <label className="edit-lead-modal__field-label">Term</label>
                         <Select
                           options={termOptions}
                           value={String(formData.kprTerm)}
@@ -482,9 +455,9 @@ export function EditLeadModal({
                     </Button>
 
                     {kprResult !== null && (
-                      <div className="text-center p-3 bg-primary/10 rounded-lg">
-                        <p className="text-sm text-text-secondary">Estimated Monthly Payment</p>
-                        <p className="text-2xl font-bold text-primary">
+                      <div className="edit-lead-modal__result">
+                        <p className="edit-lead-modal__result-label">Estimated Monthly Payment</p>
+                        <p className="edit-lead-modal__result-value">
                           {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(kprResult)}/mo
                         </p>
                       </div>
@@ -494,50 +467,46 @@ export function EditLeadModal({
               </div>
 
               {/* Reminder (Optional) */}
-              <div className="rounded-lg overflow-hidden">
+              <div className="edit-lead-modal__collapsible">
                 <button
                   type="button"
                   onClick={() => setShowReminderForm(!showReminderForm)}
-                  className="w-full flex items-center justify-between hover:bg-gray-50 transition-colors mb-3"
+                  className="edit-lead-modal__toggle"
                 >
-                  <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
-                    <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
-                    <Bell className="w-4 h-4 text-purple-500" />
+                  <h3 className="edit-lead-modal__toggle-title">
+                    <span className="edit-lead-modal__section-accent edit-lead-modal__section-accent--reserved"></span>
+                    <Bell className="edit-lead-modal__toggle-icon edit-lead-modal__toggle-icon--reserved" />
                     Reminder
-                    <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                    <span className="edit-lead-modal__optional">(Optional)</span>
                   </h3>
-                  <span className="text-xs text-gray-500">
+                  <span className="edit-lead-modal__toggle-state">
                     {showReminderForm ? '▲ Hide' : '▼ Show'}
                   </span>
                 </button>
 
                 {showReminderForm && (
-                  <div className="p-4 bg-gray-50 space-y-3">
+                  <div className="edit-lead-modal__collapsible-body">
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1.5">
-                        Reminder Date & Time
-                      </label>
+                      <label className="edit-lead-modal__field-label">Reminder Date & Time</label>
                       <input
                         type="datetime-local"
-                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        className="edit-lead-modal__input"
                         value={formData.reminderScheduledFor}
                         onChange={(e) => handleInputChange('reminderScheduledFor', e.target.value)}
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1.5">
-                        Reminder Notes
-                      </label>
+                      <label className="edit-lead-modal__field-label">Reminder Notes</label>
                       <textarea
                         placeholder="Add notes for this reminder..."
-                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                        className="edit-lead-modal__textarea"
                         rows={3}
                         maxLength={200}
                         value={formData.reminderNotes}
                         onChange={(e) => handleInputChange('reminderNotes', e.target.value)}
                       />
-                      <p className="text-xs text-text-secondary mt-1 text-right">
+                      <p className="edit-lead-modal__char-count">
                         {formData.reminderNotes.length}/200
                       </p>
                     </div>
@@ -548,7 +517,7 @@ export function EditLeadModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+          <div className="edit-lead-modal__footer">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

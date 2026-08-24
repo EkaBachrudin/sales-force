@@ -7,6 +7,7 @@ import { SubscriptionType, SubscriptionStatus } from '@/lib/types';
 import type { CreateSubscriptionDto, Subscription, UpdateSubscriptionDto, User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useUsers } from '@/hooks/useUsers';
+import './SubscriptionModal.css';
 
 const subscriptionTypeOptions = [
   { value: SubscriptionType.MONTHLY, label: 'Monthly' },
@@ -156,42 +157,31 @@ export function SubscriptionModal({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-        onClick={onClose}
-      />
+      <div className="subscription-modal__backdrop" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="subscription-modal__overlay">
+        <div className="subscription-modal__panel">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-text-primary">
+          <div className="subscription-modal__header">
+            <h2 className="subscription-modal__title">
               {mode === 'create' ? 'Add New Subscription' : 'Edit Subscription'}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
+            <button onClick={onClose} className="subscription-modal__close">
+              <X className="subscription-modal__close-icon" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="subscription-modal__content">
+            <form onSubmit={handleSubmit} className="subscription-modal__form">
               {/* User Selection */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  User *
-                </label>
+                <label className="subscription-modal__field-label">User *</label>
                 <select
                   value={formData.user_id}
                   onChange={(e) => handleInputChange('user_id', e.target.value)}
-                  className={cn(
-                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
-                    errors.user_id ? 'border-red-500' : 'border-border'
-                  )}
+                  className={cn('subscription-modal__select', errors.user_id && 'subscription-modal__select--error')}
                   required
                   disabled={mode === 'edit'}
                 >
@@ -203,22 +193,17 @@ export function SubscriptionModal({
                   ))}
                 </select>
                 {errors.user_id && (
-                  <p className="text-xs text-red-500 mt-1">{errors.user_id}</p>
+                  <p className="subscription-modal__error">{errors.user_id}</p>
                 )}
               </div>
 
               {/* Subscription Type */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Subscription Type *
-                </label>
+                <label className="subscription-modal__field-label">Subscription Type *</label>
                 <select
                   value={formData.subscription_type}
                   onChange={(e) => handleInputChange('subscription_type', e.target.value as SubscriptionType)}
-                  className={cn(
-                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
-                    errors.subscription_type ? 'border-red-500' : 'border-border'
-                  )}
+                  className={cn('subscription-modal__select', errors.subscription_type && 'subscription-modal__select--error')}
                   required
                 >
                   {subscriptionTypeOptions.map((option) => (
@@ -228,7 +213,7 @@ export function SubscriptionModal({
                   ))}
                 </select>
                 {errors.subscription_type && (
-                  <p className="text-xs text-red-500 mt-1">{errors.subscription_type}</p>
+                  <p className="subscription-modal__error">{errors.subscription_type}</p>
                 )}
               </div>
 
@@ -240,7 +225,7 @@ export function SubscriptionModal({
                 value={formData.amount}
                 onChange={(e) => handleInputChange('amount', e.target.value)}
                 error={errors.amount}
-                leftIcon={<DollarSign className="w-4 h-4" />}
+                leftIcon={<DollarSign className="subscription-modal__amount-icon" />}
                 step="0.01"
                 min="0"
                 required
@@ -248,34 +233,27 @@ export function SubscriptionModal({
 
               {/* Due Date */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Due Date *
-                </label>
+                <label className="subscription-modal__field-label">Due Date *</label>
                 <input
                   type="date"
                   value={formData.due_date}
                   onChange={(e) => handleInputChange('due_date', e.target.value)}
-                  className={cn(
-                    'w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]',
-                    errors.due_date ? 'border-red-500' : 'border-border'
-                  )}
+                  className={cn('subscription-modal__select', errors.due_date && 'subscription-modal__select--error')}
                   required
                 />
                 {errors.due_date && (
-                  <p className="text-xs text-red-500 mt-1">{errors.due_date}</p>
+                  <p className="subscription-modal__error">{errors.due_date}</p>
                 )}
               </div>
 
               {/* Status (Edit Mode Only) */}
               {mode === 'edit' && (
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Status
-                  </label>
+                  <label className="subscription-modal__field-label">Status</label>
                   <select
                     value={formData.status}
                     onChange={(e) => handleInputChange('status', e.target.value as SubscriptionStatus)}
-                    className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)]"
+                    className="subscription-modal__select"
                   >
                     {statusOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -288,22 +266,20 @@ export function SubscriptionModal({
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Notes
-                </label>
+                <label className="subscription-modal__field-label">Notes</label>
                 <textarea
                   placeholder="Add notes..."
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-[var(--primary)] resize-none"
+                  className="subscription-modal__textarea"
                 />
               </div>
             </form>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+          <div className="subscription-modal__footer">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

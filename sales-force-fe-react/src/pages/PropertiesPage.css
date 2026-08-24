@@ -1,0 +1,130 @@
+@reference "../index.css";
+
+.properties-page__add-icon {
+  @apply w-4 h-4;
+}
+.properties-page__error {
+  @apply mb-4 p-4 bg-danger/5 border border-danger/40 rounded-lg;
+}
+.properties-page__error-text {
+  @apply text-sm text-danger;
+}
+.properties-page__search {
+  @apply mb-6;
+}
+.properties-page__search-icon {
+  @apply w-4 h-4;
+}
+.properties-page__list-container {
+  @apply bg-white rounded-xl border border-border overflow-hidden;
+}
+.properties-page__loading {
+  @apply px-4 py-8 text-center text-sm text-text-secondary;
+}
+.properties-page__empty {
+  @apply px-4 py-12 text-center;
+}
+.properties-page__empty-icon {
+  @apply w-12 h-12 text-text-secondary mx-auto mb-3;
+}
+.properties-page__empty-text {
+  @apply text-sm text-text-secondary mb-4;
+}
+.properties-page__list {
+  @apply divide-y divide-border;
+}
+.properties-page__property {
+  @apply flex items-center justify-between p-4 hover:bg-background transition-colors;
+}
+.properties-page__property-info {
+  @apply flex-1 min-w-0;
+}
+.properties-page__property-name {
+  @apply text-sm font-semibold text-text-primary truncate;
+}
+.properties-page__property-meta {
+  @apply mt-1 space-y-1;
+}
+.properties-page__property-meta-item {
+  @apply text-xs text-text-secondary flex items-center gap-1.5;
+}
+.properties-page__property-meta-icon {
+  @apply w-3.5 h-3.5 flex-shrink-0;
+}
+.properties-page__actions {
+  @apply flex items-center gap-2;
+}
+.properties-page__action-btn {
+  @apply p-2 rounded-lg hover:bg-neutral-soft text-text-secondary hover:text-primary transition-colors;
+}
+.properties-page__action-btn--delete {
+  @apply hover:bg-danger/10 hover:text-danger;
+}
+.properties-page__action-btn-icon {
+  @apply w-4 h-4;
+}
+
+.property-modal {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+}
+.property-modal__panel {
+  @apply bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto;
+}
+.property-modal__header {
+  @apply px-6 py-4 border-b border-border sticky top-0 bg-white z-10;
+}
+.property-modal__title {
+  @apply text-lg font-semibold text-text-primary;
+}
+.property-modal__form {
+  @apply p-6 space-y-5;
+}
+.property-modal__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-5;
+}
+.property-modal__column {
+  @apply space-y-5;
+}
+.property-modal__field-label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.property-modal__footer {
+  @apply flex gap-3 pt-4 border-t border-border;
+}
+.property-modal__footer-button {
+  @apply flex-1;
+}
+
+.property-delete-modal {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+}
+.property-delete-modal__panel {
+  @apply bg-white rounded-xl w-full max-w-md p-6;
+}
+.property-delete-modal__body {
+  @apply mb-4;
+}
+.property-delete-modal__icon {
+  @apply w-12 h-12 rounded-full bg-danger/15 flex items-center justify-center mb-4;
+}
+.property-delete-modal__icon-svg {
+  @apply w-6 h-6 text-danger;
+}
+.property-delete-modal__title {
+  @apply text-lg font-semibold text-text-primary mb-2;
+}
+.property-delete-modal__text {
+  @apply text-sm text-text-secondary;
+}
+.property-delete-modal__highlight {
+  @apply font-medium text-text-primary;
+}
+.property-delete-modal__actions {
+  @apply flex gap-3;
+}
+.property-delete-modal__button {
+  @apply flex-1;
+}
+.property-delete-modal__button--danger {
+  @apply bg-danger hover:bg-danger/90;
+}

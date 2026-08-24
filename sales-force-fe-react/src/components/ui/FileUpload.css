@@ -1,0 +1,119 @@
+@reference "../../index.css";
+
+.file-upload {
+  @apply w-full;
+}
+.file-upload__current {
+  @apply border border-border rounded-lg p-4 bg-background;
+}
+.file-upload__current-header {
+  @apply flex items-center justify-between mb-3;
+}
+.file-upload__current-title {
+  @apply text-xs font-medium text-text-primary;
+}
+.file-upload__delete {
+  @apply p-1.5 rounded-lg hover:bg-danger/10 text-text-secondary hover:text-danger transition-colors;
+}
+.file-upload__delete-icon {
+  @apply w-4 h-4;
+}
+.file-upload__preview {
+  @apply cursor-pointer relative bg-white rounded-lg border border-border p-4 hover:border-primary/50 transition-colors;
+}
+.file-upload__preview-img {
+  @apply w-full h-32 object-contain;
+}
+.file-upload__preview-overlay {
+  @apply absolute inset-0 bg-black/0 flex items-center justify-center transition-colors;
+}
+.file-upload__preview:hover .file-upload__preview-overlay {
+  @apply bg-black/5;
+}
+.file-upload__preview-text {
+  @apply text-xs text-text-secondary transition-colors;
+}
+.file-upload__preview:hover .file-upload__preview-text {
+  @apply text-primary;
+}
+.file-upload__dropzone {
+  @apply border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 border-primary bg-primary/5;
+}
+.file-upload__dropzone--dragging {
+  @apply border-primary bg-primary/10;
+}
+.file-upload__input {
+  @apply hidden;
+}
+.file-upload__dropzone-content {
+  @apply flex flex-col items-center gap-3;
+}
+.file-upload__dropzone-icon {
+  @apply w-12 h-12 rounded-full flex items-center justify-center transition-colors bg-primary-light text-primary;
+}
+.file-upload__dropzone-icon--dragging {
+  @apply bg-primary text-white;
+}
+.file-upload__dropzone-icon-svg {
+  @apply w-6 h-6;
+}
+.file-upload__dropzone-text {
+  @apply text-sm font-medium text-text-primary;
+}
+.file-upload__dropzone-subtext {
+  @apply text-xs text-text-secondary mt-1;
+}
+.file-upload__error {
+  @apply text-xs text-danger mt-2;
+}
+.file-upload__uploaded {
+  @apply mt-4;
+}
+.file-upload__uploaded-title {
+  @apply text-xs font-medium text-text-primary mb-2;
+}
+.file-upload__file {
+  @apply flex items-center justify-between p-3 bg-background rounded-lg border border-border;
+}
+.file-upload__file-info {
+  @apply flex items-center gap-3;
+}
+.file-upload__file-icon {
+  @apply w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center;
+}
+.file-upload__file-icon-svg {
+  @apply w-5 h-5 text-primary;
+}
+.file-upload__file-meta {
+  @apply flex-1 min-w-0;
+}
+.file-upload__file-name {
+  @apply text-sm font-medium text-text-primary truncate;
+}
+.file-upload__file-size {
+  @apply text-xs text-text-secondary;
+}
+.file-upload__remove {
+  @apply p-1.5 rounded-lg hover:bg-danger/10 text-text-secondary hover:text-danger transition-colors;
+}
+.file-upload__remove-icon {
+  @apply w-4 h-4;
+}
+.file-upload__modal {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+}
+.file-upload__modal-panel {
+  @apply bg-white rounded-lg max-w-4xl max-h-[90vh] w-full p-6 relative;
+}
+.file-upload__modal-close {
+  @apply absolute top-4 right-4 p-2 rounded-lg hover:bg-neutral-soft transition-colors;
+}
+.file-upload__modal-close-icon {
+  @apply w-5 h-5;
+}
+.file-upload__modal-body {
+  @apply w-full h-[calc(90vh-8rem)] flex items-center justify-center bg-background rounded-lg overflow-hidden;
+}
+.file-upload__modal-img {
+  @apply w-full h-full object-contain;
+}

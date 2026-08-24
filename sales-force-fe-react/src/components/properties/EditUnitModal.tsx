@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import type { UnitListItem } from '@/lib/types';
+import './EditUnitModal.css';
 
 interface EditUnitModalProps {
   isOpen?: boolean;
@@ -88,24 +89,18 @@ export function EditUnitModal({
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-        onClick={onClose}
-      />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-text-primary">Edit Unit</h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
+      <div className="edit-unit-modal__backdrop" onClick={onClose} />
+      <div className="edit-unit-modal__overlay">
+        <div className="edit-unit-modal__panel">
+          <div className="edit-unit-modal__header">
+            <h2 className="edit-unit-modal__title">Edit Unit</h2>
+            <button onClick={onClose} className="edit-unit-modal__close">
+              <X className="edit-unit-modal__close-icon" />
             </button>
           </div>
 
-          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="edit-unit-modal__content">
+            <form onSubmit={handleSubmit} className="edit-unit-modal__form">
               <Input
                 label="Unit Name"
                 placeholder="e.g., Unit A-101"
@@ -130,7 +125,7 @@ export function EditUnitModal({
             </form>
           </div>
 
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+          <div className="edit-unit-modal__footer">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

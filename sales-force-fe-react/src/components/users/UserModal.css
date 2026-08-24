@@ -1,0 +1,89 @@
+@reference "../../index.css";
+
+.user-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-40 transition-opacity duration-300;
+}
+.user-modal__overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+}
+.user-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col;
+}
+.user-modal__header {
+  @apply flex items-center justify-between p-6 border-b border-border;
+}
+.user-modal__title {
+  @apply text-xl font-semibold text-text-primary;
+}
+.user-modal__close {
+  @apply p-2 rounded-lg hover:bg-neutral-soft transition-colors;
+}
+.user-modal__close-icon {
+  @apply w-5 h-5;
+}
+.user-modal__content {
+  @apply overflow-y-auto flex-1 p-4 sm:p-6;
+}
+.user-modal__form {
+  @apply space-y-5;
+}
+.user-modal__section-title {
+  @apply text-base font-semibold text-text-primary mb-3 flex items-center gap-2;
+}
+.user-modal__section-icon {
+  @apply w-4 h-4;
+}
+.user-modal__section-body {
+  @apply space-y-4;
+}
+.user-modal__input-icon {
+  @apply w-4 h-4;
+}
+.user-modal__field-label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.user-modal__select {
+  @apply w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary border-border;
+}
+.user-modal__select--error {
+  @apply border-danger;
+}
+.user-modal__error {
+  @apply text-xs text-danger mt-1;
+}
+.user-modal__hint {
+  @apply text-xs text-text-secondary mt-1;
+}
+.user-modal__password-wrapper {
+  @apply relative;
+}
+.user-modal__password-toggle {
+  @apply absolute right-3 top-7 text-text-secondary hover:text-text-primary;
+}
+.user-modal__password-toggle-icon {
+  @apply w-5 h-5;
+}
+.user-modal__status-icon {
+  @apply w-4 h-4;
+}
+.user-modal__status-icon--active {
+  @apply text-success;
+}
+.user-modal__status-icon--inactive {
+  @apply text-text-secondary;
+}
+.user-modal__status-options {
+  @apply flex items-center gap-3;
+}
+.user-modal__status-option {
+  @apply flex items-center gap-2;
+}
+.user-modal__radio {
+  @apply w-4 h-4 text-primary;
+}
+.user-modal__status-option-text {
+  @apply text-sm text-text-primary;
+}
+.user-modal__footer {
+  @apply flex items-center justify-end gap-3 p-6 border-t border-border;
+}

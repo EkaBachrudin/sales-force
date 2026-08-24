@@ -1,0 +1,29 @@
+@reference "../../index.css";
+
+.trend-chart {
+  @apply bg-white rounded-xl border border-border p-6;
+}
+.trend-chart__title {
+  @apply text-base font-semibold text-text-primary mb-6;
+}
+.trend-chart__empty {
+  @apply text-sm text-text-secondary;
+}
+.trend-chart__container {
+  @apply h-64 w-full overflow-x-auto;
+}
+.trend-chart__axis {
+  @apply text-xs;
+}
+.trend-chart__summary {
+  @apply mt-4 pt-4 border-t border-border;
+}
+.trend-chart__summary-row {
+  @apply flex items-center justify-between;
+}
+.trend-chart__summary-label {
+  @apply text-sm text-text-secondary;
+}
+.trend-chart__summary-value {
+  @apply text-lg font-semibold text-text-primary;
+}

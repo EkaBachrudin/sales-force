@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { SubscriptionModal } from '@/components/subscriptions/SubscriptionModal';
 import type { Subscription, SubscriptionFilters, CreateSubscriptionDto, UpdateSubscriptionDto } from '@/lib/types';
 import { useSubscriptions, useSubscriptionMutations } from '@/hooks/useSubscriptions';
+import './SubscriptionsPage.css';
 
 const statusVariantMap: Record<string, 'red' | 'blue' | 'green' | 'gray' | 'orange'> = {
   'pending': 'orange',
@@ -127,17 +128,17 @@ export default function SubscriptionsPage() {
         title="Subscriptions"
         subtitle={subscriptionsData ? `Total ${subscriptionsData.total ?? 0} subscriptions` : 'Loading...'}
         action={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsCreateModalOpen(true)}>
+          <Button leftIcon={<Plus className="subscriptions-page__add-icon" />} onClick={() => setIsCreateModalOpen(true)}>
             Add Subscription
           </Button>
         }
       >
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="subscriptions-page__filters">
           <select
             value={filters.subscriptionType}
             onChange={(e) => updateFilter('subscriptionType', e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
+            className="subscriptions-page__select"
           >
             {subscriptionTypeOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -148,7 +149,7 @@ export default function SubscriptionsPage() {
           <select
             value={filters.status}
             onChange={(e) => updateFilter('status', e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
+            className="subscriptions-page__select"
           >
             {statusOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -159,27 +160,23 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* Subscriptions Table */}
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <div className="subscriptions-page__table-container">
           {isLoadingSubscriptions ? (
-            <div className="px-4 py-8 text-center text-sm text-text-secondary">
-              Loading subscriptions...
-            </div>
+            <div className="subscriptions-page__loading">Loading subscriptions...</div>
           ) : (
             <>
               {/* Mobile Card View */}
-              <div className="block lg:hidden">
-                <div className="divide-y divide-[var(--border)]">
+              <div className="subscriptions-page__mobile">
+                <div className="subscriptions-page__list">
                   {!subscriptionsData?.data || subscriptionsData.data.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-sm text-text-secondary">
-                      No subscriptions found
-                    </div>
+                    <div className="subscriptions-page__empty">No subscriptions found</div>
                   ) : (
                     subscriptionsData.data.map((subscription: Subscription) => (
-                      <div key={subscription.id} className="p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-sm font-semibold text-text-primary truncate">
+                      <div key={subscription.id} className="subscriptions-page__mobile-card">
+                        <div className="subscriptions-page__mobile-card-row">
+                          <div className="subscriptions-page__mobile-card-info">
+                            <div className="subscriptions-page__name-row">
+                              <h3 className="subscriptions-page__name">
                                 {subscription.user_name || 'Unknown User'}
                               </h3>
                               <Badge variant={subscriptionTypeVariantMap[subscription.subscription_type] || 'blue'} size="sm">
@@ -189,50 +186,48 @@ export default function SubscriptionsPage() {
                                 {subscription.status}
                               </Badge>
                             </div>
-                            <div className="space-y-1">
+                            <div className="subscriptions-page__details">
                               {subscription.user_email && (
-                                <p className="text-xs text-text-secondary flex items-center gap-1">
-                                  <Mail className="w-3 h-3" />
+                                <p className="subscriptions-page__meta">
+                                  <Mail className="subscriptions-page__meta-icon" />
                                   {subscription.user_email}
                                 </p>
                               )}
-                              <p className="text-xs text-text-secondary flex items-center gap-1">
-                                <DollarSign className="w-3 h-3" />
+                              <p className="subscriptions-page__meta">
+                                <DollarSign className="subscriptions-page__meta-icon" />
                                 {formatCurrency(subscription.amount)}
                               </p>
-                              <p className="text-xs text-text-secondary flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
+                              <p className="subscriptions-page__meta">
+                                <Calendar className="subscriptions-page__meta-icon" />
                                 Due: {formatDate(subscription.due_date)}
                               </p>
                               {subscription.period_start && subscription.period_end && (
-                                <p className="text-xs text-text-secondary flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
+                                <p className="subscriptions-page__meta">
+                                  <Clock className="subscriptions-page__meta-icon" />
                                   {formatDate(subscription.period_start)} - {formatDate(subscription.period_end)}
                                 </p>
                               )}
                               {subscription.notes && (
-                                <p className="text-xs text-text-secondary line-clamp-1">
-                                  {subscription.notes}
-                                </p>
+                                <p className="subscriptions-page__notes">{subscription.notes}</p>
                               )}
                             </div>
                           </div>
-                          <div className="flex gap-1">
+                          <div className="subscriptions-page__mobile-actions">
                             <button
                               onClick={() => handleEditClick(subscription)}
-                              className="p-2 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
+                              className="subscriptions-page__action-btn subscriptions-page__action-btn--edit"
                               title="Edit"
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="subscriptions-page__mobile-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
                             </button>
                             <button
                               onClick={() => handleDeleteClick(subscription)}
-                              className="p-2 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                              className="subscriptions-page__action-btn subscriptions-page__action-btn--delete"
                               title="Delete"
                             >
-                              <Trash2 className="w-5 h-5" />
+                              <Trash2 className="subscriptions-page__mobile-action-icon" />
                             </button>
                           </div>
                         </div>
@@ -243,76 +238,60 @@ export default function SubscriptionsPage() {
               </div>
 
               {/* Desktop Table View */}
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
+              <div className="subscriptions-page__desktop">
+                <table className="subscriptions-page__table">
                   <thead>
-                    <tr className="border-b border-border bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        User
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Period
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Due Date
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Notes
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Actions
-                      </th>
+                    <tr className="subscriptions-page__table-head">
+                      <th className="subscriptions-page__th">User</th>
+                      <th className="subscriptions-page__th">Type</th>
+                      <th className="subscriptions-page__th">Amount</th>
+                      <th className="subscriptions-page__th">Period</th>
+                      <th className="subscriptions-page__th">Due Date</th>
+                      <th className="subscriptions-page__th">Status</th>
+                      <th className="subscriptions-page__th">Notes</th>
+                      <th className="subscriptions-page__th subscriptions-page__th--right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--border)]">
+                  <tbody className="subscriptions-page__table-body">
                     {!subscriptionsData?.data || subscriptionsData.data.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="px-4 py-8 text-center text-sm text-text-secondary">
+                        <td colSpan={8} className="subscriptions-page__empty">
                           No subscriptions found
                         </td>
                       </tr>
                     ) : (
                       subscriptionsData.data.map((subscription: Subscription) => (
-                        <tr key={subscription.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-4 py-3">
+                        <tr key={subscription.id} className="subscriptions-page__table-row">
+                          <td className="subscriptions-page__td">
                             <div>
-                              <p className="text-sm font-medium text-text-primary">
+                              <p className="subscriptions-page__table-name">
                                 {subscription.user_name || 'Unknown User'}
                               </p>
                               {subscription.user_email && (
                                 <a
                                   href={`mailto:${subscription.user_email}`}
-                                  className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary"
+                                  className="subscriptions-page__email"
                                 >
-                                  <Mail className="w-3 h-3" />
+                                  <Mail className="subscriptions-page__email-icon" />
                                   {subscription.user_email}
                                 </a>
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="subscriptions-page__td">
                             <Badge variant={subscriptionTypeVariantMap[subscription.subscription_type] || 'blue'} size="lg">
                               {subscription.subscription_type}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-text-primary">
-                              <DollarSign className="w-4 h-4" />
+                          <td className="subscriptions-page__td">
+                            <div className="subscriptions-page__amount">
+                              <DollarSign className="subscriptions-page__amount-icon" />
                               {formatCurrency(subscription.amount)}
                             </div>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-text-secondary">
-                              <Clock className="w-4 h-4" />
+                          <td className="subscriptions-page__td">
+                            <div className="subscriptions-page__period">
+                              <Clock className="subscriptions-page__period-icon" />
                               {subscription.period_start && subscription.period_end ? (
                                 <span>
                                   {formatDate(subscription.period_start)} - {formatDate(subscription.period_end)}
@@ -322,39 +301,39 @@ export default function SubscriptionsPage() {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-text-secondary">
-                              <Calendar className="w-4 h-4" />
+                          <td className="subscriptions-page__td">
+                            <div className="subscriptions-page__period">
+                              <Calendar className="subscriptions-page__period-icon" />
                               {formatDate(subscription.due_date)}
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="subscriptions-page__td">
                             <Badge variant={statusVariantMap[subscription.status] || 'gray'} size="lg">
                               {subscription.status}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3">
-                            <p className="text-sm text-text-secondary line-clamp-1 max-w-xs">
+                          <td className="subscriptions-page__td">
+                            <p className="subscriptions-page__table-notes">
                               {subscription.notes || '-'}
                             </p>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-end gap-1">
+                          <td className="subscriptions-page__td">
+                            <div className="subscriptions-page__table-actions">
                               <button
                                 onClick={() => handleEditClick(subscription)}
-                                className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
+                                className="subscriptions-page__action-btn subscriptions-page__action-btn--edit subscriptions-page__action-btn--table"
                                 title="Edit"
                               >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="subscriptions-page__table-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                               </button>
                               <button
                                 onClick={() => handleDeleteClick(subscription)}
-                                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                                className="subscriptions-page__action-btn subscriptions-page__action-btn--delete subscriptions-page__action-btn--table"
                                 title="Delete"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="subscriptions-page__table-action-icon" />
                               </button>
                             </div>
                           </td>
@@ -367,30 +346,30 @@ export default function SubscriptionsPage() {
 
               {/* Pagination */}
               {subscriptionsData && (subscriptionsData.total ?? 0) > 0 && subscriptionsData.totalPages && subscriptionsData.totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
-                  <div className="text-xs sm:text-sm text-text-secondary text-center sm:text-left">
+                <div className="subscriptions-page__pagination">
+                  <div className="subscriptions-page__pagination-info">
                     Showing {Math.min((currentPage - 1) * pageSize + 1, subscriptionsData.total ?? 0)} to{' '}
                     {Math.min(currentPage * pageSize, subscriptionsData.total ?? 0)} of {subscriptionsData.total ?? 0} subscriptions
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="subscriptions-page__pagination-buttons">
                     <button
                       onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="subscriptions-page__page-btn"
                       aria-label="Previous page"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="subscriptions-page__page-btn-icon" />
                     </button>
-                    <span className="text-xs sm:text-sm text-text-secondary whitespace-nowrap">
+                    <span className="subscriptions-page__page-indicator">
                       {currentPage} / {subscriptionsData.totalPages}
                     </span>
                     <button
                       onClick={() => setCurrentPage((prev) => Math.min(subscriptionsData.totalPages || 1, prev + 1))}
                       disabled={currentPage === subscriptionsData.totalPages}
-                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="subscriptions-page__page-btn"
                       aria-label="Next page"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="subscriptions-page__page-btn-icon" />
                     </button>
                   </div>
                 </div>
@@ -424,36 +403,34 @@ export default function SubscriptionsPage() {
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-md p-6">
-            <div className="mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                <Trash2 className="w-6 h-6 text-red-600" />
+        <div className="subscriptions-page__delete-modal">
+          <div className="subscriptions-page__delete-modal-panel">
+            <div className="subscriptions-page__delete-modal-body">
+              <div className="subscriptions-page__delete-modal-icon">
+                <Trash2 className="subscriptions-page__delete-modal-icon-svg" />
               </div>
-              <h2 className="text-lg font-semibold text-text-primary mb-2">
-                Delete Subscription
-              </h2>
-              <p className="text-sm text-text-secondary">
+              <h2 className="subscriptions-page__delete-modal-title">Delete Subscription</h2>
+              <p className="subscriptions-page__delete-modal-text">
                 Are you sure you want to delete this subscription for{' '}
-                <span className="font-medium text-text-primary">{getSelectedSubscription()?.user_name}</span>?
+                <span className="subscriptions-page__delete-modal-highlight">{getSelectedSubscription()?.user_name}</span>?
                 This action cannot be undone.
               </p>
             </div>
 
-            <div className="flex gap-3">
+            <div className="subscriptions-page__delete-modal-actions">
               <Button
                 onClick={() => {
                   setIsDeleteModalOpen(false);
                   setSelectedSubscriptionId(null);
                 }}
-                className="flex-1"
+                className="subscriptions-page__delete-modal-button"
                 disabled={isDeleting}
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleDeleteConfirm}
-                className="flex-1 bg-red-600 hover:bg-red-700"
+                className="subscriptions-page__delete-modal-button subscriptions-page__delete-modal-button--danger"
                 disabled={isDeleting}
               >
                 {isDeleting ? 'Deleting...' : 'Delete'}

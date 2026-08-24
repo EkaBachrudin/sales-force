@@ -1,0 +1,86 @@
+@reference "../../index.css";
+
+.reminders {
+  @apply bg-white rounded-xl border border-border;
+}
+.reminders__header {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 sm:p-4 border-b border-border;
+}
+.reminders__title-row {
+  @apply flex items-center gap-2;
+}
+.reminders__title-icon {
+  @apply w-5 h-5 text-warning;
+}
+.reminders__title {
+  @apply text-base font-semibold text-text-primary;
+}
+.reminders__subtitle {
+  @apply text-xs text-text-secondary mt-1 ml-7;
+}
+.reminders__see-all {
+  @apply text-sm text-primary hover:underline font-medium self-start sm:self-auto;
+}
+.reminders__list {
+  @apply divide-y divide-border;
+}
+.reminders__empty {
+  @apply p-6 sm:p-8 text-center text-sm text-text-secondary;
+}
+.reminders__item {
+  @apply p-3 sm:p-4 hover:bg-warning/5 transition-colors cursor-pointer;
+}
+.reminders__item-inner {
+  @apply flex items-start gap-3;
+}
+.reminders__icon {
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-warning/15 flex items-center justify-center flex-shrink-0;
+}
+.reminders__icon-svg {
+  @apply w-4 h-4 sm:w-5 sm:h-5 text-warning;
+}
+.reminders__content {
+  @apply flex-1 min-w-0;
+}
+.reminders__meta {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 mb-1;
+}
+.reminders__time {
+  @apply text-sm font-semibold text-text-primary;
+}
+.reminders__time-value {
+  @apply text-xs text-text-secondary;
+}
+.reminders__name {
+  @apply text-sm text-text-primary mb-0.5 truncate;
+}
+.reminders__property {
+  @apply text-xs text-text-secondary mb-1 truncate;
+}
+.reminders__notes {
+  @apply relative pl-3 mb-2;
+}
+.reminders__notes-bar {
+  @apply absolute left-0 top-2 bottom-2 w-0.5 bg-linear-to-b from-primary to-primary rounded-full;
+}
+.reminders__notes-text {
+  @apply text-xs text-text-secondary italic line-clamp-2;
+}
+.reminders__actions {
+  @apply flex items-center gap-2;
+}
+.reminders__action {
+  @apply p-1.5 rounded transition-colors;
+}
+.reminders__action--whatsapp {
+  @apply bg-success/10 hover:bg-success/20 text-success;
+}
+.reminders__action--call {
+  @apply bg-primary/10 hover:bg-primary/20 text-primary;
+}
+.reminders__action--snooze {
+  @apply bg-neutral-soft hover:bg-border text-text-secondary;
+}
+.reminders__action-icon {
+  @apply w-4 h-4;
+}

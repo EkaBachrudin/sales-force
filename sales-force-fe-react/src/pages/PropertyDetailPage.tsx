@@ -16,6 +16,7 @@ import type { BlockListItem, UnitListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 import { useBlockMutations } from '@/hooks/useBlocks';
 import { useUnits, useUnitMutations } from '@/hooks/useUnits';
+import './PropertyDetailPage.css';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -169,7 +170,7 @@ export default function PropertyDetailPage() {
 
   const handleEditBlockSubmit = async (blockName: string) => {
     if (!editingBlock) return;
-    
+
     try {
       await updateBlock({ blockId: editingBlock.id, name: blockName });
       setIsEditBlockModalOpen(false);
@@ -188,7 +189,7 @@ export default function PropertyDetailPage() {
 
   const handleDeleteUnit = async (unitId: string) => {
     if (!selectedBlock) return;
-    
+
     if (!confirm('Are you sure you want to delete this unit?')) {
       return;
     }
@@ -280,7 +281,7 @@ export default function PropertyDetailPage() {
 
   const handleDeleteConfirm = async () => {
     if (!deletingBlock) return;
-    
+
     try {
       await deleteBlock({ blockId: deletingBlock.id });
       setIsDeleteModalOpen(false);
@@ -316,12 +317,9 @@ export default function PropertyDetailPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout
-        title="Property Detail"
-        subtitle="View and manage property details"
-      >
-        <div className="flex items-center justify-center h-64">
-          <div className="text-sm text-text-secondary">Loading property details...</div>
+      <DashboardLayout title="Property Detail" subtitle="View and manage property details">
+        <div className="property-detail-page__loading">
+          <div className="property-detail-page__loading-text">Loading property details...</div>
         </div>
       </DashboardLayout>
     );
@@ -329,12 +327,9 @@ export default function PropertyDetailPage() {
 
   if (error || !propertyData) {
     return (
-      <DashboardLayout
-        title="Property Detail"
-        subtitle="View and manage property details"
-      >
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-600">
+      <DashboardLayout title="Property Detail" subtitle="View and manage property details">
+        <div className="property-detail-page__error">
+          <p className="property-detail-page__error-text">
             {error instanceof Error ? error.message : 'Failed to load property details'}
           </p>
         </div>
@@ -352,7 +347,7 @@ export default function PropertyDetailPage() {
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<ChevronLeft className="w-4 h-4" />}
+          leftIcon={<ChevronLeft className="property-detail-page__back-icon" />}
           onClick={() => navigate('/properties')}
         >
           Back to Properties
@@ -360,23 +355,23 @@ export default function PropertyDetailPage() {
       }
     >
       {successMessage && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-600">{successMessage}</p>
+        <div className="property-detail-page__success">
+          <p className="property-detail-page__success-text">{successMessage}</p>
         </div>
       )}
 
       {errors.submit && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{errors.submit}</p>
+        <div className="property-detail-page__error">
+          <p className="property-detail-page__error-text">{errors.submit}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-xl border border-border p-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-6">Property Information</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="space-y-5">
+      <form onSubmit={handleSubmit} className="property-detail-page__form">
+        <div className="property-detail-page__card">
+          <h2 className="property-detail-page__card-title">Property Information</h2>
+
+          <div className="property-detail-page__grid">
+            <div className="property-detail-page__column">
               <Input
                 label="Property Name"
                 placeholder="e.g., Cluster A Type 36/60"
@@ -425,7 +420,7 @@ export default function PropertyDetailPage() {
               />
             </div>
 
-            <div className="space-y-5">
+            <div className="property-detail-page__column">
               <Textarea
                 label="Description"
                 placeholder="Enter property description (optional)"
@@ -438,9 +433,7 @@ export default function PropertyDetailPage() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Siteplan
-                </label>
+                <label className="property-detail-page__field-label">Siteplan</label>
                 <FileUpload
                   onFileSelect={handleFileSelect}
                   currentFile={siteplanFile}
@@ -449,13 +442,13 @@ export default function PropertyDetailPage() {
                   maxSizeMB={10}
                 />
                 {errors.siteplan && (
-                  <p className="mt-2 text-sm text-red-600">{errors.siteplan}</p>
+                  <p className="property-detail-page__siteplan-error">{errors.siteplan}</p>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-border">
+          <div className="property-detail-page__footer">
             <Button
               type="submit"
               disabled={updateMutation.isPending}
@@ -467,13 +460,13 @@ export default function PropertyDetailPage() {
         </div>
       </form>
 
-      <div className="bg-white rounded-xl border border-border p-6 mt-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-text-primary">Manage Blocks</h3>
+      <div className="property-detail-page__blocks">
+        <div className="property-detail-page__blocks-header">
+          <h3 className="property-detail-page__blocks-title">Manage Blocks</h3>
           <Button
             variant="secondary"
             size="sm"
-            leftIcon={<Plus className="w-4 h-4" />}
+            leftIcon={<Plus className="property-detail-page__add-block-icon" />}
             onClick={handleAddBlock}
           >
             Add Block
@@ -481,37 +474,30 @@ export default function PropertyDetailPage() {
         </div>
 
         {blocks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Building2 className="w-16 h-16 text-gray-400 mb-4" />
-            <p className="text-sm font-medium text-text-primary mb-2">No blocks yet</p>
-            <p className="text-xs text-text-secondary mb-4">
+          <div className="property-detail-page__blocks-empty">
+            <Building2 className="property-detail-page__blocks-empty-icon" />
+            <p className="property-detail-page__blocks-empty-title">No blocks yet</p>
+            <p className="property-detail-page__blocks-empty-text">
               Add blocks to manage your property units
             </p>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-4">
+          <div className="property-detail-page__blocks-grid">
             {blocks.map((block) => (
-              <div
-                key={block.id}
-                className="max-w-[304px] w-full bg-white border border-border rounded-lg p-4"
-              >
-                <h4 className="text-sm font-semibold text-text-primary mb-1">
-                  {property.name}
-                </h4>
-                <p className="text-xs text-text-secondary mb-3">{block.name}</p>
-                
-                <div className="mb-4">
-                  <p className="text-2xl font-bold text-text-primary">
-                    {block.total_units}
-                  </p>
-                  <p className="text-xs text-text-secondary">Total Units</p>
+              <div key={block.id} className="property-detail-page__block">
+                <h4 className="property-detail-page__block-name">{property.name}</h4>
+                <p className="property-detail-page__block-sub">{block.name}</p>
+
+                <div className="property-detail-page__block-stats">
+                  <p className="property-detail-page__block-count">{block.total_units}</p>
+                  <p className="property-detail-page__block-label">Total Units</p>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="property-detail-page__block-actions">
                   <Button
                     variant="primary"
                     size="sm"
-                    className="flex-1"
+                    className="property-detail-page__block-manage"
                     onClick={() => handleManageUnit(block)}
                   >
                     Manage Unit
@@ -519,13 +505,13 @@ export default function PropertyDetailPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    leftIcon={<Edit2 className="w-4 h-4" />}
+                    leftIcon={<Edit2 className="property-detail-page__block-icon" />}
                     onClick={() => handleEditBlock(block)}
                   />
                   <Button
                     variant="danger"
                     size="sm"
-                    leftIcon={<Trash2 className="w-4 h-4" />}
+                    leftIcon={<Trash2 className="property-detail-page__block-icon" />}
                     onClick={() => handleDeleteBlock(block)}
                   />
                 </div>

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { User as UserType } from './Header';
+import './Sidebar.css';
 
 interface NavItem {
   label: string;
@@ -80,71 +81,63 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
   return (
     <aside
       className={cn(
-        'fixed top-0 h-screen bg-white border-r border-border transition-all duration-300 z-40 lg:z-20',
-        // Desktop behavior
-        'lg:translate-x-0',
-        collapsed ? 'lg:w-20' : 'lg:w-64',
-        // Mobile behavior - overlay drawer
-        'w-64',
-        mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        'sidebar',
+        collapsed && 'sidebar--collapsed',
+        !mobileOpen && 'sidebar--mobile-closed'
       )}
     >
       {/* Logo Section */}
-      <div className="h-20 flex items-center justify-center px-4">
+      <div className="sidebar__logo">
         {!collapsed && (
-          <Link to="/" className="flex items-center gap-2 mt-3">
-            <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-14" />
+          <Link to="/" className="sidebar__logo-link">
+            <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="sidebar__logo-img" />
           </Link>
         )}
         {collapsed && (
-          <Link to="/" className="flex items-center gap-2 mt-3">
-            <img src="/sforce-icon.webp" alt="Sales CRM Pro" className="h-14" />
+          <Link to="/" className="sidebar__logo-link">
+            <img src="/sforce-icon.webp" alt="Sales CRM Pro" className="sidebar__logo-img" />
           </Link>
         )}
 
         {/* Mobile Close Button */}
-        <button
-          onClick={onCloseMobile}
-          className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <X className="w-5 h-5 text-gray-600" />
+        <button onClick={onCloseMobile} className="sidebar__close">
+          <X className="sidebar__close-icon" />
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className={cn( collapsed ? 'p-4 space-y-1' : 'py-4 pr-4 pl-6 space-y-1')}>
+      <nav className={cn('sidebar__nav', collapsed && 'sidebar__nav--collapsed')}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.route || (item.route !== '/' && pathname.startsWith(item.route + '/'));
 
           return (
             <>
-           
               <Link
                 key={item.route}
                 to={item.route}
                 onClick={handleLinkClick}
                 className={cn(
-                  'flex items-center gap-3 pr-3 pl-8 py-4 rounded-md transition-all duration-200 relative h-[53px]',
-                  collapsed ? 'pl-3' : 'pl-8',
-                  isActive
-                    ? 'bg-primary text-white border-primary'
-                    : 'text-text-secondary hover:bg-gray-50 border-l-4 border-transparent'
+                  'sidebar__link',
+                  collapsed && 'sidebar__link--collapsed',
+                  isActive && 'sidebar__link--active'
                 )}
               >
                 {isActive && (
-                  <div className={cn('absolute bg-primary h-full w-[8px] rounded-[20px]', collapsed ? 'left-[-20px]' : 'left-[-28px]')}></div>
+                  <div
+                    className={cn(
+                      'sidebar__link-indicator',
+                      collapsed && 'sidebar__link-indicator--collapsed'
+                    )}
+                  ></div>
                 )}
-                
-                <Icon className="w-5 h-5 flex-shrink-0" />
+
+                <Icon className="sidebar__link-icon" />
                 {(!collapsed || mobileOpen) && (
                   <>
-                   
-                    <span className="font-medium">{item.label}</span>
+                    <span className="sidebar__link-label">{item.label}</span>
                     {item.badge && item.badge > 0 && (
-                      <span className="ml-auto bg-danger text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                        {item.badge}
-                      </span>
+                      <span className="sidebar__link-badge">{item.badge}</span>
                     )}
                   </>
                 )}
@@ -156,40 +149,32 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
 
       {/* User Profile Section - Mobile only */}
       {user && mobileOpen && (
-        <div className="lg:hidden absolute bottom-16 left-0 right-0 px-4">
-          <div className="border-t border-border pt-4">
+        <div className="sidebar__mobile-user">
+          <div className="sidebar__mobile-user-inner">
             {/* User Info */}
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium">
-                {getInitials(user.full_name)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary truncate">
-                  {user.full_name}
-                </p>
-                <p className="text-xs text-text-secondary truncate">
-                  {user.email}
-                </p>
+            <div className="sidebar__user">
+              <div className="sidebar__user-avatar">{getInitials(user.full_name)}</div>
+              <div className="sidebar__user-info">
+                <p className="sidebar__user-name">{user.full_name}</p>
+                <p className="sidebar__user-email">{user.email}</p>
               </div>
             </div>
 
             {/* Role Badge */}
-            <div className="mb-3">
-              <span className="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
-                {user.role}
-              </span>
+            <div className="sidebar__role">
+              <span className="sidebar__role-badge">{user.role}</span>
             </div>
 
             {/* Profile & Logout Buttons */}
-            <div className="space-y-1">
+            <div className="sidebar__mobile-actions">
               <button
                 onClick={() => {
                   onLogout?.();
                   onCloseMobile?.();
                 }}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
+                className="sidebar__logout"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="sidebar__logout-icon" />
                 <span>Logout</span>
               </button>
             </div>
@@ -198,14 +183,11 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       )}
 
       {/* Collapse Toggle - Desktop only */}
-      <button
-        onClick={onToggle}
-        className="hidden lg:flex absolute bottom-4 right-4 w-8 h-8 items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
-      >
+      <button onClick={onToggle} className="sidebar__toggle">
         {collapsed ? (
-          <ChevronRight className="w-4 h-4 text-gray-600" />
+          <ChevronRight className="sidebar__toggle-icon" />
         ) : (
-          <ChevronLeft className="w-4 h-4 text-gray-600" />
+          <ChevronLeft className="sidebar__toggle-icon" />
         )}
       </button>
     </aside>

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { useLeadDetail, useLeadMutations } from '@/hooks/useLeads';
 import { UnitPickerModal } from '@/components/leads/UnitPickerModal';
 import { UnassignLeadModal } from '@/components/properties/UnassignLeadModal';
+import './LeadDetailPage.css';
 
 const stageOptions = [
   { value: 'new', label: 'New' },
@@ -206,10 +207,10 @@ export default function LeadDetailPage() {
   if (isLoadingLead) {
     return (
       <DashboardLayout title="Loading..." subtitle="">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-4 text-sm text-gray-500">Loading lead details...</p>
+        <div className="lead-detail-page__loading">
+          <div className="lead-detail-page__loading-inner">
+            <div className="lead-detail-page__spinner"></div>
+            <p className="lead-detail-page__loading-text">Loading lead details...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -219,11 +220,11 @@ export default function LeadDetailPage() {
   if (!lead) {
     return (
       <DashboardLayout title="Lead Not Found" subtitle="">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-lg text-gray-600 mb-4">Lead not found</p>
+        <div className="lead-detail-page__loading">
+          <div className="lead-detail-page__not-found-inner">
+            <p className="lead-detail-page__not-found-text">Lead not found</p>
             <Button onClick={() => navigate(fromPath)}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="lead-detail-page__back-icon" />
               {fromPath === '/pipeline' ? 'Back to Pipeline' : 'Back to Leads'}
             </Button>
           </div>
@@ -237,7 +238,7 @@ export default function LeadDetailPage() {
       title="Lead Detail"
       subtitle={lead?.name || 'Loading...'}
       action={
-        <div className="flex items-center gap-2">
+        <div className="lead-detail-page__action">
           <Button variant="secondary" onClick={handleCancel} disabled={isUpdating}>
             Cancel
           </Button>
@@ -248,24 +249,24 @@ export default function LeadDetailPage() {
       }
     >
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center gap-2 text-sm">
-        <Link to={fromPath} className="text-primary hover:underline">
+      <div className="lead-detail-page__breadcrumb">
+        <Link to={fromPath} className="lead-detail-page__breadcrumb-link">
           {fromPath === '/pipeline' ? 'Pipeline' : 'Leads'}
         </Link>
-        <span className="text-gray-400">/</span>
-        <span className="text-gray-700">{lead?.name}</span>
+        <span className="lead-detail-page__breadcrumb-separator">/</span>
+        <span className="lead-detail-page__breadcrumb-current">{lead?.name}</span>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-4xl">
-        <div className="space-y-6">
+      <form onSubmit={handleSubmit} className="lead-detail-page__form">
+        <div className="lead-detail-page__sections">
           {/* Personal Information */}
-          <div className="bg-white rounded-xl border border-border p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 bg-primary rounded-full"></span>
+          <div className="lead-detail-page__card">
+            <h3 className="lead-detail-page__section-title">
+              <span className="lead-detail-page__section-accent lead-detail-page__section-accent--primary"></span>
               Personal Information
             </h3>
-            <div className="space-y-4 pl-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="lead-detail-page__section-body">
+              <div className="lead-detail-page__grid">
                 <Input
                   label="Name *"
                   placeholder="Enter lead name"
@@ -282,7 +283,7 @@ export default function LeadDetailPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="lead-detail-page__grid">
                 <Input
                   label="Email"
                   type="email"
@@ -298,7 +299,7 @@ export default function LeadDetailPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="lead-detail-page__grid">
                 <Input
                   label="NIK"
                   type="text"
@@ -318,28 +319,24 @@ export default function LeadDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Notes
-                </label>
+                <label className="lead-detail-page__field-label">Notes</label>
                 <textarea
                   placeholder="Add any notes about this lead..."
-                  className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                  className="lead-detail-page__textarea"
                   rows={4}
                   maxLength={500}
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                 />
-                <p className="text-xs text-text-secondary mt-1 text-right">
-                  {formData.notes.length}/500
-                </p>
+                <p className="lead-detail-page__char-count">{formData.notes.length}/500</p>
               </div>
             </div>
           </div>
 
           {/* Stage - Prominent section with colored background */}
-          <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20 p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <span className="w-1 h-4 bg-primary rounded-full"></span>
+          <div className="lead-detail-page__stage">
+            <h3 className="lead-detail-page__section-title">
+              <span className="lead-detail-page__section-accent lead-detail-page__section-accent--primary"></span>
               Lead Stage *
             </h3>
             <Select
@@ -352,23 +349,21 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Unit Assignment */}
-          <div className="bg-white rounded-xl border border-border p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+          <div className="lead-detail-page__card">
+            <h3 className="lead-detail-page__section-title">
+              <span className="lead-detail-page__section-accent lead-detail-page__section-accent--primary"></span>
               Unit Assignment
             </h3>
-            <div className="pl-3">
+            <div className="lead-detail-page__section-body">
               {lead.unit ? (
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Building2 className="w-5 h-5 text-blue-600" />
+                <div className="lead-detail-page__unit-row">
+                  <div className="lead-detail-page__unit-main">
+                    <div className="lead-detail-page__unit-icon">
+                      <Building2 className="lead-detail-page__unit-icon-svg" />
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-text-primary">
-                          Unit {lead.unit.name}
-                        </p>
+                    <div className="lead-detail-page__unit-info">
+                      <div className="lead-detail-page__unit-name-row">
+                        <p className="lead-detail-page__unit-name">Unit {lead.unit.name}</p>
                         <Badge
                           variant={
                             lead.unit.status === 'available' ? 'green'
@@ -381,23 +376,21 @@ export default function LeadDetailPage() {
                           {lead.unit.status}
                         </Badge>
                       </div>
-                      <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                      <p className="lead-detail-page__unit-meta">
+                        <MapPin className="lead-detail-page__unit-map-icon" />
                         {lead.unit.block.name} · {lead.unit.property.name} ({lead.unit.property.city})
                       </p>
                       {lead.unit.land_area && (
-                        <p className="text-xs text-text-secondary mt-0.5">
-                          {lead.unit.land_area} m²
-                        </p>
+                        <p className="lead-detail-page__unit-area">{lead.unit.land_area} m²</p>
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:flex-shrink-0">
+                  <div className="lead-detail-page__unit-actions">
                     <Button
                       type="button"
                       variant="secondary"
                       size="sm"
-                      className="w-full sm:w-auto"
+                      className="lead-detail-page__unit-button"
                       onClick={() => setIsUnitPickerOpen(true)}
                     >
                       Change Unit
@@ -407,27 +400,25 @@ export default function LeadDetailPage() {
                       variant="secondary"
                       size="sm"
                       onClick={() => setUnassignTarget({ id: id || '', name: lead.name })}
-                      leftIcon={<UserMinus className="w-4 h-4 text-red-500" />}
-                      className="w-full sm:w-auto hover:bg-red-50 hover:border-red-300"
+                      leftIcon={<UserMinus className="lead-detail-page__unassign-icon" />}
+                      className="lead-detail-page__unassign-button"
                     >
                       Unassign
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Building2 className="w-5 h-5 text-gray-400" />
+                <div className="lead-detail-page__unit-row">
+                  <div className="lead-detail-page__unit-empty">
+                    <div className="lead-detail-page__unit-icon lead-detail-page__unit-icon--empty">
+                      <Building2 className="lead-detail-page__unit-icon-svg lead-detail-page__unit-icon-svg--empty" />
                     </div>
-                    <p className="text-sm text-text-secondary">
-                      No unit assigned yet
-                    </p>
+                    <p className="lead-detail-page__unit-empty-text">No unit assigned yet</p>
                   </div>
                   <Button
                     type="button"
                     size="sm"
-                    className="w-full sm:w-auto"
+                    className="lead-detail-page__unit-button"
                     onClick={() => setIsUnitPickerOpen(true)}
                   >
                     Assign to Unit
@@ -438,23 +429,19 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Budget Range */}
-          <div className="bg-white rounded-xl border border-border p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 bg-green-500 rounded-full"></span>
+          <div className="lead-detail-page__card">
+            <h3 className="lead-detail-page__section-title">
+              <span className="lead-detail-page__section-accent lead-detail-page__section-accent--success"></span>
               Budget Range
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3">
+            <div className="lead-detail-page__budget-grid">
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Min Budget
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                    Rp
-                  </span>
+                <label className="lead-detail-page__field-label">Min Budget</label>
+                <div className="lead-detail-page__currency-wrapper">
+                  <span className="lead-detail-page__currency-prefix">Rp</span>
                   <input
                     type="text"
-                    className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="lead-detail-page__currency-input"
                     value={formatCurrencyInput(formData.budgetMin)}
                     onChange={(e) => {
                       const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -464,16 +451,12 @@ export default function LeadDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Max Budget
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                    Rp
-                  </span>
+                <label className="lead-detail-page__field-label">Max Budget</label>
+                <div className="lead-detail-page__currency-wrapper">
+                  <span className="lead-detail-page__currency-prefix">Rp</span>
                   <input
                     type="text"
-                    className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="lead-detail-page__currency-input"
                     value={formatCurrencyInput(formData.budgetMax)}
                     onChange={(e) => {
                       const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -486,37 +469,33 @@ export default function LeadDetailPage() {
           </div>
 
           {/* KPR Simulation */}
-          <div className="bg-white rounded-xl border border-border overflow-hidden">
+          <div className="lead-detail-page__collapsible">
             <button
               type="button"
               onClick={() => setShowKprCalculator(!showKprCalculator)}
-              className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+              className="lead-detail-page__toggle"
             >
-              <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <span className="w-1 h-4 bg-orange-500 rounded-full"></span>
-                <Calculator className="w-4 h-4 text-orange-500" />
+              <h3 className="lead-detail-page__toggle-title">
+                <span className="lead-detail-page__section-accent lead-detail-page__section-accent--warning"></span>
+                <Calculator className="lead-detail-page__toggle-icon" />
                 KPR Calculator
-                <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                <span className="lead-detail-page__optional">(Optional)</span>
               </h3>
-              <span className="text-xs text-gray-500">
+              <span className="lead-detail-page__toggle-state">
                 {showKprCalculator ? '▲ Hide' : '▼ Show'}
               </span>
             </button>
 
             {showKprCalculator && (
-              <div className="p-6 border-t border-border bg-gray-50 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="lead-detail-page__collapsible-body">
+                <div className="lead-detail-page__grid">
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Property Price
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                        Rp
-                      </span>
+                    <label className="lead-detail-page__field-label">Property Price</label>
+                    <div className="lead-detail-page__currency-wrapper">
+                      <span className="lead-detail-page__currency-prefix">Rp</span>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
+                        className="lead-detail-page__currency-input"
                         value={formatCurrencyInput(formData.kprPrice)}
                         onChange={(e) => {
                           const value = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -526,12 +505,10 @@ export default function LeadDetailPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Down Payment %
-                    </label>
+                    <label className="lead-detail-page__field-label">Down Payment %</label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
+                      className="lead-detail-page__input"
                       value={formData.kprDownPayment}
                       onChange={(e) => handleInputChange('kprDownPayment', parseFloat(e.target.value))}
                       min="0"
@@ -541,14 +518,12 @@ export default function LeadDetailPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="lead-detail-page__grid">
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Interest Rate %
-                    </label>
+                    <label className="lead-detail-page__field-label">Interest Rate %</label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary"
+                      className="lead-detail-page__input"
                       value={formData.kprInterestRate}
                       onChange={(e) => handleInputChange('kprInterestRate', parseFloat(e.target.value))}
                       min="0"
@@ -557,9 +532,7 @@ export default function LeadDetailPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1.5">
-                      Term
-                    </label>
+                    <label className="lead-detail-page__field-label">Term</label>
                     <Select
                       options={termOptions}
                       value={String(formData.kprTerm)}
@@ -572,16 +545,16 @@ export default function LeadDetailPage() {
                   type="button"
                   variant="secondary"
                   size="sm"
-                  className="w-full"
+                  className="lead-detail-page__calculate-button"
                   onClick={calculateKpr}
                 >
                   Calculate Monthly Payment →
                 </Button>
 
                 {kprResult !== null && (
-                  <div className="text-center p-4 bg-primary/10 rounded-lg">
-                    <p className="text-sm text-text-secondary">Estimated Monthly Payment</p>
-                    <p className="text-2xl font-bold text-primary">
+                  <div className="lead-detail-page__result">
+                    <p className="lead-detail-page__result-label">Estimated Monthly Payment</p>
+                    <p className="lead-detail-page__result-value">
                       {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(kprResult)}/mo
                     </p>
                   </div>
@@ -591,70 +564,64 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Reminder */}
-          <div className="bg-white rounded-xl border border-border overflow-hidden">
+          <div className="lead-detail-page__collapsible">
             <button
               type="button"
               onClick={() => setShowReminderForm(!showReminderForm)}
-              className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+              className="lead-detail-page__toggle"
             >
-              <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
-                <Bell className="w-4 h-4 text-purple-500" />
+              <h3 className="lead-detail-page__toggle-title">
+                <span className="lead-detail-page__section-accent lead-detail-page__section-accent--reserved"></span>
+                <Bell className="lead-detail-page__toggle-icon lead-detail-page__toggle-icon--reserved" />
                 Reminder
-                <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                <span className="lead-detail-page__optional">(Optional)</span>
               </h3>
-              <span className="text-xs text-gray-500">
+              <span className="lead-detail-page__toggle-state">
                 {showReminderForm ? '▲ Hide' : '▼ Show'}
               </span>
             </button>
 
             {showReminderForm && (
-              <div className="p-6 border-t border-border bg-gray-50 space-y-4">
+              <div className="lead-detail-page__collapsible-body">
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Reminder Date & Time
-                  </label>
+                  <label className="lead-detail-page__field-label">Reminder Date & Time</label>
                   <input
                     type="datetime-local"
-                    className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="lead-detail-page__datetime"
                     value={formData.reminderScheduledFor}
                     onChange={(e) => handleInputChange('reminderScheduledFor', e.target.value)}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Reminder Notes
-                  </label>
+                  <label className="lead-detail-page__field-label">Reminder Notes</label>
                   <textarea
                     placeholder="Add notes for this reminder..."
-                    className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                    className="lead-detail-page__textarea"
                     rows={3}
                     maxLength={200}
                     value={formData.reminderNotes}
                     onChange={(e) => handleInputChange('reminderNotes', e.target.value)}
                   />
-                  <p className="text-xs text-text-secondary mt-1 text-right">
-                    {formData.reminderNotes.length}/200
-                  </p>
+                  <p className="lead-detail-page__char-count">{formData.reminderNotes.length}/200</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-xl border border-border p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 bg-primary rounded-full"></span>
+          <div className="lead-detail-page__card">
+            <h3 className="lead-detail-page__section-title">
+              <span className="lead-detail-page__section-accent lead-detail-page__section-accent--primary"></span>
               Quick Actions
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-3">
+            <div className="lead-detail-page__quick-actions">
               <Button
                 variant="secondary"
                 size="md"
-                leftIcon={<MessageCircle className="w-4 h-4 text-emerald-600" />}
+                leftIcon={<MessageCircle className="lead-detail-page__action-icon lead-detail-page__action-icon--whatsapp" />}
                 onClick={() => window.open(`https://wa.me/${formData.phone.replace(/\D/g, '')}`, '_blank')}
-                className="bg-white hover:bg-emerald-50 hover:border-emerald-300 border-slate-200 shadow-sm transition-all justify-start text-sm"
+                className="lead-detail-page__action-button lead-detail-page__action-button--whatsapp"
                 disabled={!formData.phone}
               >
                 WhatsApp
@@ -662,9 +629,9 @@ export default function LeadDetailPage() {
               <Button
                 variant="secondary"
                 size="md"
-                leftIcon={<Phone className="w-4 h-4 text-blue-600" />}
+                leftIcon={<Phone className="lead-detail-page__action-icon lead-detail-page__action-icon--call" />}
                 onClick={() => (window.location.href = `tel:${formData.phone}`)}
-                className="bg-white hover:bg-blue-50 hover:border-blue-300 border-slate-200 shadow-sm transition-all justify-start text-sm"
+                className="lead-detail-page__action-button lead-detail-page__action-button--call"
                 disabled={!formData.phone}
               >
                 Call
@@ -672,9 +639,9 @@ export default function LeadDetailPage() {
               <Button
                 variant="secondary"
                 size="md"
-                leftIcon={<Mail className="w-4 h-4 text-indigo-600" />}
+                leftIcon={<Mail className="lead-detail-page__action-icon lead-detail-page__action-icon--email" />}
                 onClick={() => formData.email && (window.location.href = `mailto:${formData.email}`)}
-                className="bg-white hover:bg-indigo-50 hover:border-indigo-300 border-slate-200 shadow-sm transition-all justify-start text-sm"
+                className="lead-detail-page__action-button lead-detail-page__action-button--email"
                 disabled={!formData.email}
               >
                 Email

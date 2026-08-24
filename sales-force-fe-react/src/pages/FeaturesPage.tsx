@@ -24,6 +24,7 @@ import {
   Tablet,
   Cloud
 } from 'lucide-react';
+import './FeaturesPage.css';
 
 function generateCSRFToken(): string {
   const tokenData = {
@@ -153,29 +154,6 @@ export default function FeaturesPage() {
         website: formData.website,
         csrfToken
       };
-
-      // TODO: /api/submit-interest endpoint is not yet migrated from Next.js API routes.
-      // Uncomment and update the URL when the backend endpoint is available.
-      // const controller = new AbortController();
-      // const timeoutId = setTimeout(() => controller.abort(), 15000);
-      //
-      // const response = await fetch('/api/submit-interest', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'X-CSRF-Token': csrfToken
-      //   },
-      //   body: JSON.stringify(sanitizedData),
-      //   signal: controller.signal
-      // });
-      //
-      // clearTimeout(timeoutId);
-      //
-      // const result = await response.json();
-      //
-      // if (!response.ok) {
-      //   throw new Error(result.error || 'Terjadi kesalahan');
-      // }
 
       console.log('Form data (submit-interest endpoint not yet available):', sanitizedData);
 
@@ -316,14 +294,14 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-100/60 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-slate-100/60 rounded-full blur-3xl" />
+    <div className="features-page">
+      <div className="features-page__bg">
+        <div className="features-page__bg-glow">
+          <div className="features-page__bg-glow-blue" />
+          <div className="features-page__bg-glow-slate" />
         </div>
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="features-page__bg-grid"
           style={{
             backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
             backgroundSize: '50px 50px'
@@ -331,66 +309,57 @@ export default function FeaturesPage() {
         />
       </div>
 
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${showFormModal ? '-translate-y-full opacity-0' : ''} ${scrollY > 50 ? 'bg-white/90 backdrop-blur-xl border-b border-gray-200 shadow-sm' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-14" />
+      <nav className={`features-page__nav ${showFormModal ? 'features-page__nav--hidden' : ''} ${scrollY > 50 ? 'features-page__nav--scrolled' : ''}`}>
+        <div className="features-page__nav-inner">
+          <div className="features-page__nav-row">
+            <Link to="/" className="features-page__nav-logo">
+              <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="features-page__nav-logo-img" />
             </Link>
-            <button
-              onClick={openFormModal}
-              className="px-5 py-2.5 bg-gradient-to-r from-primary to-primary-hover hover:from-primary hover:to-primary-hover text-white text-sm font-semibold rounded-lg shadow-md shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-0.5"
-            >
+            <button onClick={openFormModal} className="features-page__nav-cta">
               Saya Tertarik
             </button>
           </div>
         </div>
       </nav>
 
-      <div className="relative z-10">
-        <header id="hero" className="pt-32 pb-24 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 tracking-tight leading-tight">
+      <div className="features-page__content">
+        <header id="hero" className="features-page__hero">
+          <div className="features-page__container">
+            <div className="features-page__hero-inner">
+              <h1 className="features-page__hero-title">
                 Ubah Lebih Banyak Lead
-                <span className="block mt-2 bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
+                <span className="features-page__hero-title-accent">
                   Menjadi Penjualan
                 </span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+              <p className="features-page__hero-subtitle">
                 Platform manajemen penjualan all-in-one yang dirancang khusus untuk profesional real estate dan tim sales modern.
                 Lacak lead, kelola pipeline, dan tutup lebih banyak deal dengan lebih cepat.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-                <button
-                  onClick={openFormModal}
-                  className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-primary-hover hover:from-primary hover:to-primary-hover text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1"
-                >
+              <div className="features-page__hero-actions">
+                <button onClick={openFormModal} className="features-page__hero-cta">
                   Saya Tertarik
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="features-page__hero-cta-icon" />
                 </button>
-                <a
-                  href="#features"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl border border-gray-300 shadow-sm transition-all duration-300"
-                >
-                  <Play className="w-5 h-5 text-primary" />
+                <a href="#features" className="features-page__hero-secondary">
+                  <Play className="features-page__hero-secondary-icon" />
                   Lihat Fitur
                 </a>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-6 text-gray-500 text-sm">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <div className="features-page__hero-trust">
+                <div className="features-page__hero-trust-item">
+                  <CheckCircle2 className="features-page__check-icon" />
                   <span>Tidak perlu kartu kredit</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <div className="features-page__hero-trust-item">
+                  <CheckCircle2 className="features-page__check-icon" />
                   <span>Setup dalam 5 menit</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <div className="features-page__hero-trust-item">
+                  <CheckCircle2 className="features-page__check-icon" />
                   <span>Batalkan kapan saja</span>
                 </div>
               </div>
@@ -398,121 +367,116 @@ export default function FeaturesPage() {
           </div>
         </header>
 
-        <section className="py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <section className="features-page__benefits">
+          <div className="features-page__container">
+            <div className="features-page__benefits-grid">
               {benefits.map((benefit, index) => (
-                <div
-                  key={index}
-                  className="text-center p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 group"
-                >
-                  <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-primary to-primary-hover bg-clip-text text-transparent mb-2">
-                    {benefit.number}
-                  </div>
-                  <div className="text-sm text-gray-600">{benefit.label}</div>
+                <div key={index} className="features-page__benefit">
+                  <div className="features-page__benefit-number">{benefit.number}</div>
+                  <div className="features-page__benefit-label">{benefit.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-sm mb-4">
-                <Sparkles className="w-4 h-4" />
+        <section id="features" className="features-page__features">
+          <div className="features-page__container">
+            <div className="features-page__section-header">
+              <div className="features-page__badge features-page__badge--blue">
+                <Sparkles className="features-page__badge-icon" />
                 <span>Fitur Unggulan</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+              <h2 className="features-page__section-title">
                 Semua yang Anda Butuhkan untuk
-                <span className="block bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
+                <span className="features-page__section-title-accent">
                   Memenangkan Penjualan
                 </span>
               </h2>
-              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              <p className="features-page__section-subtitle">
                 Fitur-fitur powerful yang dibangun khusus untuk profesional sales yang serius tentang hasil
               </p>
             </div>
 
-            <div className="mb-20">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary-hover rounded-3xl opacity-10 blur-2xl" />
+            <div className="features-page__showcase">
+              <div className="features-page__showcase-inner">
+                <div className="features-page__showcase-glow" />
 
-                <div className="relative bg-gradient-to-br from-white via-slate-50/50 to-white rounded-3xl border border-gray-200 shadow-2xl overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-primary-hover animate-gradient" />
+                <div className="features-page__showcase-card">
+                  <div className="features-page__showcase-bar" />
 
-                  <div className="p-8 sm:p-12">
-                    <div className="text-center mb-10">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-sm font-medium mb-4">
-                        <Sparkles className="w-4 h-4" />
+                  <div className="features-page__showcase-content">
+                    <div className="features-page__showcase-header">
+                      <div className="features-page__badge features-page__badge--blue">
+                        <Sparkles className="features-page__badge-icon" />
                         <span>Akses Di Mana Saja</span>
                       </div>
-                      <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                      <h3 className="features-page__showcase-title">
                         Satu Aplikasi, Semua Perangkat
                       </h3>
-                      <p className="text-gray-600 max-w-2xl mx-auto">
+                      <p className="features-page__showcase-subtitle">
                         Nikmati pengalaman yang seamless di semua perangkat dengan teknologi cloud-based
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                      <div className="group relative bg-white rounded-2xl border border-gray-200 p-6 text-center hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
-                        <div className="absolute inset-0 bg-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="relative">
-                          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                            <Smartphone className="w-8 h-8 text-white" />
+                    <div className="features-page__devices">
+                      <div className="features-page__device">
+                        <div className="features-page__device-overlay" />
+                        <div className="features-page__device-inner">
+                          <div className="features-page__device-icon">
+                            <Smartphone className="features-page__device-icon-svg" />
                           </div>
-                          <h4 className="font-bold text-gray-900 mb-1">Mobile</h4>
-                          <p className="text-xs text-gray-500">iOS & Android</p>
+                          <h4 className="features-page__device-title">Mobile</h4>
+                          <p className="features-page__device-sub">iOS & Android</p>
                         </div>
                       </div>
 
-                      <div className="group relative bg-white rounded-2xl border border-gray-200 p-6 text-center hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
-                        <div className="absolute inset-0 bg-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="relative">
-                          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                            <Tablet className="w-8 h-8 text-white" />
+                      <div className="features-page__device">
+                        <div className="features-page__device-overlay" />
+                        <div className="features-page__device-inner">
+                          <div className="features-page__device-icon">
+                            <Tablet className="features-page__device-icon-svg" />
                           </div>
-                          <h4 className="font-bold text-gray-900 mb-1">Tablet</h4>
-                          <p className="text-xs text-gray-500">iPad & Android Tab</p>
+                          <h4 className="features-page__device-title">Tablet</h4>
+                          <p className="features-page__device-sub">iPad & Android Tab</p>
                         </div>
                       </div>
 
-                      <div className="group relative bg-white rounded-2xl border border-gray-200 p-6 text-center hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
-                        <div className="absolute inset-0 bg-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="relative">
-                          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                            <Monitor className="w-8 h-8 text-white" />
+                      <div className="features-page__device">
+                        <div className="features-page__device-overlay" />
+                        <div className="features-page__device-inner">
+                          <div className="features-page__device-icon">
+                            <Monitor className="features-page__device-icon-svg" />
                           </div>
-                          <h4 className="font-bold text-gray-900 mb-1">Desktop</h4>
-                          <p className="text-xs text-gray-500">Windows & Mac</p>
+                          <h4 className="features-page__device-title">Desktop</h4>
+                          <p className="features-page__device-sub">Windows & Mac</p>
                         </div>
                       </div>
 
-                      <div className="group relative bg-white rounded-2xl border border-gray-200 p-6 text-center hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
-                        <div className="absolute inset-0 bg-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="relative">
-                          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                            <Cloud className="w-8 h-8 text-white" />
+                      <div className="features-page__device">
+                        <div className="features-page__device-overlay" />
+                        <div className="features-page__device-inner">
+                          <div className="features-page__device-icon">
+                            <Cloud className="features-page__device-icon-svg" />
                           </div>
-                          <h4 className="font-bold text-gray-900 mb-1">Cloud</h4>
-                          <p className="text-xs text-gray-500">Instant Access</p>
+                          <h4 className="features-page__device-title">Cloud</h4>
+                          <p className="features-page__device-sub">Instant Access</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                      <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <div className="features-page__showcase-footer">
+                      <div className="features-page__showcase-trust">
+                        <div className="features-page__showcase-trust-item">
+                          <CheckCircle2 className="features-page__check-icon" />
                           <span>Sync real-time</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <div className="features-page__showcase-trust-item">
+                          <CheckCircle2 className="features-page__check-icon" />
                           <span>Data aman & terbackup</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <div className="features-page__showcase-trust-item">
+                          <CheckCircle2 className="features-page__check-icon" />
                           <span>Server Indonesia</span>
                         </div>
                       </div>
@@ -522,59 +486,53 @@ export default function FeaturesPage() {
               </div>
             </div>
 
-            <div className="space-y-24">
+            <div className="features-page__showcases">
               {featureShowcases.map((showcase) => (
-                <div
-                  key={showcase.id}
-                  className={`grid lg:grid-cols-2 gap-12 items-center ${showcase.reverse ? 'lg:flex-row-reverse' : ''}`}
-                >
-                  <div className={`${showcase.reverse ? 'lg:order-2' : ''}`}>
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200 bg-white">
-                      <div className="bg-gray-100 px-4 py-3 flex items-center gap-2 border-b border-gray-200">
-                        <div className="flex gap-2">
-                          <div className="w-3 h-3 rounded-full bg-red-400" />
-                          <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                          <div className="w-3 h-3 rounded-full bg-green-400" />
+                <div key={showcase.id} className="features-page__showcase-item">
+                  <div className={`features-page__showcase-image-wrapper ${showcase.reverse ? 'features-page__showcase-image-wrapper--reverse' : ''}`}>
+                    <div className="features-page__showcase-image-frame">
+                      <div className="features-page__browser-bar">
+                        <div className="features-page__browser-dots">
+                          <div className="features-page__browser-dot features-page__browser-dot--red" />
+                          <div className="features-page__browser-dot features-page__browser-dot--yellow" />
+                          <div className="features-page__browser-dot features-page__browser-dot--green" />
                         </div>
-                        <div className="flex-1 mx-4">
-                          <div className="bg-white rounded-md px-3 py-1 text-xs text-gray-400 text-center">
+                        <div className="features-page__browser-url">
+                          <div className="features-page__browser-url-text">
                             {showcase.id}.example.com
                           </div>
                         </div>
                       </div>
 
-                      <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+                      <div className="features-page__showcase-image">
                         <img
                           src={showcase.image}
                           alt={showcase.imageAlt}
-                          className="w-full object-cover mt-[5px]"
+                          className="features-page__showcase-img"
                         />
 
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-primary-hover" />
+                        <div className="features-page__showcase-image-bar" />
                       </div>
                     </div>
                   </div>
 
-                  <div className={`${showcase.reverse ? 'lg:order-1' : ''}`}>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-sm mb-4">
-                      <Sparkles className="w-4 h-4" />
+                  <div className={`features-page__showcase-text ${showcase.reverse ? 'features-page__showcase-text--reverse' : ''}`}>
+                    <div className="features-page__badge features-page__badge--blue">
+                      <Sparkles className="features-page__badge-icon" />
                       <span>Feature Showcase</span>
                     </div>
-                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                    <h3 className="features-page__showcase-item-title">
                       {showcase.title}
                     </h3>
-                    <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                    <p className="features-page__showcase-item-desc">
                       {showcase.description}
                     </p>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="features-page__showcase-badges">
                       {showcase.badges.map((badge, i) => (
-                        <div
-                          key={i}
-                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-200"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
-                          <span className="text-sm font-medium text-gray-700">{badge}</span>
+                        <div key={i} className="features-page__showcase-badge-item">
+                          <CheckCircle2 className="features-page__check-icon" />
+                          <span className="features-page__showcase-badge-text">{badge}</span>
                         </div>
                       ))}
                     </div>
@@ -585,31 +543,28 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+        <section className="features-page__more">
+          <div className="features-page__container">
+            <div className="features-page__more-header">
+              <h3 className="features-page__more-title">
                 Dan Masih Banyak Lagi
               </h3>
-              <p className="text-gray-600">
+              <p className="features-page__more-subtitle">
                 Semua fitur yang Anda butuhkan untuk mengelola sales dengan efisien
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="features-page__more-grid">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <div
-                    key={index}
-                    className="p-5 rounded-xl bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+                  <div key={index} className="features-page__feature">
+                    <div className="features-page__feature-icon"
                       style={{ backgroundColor: `color-mix(in srgb, ${feature.color} 12%, transparent)`, color: feature.color }}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className="features-page__feature-icon-svg" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1 text-sm">{feature.title}</h4>
-                    <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">{feature.description}</p>
+                    <h4 className="features-page__feature-title">{feature.title}</h4>
+                    <p className="features-page__feature-desc">{feature.description}</p>
                   </div>
                 );
               })}
@@ -617,22 +572,22 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-100/50">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-700 text-sm mb-4">
-                <Rocket className="w-4 h-4" />
+        <section id="how-it-works" className="features-page__how">
+          <div className="features-page__container">
+            <div className="features-page__section-header">
+              <div className="features-page__badge features-page__badge--green">
+                <Rocket className="features-page__badge-icon" />
                 <span>Mudah Dimulai</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+              <h2 className="features-page__section-title">
                 Mulai Menutup Deal dalam
-                <span className="block bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
+                <span className="features-page__section-title-accent">
                   3 Langkah Sederhana
                 </span>
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="features-page__how-grid">
               {[
                 {
                   step: '01',
@@ -655,21 +610,19 @@ export default function FeaturesPage() {
               ].map((step, index) => {
                 const Icon = step.icon;
                 return (
-                  <div key={index} className="relative">
-                    <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                      {step.step}
-                    </div>
+                  <div key={index} className="features-page__step">
+                    <div className="features-page__step-number">{step.step}</div>
 
-                    <div className="relative pt-8 p-6 rounded-2xl bg-white border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                      <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Icon className="w-6 h-6 text-primary" />
+                    <div className="features-page__step-card">
+                      <div className="features-page__step-icon">
+                        <Icon className="features-page__step-icon-svg" />
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">{step.title}</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">{step.description}</p>
+                      <h3 className="features-page__step-title">{step.title}</h3>
+                      <p className="features-page__step-desc">{step.description}</p>
                     </div>
 
                     {index < 2 && (
-                      <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-primary to-primary-hover" />
+                      <div className="features-page__step-connector" />
                     )}
                   </div>
                 );
@@ -678,59 +631,56 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 text-gray-700 text-xs font-medium tracking-wide uppercase mb-6">
-                <Award className="w-3.5 h-3.5" />
+        <section id="pricing" className="features-page__pricing">
+          <div className="features-page__container">
+            <div className="features-page__section-header">
+              <div className="features-page__pricing-badge">
+                <Award className="features-page__pricing-badge-icon" />
                 <span>Pricing</span>
               </div>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+              <h2 className="features-page__pricing-title">
                 Satu Harga,<br />Semua Fitur
               </h2>
-              <p className="text-gray-500 text-lg max-w-xl mx-auto">
+              <p className="features-page__pricing-subtitle">
                 Investasi cerdas untuk pertumbuhan bisnis Anda. Tanpa biaya tersembunyi, tanpa kompromi.
               </p>
             </div>
 
-            <div className="max-w-5xl mx-auto">
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="grid lg:grid-cols-5">
-                  <div className="lg:col-span-2 bg-gray-900 p-8 sm:p-10 lg:p-12">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 text-white text-xs font-medium tracking-wide mb-8">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+            <div className="features-page__pricing-inner">
+              <div className="features-page__pricing-card">
+                <div className="features-page__pricing-grid">
+                  <div className="features-page__pricing-left">
+                    <div className="features-page__pricing-popular">
+                      <span className="features-page__pricing-popular-dot"></span>
                       <span>Most Popular</span>
                     </div>
 
-                    <div className="mb-8">
-                      <p className="text-gray-400 text-sm font-medium tracking-wide uppercase mb-2">DRM Subscription</p>
-                      <h3 className="text-white text-xl font-semibold">Dynamic Revenue Management</h3>
+                    <div className="features-page__pricing-plan">
+                      <p className="features-page__pricing-plan-label">DRM Subscription</p>
+                      <h3 className="features-page__pricing-plan-title">Dynamic Revenue Management</h3>
                     </div>
 
-                    <div className="mb-8">
-                      <div className="flex items-baseline gap-1 mb-2">
-                        <span className="text-5xl sm:text-6xl font-bold text-white tracking-tight">60</span>
-                        <span className="text-3xl font-bold text-white">.000</span>
+                    <div className="features-page__pricing-price-block">
+                      <div className="features-page__pricing-price-row">
+                        <span className="features-page__pricing-price">60</span>
+                        <span className="features-page__pricing-price-decimal">.000</span>
                       </div>
-                      <p className="text-gray-400 text-sm">per bulan • Rp 600.000/tahun</p>
+                      <p className="features-page__pricing-price-note">per bulan • Rp 600.000/tahun</p>
                     </div>
 
-                    <button
-                      onClick={openFormModal}
-                      className="w-full mt-8 py-4 px-6 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2"
-                    >
+                    <button onClick={openFormModal} className="features-page__pricing-cta">
                       Get Started
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="features-page__pricing-cta-icon" />
                     </button>
                   </div>
 
-                  <div className="lg:col-span-3 p-8 sm:p-10 lg:p-12">
-                    <div className="mb-8">
-                      <h4 className="text-gray-900 font-semibold mb-1">Everything Included</h4>
-                      <p className="text-gray-500 text-sm">Full access to all features</p>
+                  <div className="features-page__pricing-right">
+                    <div className="features-page__pricing-features-heading">
+                      <h4 className="features-page__pricing-features-title">Everything Included</h4>
+                      <p className="features-page__pricing-features-subtitle">Full access to all features</p>
                     </div>
 
-                    <div className="space-y-3 mb-8">
+                    <div className="features-page__pricing-list">
                       {[
                         { icon: Target, text: 'Unlimited leads & pipeline stages' },
                         { icon: BarChart3, text: 'Advanced analytics & reporting' },
@@ -743,28 +693,25 @@ export default function FeaturesPage() {
                       ].map((feature, index) => {
                         const Icon = feature.icon;
                         return (
-                          <div
-                            key={index}
-                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                              <Icon className="w-4.5 h-4.5 text-primary" />
+                          <div key={index} className="features-page__pricing-item">
+                            <div className="features-page__pricing-item-icon">
+                              <Icon className="features-page__pricing-item-icon-svg" />
                             </div>
-                            <span className="text-gray-700 text-sm font-medium">{feature.text}</span>
+                            <span className="features-page__pricing-item-text">{feature.text}</span>
                           </div>
                         );
                       })}
                     </div>
 
-                    <div className="pt-6 border-t border-gray-100">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-gray-900">5<span className="text-primary">min</span></p>
-                          <p className="text-xs text-gray-500 mt-1">Setup time</p>
+                    <div className="features-page__pricing-stats">
+                      <div className="features-page__pricing-stats-grid">
+                        <div className="features-page__pricing-stat">
+                          <p className="features-page__pricing-stat-value">5<span className="features-page__pricing-stat-accent">min</span></p>
+                          <p className="features-page__pricing-stat-label">Setup time</p>
                         </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-gray-900">24<span className="text-primary">/7</span></p>
-                          <p className="text-xs text-gray-500 mt-1">Support</p>
+                        <div className="features-page__pricing-stat">
+                          <p className="features-page__pricing-stat-value">24<span className="features-page__pricing-stat-accent">/7</span></p>
+                          <p className="features-page__pricing-stat-label">Support</p>
                         </div>
                       </div>
                     </div>
@@ -772,15 +719,15 @@ export default function FeaturesPage() {
                 </div>
               </div>
 
-              <div className="mt-8 text-center">
-                <p className="text-gray-500 text-sm mb-3">Need custom solutions for your enterprise?</p>
+              <div className="features-page__pricing-enterprise">
+                <p className="features-page__pricing-enterprise-text">Need custom solutions for your enterprise?</p>
                 <a
                   href="https://wa.me/6281234567890"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-gray-900 font-medium text-sm hover:text-primary transition-colors"
+                  className="features-page__pricing-contact"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <MessageCircle className="features-page__pricing-contact-icon" />
                   Contact our sales team
                 </a>
               </div>
@@ -788,39 +735,36 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-100/50">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 border border-cyan-200 text-cyan-700 text-sm mb-4">
-                <HelpCircle className="w-4 h-4" />
+        <section id="faq" className="features-page__faq">
+          <div className="features-page__faq-inner">
+            <div className="features-page__faq-header">
+              <div className="features-page__badge features-page__badge--cyan">
+                <HelpCircle className="features-page__badge-icon" />
                 <span>FAQ</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="features-page__section-title">
                 Pertanyaan yang
-                <span className="block bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
+                <span className="features-page__section-title-accent">
                   Sering Diajukan
                 </span>
               </h2>
             </div>
 
-            <div className="space-y-4">
+            <div className="features-page__faq-list">
               {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl bg-white border border-gray-200 overflow-hidden"
-                >
+                <div key={index} className="features-page__faq-item">
                   <button
                     onClick={() => setActiveFaq(activeFaq === index ? null : index)}
-                    className="w-full p-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    className="features-page__faq-button"
                   >
-                    <span className="text-gray-900 font-medium pr-4">{faq.question}</span>
+                    <span className="features-page__faq-question">{faq.question}</span>
                     <ChevronDown
-                      className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${activeFaq === index ? 'rotate-180' : ''}`}
+                      className={`features-page__faq-chevron ${activeFaq === index ? 'features-page__faq-chevron--open' : ''}`}
                     />
                   </button>
                   {activeFaq === index && (
-                    <div className="px-6 pb-6">
-                      <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
+                    <div className="features-page__faq-answer">
+                      <p className="features-page__faq-answer-text">{faq.answer}</p>
                     </div>
                   )}
                 </div>
@@ -829,27 +773,24 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="relative p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-primary to-primary-hover overflow-hidden">
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <section className="features-page__cta-section">
+          <div className="features-page__cta-inner">
+            <div className="features-page__cta-card">
+              <div className="features-page__cta-glow">
+                <div className="features-page__cta-glow-circle features-page__cta-glow-circle--top" />
+                <div className="features-page__cta-glow-circle features-page__cta-glow-circle--bottom" />
               </div>
 
-              <div className="relative z-10 text-center">
-                <Rocket className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              <div className="features-page__cta-content">
+                <Rocket className="features-page__cta-icon" />
+                <h2 className="features-page__cta-title">
                   Siap untuk Meningkatkan Penjualan Anda?
                 </h2>
-                <p className="text-white/90 mb-8 max-w-2xl mx-auto">
+                <p className="features-page__cta-subtitle">
                   Tutup lebih banyak deal. Mulai trial gratis!
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <button
-                    onClick={openFormModal}
-                    className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-primary font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
-                  >
+                <div className="features-page__cta-actions">
+                  <button onClick={openFormModal} className="features-page__cta-button">
                     Saya Tertarik
                   </button>
                 </div>
@@ -858,79 +799,73 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-200 bg-gray-50">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <footer className="features-page__footer">
+          <div className="features-page__container">
+            <div className="features-page__footer-grid">
               <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <Link to="/" className="flex items-center gap-2">
-                    <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="h-14 ml-[-10px]" />
+                <div className="features-page__footer-brand">
+                  <Link to="/" className="features-page__footer-logo">
+                    <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="features-page__footer-logo-img" />
                   </Link>
                 </div>
-                <p className="text-gray-600 text-sm">
+                <p className="features-page__footer-desc">
                   Platform CRM terbaik untuk profesional real estate dan sales di Indonesia.
                 </p>
               </div>
               <div>
-                <h4 className="text-gray-900 font-semibold mb-4">Produk</h4>
-                <ul className="space-y-2 text-gray-600 text-sm">
-                  <li><a href="#features" className="hover:text-gray-900 transition-colors">Fitur</a></li>
-                  <li><a href="#pricing" className="hover:text-gray-900 transition-colors">Harga</a></li>
+                <h4 className="features-page__footer-title">Produk</h4>
+                <ul className="features-page__footer-list">
+                  <li><a href="#features" className="features-page__footer-link">Fitur</a></li>
+                  <li><a href="#pricing" className="features-page__footer-link">Harga</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-gray-900 font-semibold mb-4">Perusahaan</h4>
-                <ul className="space-y-2 text-gray-600 text-sm">
-                  <li><a href="#faq" className="hover:text-gray-900 transition-colors">FAQ</a></li>
+                <h4 className="features-page__footer-title">Perusahaan</h4>
+                <ul className="features-page__footer-list">
+                  <li><a href="#faq" className="features-page__footer-link">FAQ</a></li>
                 </ul>
               </div>
             </div>
-            <div className="pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
+            <div className="features-page__footer-bottom">
               <p>&copy; {new Date().getFullYear()} SForce CRM. Dibuat dengan hati di Indonesia. Semua hak dilindungi.</p>
             </div>
           </div>
         </footer>
 
         {showFormModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              onClick={closeFormModal}
-            />
+          <div className="features-page__modal">
+            <div className="features-page__modal-backdrop" onClick={closeFormModal} />
 
-            <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-              <div className="bg-gradient-to-r from-primary to-primary-hover px-6 py-4">
-                <div className="flex items-center justify-between">
+            <div className="features-page__modal-panel">
+              <div className="features-page__modal-header">
+                <div className="features-page__modal-header-row">
                   <div>
-                    <h3 className="text-xl font-bold text-white">Saya Tertarik!</h3>
-                    <p className="text-white/80 text-sm">Kami akan menghubungi Anda segera</p>
+                    <h3 className="features-page__modal-title">Saya Tertarik!</h3>
+                    <p className="features-page__modal-subtitle">Kami akan menghubungi Anda segera</p>
                   </div>
-                  <button
-                    onClick={closeFormModal}
-                    className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
-                  >
-                    <CloseIcon className="w-5 h-5 text-white" />
+                  <button onClick={closeFormModal} className="features-page__modal-close">
+                    <CloseIcon className="features-page__modal-close-icon" />
                   </button>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {/* Honeypot field - hidden via Tailwind utility classes (replaces next/style jsx) */}
+              <form onSubmit={handleSubmit} className="features-page__modal-form">
+                {/* Honeypot field */}
                 <input
                   type="text"
                   name="website"
                   id="website"
                   value={formData.website}
                   onChange={handleFormChange}
-                  className="absolute left-[-9999px] w-px h-px overflow-hidden opacity-0"
+                  className="features-page__modal-honeypot"
                   tabIndex={-1}
                   autoComplete="off"
                   aria-hidden="true"
                 />
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email <span className="text-red-500">*</span>
+                  <label htmlFor="email" className="features-page__modal-label">
+                    Email <span className="features-page__modal-required">*</span>
                   </label>
                   <input
                     type="email"
@@ -940,15 +875,15 @@ export default function FeaturesPage() {
                     onChange={handleFormChange}
                     required
                     placeholder="nama@email.com"
-                    className={`w-full px-4 py-2.5 rounded-lg border ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'} focus:ring-2 outline-none transition-all`}
+                    className={`features-page__modal-input ${errors.email ? 'features-page__modal-input--error' : ''}`}
                     disabled={isSubmitting || submitSuccess}
                   />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  {errors.email && <p className="features-page__modal-error">{errors.email}</p>}
                 </div>
 
                 <div>
-                  <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 mb-1">
-                    No. WhatsApp <span className="text-red-500">*</span>
+                  <label htmlFor="whatsapp" className="features-page__modal-label">
+                    No. WhatsApp <span className="features-page__modal-required">*</span>
                   </label>
                   <input
                     type="tel"
@@ -958,14 +893,14 @@ export default function FeaturesPage() {
                     onChange={handleFormChange}
                     required
                     placeholder="08123456789"
-                    className={`w-full px-4 py-2.5 rounded-lg border ${errors.whatsapp ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'} focus:ring-2 outline-none transition-all`}
+                    className={`features-page__modal-input ${errors.whatsapp ? 'features-page__modal-input--error' : ''}`}
                     disabled={isSubmitting || submitSuccess}
                   />
-                  {errors.whatsapp && <p className="text-red-500 text-xs mt-1">{errors.whatsapp}</p>}
+                  {errors.whatsapp && <p className="features-page__modal-error">{errors.whatsapp}</p>}
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="message" className="features-page__modal-label">
                     Pesan
                   </label>
                   <textarea
@@ -976,10 +911,10 @@ export default function FeaturesPage() {
                     maxLength={200}
                     rows={3}
                     placeholder="Ceritakan kebutuhan Anda..."
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
+                    className="features-page__modal-textarea"
                     disabled={isSubmitting || submitSuccess}
                   />
-                  <div className="text-right text-xs text-gray-500 mt-1">
+                  <div className="features-page__modal-char-count">
                     {formData.message.length}/200
                   </div>
                 </div>
@@ -987,32 +922,32 @@ export default function FeaturesPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || submitSuccess}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-primary to-primary-hover hover:from-primary hover:to-primary-hover text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="features-page__modal-submit"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="features-page__modal-spinner" />
                       <span>Mengirim...</span>
                     </>
                   ) : submitSuccess ? (
                     <>
-                      <CheckCircle2 className="w-5 h-5" />
+                      <CheckCircle2 className="features-page__modal-submit-icon" />
                       <span>Berhasil Terkirim!</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
+                      <Send className="features-page__modal-submit-icon" />
                       <span>Kirim Pesan</span>
                     </>
                   )}
                 </button>
 
-                <p className="text-xs text-gray-500 text-center">
+                <p className="features-page__modal-note">
                   Data Anda aman dan akan kami gunakan untuk menghubungi Anda tentang produk kami.
                 </p>
 
                 {submitError && (
-                  <p className="text-sm text-red-500 text-center">{submitError}</p>
+                  <p className="features-page__modal-submit-error">{submitError}</p>
                 )}
               </form>
             </div>

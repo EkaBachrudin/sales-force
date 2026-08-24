@@ -1,0 +1,68 @@
+@reference "../../index.css";
+
+.conversion-metric-card {
+  @apply bg-white rounded-xl border border-border p-5 relative;
+}
+.conversion-metric-card__header {
+  @apply flex items-center gap-1 mb-1;
+}
+.conversion-metric-card__label {
+  @apply text-sm text-text-secondary;
+}
+.conversion-metric-card__tooltip {
+  @apply relative;
+}
+.conversion-metric-card__tooltip-trigger {
+  @apply text-text-secondary hover:text-text-primary transition-colors;
+}
+.conversion-metric-card__tooltip-icon {
+  @apply w-3.5 h-3.5;
+}
+.conversion-metric-card__tooltip-overlay {
+  @apply fixed inset-0 z-40;
+}
+.conversion-metric-card__tooltip-content {
+  @apply absolute top-6 z-50 w-72 max-w-[calc(100vw-2rem)] bg-text-primary text-white rounded-lg p-4 shadow-xl;
+}
+.conversion-metric-card__tooltip-content--left {
+  @apply left-0;
+}
+.conversion-metric-card__tooltip-content--right {
+  @apply right-0;
+}
+.conversion-metric-card__tooltip-title {
+  @apply font-semibold text-sm mb-2;
+}
+.conversion-metric-card__tooltip-description {
+  @apply text-xs text-white/70 mb-3;
+}
+.conversion-metric-card__tooltip-section {
+  @apply mb-2;
+}
+.conversion-metric-card__tooltip-section-label {
+  @apply text-xs font-medium text-white/50 mb-1;
+}
+.conversion-metric-card__tooltip-section-text {
+  @apply text-xs text-white/70;
+}
+.conversion-metric-card__value-row {
+  @apply flex items-baseline gap-1;
+}
+.conversion-metric-card__value {
+  @apply text-2xl font-bold text-text-primary;
+}
+.conversion-metric-card__unit {
+  @apply text-sm text-text-secondary;
+}
+.conversion-metric-card__trend {
+  @apply flex items-center gap-1 mt-2 text-xs font-medium;
+}
+.conversion-metric-card__trend--up {
+  @apply text-success;
+}
+.conversion-metric-card__trend--down {
+  @apply text-danger;
+}
+.conversion-metric-card__trend-icon {
+  @apply w-3.5 h-3.5;
+}

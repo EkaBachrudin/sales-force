@@ -1,0 +1,23 @@
+@reference "../../index.css";
+
+.lead-card {
+  @apply bg-white rounded-lg border border-border p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary active:scale-[0.98];
+}
+.lead-card--dragging {
+  @apply opacity-90 shadow-lg;
+}
+.lead-card__header {
+  @apply flex items-center justify-between mb-3;
+}
+.lead-card__time {
+  @apply text-[11px] text-text-secondary;
+}
+.lead-card__name {
+  @apply text-sm font-semibold text-text-primary mb-1;
+}
+.lead-card__follow-up {
+  @apply flex items-center gap-2 text-[11px] text-warning;
+}
+.lead-card__follow-up-icon {
+  @apply w-3.5 h-3.5 flex-shrink-0;
+}

@@ -1,0 +1,102 @@
+@reference "../index.css";
+
+.property-detail-page__loading {
+  @apply flex items-center justify-center h-64;
+}
+.property-detail-page__loading-text {
+  @apply text-sm text-text-secondary;
+}
+.property-detail-page__error {
+  @apply mb-4 p-4 bg-danger/5 border border-danger/40 rounded-lg;
+}
+.property-detail-page__error-text {
+  @apply text-sm text-danger;
+}
+.property-detail-page__back-icon {
+  @apply w-4 h-4;
+}
+.property-detail-page__success {
+  @apply mb-4 p-4 bg-success/10 border border-success/40 rounded-lg;
+}
+.property-detail-page__success-text {
+  @apply text-sm text-success;
+}
+.property-detail-page__form {
+  @apply space-y-6;
+}
+.property-detail-page__card {
+  @apply bg-white rounded-xl border border-border p-6;
+}
+.property-detail-page__card-title {
+  @apply text-lg font-semibold text-text-primary mb-6;
+}
+.property-detail-page__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-5;
+}
+.property-detail-page__column {
+  @apply space-y-5;
+}
+.property-detail-page__field-label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.property-detail-page__siteplan-error {
+  @apply mt-2 text-sm text-danger;
+}
+.property-detail-page__footer {
+  @apply mt-6 pt-4 border-t border-border;
+}
+
+.property-detail-page__blocks {
+  @apply bg-white rounded-xl border border-border p-6 mt-6;
+}
+.property-detail-page__blocks-header {
+  @apply flex items-center justify-between mb-6;
+}
+.property-detail-page__blocks-title {
+  @apply text-lg font-semibold text-text-primary;
+}
+.property-detail-page__add-block-icon {
+  @apply w-4 h-4;
+}
+.property-detail-page__blocks-empty {
+  @apply flex flex-col items-center justify-center py-12;
+}
+.property-detail-page__blocks-empty-icon {
+  @apply w-16 h-16 text-text-secondary mb-4;
+}
+.property-detail-page__blocks-empty-title {
+  @apply text-sm font-medium text-text-primary mb-2;
+}
+.property-detail-page__blocks-empty-text {
+  @apply text-xs text-text-secondary mb-4;
+}
+.property-detail-page__blocks-grid {
+  @apply flex flex-wrap gap-4;
+}
+.property-detail-page__block {
+  @apply max-w-[304px] w-full bg-white border border-border rounded-lg p-4;
+}
+.property-detail-page__block-name {
+  @apply text-sm font-semibold text-text-primary mb-1;
+}
+.property-detail-page__block-sub {
+  @apply text-xs text-text-secondary mb-3;
+}
+.property-detail-page__block-stats {
+  @apply mb-4;
+}
+.property-detail-page__block-count {
+  @apply text-2xl font-bold text-text-primary;
+}
+.property-detail-page__block-label {
+  @apply text-xs text-text-secondary;
+}
+.property-detail-page__block-actions {
+  @apply flex gap-2;
+}
+.property-detail-page__block-manage {
+  @apply flex-1;
+}
+.property-detail-page__block-icon {
+  @apply w-4 h-4;
+}

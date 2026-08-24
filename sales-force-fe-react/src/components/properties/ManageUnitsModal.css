@@ -1,0 +1,80 @@
+@reference "../../index.css";
+
+.manage-units-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-40 transition-opacity duration-300;
+}
+.manage-units-modal__overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+}
+.manage-units-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col;
+}
+.manage-units-modal__header {
+  @apply p-6 border-b border-border;
+}
+.manage-units-modal__header-row {
+  @apply flex items-start justify-between;
+}
+.manage-units-modal__title {
+  @apply text-xl font-semibold text-text-primary;
+}
+.manage-units-modal__property {
+  @apply text-sm font-medium text-text-secondary mt-1;
+}
+.manage-units-modal__add-icon {
+  @apply w-4 h-4;
+}
+.manage-units-modal__content {
+  @apply overflow-y-auto flex-1 p-6;
+}
+.manage-units-modal__block {
+  @apply mb-4;
+}
+.manage-units-modal__block-name {
+  @apply text-xl font-medium text-text-primary;
+}
+.manage-units-modal__loading {
+  @apply flex items-center justify-center py-12;
+}
+.manage-units-modal__loading-text {
+  @apply text-sm text-text-secondary;
+}
+.manage-units-modal__empty {
+  @apply flex flex-col items-center justify-center py-12;
+}
+.manage-units-modal__empty-title {
+  @apply text-base font-medium text-text-primary mb-2;
+}
+.manage-units-modal__empty-text {
+  @apply text-sm text-text-secondary;
+}
+.manage-units-modal__list {
+  @apply space-y-3;
+}
+.manage-units-modal__unit {
+  @apply w-full bg-white border border-border rounded-lg p-4 hover:border-border transition-colors;
+}
+.manage-units-modal__unit-row {
+  @apply flex items-center justify-between;
+}
+.manage-units-modal__unit-info {
+  @apply flex-1;
+}
+.manage-units-modal__unit-name {
+  @apply text-base font-semibold text-text-primary mb-2;
+}
+.manage-units-modal__unit-meta {
+  @apply flex items-center gap-4 text-sm text-text-secondary;
+}
+.manage-units-modal__unit-actions {
+  @apply flex items-center gap-2 ml-4;
+}
+.manage-units-modal__unit-action-icon {
+  @apply w-4 h-4;
+}
+.manage-units-modal__footer {
+  @apply flex items-center justify-between p-6 border-t border-border;
+}
+.manage-units-modal__delete-icon {
+  @apply w-4 h-4;
+}

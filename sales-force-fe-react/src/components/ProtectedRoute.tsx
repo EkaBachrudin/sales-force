@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import './ProtectedRoute.css';
 
 interface ProtectedRouteProps {
   roles?: string[];
@@ -11,8 +12,8 @@ export function ProtectedRoute({ roles }: ProtectedRouteProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="protected-route__loading">
+        <div className="protected-route__spinner"></div>
       </div>
     );
   }

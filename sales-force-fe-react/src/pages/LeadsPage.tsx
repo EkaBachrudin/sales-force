@@ -14,6 +14,7 @@ import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { useProperties } from '@/hooks/useProperties';
 import { useLeads, useLeadMutations, type LeadsFilters as UseLeadsFilters } from '@/hooks/useLeads';
 import { useDebounce } from '@/hooks/useDebounce';
+import './LeadsPage.css';
 
 const stageVariantMap: Record<string, 'gray' | 'blue' | 'purple' | 'orange' | 'green' | 'red'> = {
   new: 'gray',
@@ -213,35 +214,35 @@ export default function LeadsPage() {
         title="Leads"
         subtitle={leadsData ? `Total ${leadsData.total ?? 0} leads` : 'Loading...'}
         action={
-          <div className="flex items-center gap-3">
+          <div className="leads-page__action">
             <Button
               variant="secondary"
-              leftIcon={<Download className="w-4 h-4" />}
+              leftIcon={<Download className="leads-page__action-icon" />}
               onClick={handleExport}
               isLoading={isExporting}
             >
               Export
             </Button>
-            <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)}>
+            <Button leftIcon={<Plus className="leads-page__action-icon" />} onClick={() => setIsNewLeadModalOpen(true)}>
               Add Lead
             </Button>
           </div>
         }
       >
         {/* Filters */}
-        <div className="flex flex-col gap-3 mb-6 p-4 bg-white rounded-xl border border-border">
+        <div className="leads-page__filters">
           {/* Search and Stage - Mobile: stacked, Tablet+: side by side */}
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
-            <div className="w-full">
+          <div className="leads-page__filters-row">
+            <div className="leads-page__search">
               <Input
                 placeholder="Search by name, phone, or email..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                leftIcon={<Search className="w-4 h-4" />}
+                leftIcon={<Search className="leads-page__search-icon" />}
               />
             </div>
             <Combobox
-              className="sm:w-auto sm:min-w-[180px]"
+              className="leads-page__stage-combobox"
               multiple
               options={stageOptions}
               value={filters.stage === 'all' ? [] : filters.stage.split(',')}
@@ -255,7 +256,7 @@ export default function LeadsPage() {
           </div>
 
           {/* Property, Source, and Date Range - Mobile: stacked, Tablet+: grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="leads-page__filters-grid">
             <Combobox
               options={properties?.map((property) => ({ value: property.id, label: property.name })) ?? []}
               value={filters.propertyType === 'all' ? '' : filters.propertyType}
@@ -276,32 +277,32 @@ export default function LeadsPage() {
 
             <button
               onClick={() => setShowDateRange(!showDateRange)}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary flex items-center justify-center sm:justify-start gap-2 hover:bg-gray-50"
+              className="leads-page__date-toggle"
             >
-              <Calendar className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">{showDateRange ? 'Hide' : 'Show'} Date Range</span>
+              <Calendar className="leads-page__date-icon" />
+              <span className="leads-page__date-toggle-text">{showDateRange ? 'Hide' : 'Show'} Date Range</span>
             </button>
           </div>
 
           {/* Date Range Inputs */}
           {showDateRange && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start sm:items-end">
-              <div className="w-full">
-                <label className="block text-xs text-text-secondary mb-1">From Date</label>
+            <div className="leads-page__date-range">
+              <div className="leads-page__date-field">
+                <label className="leads-page__date-label">From Date</label>
                 <input
                   type="date"
                   value={formatDateForInput(filters.dateFrom)}
                   onChange={(e) => updateFilter('dateFrom', e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
+                  className="leads-page__date-input"
                 />
               </div>
-              <div className="w-full">
-                <label className="block text-xs text-text-secondary mb-1">To Date</label>
+              <div className="leads-page__date-field">
+                <label className="leads-page__date-label">To Date</label>
                 <input
                   type="date"
                   value={formatDateForInput(filters.dateTo)}
                   onChange={(e) => updateFilter('dateTo', e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary"
+                  className="leads-page__date-input"
                 />
               </div>
               <button
@@ -310,7 +311,7 @@ export default function LeadsPage() {
                   setShowDateRange(false);
                   setSearchParams(new URLSearchParams(), { replace: true });
                 }}
-                className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary hover:bg-gray-50"
+                className="leads-page__reset"
               >
                 Reset Filters
               </button>
@@ -319,32 +320,28 @@ export default function LeadsPage() {
         </div>
 
         {/* Leads Table */}
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <div className="leads-page__table-container">
           {isLoadingLeads ? (
-            <div className="px-4 py-8 text-center text-sm text-text-secondary">
-              Loading leads...
-            </div>
+            <div className="leads-page__loading">Loading leads...</div>
           ) : (
             <>
               {/* Card Layout for Mobile/Tablet, Table for Desktop */}
-              <div className="block lg:hidden">
+              <div className="leads-page__mobile">
                 {/* Mobile/Tablet Card View */}
-                <div className="divide-y divide-[var(--border)]">
+                <div className="leads-page__list">
                   {!leadsData?.data || leadsData.data.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-sm text-text-secondary">
-                      No leads found
-                    </div>
+                    <div className="leads-page__empty">No leads found</div>
                   ) : (
                     leadsData.data.map((lead) => (
                       <div
                         key={lead.id}
-                        className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                        className="leads-page__mobile-card"
                         onClick={() => handleLeadClick(lead)}
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-sm font-semibold text-text-primary truncate">{lead.name}</h3>
+                        <div className="leads-page__mobile-card-row">
+                          <div className="leads-page__mobile-card-info">
+                            <div className="leads-page__name-row">
+                              <h3 className="leads-page__name">{lead.name}</h3>
                               <Badge variant={stageVariantMap[lead.status]} size="sm">
                                 {stageLabels[lead.status as PipelineStage]}
                               </Badge>
@@ -352,31 +349,31 @@ export default function LeadsPage() {
                             <a
                               href={`tel:${lead.phone}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary mb-2"
+                              className="leads-page__phone"
                             >
-                              <Phone className="w-3 h-3" />
+                              <Phone className="leads-page__phone-icon" />
                               {formatPhone(lead.phone)}
                             </a>
-                            <div className="space-y-1">
-                              <p className="text-sm text-text-primary">
-                                <span className="text-text-secondary">Property:</span> {lead.property ? lead.property.name : '-'}
+                            <div className="leads-page__details">
+                              <p className="leads-page__property">
+                                <span className="leads-page__property-label">Property:</span> {lead.property ? lead.property.name : '-'}
                               </p>
                               {lead.source && (
-                                <p className="text-xs text-text-secondary">via {lead.source}</p>
+                                <p className="leads-page__source">via {lead.source}</p>
                               )}
-                              <p className="text-xs text-text-secondary">{formatRelativeTime(lead.created_at)}</p>
+                              <p className="leads-page__time">{formatRelativeTime(lead.created_at)}</p>
                             </div>
                           </div>
-                          <div className="flex flex-col gap-1">
+                          <div className="leads-page__mobile-actions">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 window.open(`https://wa.me/${lead.phone.replace(/\D/g, '')}`, '_blank');
                               }}
-                              className="p-2 rounded hover:bg-green-50 text-gray-400 hover:text-green-600 transition-colors"
+                              className="leads-page__action-btn leads-page__action-btn--whatsapp"
                               title="WhatsApp"
                             >
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                              <svg className="leads-page__mobile-action-icon" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                               </svg>
                             </button>
@@ -385,20 +382,20 @@ export default function LeadsPage() {
                                 e.stopPropagation();
                                 window.location.href = `tel:${lead.phone}`;
                               }}
-                              className="p-2 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
+                              className="leads-page__action-btn leads-page__action-btn--call"
                               title="Call"
                             >
-                              <Phone className="w-5 h-5" />
+                              <Phone className="leads-page__mobile-action-icon" />
                             </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteClick(lead);
                               }}
-                              className="p-2 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                              className="leads-page__action-btn leads-page__action-btn--delete"
                               title="Delete"
                             >
-                              <Trash2 className="w-5 h-5" />
+                              <Trash2 className="leads-page__mobile-action-icon" />
                             </button>
                           </div>
                         </div>
@@ -409,31 +406,21 @@ export default function LeadsPage() {
               </div>
 
               {/* Desktop Table View */}
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
+              <div className="leads-page__desktop">
+                <table className="leads-page__table">
                   <thead>
-                    <tr className="border-b border-border bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Lead
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Property
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Stage
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Created
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                        Actions
-                      </th>
+                    <tr className="leads-page__table-head">
+                      <th className="leads-page__th">Lead</th>
+                      <th className="leads-page__th">Property</th>
+                      <th className="leads-page__th">Stage</th>
+                      <th className="leads-page__th">Created</th>
+                      <th className="leads-page__th leads-page__th--right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--border)]">
+                  <tbody className="leads-page__table-body">
                     {!leadsData?.data || leadsData.data.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-4 py-8 text-center text-sm text-text-secondary">
+                        <td colSpan={5} className="leads-page__empty">
                           No leads found
                         </td>
                       </tr>
@@ -441,49 +428,49 @@ export default function LeadsPage() {
                       leadsData.data.map((lead) => (
                         <tr
                           key={lead.id}
-                          className="hover:bg-gray-50 cursor-pointer transition-colors"
+                          className="leads-page__table-row"
                           onClick={() => handleLeadClick(lead)}
                         >
-                          <td className="px-4 py-3">
+                          <td className="leads-page__td">
                             <div>
-                              <p className="text-sm font-medium text-text-primary">{lead.name}</p>
-                              <div className="flex items-center gap-2 mt-0.5">
+                              <p className="leads-page__table-name">{lead.name}</p>
+                              <div className="leads-page__table-name-row">
                                 <a
                                   href={`tel:${lead.phone}`}
                                   onClick={(e) => e.stopPropagation()}
-                                  className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary"
+                                  className="leads-page__phone"
                                 >
-                                  <Phone className="w-3 h-3" />
+                                  <Phone className="leads-page__phone-icon" />
                                   {formatPhone(lead.phone)}
                                 </a>
                               </div>
                             </div>
                           </td>
-                          <td className="px-4 py-3">
-                            <p className="text-sm text-text-primary">{lead.unit ? lead.unit.name : '-'}</p>
+                          <td className="leads-page__td">
+                            <p className="leads-page__table-property">{lead.unit ? lead.unit.name : '-'}</p>
                             {lead.source && (
-                              <p className="text-xs text-text-secondary mt-0.5">via {lead.source}</p>
+                              <p className="leads-page__source">via {lead.source}</p>
                             )}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="leads-page__td">
                             <Badge variant={stageVariantMap[lead.status]} size="lg">
                               {stageLabels[lead.status as PipelineStage]}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3">
-                            <p className="text-sm text-text-secondary">{formatRelativeTime(lead.created_at)}</p>
+                          <td className="leads-page__td">
+                            <p className="leads-page__time">{formatRelativeTime(lead.created_at)}</p>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-end gap-1">
+                          <td className="leads-page__td">
+                            <div className="leads-page__table-actions">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   window.open(`https://wa.me/${lead.phone.replace(/\D/g, '')}`, '_blank');
                                 }}
-                                className="p-1.5 rounded hover:bg-green-50 text-gray-400 hover:text-green-600 transition-colors"
+                                className="leads-page__action-btn leads-page__action-btn--whatsapp leads-page__action-btn--table"
                                 title="WhatsApp"
                               >
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <svg className="leads-page__table-action-icon" viewBox="0 0 24 24" fill="currentColor">
                                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                                 </svg>
                               </button>
@@ -492,20 +479,20 @@ export default function LeadsPage() {
                                   e.stopPropagation();
                                   window.location.href = `tel:${lead.phone}`;
                                 }}
-                                className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
+                                className="leads-page__action-btn leads-page__action-btn--call leads-page__action-btn--table"
                                 title="Call"
                               >
-                                <Phone className="w-4 h-4" />
+                                <Phone className="leads-page__table-action-icon" />
                               </button>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDeleteClick(lead);
                                 }}
-                                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                                className="leads-page__action-btn leads-page__action-btn--delete leads-page__action-btn--table"
                                 title="Delete"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="leads-page__table-action-icon" />
                               </button>
                             </div>
                           </td>
@@ -518,30 +505,30 @@ export default function LeadsPage() {
 
               {/* Pagination */}
               {leadsData && (leadsData.total ?? 0) > 0 && leadsData.totalPages && leadsData.totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
-                  <div className="text-xs sm:text-sm text-text-secondary text-center sm:text-left">
+                <div className="leads-page__pagination">
+                  <div className="leads-page__pagination-info">
                     Showing {Math.min((currentPage - 1) * pageSize + 1, leadsData.total ?? 0)} to{' '}
                     {Math.min(currentPage * pageSize, leadsData.total ?? 0)} of {leadsData.total ?? 0} leads
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="leads-page__pagination-buttons">
                     <button
                       onClick={() => setPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="leads-page__page-btn"
                       aria-label="Previous page"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="leads-page__page-btn-icon" />
                     </button>
-                    <span className="text-xs sm:text-sm text-text-secondary whitespace-nowrap">
+                    <span className="leads-page__page-indicator">
                       {currentPage} / {leadsData.totalPages}
                     </span>
                     <button
                       onClick={() => setPage(Math.min(leadsData.totalPages || 1, currentPage + 1))}
                       disabled={currentPage === leadsData.totalPages}
-                      className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="leads-page__page-btn"
                       aria-label="Next page"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="leads-page__page-btn-icon" />
                     </button>
                   </div>
                 </div>
@@ -560,23 +547,24 @@ export default function LeadsPage() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setDeleteConfirmLead(null)} />
-          <div className="relative bg-white rounded-xl shadow-lg max-w-md w-full mx-4 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 rounded-full bg-red-100">
-                <Trash2 className="w-6 h-6 text-red-600" />
+        <div className="leads-page__delete-modal">
+          <div className="leads-page__delete-modal-backdrop" onClick={() => setDeleteConfirmLead(null)} />
+          <div className="leads-page__delete-modal-panel">
+            <div className="leads-page__delete-modal-heading">
+              <div className="leads-page__delete-modal-icon">
+                <Trash2 className="leads-page__delete-modal-icon-svg" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-text-primary">Delete Lead</h3>
-                <p className="text-sm text-text-secondary">This action cannot be undone</p>
+                <h3 className="leads-page__delete-modal-title">Delete Lead</h3>
+                <p className="leads-page__delete-modal-subtitle">This action cannot be undone</p>
               </div>
             </div>
-            <p className="text-sm text-text-secondary mb-6">
-              Are you sure you want to delete <span className="font-semibold text-text-primary">{deleteConfirmLead.name}</span>?
+            <p className="leads-page__delete-modal-message">
+              Are you sure you want to delete{' '}
+              <span className="leads-page__delete-modal-highlight">{deleteConfirmLead.name}</span>?
               This will permanently remove this lead and all associated activities and reminders.
             </p>
-            <div className="flex gap-3 justify-end">
+            <div className="leads-page__delete-modal-actions">
               <Button
                 variant="secondary"
                 onClick={() => setDeleteConfirmLead(null)}
@@ -584,11 +572,7 @@ export default function LeadsPage() {
               >
                 Cancel
               </Button>
-              <Button
-                variant="danger"
-                onClick={handleDeleteConfirm}
-                isLoading={isDeleting}
-              >
+              <Button variant="danger" onClick={handleDeleteConfirm} isLoading={isDeleting}>
                 Delete Lead
               </Button>
             </div>

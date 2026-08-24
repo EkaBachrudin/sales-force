@@ -1,0 +1,117 @@
+@reference "../../index.css";
+
+.new-lead-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-40 transition-opacity duration-300;
+}
+.new-lead-modal__overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+}
+.new-lead-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-150 max-h-[90vh] overflow-hidden flex flex-col;
+}
+.new-lead-modal__header {
+  @apply flex items-center justify-between p-6 border-b border-border;
+}
+.new-lead-modal__title {
+  @apply text-xl font-semibold text-text-primary;
+}
+.new-lead-modal__close {
+  @apply p-2 rounded-lg hover:bg-neutral-soft transition-colors;
+}
+.new-lead-modal__close-icon {
+  @apply w-5 h-5;
+}
+.new-lead-modal__content {
+  @apply overflow-y-auto flex-1 p-4 sm:p-6;
+}
+.new-lead-modal__form {
+  @apply space-y-6;
+}
+
+.new-lead-modal__section-title {
+  @apply text-sm font-semibold text-text-primary mb-4 flex items-center gap-2;
+}
+.new-lead-modal__section-accent {
+  @apply w-1 h-4 rounded-full;
+}
+.new-lead-modal__section-accent--primary {
+  @apply bg-primary;
+}
+.new-lead-modal__section-accent--success {
+  @apply bg-success;
+}
+.new-lead-modal__section-accent--warning {
+  @apply bg-warning;
+}
+.new-lead-modal__section-accent--reserved {
+  @apply bg-status-reserved;
+}
+.new-lead-modal__section-body {
+  @apply space-y-3 pl-1 sm:pl-3;
+}
+.new-lead-modal__field-label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.new-lead-modal__textarea {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none;
+}
+.new-lead-modal__char-count {
+  @apply text-xs text-text-secondary mt-1 text-right;
+}
+.new-lead-modal__budget-grid {
+  @apply grid grid-cols-2 gap-3 pl-1 sm:pl-3;
+}
+.new-lead-modal__currency-wrapper {
+  @apply relative;
+}
+.new-lead-modal__currency-prefix {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-secondary;
+}
+.new-lead-modal__currency-input {
+  @apply w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
+}
+.new-lead-modal__input {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary;
+}
+.new-lead-modal__input-with-prefix {
+  @apply w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary;
+}
+.new-lead-modal__grid {
+  @apply grid grid-cols-2 gap-3;
+}
+.new-lead-modal__collapsible {
+  @apply rounded-xl overflow-hidden;
+}
+.new-lead-modal__toggle {
+  @apply w-full flex items-center justify-between hover:bg-background transition-colors mb-3;
+}
+.new-lead-modal__toggle-title {
+  @apply text-sm font-semibold text-text-primary flex items-center gap-2 flex-wrap;
+}
+.new-lead-modal__toggle-icon {
+  @apply w-4 h-4 text-warning;
+}
+.new-lead-modal__toggle-icon--reserved {
+  @apply text-status-reserved;
+}
+.new-lead-modal__optional {
+  @apply text-xs font-normal text-text-secondary;
+}
+.new-lead-modal__toggle-state {
+  @apply text-xs text-text-secondary;
+}
+.new-lead-modal__collapsible-body {
+  @apply p-4 bg-background space-y-3;
+}
+.new-lead-modal__result {
+  @apply text-center p-3 bg-primary/10 rounded-lg;
+}
+.new-lead-modal__result-label {
+  @apply text-sm text-text-secondary;
+}
+.new-lead-modal__result-value {
+  @apply text-2xl font-bold text-primary;
+}
+.new-lead-modal__footer {
+  @apply flex items-center justify-end gap-3 p-6 border-t border-border;
+}

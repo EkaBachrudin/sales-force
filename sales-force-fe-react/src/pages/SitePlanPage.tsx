@@ -6,6 +6,7 @@ import { UnitsDrawer } from '@/components/properties/UnitsDrawer';
 import { UnitDetailDrawer } from '@/components/properties/UnitDetailDrawer';
 import { updateSvgTextContent } from '@/lib/svgUtils';
 import { usePanZoom } from '@/hooks/usePanZoom';
+import './SitePlanPage.css';
 
 export default function SitePlanPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +22,7 @@ export default function SitePlanPage() {
   const mouseDownTargetRef = useRef<Element | null>(null);
   const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
   const touchStartTargetRef = useRef<Element | null>(null);
-  
+
   const { data, isLoading, error } = usePropertySiteplan(id || '');
 
   useEffect(() => {
@@ -36,10 +37,10 @@ export default function SitePlanPage() {
 
   const enhancedSvg = useMemo(() => {
     if (!svgContent || !data) return null;
-    
+
     const parser = new DOMParser();
     const doc = parser.parseFromString(svgContent, 'image/svg+xml');
-    
+
     const style = doc.createElement('style');
     style.textContent = `
       * {
@@ -65,7 +66,7 @@ export default function SitePlanPage() {
         cursor: pointer;
         transition: fill 0.1s ease;
       }
-      
+
       .unit-element:hover [id^="unitline"] ~ text {
         fill: white;
       }
@@ -105,10 +106,10 @@ export default function SitePlanPage() {
       .unit-status-booked [id^="unitline"] ~ text {
         fill: white;
       }
-        
+
     `;
     doc.documentElement.prepend(style);
-    
+
     data.units.forEach((unit: { id: string; name: string; land_area?: number; status: string }) => {
       const element = doc.getElementById(unit.name);
       if (element) {
@@ -157,7 +158,7 @@ export default function SitePlanPage() {
         console.log(`No SVG element found for unit: ${unit.name}`);
       }
     });
-    
+
     return doc.documentElement.outerHTML;
   }, [svgContent, data]);
 
@@ -286,29 +287,24 @@ export default function SitePlanPage() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="site-plan-page__loading">
+        <div className="site-plan-page__spinner"></div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="fixed inset-0 bg-gray-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl p-6 max-w-md text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MapIcon className="w-8 h-8 text-red-600" />
+      <div className="site-plan-page__error">
+        <div className="site-plan-page__error-card">
+          <div className="site-plan-page__error-icon">
+            <MapIcon className="site-plan-page__error-icon-svg" />
           </div>
-          <h2 className="text-lg font-semibold text-text-primary mb-2">
-            Failed to load siteplan
-          </h2>
-          <p className="text-sm text-text-secondary mb-4">
+          <h2 className="site-plan-page__error-title">Failed to load siteplan</h2>
+          <p className="site-plan-page__error-text">
             {error instanceof Error ? error.message : 'An error occurred while loading the siteplan.'}
           </p>
-          <button
-            onClick={() => navigate('/properties')}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-          >
+          <button onClick={() => navigate('/properties')} className="site-plan-page__back-button">
             Back to Properties
           </button>
         </div>
@@ -317,29 +313,29 @@ export default function SitePlanPage() {
   }
 
   return (
-    <div className="fixed inset-0">
+    <div className="site-plan-page">
       {/* Floating Menu */}
-      <div className="fixed top-4 left-4 z-50 bg-white rounded-lg shadow-md p-3 flex items-center gap-4 min-w-[280px] max-w-[400px]">
+      <div className="site-plan-page__menu">
         <button
           onClick={handleLeftMenuClick}
-          className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="site-plan-page__menu-button"
           title="Main sidebar"
         >
-          <ArrowLeft className="w-5 h-5 text-gray-600 hover:text-primary transition-colors" />
+          <ArrowLeft className="site-plan-page__menu-icon" />
         </button>
 
-        <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-medium text-text-primary truncate" title={data?.property.name}>
+        <div className="site-plan-page__menu-title-wrapper">
+          <h1 className="site-plan-page__menu-title" title={data?.property.name}>
             {data?.property.name}
           </h1>
         </div>
 
         <button
           onClick={handleRightMenuClick}
-          className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="site-plan-page__menu-button"
           title="Block details sidebar"
         >
-          <div className="w-5 h-5 text-gray-600">
+          <div className="site-plan-page__menu-icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M0 2.97515C0 1.33202 1.33202 0 2.97515 0H16.8592C18.5023 0 19.8344 1.33202 19.8344 2.97515V16.8592C19.8344 18.5023 18.5023 19.8344 16.8592 19.8344H2.97515C1.33202 19.8344 0 18.5023 0 16.8592V2.97515ZM6.94203 17.8509H16.8592C17.4069 17.8509 17.8509 17.4069 17.8509 16.8592V2.97515C17.8509 2.42744 17.4069 1.98344 16.8592 1.98344H6.94203V17.8509ZM4.95859 1.98344V17.8509H2.97515C2.42744 17.8509 1.98344 17.4069 1.98344 16.8592V2.97515C1.98344 2.42744 2.42744 1.98344 2.97515 1.98344H4.95859Z" fill="currentColor"/>
             </svg>
@@ -348,18 +344,18 @@ export default function SitePlanPage() {
       </div>
 
       {/* Siteplan Image */}
-      <div className="w-full h-full">
+      <div className="site-plan-page__content">
         {enhancedSvg ? (
           <div
             ref={containerRef}
             onWheel={onWheel}
             onMouseDown={handleContainerMouseDown}
             onMouseUp={handleContainerMouseUp}
-            className="relative w-full h-full overflow-hidden select-none touch-none cursor-grab"
+            className="site-plan-page__pan"
           >
             <div
               ref={contentRef}
-              className="absolute top-0 left-0"
+              className="site-plan-page__svg"
               style={{
                 transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
                 transformOrigin: '0 0',
@@ -369,10 +365,10 @@ export default function SitePlanPage() {
             />
           </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-            <div className="text-center">
-              <MapIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-sm text-text-secondary">No siteplan image available</p>
+          <div className="site-plan-page__empty">
+            <div className="site-plan-page__empty-inner">
+              <MapIcon className="site-plan-page__empty-icon" />
+              <p className="site-plan-page__empty-text">No siteplan image available</p>
             </div>
           </div>
         )}
@@ -398,35 +394,34 @@ export default function SitePlanPage() {
       />
 
       {enhancedSvg && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-gray-200 p-1 flex items-center gap-0.5">
+        <div className="site-plan-page__zoom">
           <button
             onClick={zoomOut}
-            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md transition-colors text-gray-700"
+            className="site-plan-page__zoom-button"
             title="Zoom out"
           >
-            <Minus className="w-4 h-4" />
+            <Minus className="site-plan-page__zoom-icon" />
           </button>
-          <span className="text-xs font-medium text-gray-600 min-w-[44px] text-center select-none tabular-nums">
+          <span className="site-plan-page__zoom-label">
             {Math.round(scale * 100)}%
           </span>
           <button
             onClick={zoomIn}
-            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md transition-colors text-gray-700"
+            className="site-plan-page__zoom-button"
             title="Zoom in"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="site-plan-page__zoom-icon" />
           </button>
-          <div className="w-px h-4 bg-gray-200 mx-1" />
+          <div className="site-plan-page__zoom-divider" />
           <button
             onClick={resetTransform}
-            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md transition-colors text-gray-700"
+            className="site-plan-page__zoom-button"
             title="Reset view"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="site-plan-page__zoom-icon" />
           </button>
         </div>
       )}
-
     </div>
   );
 }

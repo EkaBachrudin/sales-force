@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import './ReasonDialogModal.css';
 
 export interface ReasonDialogModalProps {
   isOpen: boolean;
@@ -51,32 +52,26 @@ export function ReasonDialogModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="reason-dialog">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="reason-dialog__backdrop" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="reason-dialog__modal">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <div className="reason-dialog__header">
+          <h3 className="reason-dialog__title">{title}</h3>
           <button
             onClick={onClose}
             disabled={isLoading}
-            className={cn(
-              "p-1 rounded-lg hover:bg-gray-100 transition-colors",
-              isLoading && "opacity-50 cursor-not-allowed"
-            )}
+            className={cn('reason-dialog__close', isLoading && 'reason-dialog__close--disabled')}
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="reason-dialog__close-icon" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-4">
+        <div className="reason-dialog__body">
           <textarea
             ref={textareaRef}
             value={reason}
@@ -85,44 +80,26 @@ export function ReasonDialogModal({
             placeholder={placeholder}
             disabled={isLoading}
             rows={4}
-            className={cn(
-              "w-full px-3 py-2 border border-gray-300 rounded-lg resize-none",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "text-sm text-gray-900 placeholder-gray-400"
-            )}
+            className="reason-dialog__textarea"
           />
-          <p className="mt-2 text-xs text-gray-500">
-            Tekan Ctrl/Cmd + Enter untuk konfirmasi
-          </p>
+          <p className="reason-dialog__hint">Tekan Ctrl/Cmd + Enter untuk konfirmasi</p>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 p-4 border-t border-gray-200 bg-gray-50">
+        <div className="reason-dialog__footer">
           <button
             onClick={onClose}
             disabled={isLoading}
-            className={cn(
-              "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-              "text-gray-700 hover:bg-gray-200",
-              isLoading && "opacity-50 cursor-not-allowed"
-            )}
+            className={cn('reason-dialog__cancel', isLoading && 'reason-dialog__cancel--disabled')}
           >
             Batal
           </button>
           <button
             onClick={handleConfirm}
             disabled={!reason.trim() || isLoading}
-            className={cn(
-              "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-              "bg-blue-600 text-white hover:bg-blue-700",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex items-center gap-2"
-            )}
+            className="reason-dialog__confirm"
           >
-            {isLoading && (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            )}
+            {isLoading && <div className="reason-dialog__spinner" />}
             Konfirmasi
           </button>
         </div>

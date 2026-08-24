@@ -4,6 +4,7 @@ import { LeadCard } from './LeadCard';
 import type { Lead, PipelineStage } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { GripVertical, Loader2 } from 'lucide-react';
+import './KanbanBoard.css';
 
 export type { Lead, PipelineStage };
 
@@ -25,23 +26,23 @@ const stageConfig: Record<PipelineStage, { label: string; color: PipelineColumn[
 };
 
 const colorStyles = {
-  gray: 'bg-gray-50 border-gray-200',
-  blue: 'bg-blue-50 border-blue-200',
-  purple: 'bg-purple-50 border-purple-200',
-  orange: 'bg-orange-50 border-orange-200',
-  teal: 'bg-cyan-50 border-cyan-200',
-  green: 'bg-green-50 border-green-200',
-  red: 'bg-red-50 border-red-200',
+  gray: 'kanban-board__column--gray',
+  blue: 'kanban-board__column--blue',
+  purple: 'kanban-board__column--purple',
+  orange: 'kanban-board__column--orange',
+  teal: 'kanban-board__column--teal',
+  green: 'kanban-board__column--green',
+  red: 'kanban-board__column--red',
 };
 
 const headerColorStyles = {
-  gray: 'text-gray-700 bg-gray-100',
-  blue: 'text-blue-700 bg-blue-100',
-  purple: 'text-purple-700 bg-purple-100',
-  orange: 'text-orange-700 bg-orange-100',
-  teal: 'text-cyan-700 bg-cyan-100',
-  green: 'text-green-700 bg-green-100',
-  red: 'text-red-700 bg-red-100',
+  gray: 'kanban-board__column-label--gray',
+  blue: 'kanban-board__column-label--blue',
+  purple: 'kanban-board__column-label--purple',
+  orange: 'kanban-board__column-label--orange',
+  teal: 'kanban-board__column-label--teal',
+  green: 'kanban-board__column-label--green',
+  red: 'kanban-board__column-label--red',
 };
 
 // Custom type for drag data
@@ -296,7 +297,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
       if (!targetStage) {
         // Get all pipeline stage columns by checking their color classes or structure
         const columnContainers = Array.from(
-          document.querySelectorAll('.flex-shrink-0.w-80')
+          document.querySelectorAll('.kanban-board__column')
         );
 
         for (const container of columnContainers) {
@@ -375,7 +376,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
     // If not found, check column containers
     if (!targetStage) {
       const columnContainers = Array.from(
-        document.querySelectorAll('.flex-shrink-0.w-80')
+        document.querySelectorAll('.kanban-board__column')
       );
 
       for (const container of columnContainers) {
@@ -482,50 +483,41 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
   }, [onStageChange]);
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('kanban-board', className)}>
       {/* Board Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-text-primary">
-          Pipeline
-        </h2>
-        <div className="flex items-center gap-2">
-          <button className="px-3 py-1.5 text-sm text-text-secondary hover:text-text-primary border border-border rounded-lg hover:bg-gray-50 transition-colors">
-            Board
-          </button>
+      <div className="kanban-board__header">
+        <h2 className="kanban-board__title">Pipeline</h2>
+        <div className="kanban-board__header-actions">
+          <button className="kanban-board__board-button">Board</button>
         </div>
       </div>
 
       {/* Kanban Columns */}
-      <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto pb-4 p-2">
+      <div ref={scrollContainerRef} className="kanban-board__columns">
         {columns.map((column) => {
           const isDraggedOver = draggedOverStage === column.id;
           return (
             <div
               key={column.id}
               className={cn(
-                'flex-shrink-0 w-80 rounded-xl border p-4 min-h-[500px] transition-all',
+                'kanban-board__column',
                 colorStyles[column.color],
-                isDraggedOver && 'ring-4 ring-blue-400 ring-opacity-50 scale-[1.01] shadow-lg'
+                isDraggedOver && 'kanban-board__column--dragged-over'
               )}
               onDragOver={(e) => handleDragOver(e, column.id)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, column.id)}
             >
             {/* Column Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className={cn(
-                'px-2.5 py-1 rounded-full text-xs font-semibold',
-                headerColorStyles[column.color]
-              )}>
+            <div className="kanban-board__column-header">
+              <div className={cn('kanban-board__column-label', headerColorStyles[column.color])}>
                 {column.label}
               </div>
-              <span className="text-sm font-medium text-text-secondary">
-                {column.leads.length}
-              </span>
+              <span className="kanban-board__column-count">{column.leads.length}</span>
             </div>
 
             {/* Leads List */}
-            <div className="space-y-3" data-stage={column.id}>
+            <div className="kanban-board__leads" data-stage={column.id}>
 
               {column.leads.map((lead) => {
                 const isDragging = draggedLeadId === lead.id;
@@ -535,15 +527,9 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
                     {/* Lead Card */}
                     <div
                       data-lead-id={lead.id}
-                      className={cn(
-                        'transition-all',
-                        isDragging && 'opacity-40'
-                      )}
+                      className={cn('kanban-board__lead', isDragging && 'kanban-board__lead--dragging')}
                     >
-                      <div className={cn(
-                        'relative',
-                        isDragging && 'scale-95'
-                      )}>
+                      <div className={cn('kanban-board__lead-inner', isDragging && 'kanban-board__lead-inner--dragging')}>
                         {/* Drag Handle - Only this is draggable */}
                         <div
                           draggable
@@ -551,20 +537,9 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
                           onDragEnd={handleDragEnd}
                           onTouchStart={(e) => handleTouchStart(e, lead)}
                           onTouchEnd={handleTouchEnd}
-                          className={cn(
-                            'absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10',
-                            'w-6 h-8 rounded-md bg-white border border-gray-200',
-                            'flex items-center justify-center cursor-grab',
-                            'hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm',
-                            'transition-all duration-150',
-                            'touch-none',
-                            isDragging && 'cursor-grabbing bg-primary border-primary'
-                          )}
+                          className={cn('kanban-board__drag-handle', isDragging && 'kanban-board__drag-handle--dragging')}
                         >
-                          <GripVertical className={cn(
-                            'w-4 h-4 text-gray-400',
-                            isDragging && 'text-white'
-                          )} />
+                          <GripVertical className={cn('kanban-board__drag-icon', isDragging && 'kanban-board__drag-icon--dragging')} />
                         </div>
                         <LeadCard
                           lead={lead}
@@ -579,9 +554,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
               })}
 
               {column.leads.length === 0 && (
-                <div className="text-center py-8 text-sm text-text-secondary">
-                  No leads in this stage
-                </div>
+                <div className="kanban-board__empty">No leads in this stage</div>
               )}
             </div>
           </div>
@@ -591,10 +564,10 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
 
       {/* Loading overlay for drag-drop operations */}
       {isUpdating && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-white rounded-lg shadow-xl p-4 flex items-center gap-3">
-            <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
-            <span className="text-sm font-medium">Updating lead status...</span>
+        <div className="kanban-board__loading">
+          <div className="kanban-board__loading-card">
+            <Loader2 className="kanban-board__loading-icon" />
+            <span className="kanban-board__loading-text">Updating lead status...</span>
           </div>
         </div>
       )}

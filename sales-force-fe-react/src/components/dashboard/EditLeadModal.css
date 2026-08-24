@@ -1,0 +1,120 @@
+@reference "../../index.css";
+
+.edit-lead-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-60 transition-opacity duration-300;
+}
+.edit-lead-modal__overlay {
+  @apply fixed inset-0 z-70 flex items-center justify-center p-4;
+}
+.edit-lead-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-150 max-h-[90vh] overflow-hidden flex flex-col;
+}
+.edit-lead-modal__header {
+  @apply flex items-center justify-between p-6 border-b border-border;
+}
+.edit-lead-modal__title {
+  @apply text-xl font-semibold text-text-primary;
+}
+.edit-lead-modal__close {
+  @apply p-2 rounded-lg hover:bg-neutral-soft transition-colors;
+}
+.edit-lead-modal__close-icon {
+  @apply w-5 h-5;
+}
+.edit-lead-modal__content {
+  @apply overflow-y-auto flex-1 p-4 sm:p-6;
+}
+.edit-lead-modal__form {
+  @apply space-y-6;
+}
+
+.edit-lead-modal__section-title {
+  @apply text-sm font-semibold text-text-primary mb-4 flex items-center gap-2;
+}
+.edit-lead-modal__section-accent {
+  @apply w-1 h-4 rounded-full;
+}
+.edit-lead-modal__section-accent--primary {
+  @apply bg-primary;
+}
+.edit-lead-modal__section-accent--success {
+  @apply bg-success;
+}
+.edit-lead-modal__section-accent--warning {
+  @apply bg-warning;
+}
+.edit-lead-modal__section-accent--reserved {
+  @apply bg-status-reserved;
+}
+.edit-lead-modal__section-body {
+  @apply space-y-3 pl-1 sm:pl-3;
+}
+.edit-lead-modal__field-label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.edit-lead-modal__textarea {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none;
+}
+.edit-lead-modal__char-count {
+  @apply text-xs text-text-secondary mt-1 text-right;
+}
+.edit-lead-modal__stage {
+  @apply p-4 rounded-lg bg-primary/5;
+}
+.edit-lead-modal__budget-grid {
+  @apply grid grid-cols-2 gap-3 pl-1 sm:pl-3;
+}
+.edit-lead-modal__currency-wrapper {
+  @apply relative;
+}
+.edit-lead-modal__currency-prefix {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-secondary;
+}
+.edit-lead-modal__currency-input {
+  @apply w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
+}
+.edit-lead-modal__input {
+  @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary;
+}
+.edit-lead-modal__input-with-prefix {
+  @apply w-full pl-10 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary;
+}
+.edit-lead-modal__grid {
+  @apply grid grid-cols-2 gap-3;
+}
+.edit-lead-modal__collapsible {
+  @apply rounded-lg overflow-hidden;
+}
+.edit-lead-modal__toggle {
+  @apply w-full flex items-center justify-between hover:bg-background transition-colors mb-3;
+}
+.edit-lead-modal__toggle-title {
+  @apply text-sm font-semibold text-text-primary flex items-center gap-2 flex-wrap;
+}
+.edit-lead-modal__toggle-icon {
+  @apply w-4 h-4 text-warning;
+}
+.edit-lead-modal__toggle-icon--reserved {
+  @apply text-status-reserved;
+}
+.edit-lead-modal__optional {
+  @apply text-xs font-normal text-text-secondary;
+}
+.edit-lead-modal__toggle-state {
+  @apply text-xs text-text-secondary;
+}
+.edit-lead-modal__collapsible-body {
+  @apply p-4 bg-background space-y-3;
+}
+.edit-lead-modal__result {
+  @apply text-center p-3 bg-primary/10 rounded-lg;
+}
+.edit-lead-modal__result-label {
+  @apply text-sm text-text-secondary;
+}
+.edit-lead-modal__result-value {
+  @apply text-2xl font-bold text-primary;
+}
+.edit-lead-modal__footer {
+  @apply flex items-center justify-end gap-3 p-6 border-t border-border;
+}

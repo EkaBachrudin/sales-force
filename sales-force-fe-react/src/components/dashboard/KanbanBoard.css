@@ -1,0 +1,123 @@
+@reference "../../index.css";
+
+.kanban-board {
+  @apply w-full;
+}
+.kanban-board__header {
+  @apply flex items-center justify-between mb-4;
+}
+.kanban-board__title {
+  @apply text-lg font-semibold text-text-primary;
+}
+.kanban-board__header-actions {
+  @apply flex items-center gap-2;
+}
+.kanban-board__board-button {
+  @apply px-3 py-1.5 text-sm text-text-secondary hover:text-text-primary border border-border rounded-lg hover:bg-background transition-colors;
+}
+.kanban-board__columns {
+  @apply flex gap-4 overflow-x-auto pb-4 p-2;
+}
+
+.kanban-board__column {
+  @apply flex-shrink-0 w-80 rounded-xl border p-4 min-h-[500px] transition-all;
+}
+.kanban-board__column--gray {
+  @apply bg-background border-border;
+}
+.kanban-board__column--blue {
+  @apply bg-primary/5 border-primary/40;
+}
+.kanban-board__column--purple {
+  @apply bg-status-reserved/5 border-status-reserved/40;
+}
+.kanban-board__column--orange {
+  @apply bg-warning/5 border-warning/40;
+}
+.kanban-board__column--teal {
+  @apply bg-info/5 border-info/40;
+}
+.kanban-board__column--green {
+  @apply bg-success/5 border-success/40;
+}
+.kanban-board__column--red {
+  @apply bg-danger/5 border-danger/40;
+}
+.kanban-board__column--dragged-over {
+  @apply ring-4 ring-primary/50 scale-[1.01] shadow-lg;
+}
+
+.kanban-board__column-header {
+  @apply flex items-center justify-between mb-4;
+}
+.kanban-board__column-label {
+  @apply px-2.5 py-1 rounded-full text-xs font-semibold;
+}
+.kanban-board__column-label--gray {
+  @apply text-text-primary bg-neutral-soft;
+}
+.kanban-board__column-label--blue {
+  @apply text-primary bg-primary-light;
+}
+.kanban-board__column-label--purple {
+  @apply text-status-reserved bg-status-reserved/15;
+}
+.kanban-board__column-label--orange {
+  @apply text-status-booked bg-warning/15;
+}
+.kanban-board__column-label--teal {
+  @apply text-info bg-info/15;
+}
+.kanban-board__column-label--green {
+  @apply text-success bg-success/15;
+}
+.kanban-board__column-label--red {
+  @apply text-danger bg-danger/15;
+}
+.kanban-board__column-count {
+  @apply text-sm font-medium text-text-secondary;
+}
+
+.kanban-board__leads {
+  @apply space-y-3;
+}
+.kanban-board__lead {
+  @apply transition-all;
+}
+.kanban-board__lead--dragging {
+  @apply opacity-40;
+}
+.kanban-board__lead-inner {
+  @apply relative;
+}
+.kanban-board__lead-inner--dragging {
+  @apply scale-95;
+}
+.kanban-board__drag-handle {
+  @apply absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-6 h-8 rounded-md bg-white border border-border flex items-center justify-center cursor-grab hover:bg-background hover:border-border hover:shadow-sm transition-all duration-150 touch-none;
+}
+.kanban-board__drag-handle--dragging {
+  @apply cursor-grabbing bg-primary border-primary;
+}
+.kanban-board__drag-icon {
+  @apply w-4 h-4 text-text-secondary;
+}
+.kanban-board__drag-icon--dragging {
+  @apply text-white;
+}
+.kanban-board__empty {
+  @apply text-center py-8 text-sm text-text-secondary;
+}
+
+.kanban-board__loading {
+  @apply fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 pointer-events-none;
+}
+.kanban-board__loading-card {
+  @apply bg-white rounded-lg shadow-xl p-4 flex items-center gap-3;
+}
+.kanban-board__loading-icon {
+  @apply w-5 h-5 animate-spin text-primary;
+}
+.kanban-board__loading-text {
+  @apply text-sm font-medium;
+}

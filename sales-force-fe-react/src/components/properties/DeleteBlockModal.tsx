@@ -1,5 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import './DeleteBlockModal.css';
 
 interface DeleteBlockModalProps {
   isOpen?: boolean;
@@ -20,31 +21,29 @@ export function DeleteBlockModal({
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-        onClick={onClose}
-      />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
-          <div className="p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+      <div className="delete-block-modal__backdrop" onClick={onClose} />
+      <div className="delete-block-modal__overlay">
+        <div className="delete-block-modal__panel">
+          <div className="delete-block-modal__body">
+            <div className="delete-block-modal__heading">
+              <div className="delete-block-modal__icon">
+                <AlertTriangle className="delete-block-modal__icon-svg" />
               </div>
-              <h2 className="text-xl font-semibold text-text-primary">Delete Block</h2>
+              <h2 className="delete-block-modal__title">Delete Block</h2>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-sm text-text-secondary">
-                Are you sure you want to delete block <span className="font-semibold text-text-primary">{blockName}</span>?
+            <div className="delete-block-modal__text">
+              <p className="delete-block-modal__paragraph">
+                Are you sure you want to delete block{' '}
+                <span className="delete-block-modal__highlight">{blockName}</span>?
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="delete-block-modal__paragraph">
                 This action will also delete all units within this block. This action cannot be undone.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border bg-gray-50">
+          <div className="delete-block-modal__footer">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>

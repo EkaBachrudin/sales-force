@@ -4,6 +4,7 @@ import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { cn, formatRelativeTime } from '@/lib/utils';
 import type { Lead, ReminderData, KprSimulation } from '@/lib/types';
+import './LeadCard.css';
 
 export type { Lead, ReminderData, KprSimulation };
 
@@ -27,31 +28,23 @@ export function LeadCard({ lead, onClick, isDragging, className, disableClick }:
   return (
     <div
       onClick={disableClick ? undefined : onClick}
-      className={cn(
-        'bg-white rounded-lg border-gray-400 border p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary active:scale-[0.98]',
-        isDragging && 'opacity-90 shadow-lg',
-        className
-      )}
+      className={cn('lead-card', isDragging && 'lead-card--dragging', className)}
     >
       {/* Header - Property Type & Timestamp */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="lead-card__header">
         <Badge variant="blue" size="sm">
           {lead.property.name}
         </Badge>
-        <span className="text-[11px] text-text-secondary">
-          {formatRelativeTime(lead.created_at)}
-        </span>
+        <span className="lead-card__time">{formatRelativeTime(lead.created_at)}</span>
       </div>
 
       {/* Name */}
-      <h3 className="text-sm font-semibold text-text-primary mb-1">
-        {lead.name}
-      </h3>
+      <h3 className="lead-card__name">{lead.name}</h3>
 
       {/* Follow Up Reminder */}
       {hasFollowUp && lead.followUpDate && (
-        <div className="flex items-center gap-2 text-[11px] text-warning">
-          <Bell className="w-3.5 h-3.5 flex-shrink-0" />
+        <div className="lead-card__follow-up">
+          <Bell className="lead-card__follow-up-icon" />
           <span>
             Follow up: {new Date(lead.followUpDate).toLocaleDateString('en-US', {
               weekday: 'short',

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, Check, ChevronDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import './Combobox.css';
 
 export interface ComboboxOption {
   value: string;
@@ -111,27 +112,24 @@ const Combobox = React.forwardRef<HTMLDivElement, ComboboxProps>(
 
     const triggerContent = () => {
       if (selectedLabels.length === 0) {
-        return <span className="text-gray-400 truncate">{placeholder}</span>;
+        return <span className="combobox__trigger-placeholder">{placeholder}</span>;
       }
 
       if (!multiple) {
-        return <span className="truncate text-text-primary">{selectedLabels[0]}</span>;
+        return <span className="combobox__trigger-value">{selectedLabels[0]}</span>;
       }
 
       const visible = selectedLabels.slice(0, 3);
       const remaining = selectedLabels.length - visible.length;
       return (
-        <div className="flex flex-wrap items-center gap-1 min-w-0">
+        <div className="combobox__chips">
           {visible.map((label) => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-xs text-text-primary max-w-full"
-            >
-              <span className="truncate max-w-[120px]">{label}</span>
+            <span key={label} className="combobox__chip">
+              <span className="combobox__chip-label">{label}</span>
             </span>
           ))}
           {remaining > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-xs text-text-secondary">
+            <span className="combobox__chip combobox__chip--more">
               +{remaining} more
             </span>
           )}
@@ -149,29 +147,21 @@ const Combobox = React.forwardRef<HTMLDivElement, ComboboxProps>(
     };
 
     return (
-      <div ref={setRefs} className={cn('relative w-full', className)}>
-        {label && (
-          <label className="block text-sm font-medium text-text-primary mb-1.5">
-            {label}
-          </label>
-        )}
+      <div ref={setRefs} className={cn('combobox', className)}>
+        {label && <label className="combobox__label">{label}</label>}
 
         <button
           type="button"
           disabled={disabled}
           onClick={() => setOpen((prev) => !prev)}
           className={cn(
-            'w-full px-3 py-2 rounded-[8px] border text-sm text-left transition-all duration-200',
-            'flex items-center justify-between gap-2 focus:outline-none focus-visible:outline-none',
-            disabled
-              ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-70'
-              : hasError
-              ? 'bg-red-50/50 border-[var(--danger)] focus:border-[var(--danger)] cursor-pointer'
-              : 'bg-white border-border focus:border-primary cursor-pointer',
-            open && !disabled && 'border-primary'
+            'combobox__trigger',
+            disabled && 'combobox__trigger--disabled',
+            hasError && 'combobox__trigger--error',
+            open && !disabled && 'combobox__trigger--open'
           )}
         >
-          <span className="flex-1 min-w-0">{triggerContent()}</span>
+          <span className="combobox__trigger-content">{triggerContent()}</span>
           {!disabled && selectedValues.length > 0 && (
             <span
               role="button"
@@ -180,61 +170,53 @@ const Combobox = React.forwardRef<HTMLDivElement, ComboboxProps>(
                 e.stopPropagation();
                 clearAll();
               }}
-              className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+              className="combobox__clear"
             >
-              <X className="w-4 h-4" />
+              <X className="combobox__clear-icon" />
             </span>
           )}
           <ChevronDown
             className={cn(
-              'w-4 h-4 flex-shrink-0 transition-transform',
-              disabled ? 'text-gray-300' : 'text-gray-500',
-              open && 'rotate-180'
+              'combobox__chevron',
+              disabled && 'combobox__chevron--disabled',
+              open && 'combobox__chevron--open'
             )}
           />
         </button>
 
         {open && !disabled && (
-          <div className="absolute z-50 mt-1 w-full bg-white border border-border rounded-[8px] shadow-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <div className="combobox__menu">
+            <div className="combobox__search">
+              <div className="combobox__search-inner">
+                <Search className="combobox__search-icon" />
                 <input
                   ref={searchInputRef}
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={searchPlaceholder}
-                  className="w-full pl-9 pr-3 py-2 rounded-[6px] border border-border bg-white text-sm focus:outline-none focus:border-primary"
+                  className="combobox__search-input"
                 />
               </div>
             </div>
 
             {multiple && (
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
-                <button
-                  type="button"
-                  onClick={selectAll}
-                  className="text-xs font-medium text-primary hover:underline"
-                >
+              <div className="combobox__actions">
+                <button type="button" onClick={selectAll} className="combobox__action combobox__action--primary">
                   Select all
                 </button>
-                <span className="text-gray-300">|</span>
-                <button
-                  type="button"
-                  onClick={clearAll}
-                  className="text-xs font-medium text-text-secondary hover:underline"
-                >
+                <span className="combobox__divider">|</span>
+                <button type="button" onClick={clearAll} className="combobox__action combobox__action--secondary">
                   Clear
                 </button>
               </div>
             )}
 
-            <ul className="max-h-60 overflow-y-auto py-1">
+            <ul className="combobox__list">
               {isLoading ? (
-                <li className="px-3 py-2 text-sm text-text-secondary">Loading...</li>
+                <li className="combobox__list-message">Loading...</li>
               ) : filteredOptions.length === 0 ? (
-                <li className="px-3 py-2 text-sm text-text-secondary">No results found</li>
+                <li className="combobox__list-message">No results found</li>
               ) : (
                 filteredOptions.map((option) => {
                   const isSelected = selectedValues.includes(option.value);
@@ -245,28 +227,26 @@ const Combobox = React.forwardRef<HTMLDivElement, ComboboxProps>(
                         disabled={option.disabled}
                         onClick={() => toggleOption(option.value)}
                         className={cn(
-                          'w-full px-3 py-2 text-sm flex items-center gap-2 text-left transition-colors',
-                          option.disabled
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'text-text-primary hover:bg-gray-50 cursor-pointer',
-                          isSelected && 'bg-gray-50'
+                          'combobox__option',
+                          option.disabled && 'combobox__option--disabled',
+                          isSelected && 'combobox__option--selected'
                         )}
                       >
                         {multiple ? (
                           <span
                             className={cn(
-                              'w-4 h-4 rounded border flex items-center justify-center flex-shrink-0',
-                              isSelected ? 'bg-primary border-primary text-white' : 'border-gray-300 bg-white'
+                              'combobox__option-checkbox',
+                              isSelected && 'combobox__option-checkbox--selected'
                             )}
                           >
-                            {isSelected && <Check className="w-3 h-3" />}
+                            {isSelected && <Check className="combobox__option-check" />}
                           </span>
                         ) : (
-                          <span className="w-4 flex items-center justify-center flex-shrink-0">
-                            {isSelected && <Check className="w-4 h-4 text-primary" />}
+                          <span className="combobox__option-indicator">
+                            {isSelected && <Check className="combobox__option-check-icon" />}
                           </span>
                         )}
-                        <span className="truncate">{option.label}</span>
+                        <span className="combobox__option-label">{option.label}</span>
                       </button>
                     </li>
                   );
@@ -276,11 +256,9 @@ const Combobox = React.forwardRef<HTMLDivElement, ComboboxProps>(
           </div>
         )}
 
-        {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
+        {error && <p className="combobox__error">{error}</p>}
 
-        {helperText && !error && (
-          <p className="mt-1.5 text-xs text-text-secondary">{helperText}</p>
-        )}
+        {helperText && !error && <p className="combobox__helper">{helperText}</p>}
       </div>
     );
   }

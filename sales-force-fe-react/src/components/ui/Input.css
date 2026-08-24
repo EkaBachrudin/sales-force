@@ -1,0 +1,38 @@
+@reference "../../index.css";
+
+.input__wrapper {
+  @apply w-full;
+}
+.input__label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.input__field-wrapper {
+  @apply relative;
+}
+.input__left-icon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none;
+}
+.input__right-icon {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none;
+}
+.input__right-action {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors cursor-pointer;
+}
+.input__field {
+  @apply w-full px-3 py-2 rounded-[8px] border bg-white text-sm transition-all duration-200 placeholder:text-text-secondary focus:outline-none focus-visible:outline-none border-border focus:border-primary focus:ring-1 focus:ring-primary;
+}
+.input__field--error {
+  @apply border-danger focus:border-danger focus:ring-danger bg-danger/5;
+}
+.input__field--with-left-icon {
+  @apply pl-10;
+}
+.input__field--with-right-icon {
+  @apply pr-10;
+}
+.input__error {
+  @apply mt-1.5 text-xs text-danger;
+}
+.input__helper {
+  @apply mt-1.5 text-xs text-text-secondary;
+}

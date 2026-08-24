@@ -1,0 +1,77 @@
+@reference "../../index.css";
+
+.assign-lead-modal__backdrop {
+  @apply fixed inset-0 bg-black/50 z-60 transition-opacity duration-300;
+}
+.assign-lead-modal__overlay {
+  @apply fixed inset-0 z-70 flex items-center justify-center p-4;
+}
+.assign-lead-modal__panel {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col;
+}
+.assign-lead-modal__header {
+  @apply flex items-center justify-between p-5 border-b border-border;
+}
+.assign-lead-modal__title {
+  @apply text-lg font-semibold text-text-primary;
+}
+.assign-lead-modal__subtitle {
+  @apply text-sm text-text-secondary mt-0.5;
+}
+.assign-lead-modal__subtitle-bold {
+  @apply font-bold;
+}
+.assign-lead-modal__close {
+  @apply flex-shrink-0 p-2 hover:bg-neutral-soft rounded-lg transition-colors;
+}
+.assign-lead-modal__close-icon {
+  @apply w-5 h-5 text-text-secondary;
+}
+.assign-lead-modal__content {
+  @apply p-5 flex flex-col gap-4;
+}
+.assign-lead-modal__search-row {
+  @apply flex items-center gap-2;
+}
+.assign-lead-modal__search-icon {
+  @apply w-4 h-4;
+}
+.assign-lead-modal__go-icon {
+  @apply w-4 h-4;
+}
+.assign-lead-modal__loading {
+  @apply flex items-center justify-center py-8;
+}
+.assign-lead-modal__spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-primary;
+}
+.assign-lead-modal__empty {
+  @apply text-sm text-text-secondary text-center py-6;
+}
+.assign-lead-modal__list {
+  @apply space-y-2 max-h-[320px] overflow-y-auto pr-1;
+}
+.assign-lead-modal__lead {
+  @apply w-full text-left rounded-[12px] border bg-white p-4 transition-all duration-200 border-border hover:border-border;
+}
+.assign-lead-modal__lead--active {
+  @apply border-primary ring-primary shadow-md bg-primary-light;
+}
+.assign-lead-modal__lead-row {
+  @apply flex items-center justify-between gap-3;
+}
+.assign-lead-modal__lead-info {
+  @apply flex-1 min-w-0;
+}
+.assign-lead-modal__lead-name {
+  @apply text-sm font-semibold text-text-primary truncate;
+}
+.assign-lead-modal__lead-contact {
+  @apply text-xs text-text-secondary truncate mt-0.5;
+}
+.assign-lead-modal__footer {
+  @apply p-5 border-t border-border;
+}
+.assign-lead-modal__error {
+  @apply text-sm text-danger mb-3;
+}

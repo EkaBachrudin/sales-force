@@ -1,0 +1,38 @@
+@reference "../../index.css";
+
+.button {
+  @apply inline-flex items-center justify-center gap-2 font-medium rounded-[8px] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98];
+}
+.button--primary {
+  @apply bg-primary text-white hover:bg-primary-hover focus-visible:outline-primary shadow-sm hover:shadow-md;
+}
+.button--secondary {
+  @apply bg-white text-text-primary border border-border hover:bg-background focus-visible:outline-border;
+}
+.button--danger {
+  @apply bg-danger text-white hover:bg-[color-mix(in_srgb,var(--danger)_85%,black)] focus-visible:outline-danger shadow-sm;
+}
+.button--ghost {
+  @apply bg-transparent text-text-primary hover:bg-neutral-soft focus-visible:outline-border;
+}
+.button--success {
+  @apply bg-success text-white hover:bg-[color-mix(in_srgb,var(--success)_85%,black)] focus-visible:outline-success shadow-sm;
+}
+.button--sm {
+  @apply px-3 py-1.5 text-xs h-8;
+}
+.button--md {
+  @apply px-4 py-2 text-sm h-10;
+}
+.button--lg {
+  @apply px-6 py-3 text-base h-12;
+}
+.button--full {
+  @apply w-full;
+}
+.button__spinner {
+  @apply w-4 h-4 animate-spin;
+}
+.button__icon {
+  @apply flex-shrink-0;
+}

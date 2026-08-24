@@ -7,6 +7,7 @@ import { NewLeadModal } from '@/components/dashboard/NewLeadModal';
 import { Button } from '@/components/ui/Button';
 import { useDashboardOverview, useUpcomingReminders, type ReminderItem } from '@/hooks/useDashboard';
 import { useLeadMutations } from '@/hooks/useLeads';
+import './DashboardPage.css';
 
 // Transform API reminder to component format
 const transformReminder = (apiReminder: ReminderItem): Reminder => ({
@@ -53,16 +54,16 @@ export default function DashboardPage() {
         title="Dashboard"
         subtitle="Welcome back! Here's what's happening today."
         action={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)} size="sm">
-            <span className="hidden sm:inline">New Lead</span>
-            <span className="sm:hidden">Add</span>
+          <Button leftIcon={<Plus className="dashboard-page__action-icon" />} onClick={() => setIsNewLeadModalOpen(true)} size="sm">
+            <span className="dashboard-page__action-text">New Lead</span>
+            <span className="dashboard-page__action-text-mobile">Add</span>
           </Button>
         }
       >
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-sm text-text-secondary">Loading dashboard...</p>
+        <div className="dashboard-page__loading">
+          <div className="dashboard-page__loading-inner">
+            <div className="dashboard-page__spinner"></div>
+            <p className="dashboard-page__loading-text">Loading dashboard...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -76,16 +77,16 @@ export default function DashboardPage() {
         title="Dashboard"
         subtitle="Welcome back! Here's what's happening today."
         action={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)} size="sm">
-            <span className="hidden sm:inline">New Lead</span>
-            <span className="sm:hidden">Add</span>
+          <Button leftIcon={<Plus className="dashboard-page__action-icon" />} onClick={() => setIsNewLeadModalOpen(true)} size="sm">
+            <span className="dashboard-page__action-text">New Lead</span>
+            <span className="dashboard-page__action-text-mobile">Add</span>
           </Button>
         }
       >
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-2" />
-            <p className="text-sm text-text-secondary">
+        <div className="dashboard-page__loading">
+          <div className="dashboard-page__loading-inner">
+            <AlertCircle className="dashboard-page__error-icon" />
+            <p className="dashboard-page__loading-text">
               Failed to load dashboard. Please try again later.
             </p>
           </div>
@@ -99,15 +100,15 @@ export default function DashboardPage() {
       title="Dashboard"
       subtitle="Welcome back! Here's what's happening today."
       action={
-          <div className="flex items-center gap-3">
-            <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsNewLeadModalOpen(true)}>
-              Add Lead
-            </Button>
-          </div>
-        }
+        <div className="dashboard-page__action">
+          <Button leftIcon={<Plus className="dashboard-page__action-icon" />} onClick={() => setIsNewLeadModalOpen(true)}>
+            Add Lead
+          </Button>
+        </div>
+      }
     >
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="dashboard-page__metrics">
         <MetricsCard
           label="Total Leads"
           value={metrics?.total_leads.value ?? 0}

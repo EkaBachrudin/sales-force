@@ -1,0 +1,638 @@
+@reference "../index.css";
+
+.features-page {
+  @apply min-h-screen bg-linear-to-b from-white to-background;
+}
+
+.features-page__bg {
+  @apply fixed inset-0 overflow-hidden pointer-events-none;
+}
+.features-page__bg-glow {
+  @apply absolute inset-0 opacity-20;
+}
+.features-page__bg-glow-blue {
+  @apply absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl;
+}
+.features-page__bg-glow-slate {
+  @apply absolute bottom-0 right-1/4 w-96 h-96 bg-neutral-soft/60 rounded-full blur-3xl;
+}
+.features-page__bg-grid {
+  @apply absolute inset-0 opacity-[0.03];
+}
+
+.features-page__nav {
+  @apply fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent;
+}
+.features-page__nav--hidden {
+  @apply -translate-y-full opacity-0;
+}
+.features-page__nav--scrolled {
+  @apply bg-white/90 backdrop-blur-xl border-b border-border shadow-sm;
+}
+.features-page__nav-inner {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3;
+}
+.features-page__nav-row {
+  @apply flex items-center justify-between h-16;
+}
+.features-page__nav-logo {
+  @apply flex items-center gap-2;
+}
+.features-page__nav-logo-img {
+  @apply h-14;
+}
+.features-page__nav-cta {
+  @apply px-5 py-2.5 bg-linear-to-r from-primary to-primary-hover hover:from-primary hover:to-primary-hover text-white text-sm font-semibold rounded-lg shadow-md shadow-primary/25 transition-all duration-300 transform hover:-translate-y-0.5;
+}
+
+.features-page__content {
+  @apply relative z-10;
+}
+.features-page__container {
+  @apply max-w-7xl mx-auto;
+}
+
+.features-page__hero {
+  @apply pt-32 pb-24 px-4 sm:px-6 lg:px-8;
+}
+.features-page__hero-inner {
+  @apply text-center;
+}
+.features-page__hero-title {
+  @apply text-5xl sm:text-6xl lg:text-7xl font-bold text-text-primary mb-6 tracking-tight leading-tight;
+}
+.features-page__hero-title-accent {
+  @apply block mt-2 bg-linear-to-r from-primary to-primary-hover bg-clip-text text-transparent;
+}
+.features-page__hero-subtitle {
+  @apply text-lg sm:text-xl text-text-secondary max-w-3xl mx-auto mb-10 leading-relaxed;
+}
+.features-page__hero-actions {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-4 mb-12;
+}
+.features-page__hero-cta {
+  @apply inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-primary to-primary-hover hover:from-primary hover:to-primary-hover text-white font-semibold rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 transform hover:-translate-y-1;
+}
+.features-page__hero-cta-icon {
+  @apply w-5 h-5 transition-transform;
+}
+.features-page__hero-cta:hover .features-page__hero-cta-icon {
+  @apply translate-x-1;
+}
+.features-page__hero-secondary {
+  @apply inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-background text-text-primary font-semibold rounded-xl border border-border shadow-sm transition-all duration-300;
+}
+.features-page__hero-secondary-icon {
+  @apply w-5 h-5 text-primary;
+}
+.features-page__hero-trust {
+  @apply flex flex-wrap items-center justify-center gap-6 text-text-secondary text-sm;
+}
+.features-page__hero-trust-item {
+  @apply flex items-center gap-2;
+}
+.features-page__check-icon {
+  @apply w-4 h-4 text-success;
+}
+
+.features-page__benefits {
+  @apply py-16 px-4 sm:px-6 lg:px-8;
+}
+.features-page__benefits-grid {
+  @apply grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6;
+}
+.features-page__benefit {
+  @apply text-center p-6 rounded-2xl bg-white border border-border shadow-sm hover:shadow-md transition-all duration-300;
+}
+.features-page__benefit-number {
+  @apply text-3xl sm:text-4xl font-bold bg-linear-to-br from-primary to-primary-hover bg-clip-text text-transparent mb-2;
+}
+.features-page__benefit-label {
+  @apply text-sm text-text-secondary;
+}
+
+.features-page__features {
+  @apply py-20 px-4 sm:px-6 lg:px-8;
+}
+.features-page__section-header {
+  @apply text-center mb-16;
+}
+.features-page__badge {
+  @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm mb-4;
+}
+.features-page__badge--blue {
+  @apply bg-primary-light border border-primary/40 text-primary;
+}
+.features-page__badge--green {
+  @apply bg-success/10 border border-success/40 text-success;
+}
+.features-page__badge--cyan {
+  @apply bg-info/10 border border-info/40 text-info;
+}
+.features-page__badge-icon {
+  @apply w-4 h-4;
+}
+.features-page__section-title {
+  @apply text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-4;
+}
+.features-page__section-title-accent {
+  @apply block bg-linear-to-r from-primary to-primary-hover bg-clip-text text-transparent;
+}
+.features-page__section-subtitle {
+  @apply text-text-secondary text-lg max-w-2xl mx-auto;
+}
+
+.features-page__showcase {
+  @apply mb-20;
+}
+.features-page__showcase-inner {
+  @apply relative;
+}
+.features-page__showcase-glow {
+  @apply absolute inset-0 bg-linear-to-r from-primary to-primary-hover rounded-3xl opacity-10 blur-2xl;
+}
+.features-page__showcase-card {
+  @apply relative bg-linear-to-br from-white via-background/50 to-white rounded-3xl border border-border shadow-2xl overflow-hidden;
+}
+.features-page__showcase-bar {
+  @apply absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary to-primary-hover;
+}
+.features-page__showcase-content {
+  @apply p-8 sm:p-12;
+}
+.features-page__showcase-header {
+  @apply text-center mb-10;
+}
+.features-page__showcase-title {
+  @apply text-2xl sm:text-3xl font-bold text-text-primary mb-3;
+}
+.features-page__showcase-subtitle {
+  @apply text-text-secondary max-w-2xl mx-auto;
+}
+.features-page__devices {
+  @apply grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6;
+}
+.features-page__device {
+  @apply relative bg-white rounded-2xl border border-border p-6 text-center hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300;
+}
+.features-page__device-overlay {
+  @apply absolute inset-0 bg-primary/5 rounded-2xl opacity-0 transition-opacity;
+}
+.features-page__device:hover .features-page__device-overlay {
+  @apply opacity-100;
+}
+.features-page__device-inner {
+  @apply relative;
+}
+.features-page__device-icon {
+  @apply w-16 h-16 mx-auto mb-4 rounded-2xl bg-linear-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg shadow-primary/30 transition-transform;
+}
+.features-page__device:hover .features-page__device-icon {
+  @apply scale-110;
+}
+.features-page__device-icon-svg {
+  @apply w-8 h-8 text-white;
+}
+.features-page__device-title {
+  @apply font-bold text-text-primary mb-1;
+}
+.features-page__device-sub {
+  @apply text-xs text-text-secondary;
+}
+.features-page__showcase-footer {
+  @apply mt-8 pt-6 border-t border-border;
+}
+.features-page__showcase-trust {
+  @apply flex flex-wrap items-center justify-center gap-6 text-sm text-text-secondary;
+}
+.features-page__showcase-trust-item {
+  @apply flex items-center gap-2;
+}
+
+.features-page__showcases {
+  @apply space-y-24;
+}
+.features-page__showcase-item {
+  @apply grid lg:grid-cols-2 gap-12 items-center;
+}
+.features-page__showcase-image-wrapper {
+  @apply relative;
+}
+.features-page__showcase-image-wrapper--reverse {
+  @apply lg:order-2;
+}
+.features-page__showcase-image-frame {
+  @apply relative rounded-2xl overflow-hidden shadow-2xl border border-border bg-white;
+}
+.features-page__browser-bar {
+  @apply bg-neutral-soft px-4 py-3 flex items-center gap-2 border-b border-border;
+}
+.features-page__browser-dots {
+  @apply flex gap-2;
+}
+.features-page__browser-dot {
+  @apply w-3 h-3 rounded-full;
+}
+.features-page__browser-dot--red {
+  @apply bg-danger;
+}
+.features-page__browser-dot--yellow {
+  @apply bg-warning;
+}
+.features-page__browser-dot--green {
+  @apply bg-success;
+}
+.features-page__browser-url {
+  @apply flex-1 mx-4;
+}
+.features-page__browser-url-text {
+  @apply bg-white rounded-md px-3 py-1 text-xs text-text-secondary text-center;
+}
+.features-page__showcase-image {
+  @apply relative aspect-[16/10] bg-linear-to-br from-background to-neutral-soft overflow-hidden;
+}
+.features-page__showcase-img {
+  @apply w-full object-cover mt-[5px];
+}
+.features-page__showcase-image-bar {
+  @apply absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary to-primary-hover;
+}
+.features-page__showcase-text--reverse {
+  @apply lg:order-1;
+}
+.features-page__showcase-item-title {
+  @apply text-2xl sm:text-3xl font-bold text-text-primary mb-4;
+}
+.features-page__showcase-item-desc {
+  @apply text-text-secondary text-lg leading-relaxed mb-6;
+}
+.features-page__showcase-badges {
+  @apply flex flex-wrap gap-2;
+}
+.features-page__showcase-badge-item {
+  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-soft border border-border;
+}
+.features-page__showcase-badge-text {
+  @apply text-sm font-medium text-text-primary;
+}
+
+.features-page__more {
+  @apply py-16 px-4 sm:px-6 lg:px-8 bg-background/50;
+}
+.features-page__more-header {
+  @apply text-center mb-12;
+}
+.features-page__more-title {
+  @apply text-2xl sm:text-3xl font-bold text-text-primary mb-3;
+}
+.features-page__more-subtitle {
+  @apply text-text-secondary;
+}
+.features-page__more-grid {
+  @apply grid md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+.features-page__feature {
+  @apply p-5 rounded-xl bg-white border border-border hover:shadow-lg hover:border-primary/40 transition-all duration-300 cursor-pointer;
+}
+.features-page__feature-icon {
+  @apply w-10 h-10 rounded-lg flex items-center justify-center mb-3;
+}
+.features-page__feature-icon-svg {
+  @apply w-5 h-5;
+}
+.features-page__feature-title {
+  @apply font-semibold text-text-primary mb-1 text-sm;
+}
+.features-page__feature-desc {
+  @apply text-text-secondary text-xs leading-relaxed line-clamp-2;
+}
+
+.features-page__how {
+  @apply py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-transparent to-neutral-soft/50;
+}
+.features-page__how-grid {
+  @apply grid md:grid-cols-3 gap-8;
+}
+.features-page__step {
+  @apply relative;
+}
+.features-page__step-number {
+  @apply absolute -top-4 -left-4 w-12 h-12 rounded-full bg-linear-to-br from-primary to-primary-hover flex items-center justify-center text-white font-bold text-sm shadow-lg;
+}
+.features-page__step-card {
+  @apply relative pt-8 p-6 rounded-2xl bg-white border border-border hover:shadow-lg transition-all duration-300;
+}
+.features-page__step-icon {
+  @apply w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mb-4 transition-transform;
+}
+.features-page__step:hover .features-page__step-icon {
+  @apply scale-110;
+}
+.features-page__step-icon-svg {
+  @apply w-6 h-6 text-primary;
+}
+.features-page__step-title {
+  @apply text-lg font-bold text-text-primary mb-2;
+}
+.features-page__step-desc {
+  @apply text-text-secondary text-sm leading-relaxed;
+}
+.features-page__step-connector {
+  @apply hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-linear-to-r from-primary to-primary-hover;
+}
+
+.features-page__pricing {
+  @apply py-24 px-4 sm:px-6 lg:px-8 bg-background;
+}
+.features-page__pricing-badge {
+  @apply inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-border text-text-primary text-xs font-medium tracking-wide uppercase mb-6;
+}
+.features-page__pricing-badge-icon {
+  @apply w-3.5 h-3.5;
+}
+.features-page__pricing-title {
+  @apply text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-6 tracking-tight;
+}
+.features-page__pricing-subtitle {
+  @apply text-text-secondary text-lg max-w-xl mx-auto;
+}
+.features-page__pricing-inner {
+  @apply max-w-5xl mx-auto;
+}
+.features-page__pricing-card {
+  @apply bg-white rounded-3xl shadow-sm border border-neutral-soft overflow-hidden;
+}
+.features-page__pricing-grid {
+  @apply grid lg:grid-cols-5;
+}
+.features-page__pricing-left {
+  @apply lg:col-span-2 bg-text-primary p-8 sm:p-10 lg:p-12;
+}
+.features-page__pricing-popular {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 text-white text-xs font-medium tracking-wide mb-8;
+}
+.features-page__pricing-popular-dot {
+  @apply w-1.5 h-1.5 rounded-full bg-primary;
+}
+.features-page__pricing-plan {
+  @apply mb-8;
+}
+.features-page__pricing-plan-label {
+  @apply text-white/60 text-sm font-medium tracking-wide uppercase mb-2;
+}
+.features-page__pricing-plan-title {
+  @apply text-white text-xl font-semibold;
+}
+.features-page__pricing-price-block {
+  @apply mb-8;
+}
+.features-page__pricing-price-row {
+  @apply flex items-baseline gap-1 mb-2;
+}
+.features-page__pricing-price {
+  @apply text-5xl sm:text-6xl font-bold text-white tracking-tight;
+}
+.features-page__pricing-price-decimal {
+  @apply text-3xl font-bold text-white;
+}
+.features-page__pricing-price-note {
+  @apply text-white/60 text-sm;
+}
+.features-page__pricing-cta {
+  @apply w-full mt-8 py-4 px-6 bg-white text-text-primary font-semibold rounded-xl hover:bg-background transition-all duration-200 flex items-center justify-center gap-2;
+}
+.features-page__pricing-cta-icon {
+  @apply w-4 h-4;
+}
+.features-page__pricing-right {
+  @apply lg:col-span-3 p-8 sm:p-10 lg:p-12;
+}
+.features-page__pricing-features-heading {
+  @apply mb-8;
+}
+.features-page__pricing-features-title {
+  @apply text-text-primary font-semibold mb-1;
+}
+.features-page__pricing-features-subtitle {
+  @apply text-text-secondary text-sm;
+}
+.features-page__pricing-list {
+  @apply space-y-3 mb-8;
+}
+.features-page__pricing-item {
+  @apply flex items-center gap-3 p-3 rounded-lg hover:bg-background transition-colors;
+}
+.features-page__pricing-item-icon {
+  @apply w-9 h-9 rounded-lg bg-primary/5 flex items-center justify-center shrink-0;
+}
+.features-page__pricing-item-icon-svg {
+  @apply w-4.5 h-4.5 text-primary;
+}
+.features-page__pricing-item-text {
+  @apply text-text-primary text-sm font-medium;
+}
+.features-page__pricing-stats {
+  @apply pt-6 border-t border-neutral-soft;
+}
+.features-page__pricing-stats-grid {
+  @apply grid grid-cols-3 gap-4;
+}
+.features-page__pricing-stat {
+  @apply text-center;
+}
+.features-page__pricing-stat-value {
+  @apply text-2xl font-bold text-text-primary;
+}
+.features-page__pricing-stat-accent {
+  @apply text-primary;
+}
+.features-page__pricing-stat-label {
+  @apply text-xs text-text-secondary mt-1;
+}
+.features-page__pricing-enterprise {
+  @apply mt-8 text-center;
+}
+.features-page__pricing-enterprise-text {
+  @apply text-text-secondary text-sm mb-3;
+}
+.features-page__pricing-contact {
+  @apply inline-flex items-center gap-2 text-text-primary font-medium text-sm hover:text-primary transition-colors;
+}
+.features-page__pricing-contact-icon {
+  @apply w-4 h-4;
+}
+
+.features-page__faq {
+  @apply py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-transparent to-neutral-soft/50;
+}
+.features-page__faq-inner {
+  @apply max-w-3xl mx-auto;
+}
+.features-page__faq-header {
+  @apply text-center mb-12;
+}
+.features-page__faq-list {
+  @apply space-y-4;
+}
+.features-page__faq-item {
+  @apply rounded-xl bg-white border border-border overflow-hidden;
+}
+.features-page__faq-button {
+  @apply w-full p-6 text-left flex items-center justify-between hover:bg-background transition-colors;
+}
+.features-page__faq-question {
+  @apply text-text-primary font-medium pr-4;
+}
+.features-page__faq-chevron {
+  @apply w-5 h-5 text-text-secondary transition-transform flex-shrink-0;
+}
+.features-page__faq-chevron--open {
+  @apply rotate-180;
+}
+.features-page__faq-answer {
+  @apply px-6 pb-6;
+}
+.features-page__faq-answer-text {
+  @apply text-text-secondary leading-relaxed;
+}
+
+.features-page__cta-section {
+  @apply py-20 px-4 sm:px-6 lg:px-8;
+}
+.features-page__cta-inner {
+  @apply max-w-4xl mx-auto;
+}
+.features-page__cta-card {
+  @apply relative p-8 sm:p-12 rounded-3xl bg-linear-to-br from-primary to-primary-hover overflow-hidden;
+}
+.features-page__cta-glow {
+  @apply absolute inset-0 opacity-10;
+}
+.features-page__cta-glow-circle {
+  @apply absolute w-64 h-64 bg-white rounded-full blur-3xl;
+}
+.features-page__cta-glow-circle--top {
+  @apply top-0 right-0 -translate-y-1/2 translate-x-1/2;
+}
+.features-page__cta-glow-circle--bottom {
+  @apply bottom-0 left-0 translate-y-1/2 -translate-x-1/2;
+}
+.features-page__cta-content {
+  @apply relative z-10 text-center;
+}
+.features-page__cta-icon {
+  @apply w-16 h-16 text-white/80 mx-auto mb-6;
+}
+.features-page__cta-title {
+  @apply text-3xl sm:text-4xl font-bold text-white mb-4;
+}
+.features-page__cta-subtitle {
+  @apply text-white/90 mb-8 max-w-2xl mx-auto;
+}
+.features-page__cta-actions {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-4;
+}
+.features-page__cta-button {
+  @apply inline-flex items-center gap-3 px-8 py-4 bg-white text-primary font-semibold rounded-xl hover:bg-background transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1;
+}
+
+.features-page__footer {
+  @apply py-12 px-4 sm:px-6 lg:px-8 border-t border-border bg-background;
+}
+.features-page__footer-grid {
+  @apply grid md:grid-cols-3 gap-8 mb-8;
+}
+.features-page__footer-brand {
+  @apply flex items-center gap-2 mb-4;
+}
+.features-page__footer-logo {
+  @apply flex items-center gap-2;
+}
+.features-page__footer-logo-img {
+  @apply h-14 ml-[-10px];
+}
+.features-page__footer-desc {
+  @apply text-text-secondary text-sm;
+}
+.features-page__footer-title {
+  @apply text-text-primary font-semibold mb-4;
+}
+.features-page__footer-list {
+  @apply space-y-2 text-text-secondary text-sm;
+}
+.features-page__footer-link {
+  @apply hover:text-text-primary transition-colors;
+}
+.features-page__footer-bottom {
+  @apply pt-8 border-t border-border text-center text-text-secondary text-sm;
+}
+
+.features-page__modal {
+  @apply fixed inset-0 z-100 flex items-center justify-center p-4;
+}
+.features-page__modal-backdrop {
+  @apply absolute inset-0 bg-black/60 backdrop-blur-sm;
+}
+.features-page__modal-panel {
+  @apply relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden;
+}
+.features-page__modal-header {
+  @apply bg-linear-to-r from-primary to-primary-hover px-6 py-4;
+}
+.features-page__modal-header-row {
+  @apply flex items-center justify-between;
+}
+.features-page__modal-title {
+  @apply text-xl font-bold text-white;
+}
+.features-page__modal-subtitle {
+  @apply text-white/80 text-sm;
+}
+.features-page__modal-close {
+  @apply w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors;
+}
+.features-page__modal-close-icon {
+  @apply w-5 h-5 text-white;
+}
+.features-page__modal-form {
+  @apply p-6 space-y-4;
+}
+.features-page__modal-honeypot {
+  @apply absolute left-[-9999px] w-px h-px overflow-hidden opacity-0;
+}
+.features-page__modal-label {
+  @apply block text-sm font-medium text-text-primary mb-1;
+}
+.features-page__modal-required {
+  @apply text-danger;
+}
+.features-page__modal-input {
+  @apply w-full px-4 py-2.5 rounded-lg border border-border focus:border-primary focus:ring-primary/20 focus:ring-2 outline-none transition-all;
+}
+.features-page__modal-input--error {
+  @apply border-danger focus:border-danger focus:ring-danger/20;
+}
+.features-page__modal-error {
+  @apply text-danger text-xs mt-1;
+}
+.features-page__modal-textarea {
+  @apply w-full px-4 py-2.5 rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none;
+}
+.features-page__modal-char-count {
+  @apply text-right text-xs text-text-secondary mt-1;
+}
+.features-page__modal-submit {
+  @apply w-full py-3 px-4 bg-linear-to-r from-primary to-primary-hover hover:from-primary hover:to-primary-hover text-white font-semibold rounded-lg shadow-lg shadow-primary/25 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+}
+.features-page__modal-spinner {
+  @apply w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin;
+}
+.features-page__modal-submit-icon {
+  @apply w-5 h-5;
+}
+.features-page__modal-note {
+  @apply text-xs text-text-secondary text-center;
+}
+.features-page__modal-submit-error {
+  @apply text-sm text-danger text-center;
+}

@@ -1,0 +1,41 @@
+@reference "../index.css";
+
+.analytics-page__loading {
+  @apply flex items-center justify-center h-64;
+}
+.analytics-page__spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-primary;
+}
+.analytics-page__error {
+  @apply bg-danger/5 border border-danger/40 rounded-lg p-4;
+}
+.analytics-page__error-text {
+  @apply text-danger;
+}
+.analytics-page__empty {
+  @apply bg-background border border-border rounded-lg p-4;
+}
+.analytics-page__empty-text {
+  @apply text-text-primary;
+}
+.analytics-page__filter {
+  @apply mb-6 flex items-center gap-3 flex-wrap;
+}
+.analytics-page__filter-label {
+  @apply text-sm font-medium text-text-primary;
+}
+.analytics-page__filter-buttons {
+  @apply flex gap-2 flex-wrap;
+}
+.analytics-page__range-button {
+  @apply px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-neutral-soft text-text-primary hover:bg-border;
+}
+.analytics-page__range-button--active {
+  @apply bg-primary text-white hover:bg-primary;
+}
+.analytics-page__metrics {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6;
+}
+.analytics-page__charts {
+  @apply space-y-6;
+}

@@ -1,0 +1,125 @@
+@reference "../../index.css";
+
+.combobox {
+  @apply relative w-full;
+}
+.combobox__label {
+  @apply block text-sm font-medium text-text-primary mb-1.5;
+}
+.combobox__trigger {
+  @apply w-full px-3 py-2 rounded-[8px] border text-sm text-left transition-all duration-200 flex items-center justify-between gap-2 focus:outline-none focus-visible:outline-none bg-white border-border focus:border-primary cursor-pointer;
+}
+.combobox__trigger--disabled {
+  @apply bg-neutral-soft text-text-secondary border-border cursor-not-allowed opacity-70;
+}
+.combobox__trigger--error {
+  @apply bg-danger/5 border-danger focus:border-danger cursor-pointer;
+}
+.combobox__trigger--open {
+  @apply border-primary;
+}
+.combobox__trigger-content {
+  @apply flex-1 min-w-0;
+}
+.combobox__trigger-placeholder {
+  @apply text-text-secondary truncate;
+}
+.combobox__trigger-value {
+  @apply truncate text-text-primary;
+}
+.combobox__chips {
+  @apply flex flex-wrap items-center gap-1 min-w-0;
+}
+.combobox__chip {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-soft text-xs text-text-primary max-w-full;
+}
+.combobox__chip--more {
+  @apply text-text-secondary;
+}
+.combobox__chip-label {
+  @apply truncate max-w-[120px];
+}
+.combobox__clear {
+  @apply text-text-secondary hover:text-text-primary flex-shrink-0;
+}
+.combobox__clear-icon {
+  @apply w-4 h-4;
+}
+.combobox__chevron {
+  @apply w-4 h-4 flex-shrink-0 transition-transform text-text-secondary;
+}
+.combobox__chevron--disabled {
+  @apply text-border;
+}
+.combobox__chevron--open {
+  @apply rotate-180;
+}
+.combobox__menu {
+  @apply absolute z-50 mt-1 w-full bg-white border border-border rounded-[8px] shadow-lg overflow-hidden;
+}
+.combobox__search {
+  @apply p-2 border-b border-border;
+}
+.combobox__search-inner {
+  @apply relative;
+}
+.combobox__search-icon {
+  @apply w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none;
+}
+.combobox__search-input {
+  @apply w-full pl-9 pr-3 py-2 rounded-[6px] border border-border bg-white text-sm focus:outline-none focus:border-primary;
+}
+.combobox__actions {
+  @apply flex items-center gap-2 px-3 py-2 border-b border-border;
+}
+.combobox__action {
+  @apply text-xs font-medium hover:underline;
+}
+.combobox__action--primary {
+  @apply text-primary;
+}
+.combobox__action--secondary {
+  @apply text-text-secondary;
+}
+.combobox__divider {
+  @apply text-border;
+}
+.combobox__list {
+  @apply max-h-60 overflow-y-auto py-1;
+}
+.combobox__list-message {
+  @apply px-3 py-2 text-sm text-text-secondary;
+}
+.combobox__option {
+  @apply w-full px-3 py-2 text-sm flex items-center gap-2 text-left transition-colors text-text-primary hover:bg-background cursor-pointer;
+}
+.combobox__option--disabled {
+  @apply text-border cursor-not-allowed;
+}
+.combobox__option--selected {
+  @apply bg-background;
+}
+.combobox__option-checkbox {
+  @apply w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 border-border bg-white;
+}
+.combobox__option-checkbox--selected {
+  @apply bg-primary border-primary text-white;
+}
+.combobox__option-check {
+  @apply w-3 h-3;
+}
+.combobox__option-indicator {
+  @apply w-4 flex items-center justify-center flex-shrink-0;
+}
+.combobox__option-check-icon {
+  @apply w-4 h-4 text-primary;
+}
+.combobox__option-label {
+  @apply truncate;
+}
+.combobox__error {
+  @apply mt-1.5 text-xs text-danger;
+}
+.combobox__helper {
+  @apply mt-1.5 text-xs text-text-secondary;
+}
