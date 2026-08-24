@@ -206,6 +206,54 @@ CROSS JOIN generate_series(1, 5) AS i
 WHERE b.name = 'Kemang' AND b.property_id = (SELECT id FROM properties WHERE name = 'Townhouse Collection');
 
 -- ============================================================================
+-- C. SEED UNITS (Jumlah Sedikit)
+-- ============================================================================
+
+-- 1. Unit Mutiara Residence - Blok Sapphire (Sales 2) - 5 Unit
+INSERT INTO units (block_id, name, land_area, status)
+SELECT 
+    b.id,
+    'S-' || LPAD(i::text, 2, '0'),
+    60.00, -- Tipe kecil
+    'available'
+FROM blocks b
+CROSS JOIN generate_series(1, 5) AS i
+WHERE b.name = 'Blok Sapphire' AND b.property_id = (SELECT id FROM properties WHERE name = 'Mutiara Residence');
+
+-- 2. Unit Mutiara Residence - Blok Ruby (Sales 2) - 4 Unit
+INSERT INTO units (block_id, name, land_area, status)
+SELECT 
+    b.id,
+    'R-' || LPAD(i::text, 2, '0'),
+    72.00, -- Tipe sedang
+    'available'
+FROM blocks b
+CROSS JOIN generate_series(1, 4) AS i
+WHERE b.name = 'Blok Ruby' AND b.property_id = (SELECT id FROM properties WHERE name = 'Mutiara Residence');
+
+-- 3. Unit The Peak Villa - Area Pine (Sales 3) - 3 Unit
+INSERT INTO units (block_id, name, land_area, status)
+SELECT 
+    b.id,
+    'VP-' || LPAD(i::text, 2, '0'),
+    250.00, -- Villa besar
+    'available'
+FROM blocks b
+CROSS JOIN generate_series(1, 3) AS i
+WHERE b.name = 'Area Pine' AND b.property_id = (SELECT id FROM properties WHERE name = 'The Peak Villa');
+
+-- 4. Unit The Peak Villa - Area Oak (Sales 3) - 3 Unit
+INSERT INTO units (block_id, name, land_area, status)
+SELECT 
+    b.id,
+    'VO-' || LPAD(i::text, 2, '0'),
+    300.00, -- Villa sangat besar
+    'available'
+FROM blocks b
+CROSS JOIN generate_series(1, 3) AS i
+WHERE b.name = 'Area Oak' AND b.property_id = (SELECT id FROM properties WHERE name = 'The Peak Villa');
+
+-- ============================================================================
 -- Verification Query
 -- ============================================================================
 -- SELECT p.name as property, b.name as block, COUNT(u.id) as total_units,

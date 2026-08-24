@@ -6,7 +6,7 @@
 -- ============================================================================
 -- Seed Users with Roles
 -- Purpose: Create initial users for testing (Admin, Supervisor, Sales)
--- Note: Passwords are hashed with bcrypt (12 rounds)
+-- Note: Passwords are hashed with bcrypt (10 rounds)
 -- Default passwords: Admin123, Supervisor123, Sales123
 -- ============================================================================
 
@@ -50,7 +50,37 @@ VALUES (
     'Sales User',
     'sales@example.com',
     '6281234567802',
-    '$2a$12$VPBO.dPOnWKC5z3VHUE9UuEJuOTxlQaF6ZdZJX7JHJGXQJnYKPQ1e',
+    '$2y$10$ZCwS77uLY1bonQvoeP9unebzCZU.NQg56H//JTw5PGszWsf2vr8Qi',
+    (SELECT id FROM roles WHERE name = 'Sales'),
+    true
+) ON CONFLICT (email) DO NOTHING;
+
+-- ============================================================================
+-- 4. Sales User 2
+-- Email: sales2@example.com
+-- Password: Sales123
+-- ============================================================================
+INSERT INTO users (full_name, email, phone, password_hash, role_id, is_active)
+VALUES (
+    'Sales User 2',
+    'sales2@example.com',
+    '6281234567803',
+    '$2y$10$ZCwS77uLY1bonQvoeP9unebzCZU.NQg56H//JTw5PGszWsf2vr8Qi',
+    (SELECT id FROM roles WHERE name = 'Sales'),
+    true
+) ON CONFLICT (email) DO NOTHING;
+
+-- ============================================================================
+-- 5. Sales User 3
+-- Email: sales3@example.com
+-- Password: Sales123
+-- ============================================================================
+INSERT INTO users (full_name, email, phone, password_hash, role_id, is_active)
+VALUES (
+    'Sales User 3',
+    'sales3@example.com',
+    '6281234567804',
+    '$2y$10$ZCwS77uLY1bonQvoeP9unebzCZU.NQg56H//JTw5PGszWsf2vr8Qi',
     (SELECT id FROM roles WHERE name = 'Sales'),
     true
 ) ON CONFLICT (email) DO NOTHING;

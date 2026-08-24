@@ -15,7 +15,7 @@
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'admin@example.com'),
+    (SELECT id FROM users WHERE email = 'sales@example.com'),
     'Brassia Garden',
     'Bekasi',
     4564.00,

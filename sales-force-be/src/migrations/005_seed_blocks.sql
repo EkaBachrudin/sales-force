@@ -13,6 +13,8 @@
 -- - Skyline Residences → 3 blocks (Lantai 1-15, Lantai 16-30, Lantai 31-45)
 -- - Business Park → 2 blocks (Blok A, Blok B)
 -- - Townhouse Collection → 2 blocks (Menteng, Kemang)
+-- - Mutiara Residence → 2 blocks (Blok Sapphire, Blok Ruby)
+-- - The Peak Villa → 2 blocks (Area Pine, Area Oak)
 -- ============================================================================
 
 -- ============================================================================
@@ -64,6 +66,23 @@ INSERT INTO blocks (property_id, name, is_active)
 VALUES
     ((SELECT id FROM properties WHERE name = 'Townhouse Collection'), 'Menteng', true),
     ((SELECT id FROM properties WHERE name = 'Townhouse Collection'), 'Kemang', true);
+
+
+-- ============================================================================
+-- B. SEED BLOCKS
+-- ============================================================================
+
+-- 1. Blocks untuk Mutiara Residence (Sales 2) - 2 Blok
+INSERT INTO blocks (property_id, name, is_active)
+VALUES
+    ((SELECT id FROM properties WHERE name = 'Mutiara Residence'), 'Blok Sapphire', true),
+    ((SELECT id FROM properties WHERE name = 'Mutiara Residence'), 'Blok Ruby', true);
+
+-- 2. Blocks untuk The Peak Villa (Sales 3) - 2 Blok
+INSERT INTO blocks (property_id, name, is_active)
+VALUES
+    ((SELECT id FROM properties WHERE name = 'The Peak Villa'), 'Area Pine', true),
+    ((SELECT id FROM properties WHERE name = 'The Peak Villa'), 'Area Oak', true);
 
 -- ============================================================================
 -- Verification Query

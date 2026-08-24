@@ -15,7 +15,7 @@
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'admin@example.com'),
+    (SELECT id FROM users WHERE email = 'sales@example.com'),
     'Cluster Harmony',
     'Tangerang Selatan',
     15000.00,
@@ -31,7 +31,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'admin@example.com'),
+    (SELECT id FROM users WHERE email = 'sales@example.com'),
     'Green Valley',
     'Depok',
     8000.00,
@@ -47,7 +47,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'admin@example.com'),
+    (SELECT id FROM users WHERE email = 'sales@example.com'),
     'Grand Orchid',
     'Bekasi',
     12000.00,
@@ -63,7 +63,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'admin@example.com'),
+    (SELECT id FROM users WHERE email = 'sales@example.com'),
     'Skyline Residences',
     'Jakarta Selatan',
     3000.00,
@@ -79,7 +79,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'admin@example.com'),
+    (SELECT id FROM users WHERE email = 'sales@example.com'),
     'Business Park',
     'Tangerang',
     5000.00,
@@ -95,13 +95,47 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'admin@example.com'),
+    (SELECT id FROM users WHERE email = 'sales@example.com'),
     'Townhouse Collection',
     'Jakarta',
     4000.00,
     'Jl. Menteng Raya & Jl. Kemang Raya',
     'Kumpulan townhouse premium di lokasi strategis (Menteng & Kemang). Fully furnished dengan material premium. Ideal untuk expat dan keluarga modern.',
     '/assets/siteplans/townhouse-collection.png',
+    true
+);
+
+-- ============================================================================
+-- Seeder Properties untuk Sales 2 dan Sales 3
+-- ============================================================================
+
+-- ============================================================================
+-- A. SEED PROPERTIES
+-- ============================================================================
+
+-- 1. Property untuk Sales 2: Mutiara Residence (Bekasi)
+INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
+VALUES (
+    (SELECT id FROM users WHERE email = 'sales2@example.com'),
+    'Mutiara Residence',
+    'Bekasi',
+    10000.00,
+    'Jl. Mutiara Raya, Tambun Selatan',
+    'Perumahan minimalis modern khusus untuk keluarga muda. Bebas banjir dan dekat dengan akses tol baru.',
+    '/assets/siteplans/mutiara-residence.png',
+    true
+);
+
+-- 2. Property untuk Sales 3: The Peak Villa (Bogor)
+INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
+VALUES (
+    (SELECT id FROM users WHERE email = 'sales3@example.com'),
+    'The Peak Villa',
+    'Bogor',
+    20000.00,
+    'Jl. Puncak Pas, Cisarua',
+    'Villa eksklusif dengan pemandangan pegunungan. Udara sejuk, cocok untuk rumah peristirahatan akhir pekan.',
+    '/assets/siteplans/the-peak-villa.png',
     true
 );
 
