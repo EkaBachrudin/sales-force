@@ -26,7 +26,7 @@ export const getUsersController = async (req: Request, res: Response): Promise<v
     sort_order: req.query.sort_order as any,
   };
 
-  const result = await getUsers(query);
+  const result = await getUsers(query, req.user?.role);
 
   res.status(200).json({
     success: true,
@@ -40,7 +40,7 @@ export const getUsersController = async (req: Request, res: Response): Promise<v
 export const getUserDetailController = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  const result = await getUserById(id as string);
+  const result = await getUserById(id as string, req.user?.role);
 
   res.status(200).json({
     success: true,

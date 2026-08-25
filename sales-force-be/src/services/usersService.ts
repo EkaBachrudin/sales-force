@@ -28,7 +28,10 @@ const validatePhoneNumber = (phone: string): boolean => {
  * GET /api/v1/users - List Users with Pagination & Filters
  * @param query - Query parameters for filtering and pagination
  */
-export const getUsers = async (query: GetUsersQuery): Promise<{
+export const getUsers = async (
+  query: GetUsersQuery,
+  viewerRole?: string
+): Promise<{
   users: UserListItem[];
   pagination: {
     page: number;
@@ -67,6 +70,11 @@ export const getUsers = async (query: GetUsersQuery): Promise<{
     params.push(role_id);
   }
 
+  // Non-Admin viewers (e.g. Supervisor) cannot see Admin accounts
+  if (viewerRole !== 'Admin') {
+    conditions.push(`(r.name IS NULL OR r.name <> 'Admin')`);
+  }
+
   // Validate and set sort column
   const validSortColumns = ['created_at', 'full_name', 'email'];
   const sortColumn = validSortColumns.includes(sort_by) ? sort_by : 'created_at';
@@ -78,6 +86,7 @@ export const getUsers = async (query: GetUsersQuery): Promise<{
   const countQuery = `
     SELECT COUNT(DISTINCT u.id) as total
     FROM users u
+    LEFT JOIN roles r ON u.role_id = r.id
     ${whereClause}
   `;
   const countResult = await pool.query(countQuery, params);
@@ -133,7 +142,10 @@ export const getUsers = async (query: GetUsersQuery): Promise<{
  * GET /api/v1/users/:id - Get User Detail
  * @param userId - The ID of the user to get details for
  */
-export const getUserById = async (userId: string): Promise<UserListItem> => {
+export const getUserById = async (
+  userId: string,
+  viewerRole?: string
+): Promise<UserListItem> => {
   const query = `
     SELECT
       u.id,
@@ -157,6 +169,11 @@ export const getUserById = async (userId: string): Promise<UserListItem> => {
   }
 
   const row = result.rows[0];
+
+  // Non-Admin viewers (e.g. Supervisor) cannot view Admin accounts
+  if (viewerRole !== 'Admin' && row.role === 'Admin') {
+    throw new AppError('User not found', 404);
+  }
 
   return {
     id: row.id,

@@ -21,6 +21,9 @@ All endpoints require:
 - **Authentication**: Bearer Token (JWT)
 - **Authorization**: Supervisor or Admin Role (`supervisorOrAdmin` middleware)
 
+> **Role-based visibility:** Role `Admin` dapat melihat seluruh akun user, termasuk akun Admin lain.
+> Role `Supervisor` dapat melihat semua akun **kecuali** akun ber-role `Admin`.
+
 ---
 
 ## Endpoints
@@ -44,6 +47,10 @@ GET /api/v1/users
 | `role_id` | string | No | Filter by role ID |
 | `sort_by` | string | No | Sort field: `created_at`, `full_name`, `email` (default: `created_at`) |
 | `sort_order` | string | No | Sort order: `asc`, `desc` (default: `desc`) |
+
+> **Visibility:** Saat dipanggil oleh role `Supervisor`, akun ber-role `Admin` **tidak** disertakan dalam respons.
+> `pagination.total` dan `pages` ikut menghitung tanpa akun Admin. Filter `role_id` yang menargetkan role `Admin` tetap mengembalikan kosong untuk Supervisor.
+> Role `Admin` tetap dapat melihat seluruh user termasuk Admin lain.
 
 **Response (200 OK):**
 
@@ -89,6 +96,9 @@ GET /api/v1/users/:id
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | string | Yes | User UUID |
+
+> **Visibility:** Saat dipanggil oleh role `Supervisor`, mengakses detail user ber-role `Admin` akan mengembalikan
+> `404 User not found`. Role `Admin` dapat mengakses detail seluruh user.
 
 **Response (200 OK):**
 
