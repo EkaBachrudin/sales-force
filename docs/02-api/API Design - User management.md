@@ -19,7 +19,7 @@ API endpoints for managing users in the Sales Force system.
 All endpoints require:
 
 - **Authentication**: Bearer Token (JWT)
-- **Authorization**: Admin Role Only (`adminOnly` middleware)
+- **Authorization**: Supervisor or Admin Role (`supervisorOrAdmin` middleware)
 
 ---
 
@@ -343,7 +343,7 @@ interface GetUsersQuery {
 ```json
 {
   "success": false,
-  "error": "Admin access required"
+  "error": "Insufficient permissions"
 }
 ```
 
