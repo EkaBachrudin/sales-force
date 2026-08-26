@@ -54,6 +54,12 @@
 .user-modal__hint {
   @apply text-xs text-text-secondary mt-1;
 }
+.user-modal__error-box {
+  @apply p-3 bg-danger/5 border border-danger/40 rounded-lg;
+}
+.user-modal__error-text {
+  @apply text-sm text-danger;
+}
 .user-modal__password-wrapper {
   @apply relative;
 }

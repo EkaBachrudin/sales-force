@@ -17,7 +17,7 @@ const roleOptions = [
 interface UserModalProps {
   isOpen?: boolean;
   onClose?: () => void;
-  onSubmit?: (data: CreateUserDto | UpdateUserDto) => void;
+  onSubmit?: (data: CreateUserDto | UpdateUserDto) => Promise<void> | void;
   isLoading?: boolean;
   mode: 'create' | 'edit';
   user?: User;
@@ -54,6 +54,7 @@ export function UserModal({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -80,6 +81,7 @@ export function UserModal({
         });
       }
       setErrors({});
+      setSubmitError(null);
       setShowPassword(false);
     }
   }, [isOpen, mode, user]);
@@ -93,6 +95,9 @@ export function UserModal({
         delete newErrors[field];
         return newErrors;
       });
+    }
+    if (submitError) {
+      setSubmitError(null);
     }
   };
 
@@ -163,12 +168,17 @@ export function UserModal({
       submitData.is_active = formData.is_active;
     }
 
-    onSubmit?.(submitData);
+    setSubmitError(null);
+    try {
+      await onSubmit?.(submitData);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to save user. Please try again.');
+    }
   };
 
   if (!isOpen) return null;
 
-  const isEditingSelf = currentUser?.id === user?.id;
+  const isEditingSelf = mode === 'edit' && !!user && currentUser?.id === user?.id;
 
   return (
     <>
@@ -339,6 +349,12 @@ export function UserModal({
                   {isEditingSelf && (
                     <p className="user-modal__hint">You cannot deactivate your own account</p>
                   )}
+                </div>
+              )}
+
+              {submitError && (
+                <div className="user-modal__error-box" role="alert">
+                  <p className="user-modal__error-text">{submitError}</p>
                 </div>
               )}
             </form>

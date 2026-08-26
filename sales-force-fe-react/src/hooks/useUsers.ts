@@ -67,7 +67,6 @@ export function useUserMutations(options?: {
     },
     onError: (err: any) => {
       options?.onError?.(err);
-      throw err;
     },
   });
 
@@ -81,7 +80,6 @@ export function useUserMutations(options?: {
     },
     onError: (err: any) => {
       options?.onError?.(err);
-      throw err;
     },
   });
 
@@ -93,7 +91,6 @@ export function useUserMutations(options?: {
     },
     onError: (err: any) => {
       options?.onError?.(err);
-      throw err;
     },
   });
 

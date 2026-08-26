@@ -181,6 +181,7 @@ export const meController = async (req: Request, res: Response): Promise<void> =
     success: true,
     data: {
       user: {
+        id: user.id,
         full_name: user.full_name,
         email: user.email,
         role: user.role,
