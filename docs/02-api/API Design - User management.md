@@ -156,6 +156,7 @@ POST /api/v1/users
 
 > **Note:** If both `role` and `role_id` are provided, `role` takes precedence. The system will first try to find by role name, then by role ID.
 > 
+> **Role restrictions (Supervisor):** Saat dipanggil oleh role `Supervisor`, **tidak dapat** membuat akun ber-role `Admin` maupun `Supervisor`. Mencoba membuat user dengan role tersebut akan mengembalikan `403 Forbidden`. Role `Admin` tidak memiliki batasan ini.
 
 **Response (201 Created):**
 
@@ -221,6 +222,12 @@ PUT /api/v1/users/:id
 
 > **Note:** At least one field must be provided. To remove a role, set `role` to empty string `""` or `role_id` to `null`.
 > 
+> **Role restrictions (Supervisor):** Saat dipanggil oleh role `Supervisor`:
+> - **Tidak dapat** mengedit akun ber-role `Admin` → `403 You cannot edit Admin accounts`.
+> - **Tidak dapat** mengedit akun Supervisor lain (self-edit tetap diizinkan) → `403 You cannot edit other supervisors`.
+> - **Tidak dapat** mengubah role target menjadi `Admin` → `403 You cannot assign the Admin role`.
+>
+> Role `Admin` tidak memiliki batasan ini.
 
 **Response (200 OK):**
 
@@ -262,6 +269,9 @@ DELETE /api/v1/users/:id
 
 > **Note:** Related records will be deleted automatically via CASCADE.
 > 
+> **Role restrictions:**
+> - **Supervisor:** Tidak dapat menghapus akun ber-role `Admin` → `403 You cannot delete Admin accounts`. Tidak dapat menghapus akun ber-role `Supervisor` (termasuk akun sendiri) → `403 You cannot delete supervisor accounts`. Hanya dapat menghapus akun ber-role `Sales` atau tanpa role.
+> - **Admin:** Hanya dapat menghapus akun ber-role `Sales` atau tanpa role. Tidak dapat menghapus akun ber-role `Admin` maupun `Supervisor` → `403 You can only delete users with the Sales role`.
 
 **Response (200 OK):**
 
@@ -356,6 +366,55 @@ interface GetUsersQuery {
 {
   "success": false,
   "error": "Insufficient permissions"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You cannot create users with this role"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You cannot edit Admin accounts"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You cannot edit other supervisors"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You cannot assign the Admin role"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You cannot delete Admin accounts"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You cannot delete supervisor accounts"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You can only delete users with the Sales role"
 }
 ```
 

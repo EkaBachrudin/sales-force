@@ -55,7 +55,7 @@ export const getUserDetailController = async (req: Request, res: Response): Prom
 export const createUserController = async (req: Request, res: Response): Promise<void> => {
   const dto: CreateUserDto = req.body;
 
-  const result = await createUser(dto);
+  const result = await createUser(dto, req.user?.role);
 
   res.status(201).json({
     success: true,
@@ -73,7 +73,7 @@ export const updateUserController = async (req: Request, res: Response): Promise
   const { id } = req.params;
   const dto: UpdateUserDto = req.body;
 
-  const result = await updateUser(id as string, dto);
+  const result = await updateUser(id as string, dto, req.user?.role, req.user?.sub);
 
   res.status(200).json({
     success: true,
@@ -90,7 +90,7 @@ export const updateUserController = async (req: Request, res: Response): Promise
 export const deleteUserController = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  await deleteUser(id as string);
+  await deleteUser(id as string, req.user?.role);
 
   res.status(200).json({
     success: true,

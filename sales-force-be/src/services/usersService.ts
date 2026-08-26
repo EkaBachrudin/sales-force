@@ -221,7 +221,7 @@ const getRoleId = async (roleNameOrId: string | undefined): Promise<string | nul
  * POST /api/v1/users - Create New User
  * @param dto - User data to create
  */
-export const createUser = async (dto: CreateUserDto): Promise<UserListItem> => {
+export const createUser = async (dto: CreateUserDto, viewerRole?: string): Promise<UserListItem> => {
   // Validate required fields
   if (!dto.email || dto.email.trim().length === 0) {
     throw new AppError('Email is required', 400);
@@ -254,6 +254,17 @@ export const createUser = async (dto: CreateUserDto): Promise<UserListItem> => {
   if (dto.role || dto.role_id) {
     const roleValue = dto.role || dto.role_id;
     roleId = await getRoleId(roleValue);
+  }
+
+  // Supervisor cannot create Admin or Supervisor accounts
+  if (viewerRole === 'Supervisor' && roleId) {
+    const roleCheck = await pool.query('SELECT name FROM roles WHERE id = $1', [roleId]);
+    if (roleCheck.rows.length > 0) {
+      const targetRole = roleCheck.rows[0].name;
+      if (targetRole === 'Admin' || targetRole === 'Supervisor') {
+        throw new AppError('You cannot create users with this role', 403);
+      }
+    }
   }
 
   // Hash password
@@ -305,11 +316,28 @@ export const createUser = async (dto: CreateUserDto): Promise<UserListItem> => {
  * @param userId - The ID of the user to update
  * @param dto - User data to update
  */
-export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<UserListItem> => {
-  // Check if user exists
-  const existingUser = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
-  if (existingUser.rows.length === 0) {
+export const updateUser = async (userId: string, dto: UpdateUserDto, viewerRole?: string, viewerId?: string): Promise<UserListItem> => {
+  // Check if user exists (join roles to get role name for authorization)
+  const existingUserResult = await pool.query(
+    'SELECT u.*, r.name as role FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = $1',
+    [userId]
+  );
+  if (existingUserResult.rows.length === 0) {
     throw new AppError('User not found', 404);
+  }
+
+  const existingUser = existingUserResult.rows[0];
+
+  // Supervisor restrictions
+  if (viewerRole === 'Supervisor') {
+    // Cannot edit Admin accounts
+    if (existingUser.role === 'Admin') {
+      throw new AppError('You cannot edit Admin accounts', 403);
+    }
+    // Cannot edit other Supervisor accounts (self-edit is allowed)
+    if (existingUser.role === 'Supervisor' && existingUser.id !== viewerId) {
+      throw new AppError('You cannot edit other supervisors', 403);
+    }
   }
 
   // Validate fields if provided
@@ -344,6 +372,14 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<Us
     } else {
       const roleValue = dto.role || dto.role_id;
       roleId = await getRoleId(roleValue);
+    }
+  }
+
+  // Supervisor cannot assign Admin role
+  if (viewerRole === 'Supervisor' && roleId !== undefined && roleId !== null) {
+    const roleCheck = await pool.query('SELECT name FROM roles WHERE id = $1', [roleId]);
+    if (roleCheck.rows.length > 0 && roleCheck.rows[0].name === 'Admin') {
+      throw new AppError('You cannot assign the Admin role', 403);
     }
   }
 
@@ -425,12 +461,35 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<Us
 /**
  * DELETE /api/v1/users/:id - Delete User
  * @param userId - The ID of the user to delete
+ * @param viewerRole - Role of the user performing the delete
  */
-export const deleteUser = async (userId: string): Promise<void> => {
-  // Check if user exists
-  const existingUser = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
-  if (existingUser.rows.length === 0) {
+export const deleteUser = async (userId: string, viewerRole?: string): Promise<void> => {
+  // Check if user exists (join roles to get role name for authorization)
+  const result = await pool.query(
+    'SELECT u.id, r.name AS role FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = $1',
+    [userId]
+  );
+  if (result.rows.length === 0) {
     throw new AppError('User not found', 404);
+  }
+
+  const target = result.rows[0];
+
+  // Supervisor restrictions
+  if (viewerRole === 'Supervisor') {
+    if (target.role === 'Admin') {
+      throw new AppError('You cannot delete Admin accounts', 403);
+    }
+    if (target.role === 'Supervisor') {
+      throw new AppError('You cannot delete supervisor accounts', 403);
+    }
+  }
+
+  // Admin restrictions: can only delete Sales or users without role
+  if (viewerRole === 'Admin') {
+    if (target.role === 'Admin' || target.role === 'Supervisor') {
+      throw new AppError('You can only delete users with the Sales role', 403);
+    }
   }
 
   // Delete user (CASCADE will handle related records)
