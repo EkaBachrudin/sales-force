@@ -22,6 +22,7 @@ export const getUsersController = async (req: Request, res: Response): Promise<v
     search: req.query.search as string | undefined,
     is_active: req.query.is_active ? req.query.is_active === 'true' : undefined,
     role_id: req.query.role_id as string | undefined,
+    role: req.query.role as string | undefined,
     sort_by: req.query.sort_by as any,
     sort_order: req.query.sort_order as any,
   };

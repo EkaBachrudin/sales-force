@@ -69,6 +69,7 @@ export interface GetUsersQuery {
   search?: string;
   is_active?: boolean;
   role_id?: string;
+  role?: string;
   sort_by?: 'created_at' | 'full_name' | 'email';
   sort_order?: 'asc' | 'desc';
 }

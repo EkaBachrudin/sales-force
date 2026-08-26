@@ -12,8 +12,8 @@
 .users-page__search-icon {
   @apply w-4 h-4;
 }
-.users-page__select {
-  @apply w-full sm:w-auto px-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:border-primary;
+.users-page__combobox {
+  @apply w-full sm:w-auto sm:min-w-[180px];
 }
 .users-page__table-container {
   @apply bg-white rounded-xl border border-border overflow-hidden;

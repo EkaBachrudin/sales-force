@@ -46,6 +46,7 @@ export const getUsers = async (
     search,
     is_active,
     role_id,
+    role,
     sort_by = 'created_at',
     sort_order = 'desc',
   } = query;
@@ -68,6 +69,11 @@ export const getUsers = async (
   if (role_id) {
     conditions.push(`u.role_id = $${paramIndex++}`);
     params.push(role_id);
+  }
+
+  if (role) {
+    conditions.push(`r.name = $${paramIndex++}`);
+    params.push(role);
   }
 
   // Non-Admin viewers (e.g. Supervisor) cannot see Admin accounts

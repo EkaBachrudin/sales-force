@@ -45,11 +45,12 @@ GET /api/v1/users
 | `search` | string | No | Search by name, email, or phone |
 | `is_active` | boolean | No | Filter by active status |
 | `role_id` | string | No | Filter by role ID |
+| `role` | string | No | Filter by role name: `Admin`, `Supervisor`, `Sales` |
 | `sort_by` | string | No | Sort field: `created_at`, `full_name`, `email` (default: `created_at`) |
 | `sort_order` | string | No | Sort order: `asc`, `desc` (default: `desc`) |
 
 > **Visibility:** Saat dipanggil oleh role `Supervisor`, akun ber-role `Admin` **tidak** disertakan dalam respons.
-> `pagination.total` dan `pages` ikut menghitung tanpa akun Admin. Filter `role_id` yang menargetkan role `Admin` tetap mengembalikan kosong untuk Supervisor.
+> `pagination.total` dan `pages` ikut menghitung tanpa akun Admin. Filter `role_id` maupun `role` yang menargetkan role `Admin` tetap mengembalikan kosong untuk Supervisor.
 > Role `Admin` tetap dapat melihat seluruh user termasuk Admin lain.
 
 **Response (200 OK):**
@@ -330,6 +331,7 @@ interface GetUsersQuery {
   search?: string;         // Searches in: full_name, email, phone
   is_active?: boolean;     // Filter by active status
   role_id?: string;        // Filter by role ID
+  role?: string;           // Filter by role name: Admin, Supervisor, Sales
   sort_by?: 'created_at' | 'full_name' | 'email';  // Default: 'created_at'
   sort_order?: 'asc' | 'desc';                      // Default: 'desc'
 }

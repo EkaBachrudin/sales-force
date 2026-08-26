@@ -4,6 +4,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
+import { Combobox, type ComboboxOption } from '@/components/ui/Combobox';
 import { UserModal } from '@/components/users/UserModal';
 import type { User, UsersFilters, CreateUserDto, UpdateUserDto } from '@/lib/types';
 import { formatRelativeTime } from '@/lib/utils';
@@ -17,15 +18,13 @@ const roleVariantMap: Record<string, 'red' | 'blue' | 'green'> = {
   'Sales': 'green',
 };
 
-const roleOptions = [
-  { value: 'all', label: 'All Roles' },
+const roleOptions: ComboboxOption[] = [
   { value: 'Admin', label: 'Admin' },
   { value: 'Supervisor', label: 'Supervisor' },
   { value: 'Sales', label: 'Sales' },
 ];
 
-const statusOptions = [
-  { value: 'all', label: 'All Status' },
+const statusOptions: ComboboxOption[] = [
   { value: 'true', label: 'Active' },
   { value: 'false', label: 'Inactive' },
 ];
@@ -124,28 +123,22 @@ export default function UsersPage() {
               leftIcon={<Search className="users-page__search-icon" />}
             />
           </div>
-          <select
-            value={filters.role}
-            onChange={(e) => updateFilter('role', e.target.value)}
-            className="users-page__select"
-          >
-            {roleOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filters.status}
-            onChange={(e) => updateFilter('status', e.target.value)}
-            className="users-page__select"
-          >
-            {statusOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <Combobox
+            className="users-page__combobox"
+            options={roleOptions}
+            value={filters.role === 'all' ? '' : filters.role}
+            onChange={(value) => updateFilter('role', value === '' ? 'all' : (value as string))}
+            placeholder="All Roles"
+            searchPlaceholder="Search role..."
+          />
+          <Combobox
+            className="users-page__combobox"
+            options={statusOptions}
+            value={filters.status === 'all' ? '' : filters.status}
+            onChange={(value) => updateFilter('status', value === '' ? 'all' : (value as string))}
+            placeholder="All Status"
+            searchPlaceholder="Search status..."
+          />
         </div>
 
         {/* Users Table */}
