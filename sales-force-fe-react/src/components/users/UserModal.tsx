@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { X, Mail, Phone, Shield, Key, UserCheck, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Combobox, type ComboboxOption } from '@/components/ui/Combobox';
 import type { User, CreateUserDto, UpdateUserDto } from '@/lib/types';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import './UserModal.css';
 
-const roleOptions = [
+const roleOptions: ComboboxOption[] = [
   { value: 'Admin', label: 'Admin' },
   { value: 'Supervisor', label: 'Supervisor' },
   { value: 'Sales', label: 'Sales' },
@@ -238,23 +238,16 @@ export function UserModal({
                   />
 
                   <div>
-                    <label className="user-modal__field-label">Role *</label>
-                    <select
+                    <Combobox
+                      options={roleOptions}
                       value={formData.role}
-                      onChange={(e) => handleInputChange('role', e.target.value)}
-                      className={cn('user-modal__select', errors.role && 'user-modal__select--error')}
-                      required
+                      onChange={(value) => handleInputChange('role', value as string)}
+                      label="Role *"
+                      error={errors.role}
+                      placeholder="Select role..."
+                      searchPlaceholder="Search role..."
                       disabled={isEditingSelf}
-                    >
-                      {roleOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.role && (
-                      <p className="user-modal__error">{errors.role}</p>
-                    )}
+                    />
                     {isEditingSelf && (
                       <p className="user-modal__hint">You cannot change your own role</p>
                     )}
