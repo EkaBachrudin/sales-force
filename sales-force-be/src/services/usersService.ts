@@ -338,6 +338,10 @@ export const updateUser = async (userId: string, dto: UpdateUserDto, viewerRole?
     if (existingUser.role === 'Supervisor' && existingUser.id !== viewerId) {
       throw new AppError('You cannot edit other supervisors', 403);
     }
+    // Cannot change own role (self-edit allowed for non-role fields only)
+    if (existingUser.id === viewerId && (dto.role !== undefined || dto.role_id !== undefined)) {
+      throw new AppError('You cannot change your own role', 403);
+    }
   }
 
   // Validate fields if provided

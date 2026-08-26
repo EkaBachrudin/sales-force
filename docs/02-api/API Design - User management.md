@@ -224,8 +224,9 @@ PUT /api/v1/users/:id
 > 
 > **Role restrictions (Supervisor):** Saat dipanggil oleh role `Supervisor`:
 > - **Tidak dapat** mengedit akun ber-role `Admin` → `403 You cannot edit Admin accounts`.
-> - **Tidak dapat** mengedit akun Supervisor lain (self-edit tetap diizinkan) → `403 You cannot edit other supervisors`.
+> - **Tidak dapat** mengedit akun Supervisor lain (self-edit tetap diizinkan untuk field non-role) → `403 You cannot edit other supervisors`.
 > - **Tidak dapat** mengubah role target menjadi `Admin` → `403 You cannot assign the Admin role`.
+> - **Self-edit:** dapat mengedit akun sendiri, namun **tidak dapat** mengubah/menghapus role-nya sendiri → `403 You cannot change your own role`.
 >
 > Role `Admin` tidak memiliki batasan ini.
 
@@ -394,6 +395,13 @@ interface GetUsersQuery {
 {
   "success": false,
   "error": "You cannot assign the Admin role"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "You cannot change your own role"
 }
 ```
 
