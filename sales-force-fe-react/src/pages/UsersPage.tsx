@@ -102,6 +102,20 @@ export default function UsersPage() {
     return usersData?.data.find((u) => u.id === selectedUserId);
   };
 
+  const canEdit = (user: User) => {
+    if (currentUser?.role === 'Admin') return true;
+    if (currentUser?.role === 'Supervisor') {
+      return user.role === 'Sales' || user.id === currentUser?.id;
+    }
+    return false;
+  };
+
+  const canDelete = (user: User) => {
+    if (currentUser?.role === 'Admin') return true;
+    if (currentUser?.role === 'Supervisor') return user.role === 'Sales';
+    return false;
+  };
+
   return (
     <>
       <DashboardLayout
@@ -187,16 +201,18 @@ export default function UsersPage() {
                             </div>
                           </div>
                           <div className="users-page__mobile-actions">
-                            <button
-                              onClick={() => handleEditClick(user)}
-                              className="users-page__action-btn users-page__action-btn--edit"
-                              title="Edit"
-                            >
-                              <svg className="users-page__mobile-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            {user.id !== currentUser?.id && (
+                            {canEdit(user) && (
+                              <button
+                                onClick={() => handleEditClick(user)}
+                                className="users-page__action-btn users-page__action-btn--edit"
+                                title="Edit"
+                              >
+                                <svg className="users-page__mobile-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                            )}
+                            {canDelete(user) && (
                               <button
                                 onClick={() => handleDeleteClick(user)}
                                 className="users-page__action-btn users-page__action-btn--delete"
@@ -282,16 +298,18 @@ export default function UsersPage() {
                           </td>
                           <td className="users-page__td">
                             <div className="users-page__table-actions">
-                              <button
-                                onClick={() => handleEditClick(user)}
-                                className="users-page__action-btn users-page__action-btn--edit users-page__action-btn--table"
-                                title="Edit"
-                              >
-                                <svg className="users-page__table-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                              </button>
-                              {user.id !== currentUser?.id && (
+                              {canEdit(user) && (
+                                <button
+                                  onClick={() => handleEditClick(user)}
+                                  className="users-page__action-btn users-page__action-btn--edit users-page__action-btn--table"
+                                  title="Edit"
+                                >
+                                  <svg className="users-page__table-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                              )}
+                              {canDelete(user) && (
                                 <button
                                   onClick={() => handleDeleteClick(user)}
                                   className="users-page__action-btn users-page__action-btn--delete users-page__action-btn--table"
