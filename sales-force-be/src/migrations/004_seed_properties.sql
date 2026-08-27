@@ -15,7 +15,7 @@
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'Cluster Harmony',
     'Tangerang Selatan',
     15000.00,
@@ -31,7 +31,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'Green Valley',
     'Depok',
     8000.00,
@@ -47,7 +47,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'Grand Orchid',
     'Bekasi',
     12000.00,
@@ -63,7 +63,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'Skyline Residences',
     'Jakarta Selatan',
     3000.00,
@@ -79,7 +79,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'Business Park',
     'Tangerang',
     5000.00,
@@ -95,7 +95,7 @@ VALUES (
 -- ============================================================================
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'Townhouse Collection',
     'Jakarta',
     4000.00,
@@ -116,7 +116,7 @@ VALUES (
 -- 1. Property untuk Sales 2: Mutiara Residence (Bekasi)
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales2@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'Mutiara Residence',
     'Bekasi',
     10000.00,
@@ -129,7 +129,7 @@ VALUES (
 -- 2. Property untuk Sales 3: The Peak Villa (Bogor)
 INSERT INTO properties (assigned_to, name, city, land_area, address, description, siteplan_assets, is_active)
 VALUES (
-    (SELECT id FROM users WHERE email = 'sales3@example.com'),
+    (SELECT id FROM users WHERE email = 'admin@example.com'),
     'The Peak Villa',
     'Bogor',
     20000.00,
