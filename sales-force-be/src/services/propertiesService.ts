@@ -16,11 +16,10 @@ import {
 } from '../types';
 
 /**
- * GET /api/v1/properties - Get User Properties List with Pagination
+ * GET /api/v1/properties - Get All Properties List with Pagination
  */
 export const getProperties = async (
-  query: GetPropertiesQuery,
-  userId: string
+  query: GetPropertiesQuery
 ): Promise<{ properties: PropertyListItem[]; pagination: PaginationMeta }> => {
   const page = Math.max(1, query.page || 1);
   const limit = Math.min(50, query.limit || 10);
@@ -28,9 +27,9 @@ export const getProperties = async (
   const search = query.search?.trim();
   const cityFilter = query.city?.trim();
 
-  const conditions: string[] = ['p.assigned_to = $1'];
-  const params: any[] = [userId];
-  let paramIndex = 2;
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
 
   if (search) {
     conditions.push(`p.name ILIKE $${paramIndex++}`);
@@ -42,7 +41,7 @@ export const getProperties = async (
     params.push(`%${cityFilter}%`);
   }
 
-  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   // Get total count
   const countQuery = `
@@ -120,11 +119,11 @@ export const getProperties = async (
 /**
  * GET /api/v1/properties/:id - Get Property Detail with Blocks
  */
-export const getPropertyDetail = async (propertyId: string, userId: string): Promise<PropertyDetail> => {
+export const getPropertyDetail = async (propertyId: string): Promise<PropertyDetail> => {
   // Get property
   const propertyResult = await pool.query(
-    'SELECT * FROM properties WHERE id = $1 AND assigned_to = $2',
-    [propertyId, userId]
+    'SELECT * FROM properties WHERE id = $1',
+    [propertyId]
   );
 
   if (propertyResult.rows.length === 0) {
@@ -182,11 +181,11 @@ export const getPropertyDetail = async (propertyId: string, userId: string): Pro
 /**
  * GET /api/v1/properties/:id/siteplan - Get Property Siteplan with All Units
  */
-export const getPropertySiteplan = async (propertyId: string, userId: string): Promise<SiteplanData> => {
+export const getPropertySiteplan = async (propertyId: string): Promise<SiteplanData> => {
   // Get property siteplan
   const propertyResult = await pool.query(
-    'SELECT id, name, siteplan_assets FROM properties WHERE id = $1 AND assigned_to = $2',
-    [propertyId, userId]
+    'SELECT id, name, siteplan_assets FROM properties WHERE id = $1',
+    [propertyId]
   );
 
   if (propertyResult.rows.length === 0) {
@@ -209,10 +208,9 @@ export const getPropertySiteplan = async (propertyId: string, userId: string): P
     JOIN blocks b ON b.id = u.block_id
     JOIN properties p ON p.id = b.property_id
     WHERE p.id = $1
-      AND p.assigned_to = $2
     ORDER BY b.name ASC
     `,
-    [propertyId, userId]
+    [propertyId]
   );
 
   const units: SiteplanUnit[] = unitsResult.rows.map((row) => ({
@@ -418,7 +416,6 @@ export const updateProperty = async (
         siteplan_assets = $7,
         updated_at = NOW()
     WHERE id = $1
-      AND assigned_to = $8
     RETURNING *
   `;
 
@@ -432,7 +429,6 @@ export const updateProperty = async (
       dto.address ?? null,
       dto.description ?? null,
       finalSiteplanPath,
-      userId,
     ]);
   } catch (error) {
     // Rollback file upload if DB update fails
@@ -461,11 +457,11 @@ export const updateProperty = async (
 /**
  * DELETE /api/v1/properties/:id - Delete Property (Cascade)
  */
-export const deleteProperty = async (propertyId: string, userId: string): Promise<void> => {
-  // Check if property exists and belongs to user, and get siteplan path
+export const deleteProperty = async (propertyId: string): Promise<void> => {
+  // Get property siteplan path
   const existingProperty = await pool.query(
-    'SELECT id, siteplan_assets FROM properties WHERE id = $1 AND assigned_to = $2',
-    [propertyId, userId]
+    'SELECT id, siteplan_assets FROM properties WHERE id = $1',
+    [propertyId]
   );
 
   if (existingProperty.rows.length === 0) {

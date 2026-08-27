@@ -1,9 +1,5 @@
 # API Design - Properties V2
 
-# API Design - Properties V2
-
-# API Design - Properties (Enhanced)
-
 ## 1. Document Overview
 
 | Field | Value |
@@ -54,7 +50,7 @@
 
 ### 3.1 GET /api/v1/properties — Get Properties List
 
-**Purpose**: Menampilkan list properti milik user yang sedang login
+**Purpose**: Menampilkan semua properti yang tersedia untuk user yang terautentikasi dengan subscription aktif
 
 **Method**: `GET`
 
@@ -151,16 +147,12 @@ LEFT JOIN (
     JOIN units u ON u.block_id = b.id
     GROUP BY b.property_id
 ) uc ON uc.property_id = p.id
-WHERE p.assigned_to = $1
-  AND ($2::text IS NULL OR p.name ILIKE '%' || $2 || '%')
-  AND ($3::text IS NULL OR p.city ILIKE '%' || $3 || '%')
 ORDER BY p.name ASC
-LIMIT $4 OFFSET $5
+LIMIT $1 OFFSET $2
 ```
 
 **Security Notes**:
-- Filter wajib by `assigned_to` dari JWT token
-- User hanya bisa melihat properti miliknya sendiri
+- User harus memiliki active subscription untuk mengakses endpoint
 
 ---
 
@@ -1502,7 +1494,7 @@ RETURNING *;
 | # | Method | Endpoint | Content-Type | Purpose |
 | --- | --- | --- | --- | --- |
 | **Properties** |  |  |  |  |
-| 1 | `GET` | `/api/v1/properties` | - | List properti milik user |
+| 1 | `GET` | `/api/v1/properties` | - | List semua properti |
 | 2 | `POST` | `/api/v1/properties` | `multipart/form-data` | Tambah properti baru (opsional upload SVG siteplan) |
 | 3 | `GET` | `/api/v1/properties/:id` | - | Detail properti + blocks |
 | 4 | `PUT` | `/api/v1/properties/:id` | `multipart/form-data` | Edit properti (opsional upload SVG siteplan baru) |

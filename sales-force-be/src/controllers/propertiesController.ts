@@ -14,21 +14,9 @@ import {
 } from '../types';
 
 /**
- * GET /api/v1/properties - Get User Properties List
+ * GET /api/v1/properties - Get All Properties List
  */
 export const getPropertiesController = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
-      },
-    });
-    return;
-  }
-
   const query: GetPropertiesQuery = {
     page: req.query.page ? parseInt(req.query.page as string) : undefined,
     limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
@@ -36,7 +24,7 @@ export const getPropertiesController = async (req: Request, res: Response): Prom
     city: req.query.city as string | undefined,
   };
 
-  const result = await getPropertiesService(query, userId);
+  const result = await getPropertiesService(query);
 
   res.status(200).json({
     success: true,
@@ -48,21 +36,9 @@ export const getPropertiesController = async (req: Request, res: Response): Prom
  * GET /api/v1/properties/:id - Get Property Detail with Blocks
  */
 export const getPropertyDetailController = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
-      },
-    });
-    return;
-  }
-
   const id = req.params.id as string;
 
-  const result = await getPropertyDetailService(id, userId);
+  const result = await getPropertyDetailService(id);
 
   res.status(200).json({
     success: true,
@@ -74,21 +50,9 @@ export const getPropertyDetailController = async (req: Request, res: Response): 
  * GET /api/v1/properties/:id/siteplan - Get Property Siteplan with All Units
  */
 export const getPropertySiteplanController = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
-      },
-    });
-    return;
-  }
-
   const id = req.params.id as string;
 
-  const result = await getPropertySiteplanService(id, userId);
+  const result = await getPropertySiteplanService(id);
 
   res.status(200).json({
     success: true,
@@ -190,21 +154,9 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
  * DELETE /api/v1/properties/:id - Delete Property
  */
 export const deletePropertyController = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
-      },
-    });
-    return;
-  }
-
   const id = req.params.id as string;
 
-  await deletePropertyService(id, userId);
+  await deletePropertyService(id);
 
   res.status(200).json({
     success: true,

@@ -14,7 +14,7 @@ const router = Router();
 
 /**
  * GET /api/v1/properties
- * Get list of properties for logged in user
+ * Get list of all properties
  * @access Private (requires authentication and active subscription)
  */
 router.get('/', authenticate, subscriptionCheck, getPropertiesController);
