@@ -485,8 +485,8 @@ export default function PropertyDetailPage() {
           <div className="property-detail-page__blocks-grid">
             {blocks.map((block) => (
               <div key={block.id} className="property-detail-page__block">
-                <h4 className="property-detail-page__block-name">{property.name}</h4>
-                <p className="property-detail-page__block-sub">{block.name}</p>
+                <h4 className="property-detail-page__block-name">{block.name}</h4>
+                <p className="property-detail-page__block-sub">{property.name}</p>
 
                 <div className="property-detail-page__block-stats">
                   <p className="property-detail-page__block-count">{block.total_units}</p>

@@ -8,23 +8,23 @@ import {
   assignLeadToUnitController,
   unassignLeadFromUnitController,
 } from '../controllers/unitsController';
-import { authenticate, subscriptionCheck } from '../middleware';
+import { authenticate, subscriptionCheck, supervisorOrAdmin } from '../middleware';
 
 const router = Router();
 
 /**
  * GET /api/v1/blocks/:blockId/units
  * Get units list in a block with pagination
- * @access Private (requires authentication and active subscription)
+ * @access Private (requires authentication and active subscription, allowed roles: admin, supervisor)
  */
-router.get('/blocks/:blockId/units', authenticate, subscriptionCheck, getUnitsController);
+router.get('/blocks/:blockId/units', authenticate, subscriptionCheck, supervisorOrAdmin, getUnitsController);
 
 /**
  * POST /api/v1/blocks/:blockId/units
  * Create a new unit in a block
- * @access Private (requires authentication and active subscription)
+ * @access Private (requires authentication and active subscription, allowed roles: admin, supervisor)
  */
-router.post('/blocks/:blockId/units', authenticate, subscriptionCheck, createUnitController);
+router.post('/blocks/:blockId/units', authenticate, subscriptionCheck, supervisorOrAdmin, createUnitController);
 
 /**
  * GET /api/v1/units/:id
@@ -50,15 +50,15 @@ router.delete('/units/:id/leads/:leadId', authenticate, subscriptionCheck, unass
 /**
  * PUT /api/v1/units/:id
  * Update unit (name, land_area - status auto-updated via trigger)
- * @access Private (requires authentication and active subscription)
+ * @access Private (requires authentication and active subscription, allowed roles: admin, supervisor)
  */
-router.put('/units/:id', authenticate, subscriptionCheck, updateUnitController);
+router.put('/units/:id', authenticate, subscriptionCheck, supervisorOrAdmin, updateUnitController);
 
 /**
  * DELETE /api/v1/units/:id
  * Delete unit (leads.unit_id will be set to NULL)
- * @access Private (requires authentication and active subscription)
+ * @access Private (requires authentication and active subscription, allowed roles: admin, supervisor)
  */
-router.delete('/units/:id', authenticate, subscriptionCheck, deleteUnitController);
+router.delete('/units/:id', authenticate, subscriptionCheck, supervisorOrAdmin, deleteUnitController);
 
 export default router;

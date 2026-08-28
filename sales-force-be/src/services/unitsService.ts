@@ -21,7 +21,7 @@ import { naturalCompare } from '../utils/naturalSort';
 export const getUnits = async (
   blockId: string,
   query: GetUnitsQuery,
-  userId: string
+  _userId: string
 ): Promise<PaginatedUnitsResponse> => {
   const page = Math.max(1, query.page || 1);
   const limit = Math.min(100, query.limit || 20);
@@ -38,10 +38,10 @@ export const getUnits = async (
       p.name AS property_name
     FROM blocks b
     JOIN properties p ON p.id = b.property_id
-    WHERE b.id = $1 AND p.assigned_to = $2
+    WHERE b.id = $1
   `;
 
-  const blockInfoResult = await pool.query(blockInfoQuery, [blockId, userId]);
+  const blockInfoResult = await pool.query(blockInfoQuery, [blockId]);
 
   if (blockInfoResult.rows.length === 0) {
     throw new AppError('Block not found', 404);
@@ -50,9 +50,9 @@ export const getUnits = async (
   const blockInfo = blockInfoResult.rows[0];
 
   // Build query conditions
-  const conditions: string[] = ['u.block_id = $1', 'p.assigned_to = $2'];
-  const params: any[] = [blockId, userId];
-  let paramIndex = 3;
+  const conditions: string[] = ['u.block_id = $1'];
+  const params: any[] = [blockId];
+  let paramIndex = 2;
 
   if (statusFilter) {
     conditions.push(`u.status = $${paramIndex++}`);
@@ -133,7 +133,7 @@ export const getUnits = async (
 export const createUnit = async (
   blockId: string,
   dto: CreateUnitDto,
-  userId: string
+  _userId: string
 ): Promise<Unit> => {
   // Validate name
   if (!dto.name || dto.name.trim().length === 0) {
@@ -151,15 +151,14 @@ export const createUnit = async (
     }
   }
 
-  // Check if block exists and belongs to user's property
+  // Check if block exists
   const blockCheck = await pool.query(
     `
     SELECT b.id
     FROM blocks b
-    JOIN properties p ON p.id = b.property_id
-    WHERE b.id = $1 AND p.assigned_to = $2
+    WHERE b.id = $1
     `,
-    [blockId, userId]
+    [blockId]
   );
 
   if (blockCheck.rows.length === 0) {
@@ -205,7 +204,7 @@ export const createUnit = async (
 export const updateUnit = async (
   unitId: string,
   dto: UpdateUnitDto,
-  userId: string
+  _userId: string
 ): Promise<Unit> => {
   // Validate name if provided
   if (dto.name !== undefined) {
@@ -230,16 +229,15 @@ export const updateUnit = async (
     throw new AppError('At least one field must be provided', 400);
   }
 
-  // Check if unit exists and belongs to user's property
+  // Check if unit exists
   const existingUnit = await pool.query(
     `
     SELECT u.*, b.id as block_id
     FROM units u
     JOIN blocks b ON b.id = u.block_id
-    JOIN properties p ON p.id = b.property_id
-    WHERE u.id = $1 AND p.assigned_to = $2
+    WHERE u.id = $1
     `,
-    [unitId, userId]
+    [unitId]
   );
 
   if (existingUnit.rows.length === 0) {
@@ -267,11 +265,6 @@ export const updateUnit = async (
         land_area = COALESCE($2, land_area),
         updated_at = NOW()
     WHERE id = $3
-      AND block_id IN (
-        SELECT b.id FROM blocks b
-        JOIN properties p ON p.id = b.property_id
-        WHERE p.assigned_to = $4
-      )
     RETURNING *
   `;
 
@@ -279,7 +272,6 @@ export const updateUnit = async (
     dto.name?.trim(),
     dto.land_area ?? null,
     unitId,
-    userId,
   ]);
   const row = result.rows[0];
 
@@ -297,17 +289,11 @@ export const updateUnit = async (
 /**
  * DELETE /api/v1/units/:id - Delete Unit
  */
-export const deleteUnit = async (unitId: string, userId: string): Promise<void> => {
-  // Check if unit exists and belongs to user's property
+export const deleteUnit = async (unitId: string, _userId: string): Promise<void> => {
+  // Check if unit exists
   const existingUnit = await pool.query(
-    `
-    SELECT u.id, u.status
-    FROM units u
-    JOIN blocks b ON b.id = u.block_id
-    JOIN properties p ON p.id = b.property_id
-    WHERE u.id = $1 AND p.assigned_to = $2
-    `,
-    [unitId, userId]
+    'SELECT u.id, u.status FROM units u WHERE u.id = $1',
+    [unitId]
   );
 
   if (existingUnit.rows.length === 0) {
@@ -322,18 +308,7 @@ export const deleteUnit = async (unitId: string, userId: string): Promise<void> 
   }
 
   // Delete unit (leads.unit_id will be set to NULL via ON DELETE SET NULL)
-  await pool.query(
-    `
-    DELETE FROM units
-    WHERE id = $1
-      AND block_id IN (
-        SELECT b.id FROM blocks b
-        JOIN properties p ON p.id = b.property_id
-        WHERE p.assigned_to = $2
-      )
-    `,
-    [unitId, userId]
-  );
+  await pool.query('DELETE FROM units WHERE id = $1', [unitId]);
 };
 
 /**

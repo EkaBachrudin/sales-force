@@ -824,6 +824,8 @@ WHERE id = $1
 
 **Purpose**: Menampilkan list units di dalam block tertentu
 
+**Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
+
 **Method**: `GET`
 
 **Path Parameters**:
@@ -901,11 +903,10 @@ FROM units u
 JOIN blocks b ON b.id = u.block_id
 JOIN properties p ON p.id = b.property_id
 WHERE u.block_id = $1
-  AND p.assigned_to = $2
-  AND ($3::varchar(20) IS NULL OR u.status = $3)
-  AND ($4::text IS NULL OR u.name ILIKE '%' || $4 || '%')
+  AND ($2::varchar(20) IS NULL OR u.status = $2)
+  AND ($3::text IS NULL OR u.name ILIKE '%' || $3 || '%')
 ORDER BY u.name ASC
-LIMIT $5 OFFSET $6
+LIMIT $4 OFFSET $5
 ```
 
 ---
@@ -913,6 +914,8 @@ LIMIT $5 OFFSET $6
 ### 5.2 POST /api/v1/blocks/:blockId/units — Add New Unit
 
 **Purpose**: Menambahkan unit baru ke dalam block tertentu
+
+**Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
 
 **Method**: `POST`
 
@@ -942,8 +945,8 @@ LIMIT $5 OFFSET $6
 - `name`: Wajib, maks 100 karakter
 - `name` harus unik di dalam satu block (unique constraint: `block_id + name`)
 - `land_area`: Opsional, jika dikirim harus angka >= 0
-- `status`: Default `available` (tidak perlu dikirim)
-- Block harus milik property yang dimiliki user yang login
+- Block harus ada di database
+- Status default `available` (tidak perlu dikirim)
 
 **Success Response** `201`:
 
@@ -979,6 +982,8 @@ INSERT INTO units (
 ### 5.3 PUT /api/v1/units/:id — Edit Unit
 
 **Purpose**: Mengubah data unit (value sama dengan add new unit)
+
+**Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
 
 **Method**: `PUT`
 
@@ -1033,11 +1038,6 @@ SET name = COALESCE($1, name),
     land_area = COALESCE($2, land_area),
     updated_at = NOW()
 WHERE id = $3
-  AND block_id IN (
-      SELECT b.id FROM blocks b
-      JOIN properties p ON p.id = b.property_id
-      WHERE p.assigned_to = $4
-  )
 RETURNING *
 ```
 
@@ -1046,6 +1046,8 @@ RETURNING *
 ### 5.4 DELETE /api/v1/units/:id — Delete Unit
 
 **Purpose**: Menghapus unit
+
+**Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
 
 **Method**: `DELETE`
 
@@ -1070,11 +1072,6 @@ RETURNING *
 -- ON DELETE SET NULL pada leads.unit_id
 DELETE FROM units
 WHERE id = $1
-  AND block_id IN (
-      SELECT b.id FROM blocks b
-      JOIN properties p ON p.id = b.property_id
-      WHERE p.assigned_to = $2
-  )
 ```
 
 **Business Rules**:
