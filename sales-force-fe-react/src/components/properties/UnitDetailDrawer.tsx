@@ -3,6 +3,7 @@ import { useUnitDetail } from '@/hooks/useUnits';
 import { UserPlus, UserMinus, X, ChevronRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -39,6 +40,7 @@ interface UnitDetailDrawerProps {
 
 export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDetailDrawerProps) {
   const { data, isLoading } = useUnitDetail(unitId || '');
+  const { user: currentUser } = useAuth();
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [leadToUnassign, setLeadToUnassign] = useState<{ id: string; name: string } | null>(null);
   const navigate = useNavigate();
@@ -158,23 +160,24 @@ export function UnitDetailDrawer({ isOpen, onClose, unitName, unitId }: UnitDeta
                           aria-label={`Unassign ${lead.name}`}
                           title="Unassign lead"
                           onClick={() => setLeadToUnassign({ id: lead.id, name: lead.name })}
-                          className="unit-detail-drawer__unassign"
+                          className={cn(
+                            'unit-detail-drawer__unassign',
+                            !(currentUser && lead.assigned_to === currentUser.id) && 'unit-detail-drawer__unassign--hidden'
+                          )}
                         >
                           <UserMinus className="unit-detail-drawer__unassign-icon" />
                         </button>
-                        <button
+                        <div className="unit-detail-drawer__lead-info">
+                          <p className="unit-detail-drawer__lead-name">{lead.name}</p>
+                          <p className="unit-detail-drawer__lead-contact">{lead.email || lead.phone}</p>
+                        </div>
+                        <Badge variant={leadStatusVariantMap[lead.status] || 'gray'} size="lg">
+                          <span className="unit-detail-drawer__lead-status">{lead.status}</span>
+                        </Badge>
+                        <ChevronRight
+                          className="unit-detail-drawer__lead-chevron"
                           onClick={() => navigate(`/leads/${lead.id}`)}
-                          className="unit-detail-drawer__lead-link"
-                        >
-                          <div className="unit-detail-drawer__lead-info">
-                            <p className="unit-detail-drawer__lead-name">{lead.name}</p>
-                            <p className="unit-detail-drawer__lead-contact">{lead.email || lead.phone}</p>
-                          </div>
-                          <Badge variant={leadStatusVariantMap[lead.status] || 'gray'} size="lg">
-                            <span className="unit-detail-drawer__lead-status">{lead.status}</span>
-                          </Badge>
-                          <ChevronRight className="unit-detail-drawer__lead-chevron" />
-                        </button>
+                        />
                       </div>
                     ))}
                   </div>

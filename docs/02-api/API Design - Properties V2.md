@@ -1203,6 +1203,8 @@ ORDER BY b.name ASC, u.name ASC
 
 **Purpose**: Mendapatkan detail unit lengkap beserta leads yang di-assign ke unit tersebut
 
+**Access**: Semua role terautentikasi (Admin, Supervisor, Sales) dapat mengakses unit manapun
+
 **Method**: `GET`
 
 **Path Parameters**:
@@ -1270,8 +1272,7 @@ SELECT
 FROM units u
 JOIN blocks b ON b.id = u.block_id
 JOIN properties p ON p.id = b.property_id
-WHERE u.id = $1
-  AND p.assigned_to = $2;
+WHERE u.id = $1;
 
 -- Leads assigned to this unit
 SELECT
@@ -1299,6 +1300,8 @@ ORDER BY l.created_at DESC
 
 **Purpose**: Assign lead ke unit tertentu
 
+**Access**: Semua role terautentikasi (Admin, Supervisor, Sales) dapat menjalankan operasi ini pada unit manapun
+
 **Method**: `POST`
 
 **Path Parameters**:
@@ -1324,8 +1327,6 @@ ORDER BY l.created_at DESC
 **Validation Rules**:
 - `lead_id`: Wajib, format UUID valid
 - Lead harus ada di database
-- Lead harus dimiliki oleh user yang sama dengan pemilik property (assigned_to match)
-- Unit harus milik property yang dimiliki user yang login
 - Unit tidak boleh berstatus `sold`
 - Unit tidak boleh sudah memiliki lead berstatus `booked`
 - **Business Rule**: Saat sebuah lead masuk status `booked`, semua lead lain di unit tersebut akan di-unassign (unit diklaim eksklusif oleh lead `booked`)
@@ -1391,6 +1392,8 @@ cancelled      →  available
 
 **Purpose**: Unassign (melepas) lead dari unit tertentu
 
+**Access**: Semua role terautentikasi (Admin, Supervisor, Sales) dapat menjalankan operasi ini pada unit manapun
+
 **Method**: `DELETE`
 
 **Path Parameters**:
@@ -1401,7 +1404,7 @@ cancelled      →  available
 | `leadId` | UUID | Yes | Lead ID yang akan di-unassign |
 
 **Validation Rules**:
-- Unit harus ada dan milik property yang dimiliki user yang login
+- Unit harus ada di database
 - Lead harus ada dan dimiliki oleh user yang sama dengan pemilik property (assigned_to match)
 - Lead harus sedang di-assign ke unit tersebut (`leads.unit_id = id`), jika tidak → error `409 LEAD_NOT_ASSIGNED`
 - Tidak ada pembatasan berdasarkan status lead — lead berstatus apapun (termasuk `booked`/`closed`) tetap dapat di-unassign

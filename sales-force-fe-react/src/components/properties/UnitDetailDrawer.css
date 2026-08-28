@@ -87,6 +87,9 @@
 .unit-detail-drawer__unassign {
   @apply flex-shrink-0 p-1.5 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors;
 }
+.unit-detail-drawer__unassign--hidden {
+  visibility: hidden;
+}
 .unit-detail-drawer__unassign-icon {
   @apply w-4 h-4;
 }
@@ -106,7 +109,7 @@
   @apply font-bold;
 }
 .unit-detail-drawer__lead-chevron {
-  @apply w-6 h-6 text-text-secondary flex-shrink-0;
+  @apply w-6 h-6 text-text-secondary flex-shrink-0 cursor-pointer;
 }
 .unit-detail-drawer__unavailable {
   @apply text-center py-12;

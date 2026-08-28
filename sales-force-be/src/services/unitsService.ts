@@ -339,7 +339,7 @@ export const deleteUnit = async (unitId: string, userId: string): Promise<void> 
 /**
  * GET /api/v1/units/:id - Get Unit Detail with Leads
  */
-export const getUnitDetail = async (unitId: string, userId: string): Promise<UnitDetail> => {
+export const getUnitDetail = async (unitId: string, _userId: string): Promise<UnitDetail> => {
   // Get unit detail
   const unitQuery = `
     SELECT
@@ -351,10 +351,9 @@ export const getUnitDetail = async (unitId: string, userId: string): Promise<Uni
     JOIN blocks b ON b.id = u.block_id
     JOIN properties p ON p.id = b.property_id
     WHERE u.id = $1
-      AND p.assigned_to = $2
   `;
 
-  const unitResult = await pool.query(unitQuery, [unitId, userId]);
+  const unitResult = await pool.query(unitQuery, [unitId]);
 
   if (unitResult.rows.length === 0) {
     throw new AppError('Unit not found', 404);
@@ -424,10 +423,10 @@ export const assignLeadToUnit = async (
     FROM units u
     JOIN blocks b ON b.id = u.block_id
     JOIN properties p ON p.id = b.property_id
-    WHERE u.id = $1 AND p.assigned_to = $2
+    WHERE u.id = $1
   `;
 
-  const unitResult = await pool.query(unitQuery, [unitId, userId]);
+  const unitResult = await pool.query(unitQuery, [unitId]);
 
   if (unitResult.rows.length === 0) {
     throw new AppError('Unit not found', 404);
@@ -518,10 +517,10 @@ export const unassignLeadFromUnit = async (
     FROM units u
     JOIN blocks b ON b.id = u.block_id
     JOIN properties p ON p.id = b.property_id
-    WHERE u.id = $1 AND p.assigned_to = $2
+    WHERE u.id = $1
   `;
 
-  const unitResult = await pool.query(unitQuery, [unitId, userId]);
+  const unitResult = await pool.query(unitQuery, [unitId]);
 
   if (unitResult.rows.length === 0) {
     throw new AppError('Unit not found', 404);
