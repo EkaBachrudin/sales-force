@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { FileUpload } from '@/components/ui/FileUpload';
 import type { Property } from '@/lib/types';
 import { useProperties, usePropertyMutations } from '@/hooks/useProperties';
+import { useAuth } from '@/contexts/AuthContext';
 import './PropertiesPage.css';
 
 interface PropertyModalProps {
@@ -279,6 +280,8 @@ export default function PropertiesPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingProperty, setDeletingProperty] = useState<Property | undefined>();
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const canModify = user?.role === 'Admin' || user?.role === 'Supervisor';
 
   // Fetch properties with custom hook
   const { data: properties = [], isLoading } = useProperties(search);
@@ -388,13 +391,15 @@ export default function PropertiesPage() {
                     </div>
                   </div>
                   <div className="properties-page__actions">
-                    <button
-                      onClick={() => navigate(`/properties/${property.id}`)}
-                      className="properties-page__action-btn"
-                      title="Edit"
-                    >
-                      <Pencil className="properties-page__action-btn-icon" />
-                    </button>
+                    {canModify && (
+                      <button
+                        onClick={() => navigate(`/properties/${property.id}`)}
+                        className="properties-page__action-btn"
+                        title="Edit"
+                      >
+                        <Pencil className="properties-page__action-btn-icon" />
+                      </button>
+                    )}
                     <button
                       onClick={() => navigate(`/properties/${property.id}/siteplan`)}
                       className="properties-page__action-btn"
@@ -402,13 +407,15 @@ export default function PropertiesPage() {
                     >
                       <Map className="properties-page__action-btn-icon" />
                     </button>
-                    <button
-                      onClick={() => openDeleteModal(property)}
-                      className="properties-page__action-btn properties-page__action-btn--delete"
-                      title="Delete"
-                    >
-                      <Trash2 className="properties-page__action-btn-icon" />
-                    </button>
+                    {canModify && (
+                      <button
+                        onClick={() => openDeleteModal(property)}
+                        className="properties-page__action-btn properties-page__action-btn--delete"
+                        title="Delete"
+                      >
+                        <Trash2 className="properties-page__action-btn-icon" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

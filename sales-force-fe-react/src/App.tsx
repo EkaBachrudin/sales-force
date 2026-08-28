@@ -34,13 +34,13 @@ function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/properties" element={<PropertiesPage />} />
           <Route path="/properties/:id/siteplan" element={<SitePlanPage />} />
-          <Route path="/properties/:id" element={<PropertyDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
 
         {/* Role-restricted routes */}
         <Route element={<ProtectedRoute roles={['Admin', 'Supervisor']} />}>
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/properties/:id" element={<PropertyDetailPage />} />
         </Route>
         <Route element={<ProtectedRoute roles={['Admin']} />}>
           <Route path="/subscriptions" element={<SubscriptionsPage />} />
