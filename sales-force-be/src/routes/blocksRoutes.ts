@@ -4,29 +4,29 @@ import {
   updateBlockController,
   deleteBlockController,
 } from '../controllers/blocksController';
-import { authenticate, subscriptionCheck } from '../middleware';
+import { authenticate, subscriptionCheck, supervisorOrAdmin } from '../middleware';
 
 const router = Router();
 
 /**
  * POST /api/v1/properties/:propertyId/blocks
  * Create a new block in a property
- * @access Private (requires authentication and active subscription)
+ * @access Private - Admin & Supervisor only (requires authentication, RBAC, and active subscription)
  */
-router.post('/properties/:propertyId/blocks', authenticate, subscriptionCheck, createBlockController);
+router.post('/properties/:propertyId/blocks', authenticate, supervisorOrAdmin, subscriptionCheck, createBlockController);
 
 /**
  * PUT /api/v1/blocks/:id
  * Update block name
- * @access Private (requires authentication and active subscription)
+ * @access Private - Admin & Supervisor only (requires authentication, RBAC, and active subscription)
  */
-router.put('/blocks/:id', authenticate, subscriptionCheck, updateBlockController);
+router.put('/blocks/:id', authenticate, supervisorOrAdmin, subscriptionCheck, updateBlockController);
 
 /**
  * DELETE /api/v1/blocks/:id
  * Delete block (cascade delete units)
- * @access Private (requires authentication and active subscription)
+ * @access Private - Admin & Supervisor only (requires authentication, RBAC, and active subscription)
  */
-router.delete('/blocks/:id', authenticate, subscriptionCheck, deleteBlockController);
+router.delete('/blocks/:id', authenticate, supervisorOrAdmin, subscriptionCheck, deleteBlockController);
 
 export default router;

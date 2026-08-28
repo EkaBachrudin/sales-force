@@ -7,8 +7,7 @@ import { Block, CreateBlockDto, UpdateBlockDto } from '../types';
  */
 export const createBlock = async (
   propertyId: string,
-  dto: CreateBlockDto,
-  userId: string
+  dto: CreateBlockDto
 ): Promise<Block> => {
   // Validate name
   if (!dto.name || dto.name.trim().length === 0) {
@@ -19,10 +18,10 @@ export const createBlock = async (
     throw new AppError('Block name must be maximum 100 characters', 400);
   }
 
-  // Check if property exists and belongs to user
+  // Check if property exists
   const propertyCheck = await pool.query(
-    'SELECT id FROM properties WHERE id = $1 AND assigned_to = $2',
-    [propertyId, userId]
+    'SELECT id FROM properties WHERE id = $1',
+    [propertyId]
   );
 
   if (propertyCheck.rows.length === 0) {
@@ -66,8 +65,7 @@ export const createBlock = async (
  */
 export const updateBlock = async (
   blockId: string,
-  dto: UpdateBlockDto,
-  userId: string
+  dto: UpdateBlockDto
 ): Promise<Block> => {
   // Validate name
   if (!dto.name || dto.name.trim().length === 0) {
@@ -78,15 +76,15 @@ export const updateBlock = async (
     throw new AppError('Block name must be maximum 100 characters', 400);
   }
 
-  // Check if block exists and belongs to user's property
+  // Check if block exists
   const existingBlock = await pool.query(
     `
     SELECT b.*, p.id as property_id
     FROM blocks b
     JOIN properties p ON p.id = b.property_id
-    WHERE b.id = $1 AND p.assigned_to = $2
+    WHERE b.id = $1
     `,
-    [blockId, userId]
+    [blockId]
   );
 
   if (existingBlock.rows.length === 0) {
@@ -111,13 +109,10 @@ export const updateBlock = async (
     SET name = $1,
         updated_at = NOW()
     WHERE id = $2
-      AND property_id IN (
-        SELECT id FROM properties WHERE assigned_to = $3
-      )
     RETURNING *
   `;
 
-  const result = await pool.query(queryStr, [dto.name.trim(), blockId, userId]);
+  const result = await pool.query(queryStr, [dto.name.trim(), blockId]);
   const row = result.rows[0];
 
   return {
@@ -133,16 +128,11 @@ export const updateBlock = async (
 /**
  * DELETE /api/v1/blocks/:id - Delete Block (Cascade)
  */
-export const deleteBlock = async (blockId: string, userId: string): Promise<void> => {
-  // Check if block exists and belongs to user's property
+export const deleteBlock = async (blockId: string): Promise<void> => {
+  // Check if block exists
   const existingBlock = await pool.query(
-    `
-    SELECT b.id
-    FROM blocks b
-    JOIN properties p ON p.id = b.property_id
-    WHERE b.id = $1 AND p.assigned_to = $2
-    `,
-    [blockId, userId]
+    `SELECT b.id FROM blocks b WHERE b.id = $1`,
+    [blockId]
   );
 
   if (existingBlock.rows.length === 0) {
@@ -151,13 +141,7 @@ export const deleteBlock = async (blockId: string, userId: string): Promise<void
 
   // Delete block (cascade will delete units)
   await pool.query(
-    `
-    DELETE FROM blocks
-    WHERE id = $1
-      AND property_id IN (
-        SELECT id FROM properties WHERE assigned_to = $2
-      )
-    `,
-    [blockId, userId]
+    `DELETE FROM blocks WHERE id = $1`,
+    [blockId]
   );
 };

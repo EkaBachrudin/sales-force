@@ -10,22 +10,10 @@ import { CreateBlockDto, UpdateBlockDto } from '../types';
  * POST /api/v1/properties/:propertyId/blocks - Create New Block
  */
 export const createBlockController = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
-      },
-    });
-    return;
-  }
-
   const propertyId = req.params.propertyId as string;
   const dto: CreateBlockDto = req.body;
 
-  const result = await createBlockService(propertyId, dto, userId);
+  const result = await createBlockService(propertyId, dto);
 
   res.status(201).json({
     success: true,
@@ -40,22 +28,10 @@ export const createBlockController = async (req: Request, res: Response): Promis
  * PUT /api/v1/blocks/:id - Update Block
  */
 export const updateBlockController = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
-      },
-    });
-    return;
-  }
-
   const id = req.params.id as string;
   const dto: UpdateBlockDto = req.body;
 
-  const result = await updateBlockService(id, dto, userId);
+  const result = await updateBlockService(id, dto);
 
   res.status(200).json({
     success: true,
@@ -70,21 +46,9 @@ export const updateBlockController = async (req: Request, res: Response): Promis
  * DELETE /api/v1/blocks/:id - Delete Block
  */
 export const deleteBlockController = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
-      },
-    });
-    return;
-  }
-
   const id = req.params.id as string;
 
-  await deleteBlockService(id, userId);
+  await deleteBlockService(id);
 
   res.status(200).json({
     success: true,

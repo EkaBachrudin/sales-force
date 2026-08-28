@@ -650,6 +650,13 @@ DELETE /api/v1/properties/:id
 
 ## 4. API Design — Blocks
 
+**Security Notes**:
+- **RBAC Restriction**: Endpoint CRUD blocks (POST, PUT, DELETE) hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
+- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- Tidak ada ownership check — Admin dan Supervisor dapat mengelola block milik property siapapun
+- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
+- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck` — user yang tidak diizinkan tidak memicu query ke database
+
 ### 4.1 POST /api/v1/properties/:propertyId/blocks — Add New Block
 
 **Purpose**: Menambahkan block baru ke dalam properti tertentu
@@ -679,7 +686,8 @@ DELETE /api/v1/properties/:id
 **Validation Rules**:
 - `name`: Wajib, maks 100 karakter
 - `name` harus unik di dalam satu property (unique constraint: `property_id + name`)
-- Property harus milik user yang login
+- Property harus exist di database (validasi by ID saja, tanpa ownership check)
+- Hanya Admin atau Supervisor yang diizinkan (RBAC)
 
 **Success Response** `201`:
 
@@ -740,7 +748,8 @@ INSERT INTO blocks (
 **Validation Rules**:
 - `name`: Wajib, maks 100 karakter
 - `name` harus unik di dalam property yang sama
-- Block harus milik property yang dimiliki user yang login (validasi via join)
+- Block harus exist di database (validasi by ID saja, tanpa ownership check)
+- Hanya Admin atau Supervisor yang diizinkan (RBAC)
 
 **Success Response** `200`:
 
@@ -767,9 +776,6 @@ UPDATE blocks
 SET name = $1,
     updated_at = NOW()
 WHERE id = $2
-  AND property_id IN (
-      SELECT id FROM properties WHERE assigned_to = $3
-  )
 RETURNING *
 ```
 
@@ -804,9 +810,6 @@ RETURNING *
 -- 2. Block itu sendiri
 DELETE FROM blocks
 WHERE id = $1
-  AND property_id IN (
-      SELECT id FROM properties WHERE assigned_to = $2
-  )
 ```
 
 **Business Rules**:
@@ -1468,7 +1471,7 @@ RETURNING *;
 | --- | --- | --- | --- |
 | `VALIDATION_ERROR` | 400 | Request validation gagal | Semua endpoint |
 | `UNAUTHORIZED` | 401 | Tidak ada token valid | Semua endpoint |
-| `FORBIDDEN` | 403 | Resource bukan milik user / role tidak diizinkan | GET/PUT/DELETE by ID, POST/PUT/DELETE Property (RBAC) |
+| `FORBIDDEN` | 403 | Resource bukan milik user / role tidak diizinkan | GET/PUT/DELETE by ID, POST/PUT/DELETE Property & Block (RBAC) |
 | `NOT_FOUND` | 404 | Resource tidak ditemukan | GET/PUT/DELETE by ID |
 | `CONFLICT` | 409 | Nama sudah ada (unique violation) | POST Block, POST Unit |
 | `UNIT_BOOKED` | 409 | Unit sudah ada lead berstatus `booked` | POST Lead to Unit |
