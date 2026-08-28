@@ -7,7 +7,7 @@ import {
   updatePropertyController,
   deletePropertyController,
 } from '../controllers/propertiesController';
-import { authenticate, subscriptionCheck } from '../middleware';
+import { authenticate, subscriptionCheck, supervisorOrAdmin } from '../middleware';
 import { uploadSiteplan, handleMulterError } from '../middleware/upload';
 
 const router = Router();
@@ -36,11 +36,13 @@ router.get('/:id/siteplan', authenticate, subscriptionCheck, getPropertySiteplan
 /**
  * POST /api/v1/properties
  * Create a new property with optional siteplan file upload
- * @access Private (requires authentication and active subscription)
+ * @access Private - Admin & Supervisor only (requires authentication and active subscription;
+ *         users with Sales or any other role are denied with 403 Forbidden)
  */
 router.post(
   '/',
   authenticate,
+  supervisorOrAdmin,
   subscriptionCheck,
   uploadSiteplan.single('siteplan_file'),
   handleMulterError,
@@ -50,11 +52,13 @@ router.post(
 /**
  * PUT /api/v1/properties/:id
  * Update existing property with optional siteplan file upload
- * @access Private (requires authentication and active subscription)
+ * @access Private - Admin & Supervisor only (requires authentication and active subscription;
+ *         users with Sales or any other role are denied with 403 Forbidden)
  */
 router.put(
   '/:id',
   authenticate,
+  supervisorOrAdmin,
   subscriptionCheck,
   uploadSiteplan.single('siteplan_file'),
   handleMulterError,
@@ -64,8 +68,9 @@ router.put(
 /**
  * DELETE /api/v1/properties/:id
  * Delete property (cascade delete blocks and units) and cleanup siteplan file
- * @access Private (requires authentication and active subscription)
+ * @access Private - Admin & Supervisor only (requires authentication and active subscription;
+ *         users with Sales or any other role are denied with 403 Forbidden)
  */
-router.delete('/:id', authenticate, subscriptionCheck, deletePropertyController);
+router.delete('/:id', authenticate, supervisorOrAdmin, subscriptionCheck, deletePropertyController);
 
 export default router;

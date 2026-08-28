@@ -5,8 +5,8 @@
 | Field | Value |
 | --- | --- |
 | **Module** | Properties Management |
-| **Version** | 2.1 |
-| **Last Updated** | 2026-07-13 |
+| **Version** | 2.3 |
+| **Last Updated** | 2026-08-28 |
 | **Related Docs** | ERD - Sales Force Automation System |
 | **Base URL** | `/api/v1` |
 
@@ -282,6 +282,12 @@ INSERT INTO properties (
 > **Note**: `$6` akan berisi path relatif file (misal: `/uploads/siteplans/550e8400-e29b-41d4-a716-446655440000-1699999999.svg`) jika file di-upload, atau `NULL` jika tidak ada file.
 > 
 
+**Security Notes**:
+- **RBAC Restriction**: Endpoint hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
+- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
+- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck`/file upload — user yang tidak diizinkan tidak memicu parsing file
+
 ---
 
 ### 3.3 GET /api/v1/properties/:id — Get Property Detail (with Blocks)
@@ -457,6 +463,7 @@ Content-Type: image/svg+xml
 - Jika tidak ada file lama (NULL), tidak ada penghapusan
 - Jika `siteplan_file` **tidak** dikirim dan `delete_siteplan = false`, `siteplan_assets` di database **tetap dipertahankan** (tidak di-set NULL)
 - Jika `delete_siteplan = true` dan tidak ada `siteplan_file` dikirim, siteplan yang sudah ada akan dihapus dari disk dan `siteplan_assets` di database akan di-set ke NULL
+- **Ownership rules**: Admin & Supervisor dapat mengedit properti apa pun termasuk yang bukan miliknya. Role lain hanya dapat mengedit properti miliknya sendiri (ownership check via `assigned_to` di service layer)
 
 **Success Response** `200`:
 
@@ -514,7 +521,6 @@ SET name = COALESCE($1, name),
     siteplan_assets = $6,
     updated_at = NOW()
 WHERE id = $7
-  AND assigned_to = $8
 RETURNING *
 ```
 
@@ -525,7 +531,7 @@ RETURNING *
 >
 Penghapusan file lama dari disk dilakukan di service layer **sebelum** query UPDATE dijalankan.
 >
-> 
+> **Ownership validation** dilakukan di service layer via SELECT sebelum UPDATE dijalankan. Role **Admin** dan **Supervisor** melewati ownership check (`assigned_to`), sehingga dapat mengedit properti milik user lain. Role lain hanya dapat mengedit properti miliknya sendiri.
 
 **File Replacement Flow**:
 
@@ -556,6 +562,13 @@ PUT /api/v1/properties/:id?delete_siteplan=true
 │
 └─ 3. UPDATE database dengan siteplan_assets = NULL
 ```
+
+**Security Notes**:
+- **RBAC Restriction**: Endpoint hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
+- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
+- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck`/file upload — user yang tidak diizinkan tidak memicu parsing file
+- **Ownership bypass**: Admin & Supervisor dapat mengedit properti milik user lain (ownership check via `assigned_to` dilewati untuk role privileged)
 
 **Error Response — Delete Siteplan Conflict**:
 
@@ -626,6 +639,12 @@ DELETE /api/v1/properties/:id
       └─ Hapus file dari disk (public/uploads/siteplans/...)
          └─ Handle error: jika file tidak ditemukan, abaikan
 ```
+
+**Security Notes**:
+- **RBAC Restriction**: Endpoint hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
+- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
+- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck` — user yang tidak diizinkan tidak memicu query ke database
 
 ---
 
@@ -1449,7 +1468,7 @@ RETURNING *;
 | --- | --- | --- | --- |
 | `VALIDATION_ERROR` | 400 | Request validation gagal | Semua endpoint |
 | `UNAUTHORIZED` | 401 | Tidak ada token valid | Semua endpoint |
-| `FORBIDDEN` | 403 | Resource bukan milik user | GET/PUT/DELETE by ID |
+| `FORBIDDEN` | 403 | Resource bukan milik user / role tidak diizinkan | GET/PUT/DELETE by ID, POST/PUT/DELETE Property (RBAC) |
 | `NOT_FOUND` | 404 | Resource tidak ditemukan | GET/PUT/DELETE by ID |
 | `CONFLICT` | 409 | Nama sudah ada (unique violation) | POST Block, POST Unit |
 | `UNIT_BOOKED` | 409 | Unit sudah ada lead berstatus `booked` | POST Lead to Unit |
@@ -1602,4 +1621,4 @@ ALTER COLUMN siteplan_assets TYPE VARCHAR(500);
 
 ---
 
-*Document Version: 2.1 | Last Updated: 2026-07-13*
+*Document Version: 2.3 | Last Updated: 2026-08-28*

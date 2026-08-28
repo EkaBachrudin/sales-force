@@ -320,13 +320,20 @@ export const updateProperty = async (
   propertyId: string,
   dto: UpdatePropertyDto,
   userId: string,
+  userRole: string,
   newSiteplanPath: string | null,
   deleteSiteplan: boolean = false
 ): Promise<Property> => {
-  // Check if property exists and belongs to user
+  // Check if property exists
+  // RBAC: Admin & Supervisor can edit any property (bypass ownership);
+  // other roles are restricted to properties they created
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
   const existingProperty = await pool.query(
-    'SELECT * FROM properties WHERE id = $1 AND assigned_to = $2',
-    [propertyId, userId]
+    `SELECT * FROM properties
+     WHERE id = $1
+       AND (assigned_to = $2 OR $3::boolean)`,
+    [propertyId, userId, isPrivilegedRole]
   );
 
   if (existingProperty.rows.length === 0) {

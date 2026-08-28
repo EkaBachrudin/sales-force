@@ -112,6 +112,7 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
     return;
   }
 
+  const userRole = req.user?.role ?? '';
   const id = req.params.id as string;
   const deleteSiteplan = req.query.delete_siteplan === 'true';
 
@@ -139,7 +140,7 @@ export const updatePropertyController = async (req: Request, res: Response): Pro
   };
   const siteplanPath = req.file ? `/uploads/siteplans/${req.file.filename}` : null;
 
-  const result = await updatePropertyService(id, dto, userId, siteplanPath, deleteSiteplan);
+  const result = await updatePropertyService(id, dto, userId, userRole, siteplanPath, deleteSiteplan);
 
   res.status(200).json({
     success: true,
