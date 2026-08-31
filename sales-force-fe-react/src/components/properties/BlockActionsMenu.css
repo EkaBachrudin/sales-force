@@ -1,0 +1,20 @@
+@reference "../../index.css";
+
+.block-actions-menu {
+  @apply relative;
+}
+.block-actions-menu__button {
+  @apply p-0 w-8 h-8;
+}
+.block-actions-menu__icon {
+  @apply w-4 h-4;
+}
+.block-actions-menu__dropdown {
+  @apply absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-lg border border-border py-1 z-50;
+}
+.block-actions-menu__item {
+  @apply flex items-center w-full px-4 py-2 text-sm text-text-primary hover:bg-neutral-soft transition-colors text-left;
+}
+.block-actions-menu__item--danger {
+  @apply text-danger hover:bg-danger/10;
+}

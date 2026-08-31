@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Building2, Trash2, ChevronLeft, Edit2 } from 'lucide-react';
+import { Plus, Building2, ChevronLeft } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -9,6 +9,7 @@ import { FileUpload } from '@/components/ui/FileUpload';
 import { AddBlockModal } from '@/components/properties/AddBlockModal';
 import { EditBlockModal } from '@/components/properties/EditBlockModal';
 import { DeleteBlockModal } from '@/components/properties/DeleteBlockModal';
+import { BlockActionsMenu } from '@/components/properties/BlockActionsMenu';
 import { ManageUnitsModal } from '@/components/properties/ManageUnitsModal';
 import { AddUnitModal } from '@/components/properties/AddUnitModal';
 import { EditUnitModal } from '@/components/properties/EditUnitModal';
@@ -502,19 +503,18 @@ export default function PropertyDetailPage() {
                   >
                     Manage Unit
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    leftIcon={<Edit2 className="property-detail-page__block-icon" />}
-                    onClick={() => handleEditBlock(block)}
-                  />
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    leftIcon={<Trash2 className="property-detail-page__block-icon" />}
-                    onClick={() => handleDeleteBlock(block)}
+                  <BlockActionsMenu
+                    ariaLabel={`Actions for ${block.name}`}
+                    onEdit={() => handleEditBlock(block)}
+                    onDelete={() => handleDeleteBlock(block)}
                   />
                 </div>
+
+                <img
+                  src='/img/bg-block.jpg'
+                  alt="bg-block"
+                  className="property-detail-page__block-bg"
+                />
               </div>
             ))}
           </div>
