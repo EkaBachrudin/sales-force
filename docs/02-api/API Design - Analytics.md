@@ -9,7 +9,20 @@ API ini digunakan untuk mendapatkan data analytics/metrics untuk dashboard perfo
 Semua endpoint di bawah ini bersifat **Private**. Setiap request membutuhkan:
 
 1. **Authentication:** Header `Authorization: Bearer <token>` (User harus login).
-2. **Subscription Check:** User harus memiliki status *active subscription* untuk mengakses endpoint ini. Jika tidak, akan mengembalikan error `401` atau `403` tergantung konfigurasi middleware.
+2. **Authorization:** Hanya user dengan role **`Admin`**, **`Supervisor`**, atau **`Sales`** yang dapat mengakses endpoint ini. Role lain akan menerima error `403 Forbidden`.
+3. **Subscription Check:** User harus memiliki status *active subscription* untuk mengakses endpoint ini. Jika tidak, akan mengembalikan error `401` atau `403` tergantung konfigurasi middleware.
+
+### Role-Based Data Visibility (RBAC)
+
+Data analytics yang dikembalikan dibatasi berdasarkan role user:
+
+| Role | Cakupan Data |
+| --- | --- |
+| `Admin` | Melihat statistik **seluruh** lead di sistem (ownership filter dihapus). |
+| `Supervisor` | Melihat statistik **seluruh** lead di sistem (ownership filter dihapus). |
+| `Sales` | Hanya melihat statistik lead yang **ditugaskan kepadanya** (`assigned_to` = user ID). |
+
+Implementasi: setiap query menggunakan boolean parameter `is_privileged`. Untuk `Admin`/`Supervisor` bernilai `true` sehingga kondisi `assigned_to` di-bypass; untuk `Sales` bernilai `false` sehingga filter `assigned_to = current_user_id` tetap berlaku.
 
 ---
 
@@ -91,30 +104,31 @@ Mendapatkan metrik konversi dan performance sales secara real-time.
 
 ```sql
 -- Conversion Rate = (Closed Leads / Total Leads) * 100
+-- $1 = current user id, $2 = is_privileged (true untuk Admin/Supervisor, false untuk Sales)
 SELECT
   COUNT(*) FILTER (WHERE status = 'closed') * 100.0 / NULLIF(COUNT(*), 0) as conversion_rate
 FROM leads
-WHERE assigned_to = $1
-  AND created_at >= $2
-  AND created_at <= $3;
+WHERE (assigned_to = $1 OR $2::boolean)
+  AND created_at >= $3
+  AND created_at <= $4;
 
 -- Avg Time to Close (in days)
 SELECT
   AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) as avg_days
 FROM leads
 WHERE status = 'closed'
-  AND assigned_to = $1
-  AND created_at >= $2
-  AND created_at <= $3;
+  AND (assigned_to = $1 OR $2::boolean)
+  AND created_at >= $3
+  AND created_at <= $4;
 
 -- Response Time (avg hours from lead created to first status change from 'new')
 SELECT
   AVG(EXTRACT(EPOCH FROM (la.created_at - l.created_at)) / 3600) as avg_hours
 FROM lead_activities la
 JOIN leads l ON la.lead_id = l.id
-WHERE l.assigned_to = $1
-  AND l.created_at >= $2
-  AND l.created_at <= $3
+WHERE (l.assigned_to = $1 OR $2::boolean)
+  AND l.created_at >= $3
+  AND l.created_at <= $4
   AND la.activity_type = 'status_change'
   AND la.old_status = 'new';
 
@@ -122,9 +136,9 @@ WHERE l.assigned_to = $1
 SELECT
   COUNT(*) FILTER (WHERE last_followed_up_at IS NOT NULL) * 100.0 / NULLIF(COUNT(*), 0) as follow_up_rate
 FROM leads
-WHERE assigned_to = $1
-  AND created_at >= $2
-  AND created_at <= $3;
+WHERE (assigned_to = $1 OR $2::boolean)
+  AND created_at >= $3
+  AND created_at <= $4;
 ```
 
 ---
@@ -175,13 +189,14 @@ Mendapatkan data funnel berdasarkan stage leads. Endpoint ini akan selalu mengem
 **SQL Query Reference:**
 
 ```sql
+-- $1 = current user id, $2 = is_privileged (true untuk Admin/Supervisor, false untuk Sales)
 SELECT
   status as stage,
   COUNT(*) as count
 FROM leads
-WHERE assigned_to = $1
-  AND created_at >= $2
-  AND created_at <= $3
+WHERE (assigned_to = $1 OR $2::boolean)
+  AND created_at >= $3
+  AND created_at <= $4
 GROUP BY status
 ORDER BY
   CASE status
@@ -241,17 +256,18 @@ Mendapatkan data trend closing per bulan untuk beberapa bulan terakhir secara kr
 **SQL Query Reference:**
 
 ```sql
+-- $1 = current user id, $2 = is_privileged (true untuk Admin/Supervisor, false untuk Sales)
 SELECT
   TO_CHAR(created_at, 'Mon') as month,
   EXTRACT(MONTH FROM created_at) as month_num,
   COUNT(*) as closings
 FROM leads
-WHERE assigned_to = $1
+WHERE (assigned_to = $1 OR $2::boolean)
   AND status = 'closed'
   AND created_at >= NOW() - INTERVAL '6 months'
 GROUP BY TO_CHAR(created_at, 'Mon'), EXTRACT(MONTH FROM created_at)
 ORDER BY EXTRACT(MONTH FROM created_at) DESC
-LIMIT $2;
+LIMIT $3;
 -- Note: Results are reversed in application logic to return chronological order
 ```
 
@@ -305,13 +321,14 @@ Mendapatkan breakdown lead berdasarkan sumber (source). Jika source kosong/null,
 **SQL Query Reference:**
 
 ```sql
+-- $1 = current user id, $2 = is_privileged (true untuk Admin/Supervisor, false untuk Sales)
 SELECT
   COALESCE(source, 'Other') as source,
   COUNT(*) as count
 FROM leads
-WHERE assigned_to = $1
-  AND created_at >= $2
-  AND created_at <= $3
+WHERE (assigned_to = $1 OR $2::boolean)
+  AND created_at >= $3
+  AND created_at <= $4
 GROUP BY source
 ORDER BY count DESC;
 ```
@@ -401,6 +418,17 @@ Terjadi saat token tidak diberikan, tidak valid, atau user tidak memiliki subscr
 {
   "success": false,
   "error": "Authentication required"
+}
+```
+
+### 403 Forbidden
+
+Terjadi saat user tidak memiliki role yang diizinkan (`Admin`, `Supervisor`, atau `Sales`).
+
+```json
+{
+  "status": "error",
+  "message": "Insufficient permissions"
 }
 ```
 

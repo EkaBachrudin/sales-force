@@ -12,10 +12,11 @@ import { AnalyticsPeriod } from '../types';
 /**
  * GET /api/v1/analytics/metrics
  * Get Analytics Metrics
- * @access Private (requires authentication)
+ * @access Private - requires authentication, active subscription, and role: Admin | Supervisor | Sales
  */
 export const getAnalyticsMetricsController = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.sub;
+  const userRole = req.user!.role;
 
   if (!userId) {
     res.status(401).json({
@@ -35,7 +36,7 @@ export const getAnalyticsMetricsController = async (req: Request, res: Response)
       throw new AppError("Invalid period parameter. Allowed: today, week, month, year", 400);
     }
 
-    const metrics = await getAnalyticsMetrics(userId, period, compareWith);
+    const metrics = await getAnalyticsMetrics(userId, userRole, period, compareWith);
 
     res.status(200).json({
       success: true,
@@ -64,10 +65,11 @@ export const getAnalyticsMetricsController = async (req: Request, res: Response)
 /**
  * GET /api/v1/analytics/funnel
  * Get Funnel Data
- * @access Private (requires authentication)
+ * @access Private - requires authentication, active subscription, and role: Admin | Supervisor | Sales
  */
 export const getAnalyticsFunnelController = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.sub;
+  const userRole = req.user!.role;
 
   if (!userId) {
     res.status(401).json({
@@ -86,7 +88,7 @@ export const getAnalyticsFunnelController = async (req: Request, res: Response):
       throw new AppError("Invalid period parameter. Allowed: today, week, month, year", 400);
     }
 
-    const funnel = await getAnalyticsFunnel(userId, period);
+    const funnel = await getAnalyticsFunnel(userId, userRole, period);
 
     res.status(200).json({
       success: true,
@@ -115,10 +117,11 @@ export const getAnalyticsFunnelController = async (req: Request, res: Response):
 /**
  * GET /api/v1/analytics/trend
  * Get Monthly Closing Trend
- * @access Private (requires authentication)
+ * @access Private - requires authentication, active subscription, and role: Admin | Supervisor | Sales
  */
 export const getAnalyticsTrendController = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.sub;
+  const userRole = req.user!.role;
 
   if (!userId) {
     res.status(401).json({
@@ -136,7 +139,7 @@ export const getAnalyticsTrendController = async (req: Request, res: Response): 
       throw new AppError('Months parameter must be between 1 and 12', 400);
     }
 
-    const trend = await getAnalyticsTrend(userId, months);
+    const trend = await getAnalyticsTrend(userId, userRole, months);
 
     res.status(200).json({
       success: true,
@@ -165,10 +168,11 @@ export const getAnalyticsTrendController = async (req: Request, res: Response): 
 /**
  * GET /api/v1/analytics/sources
  * Get Source Breakdown
- * @access Private (requires authentication)
+ * @access Private - requires authentication, active subscription, and role: Admin | Supervisor | Sales
  */
 export const getAnalyticsSourcesController = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.sub;
+  const userRole = req.user!.role;
 
   if (!userId) {
     res.status(401).json({
@@ -187,7 +191,7 @@ export const getAnalyticsSourcesController = async (req: Request, res: Response)
       throw new AppError("Invalid period parameter. Allowed: today, week, month, year", 400);
     }
 
-    const sources = await getAnalyticsSources(userId, period);
+    const sources = await getAnalyticsSources(userId, userRole, period);
 
     res.status(200).json({
       success: true,
@@ -216,10 +220,11 @@ export const getAnalyticsSourcesController = async (req: Request, res: Response)
 /**
  * GET /api/v1/analytics/dashboard
  * Get Complete Analytics Dashboard
- * @access Private (requires authentication)
+ * @access Private - requires authentication, active subscription, and role: Admin | Supervisor | Sales
  */
 export const getAnalyticsDashboardController = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.sub;
+  const userRole = req.user!.role;
 
   if (!userId) {
     res.status(401).json({
@@ -250,7 +255,7 @@ export const getAnalyticsDashboardController = async (req: Request, res: Respons
       throw new AppError('Data range months parameter must be between 1 and 24', 400);
     }
 
-    const dashboard = await getAnalyticsDashboard(userId, period, trendMonths, dataRangeMonths);
+    const dashboard = await getAnalyticsDashboard(userId, userRole, period, trendMonths, dataRangeMonths);
 
     res.status(200).json({
       success: true,

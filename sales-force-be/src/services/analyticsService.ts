@@ -200,6 +200,7 @@ function calculateTrend(currentValue: number, previousValue: number, label: stri
  */
 export const getAnalyticsMetrics = async (
   userId: string,
+  userRole: string,
   period: AnalyticsPeriod = 'month',
   compareWith: AnalyticsCompareWith = 'previous_period',
   dataRangeMonths?: number
@@ -209,6 +210,9 @@ export const getAnalyticsMetrics = async (
   if (userCheck.rows.length === 0) {
     throw new AppError('User not found', 404);
   }
+
+  // RBAC: Admin & Supervisor bypass ownership filter; Sales restricted to own leads
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
 
   let currentStart: Date;
   let currentEnd: Date;
@@ -236,10 +240,10 @@ export const getAnalyticsMetrics = async (
     `SELECT
       COUNT(*) FILTER (WHERE status = 'closed') * 100.0 / NULLIF(COUNT(*), 0) as conversion_rate
     FROM leads
-    WHERE assigned_to = $1
-      AND created_at >= $2
-      AND created_at <= $3`,
-    [userId, currentStart, currentEnd]
+    WHERE (assigned_to = $1 OR $2::boolean)
+      AND created_at >= $3
+      AND created_at <= $4`,
+    [userId, isPrivilegedRole, currentStart, currentEnd]
   );
   const currentConversion = parseFloat(currentConversionResult.rows[0].conversion_rate || '0');
 
@@ -249,10 +253,10 @@ export const getAnalyticsMetrics = async (
       `SELECT
         COUNT(*) FILTER (WHERE status = 'closed') * 100.0 / NULLIF(COUNT(*), 0) as conversion_rate
       FROM leads
-      WHERE assigned_to = $1
-        AND created_at >= $2
-        AND created_at <= $3`,
-      [userId, previousStart, previousEnd]
+      WHERE (assigned_to = $1 OR $2::boolean)
+        AND created_at >= $3
+        AND created_at <= $4`,
+      [userId, isPrivilegedRole, previousStart, previousEnd]
     );
     previousConversion = parseFloat(previousConversionResult.rows[0].conversion_rate || '0');
   }
@@ -263,10 +267,10 @@ export const getAnalyticsMetrics = async (
       AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) as avg_days
     FROM leads
     WHERE status = 'closed'
-      AND assigned_to = $1
-      AND created_at >= $2
-      AND created_at <= $3`,
-    [userId, currentStart, currentEnd]
+      AND (assigned_to = $1 OR $2::boolean)
+      AND created_at >= $3
+      AND created_at <= $4`,
+    [userId, isPrivilegedRole, currentStart, currentEnd]
   );
   const currentAvgTime = parseFloat(currentAvgTimeResult.rows[0].avg_days || '0');
 
@@ -277,10 +281,10 @@ export const getAnalyticsMetrics = async (
         AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) as avg_days
       FROM leads
       WHERE status = 'closed'
-        AND assigned_to = $1
-        AND created_at >= $2
-        AND created_at <= $3`,
-      [userId, previousStart, previousEnd]
+        AND (assigned_to = $1 OR $2::boolean)
+        AND created_at >= $3
+        AND created_at <= $4`,
+      [userId, isPrivilegedRole, previousStart, previousEnd]
     );
     previousAvgTime = parseFloat(previousAvgTimeResult.rows[0].avg_days || '0');
   }
@@ -291,13 +295,13 @@ export const getAnalyticsMetrics = async (
       AVG(EXTRACT(EPOCH FROM (la.created_at - l.created_at)) / 3600) as avg_hours
     FROM lead_activities la
     JOIN leads l ON la.lead_id = l.id
-    WHERE l.assigned_to = $1
-      AND l.created_at >= $2
-      AND l.created_at <= $3
+    WHERE (l.assigned_to = $1 OR $2::boolean)
+      AND l.created_at >= $3
+      AND l.created_at <= $4
       AND la.activity_type = 'status_change'
       AND la.old_status = 'new'
     LIMIT 1`,
-    [userId, currentStart, currentEnd]
+    [userId, isPrivilegedRole, currentStart, currentEnd]
   );
   const currentResponseTime = parseFloat(currentResponseTimeResult.rows[0].avg_hours || '0');
 
@@ -308,13 +312,13 @@ export const getAnalyticsMetrics = async (
         AVG(EXTRACT(EPOCH FROM (la.created_at - l.created_at)) / 3600) as avg_hours
       FROM lead_activities la
       JOIN leads l ON la.lead_id = l.id
-      WHERE l.assigned_to = $1
-        AND l.created_at >= $2
-        AND l.created_at <= $3
+      WHERE (l.assigned_to = $1 OR $2::boolean)
+        AND l.created_at >= $3
+        AND l.created_at <= $4
         AND la.activity_type = 'status_change'
         AND la.old_status = 'new'
       LIMIT 1`,
-      [userId, previousStart, previousEnd]
+      [userId, isPrivilegedRole, previousStart, previousEnd]
     );
     previousResponseTime = parseFloat(previousResponseTimeResult.rows[0].avg_hours || '0');
   }
@@ -324,10 +328,10 @@ export const getAnalyticsMetrics = async (
     `SELECT
       COUNT(*) FILTER (WHERE last_followed_up_at IS NOT NULL) * 100.0 / NULLIF(COUNT(*), 0) as follow_up_rate
     FROM leads
-    WHERE assigned_to = $1
-      AND created_at >= $2
-      AND created_at <= $3`,
-    [userId, currentStart, currentEnd]
+    WHERE (assigned_to = $1 OR $2::boolean)
+      AND created_at >= $3
+      AND created_at <= $4`,
+    [userId, isPrivilegedRole, currentStart, currentEnd]
   );
   const currentFollowUp = parseFloat(currentFollowUpResult.rows[0].follow_up_rate || '0');
 
@@ -337,10 +341,10 @@ export const getAnalyticsMetrics = async (
       `SELECT
         COUNT(*) FILTER (WHERE last_followed_up_at IS NOT NULL) * 100.0 / NULLIF(COUNT(*), 0) as follow_up_rate
       FROM leads
-      WHERE assigned_to = $1
-        AND created_at >= $2
-        AND created_at <= $3`,
-      [userId, previousStart, previousEnd]
+      WHERE (assigned_to = $1 OR $2::boolean)
+        AND created_at >= $3
+        AND created_at <= $4`,
+      [userId, isPrivilegedRole, previousStart, previousEnd]
     );
     previousFollowUp = parseFloat(previousFollowUpResult.rows[0].follow_up_rate || '0');
   }
@@ -396,6 +400,7 @@ export const getAnalyticsMetrics = async (
  */
 export const getAnalyticsFunnel = async (
   userId: string,
+  userRole: string,
   period: AnalyticsPeriod = 'month',
   dataRangeMonths?: number
 ): Promise<AnalyticsFunnelResponse> => {
@@ -404,6 +409,9 @@ export const getAnalyticsFunnel = async (
   if (userCheck.rows.length === 0) {
     throw new AppError('User not found', 404);
   }
+
+  // RBAC: Admin & Supervisor bypass ownership filter; Sales restricted to own leads
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
 
   let startDate: Date;
   let endDate: Date;
@@ -423,9 +431,9 @@ export const getAnalyticsFunnel = async (
       status as stage,
       COUNT(*) as count
     FROM leads
-    WHERE assigned_to = $1
-      AND created_at >= $2
-      AND created_at <= $3
+    WHERE (assigned_to = $1 OR $2::boolean)
+      AND created_at >= $3
+      AND created_at <= $4
     GROUP BY status
     ORDER BY
       CASE status
@@ -436,7 +444,7 @@ export const getAnalyticsFunnel = async (
         WHEN 'closed' THEN 5
         WHEN 'cancelled' THEN 6
       END`,
-    [userId, startDate, endDate]
+    [userId, isPrivilegedRole, startDate, endDate]
   );
 
   const funnel: FunnelStage[] = funnelResult.rows.map((row) => ({
@@ -475,7 +483,7 @@ export const getAnalyticsFunnel = async (
 /**
  * Get Monthly Closing Trend
  */
-export const getAnalyticsTrend = async (userId: string, months: number = 6): Promise<AnalyticsTrendResponse> => {
+export const getAnalyticsTrend = async (userId: string, userRole: string, months: number = 6): Promise<AnalyticsTrendResponse> => {
   // Validate months parameter
   if (months < 1 || months > 12) {
     throw new AppError('Months parameter must be between 1 and 12', 400);
@@ -487,19 +495,22 @@ export const getAnalyticsTrend = async (userId: string, months: number = 6): Pro
     throw new AppError('User not found', 404);
   }
 
+  // RBAC: Admin & Supervisor bypass ownership filter; Sales restricted to own leads
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
   const trendResult = await pool.query(
     `SELECT
       TO_CHAR(created_at, 'Mon') as month,
       EXTRACT(MONTH FROM created_at) as month_num,
       COUNT(*) as closings
     FROM leads
-    WHERE assigned_to = $1
+    WHERE (assigned_to = $1 OR $2::boolean)
       AND status = 'closed'
       AND created_at >= NOW() - INTERVAL '${months} months'
     GROUP BY TO_CHAR(created_at, 'Mon'), EXTRACT(MONTH FROM created_at)
     ORDER BY EXTRACT(MONTH FROM created_at) DESC
-    LIMIT $2`,
-    [userId, months]
+    LIMIT $3`,
+    [userId, isPrivilegedRole, months]
   );
 
   // Reverse to get chronological order
@@ -516,6 +527,7 @@ export const getAnalyticsTrend = async (userId: string, months: number = 6): Pro
  */
 export const getAnalyticsSources = async (
   userId: string,
+  userRole: string,
   period: AnalyticsPeriod = 'month',
   dataRangeMonths?: number
 ): Promise<AnalyticsSourcesResponse> => {
@@ -524,6 +536,9 @@ export const getAnalyticsSources = async (
   if (userCheck.rows.length === 0) {
     throw new AppError('User not found', 404);
   }
+
+  // RBAC: Admin & Supervisor bypass ownership filter; Sales restricted to own leads
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
 
   let startDate: Date;
   let endDate: Date;
@@ -543,12 +558,12 @@ export const getAnalyticsSources = async (
       COALESCE(source, 'Other') as source,
       COUNT(*) as count
     FROM leads
-    WHERE assigned_to = $1
-      AND created_at >= $2
-      AND created_at <= $3
+    WHERE (assigned_to = $1 OR $2::boolean)
+      AND created_at >= $3
+      AND created_at <= $4
     GROUP BY source
     ORDER BY count DESC`,
-    [userId, startDate, endDate]
+    [userId, isPrivilegedRole, startDate, endDate]
   );
 
   const sources: SourceBreakdown[] = sourcesResult.rows.map((row) => ({
@@ -567,15 +582,16 @@ export const getAnalyticsSources = async (
  */
 export const getAnalyticsDashboard = async (
   userId: string,
+  userRole: string,
   period: AnalyticsPeriod = 'month',
   trendMonths: number = 6,
   dataRangeMonths?: number
 ): Promise<AnalyticsDashboardResponse> => {
   const [metrics, funnel, trend, sources] = await Promise.all([
-    getAnalyticsMetrics(userId, period, 'previous_period', dataRangeMonths),
-    getAnalyticsFunnel(userId, period, dataRangeMonths),
-    getAnalyticsTrend(userId, trendMonths),
-    getAnalyticsSources(userId, period, dataRangeMonths),
+    getAnalyticsMetrics(userId, userRole, period, 'previous_period', dataRangeMonths),
+    getAnalyticsFunnel(userId, userRole, period, dataRangeMonths),
+    getAnalyticsTrend(userId, userRole, trendMonths),
+    getAnalyticsSources(userId, userRole, period, dataRangeMonths),
   ]);
 
   return {
