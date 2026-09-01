@@ -20,8 +20,10 @@ export const getDashboardOverviewController = async (req: Request, res: Response
     return;
   }
 
+  const userRole = req.user!.role;
+
   try {
-    const metrics = await getDashboardOverview(userId);
+    const metrics = await getDashboardOverview(userId, userRole);
 
     res.status(200).json({
       success: true,

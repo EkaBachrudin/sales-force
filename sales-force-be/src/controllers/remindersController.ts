@@ -28,11 +28,13 @@ export const getUpcomingRemindersController = async (
     return;
   }
 
+  const userRole = req.user!.role;
+
   try {
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 3;
     const hoursAhead = req.query.hours_ahead ? parseInt(req.query.hours_ahead as string, 10) : 24;
 
-    const result = await getUpcomingReminders(userId, limit, hoursAhead);
+    const result = await getUpcomingReminders(userId, userRole, limit, hoursAhead);
 
     res.status(200).json({
       success: true,

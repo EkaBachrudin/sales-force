@@ -16,6 +16,30 @@
 
 ---
 
+### 1.1 Data Visibility / Authorization Rules (RBAC)
+
+Data yang dikembalikan oleh endpoint retrieval (`GET /api/v1/dashboard/overview` dan `GET /api/v1/reminders/upcoming`) ditentukan oleh role user yang sedang login (dibaca dari JWT `req.user.role`):
+
+| Role | Dashboard Overview (`/dashboard/overview`) | Upcoming Reminders (`/reminders/upcoming`) |
+| --- | --- | --- |
+| `Admin` | Aggregate metrics dari **SEMUA leads** di seluruh sistem | Mengambil **SEMUA upcoming reminders** dari semua user |
+| `Supervisor` | Aggregate metrics dari **SEMUA leads** di seluruh sistem | Mengambil **SEMUA upcoming reminders** dari semua user |
+| `Sales` | Aggregate metrics dari leads milik sendiri saja (`assigned_to` = user) | Mengambil **hanya reminders milik sendiri** (`user_id` = user) |
+
+**SQL Condition:**
+
+```sql
+WHERE (assigned_to = $1 OR $2::boolean)   -- $1 = user ID (JWT sub); $2 = true (Admin/Supervisor) => semua, false (Sales) => milik sendiri
+  ...
+```
+
+- `$1` = current user ID (dari JWT `sub`)
+- `$2` = boolean: `true` untuk role `Admin`/`Supervisor` (filter diabaikan → semua data), `false` untuk role `Sales` (hanya data milik user tersebut)
+
+> **Note**: RBAC ini berlaku untuk kedua retrieval endpoints. Write operations (`POST/PUT/DELETE` reminders) tetap melakukan validasi ownership `user_id` untuk semua role.
+
+---
+
 ## 2. Dashboard Matrix API
 
 ### 2.1 Get Dashboard Overview Metrics
@@ -58,14 +82,14 @@
 
 | Response Field | DB Table | DB Column | Mapping Logic |
 | --- | --- | --- | --- |
-| `total_leads.value` | `leads` | - | `COUNT(*) WHERE assigned_to = {user_id} AND status != 'cancelled'` |
-| `total_leads.trend_value` | `leads` | - | `COUNT(*) WHERE assigned_to = {user_id} AND created_at >= DATE_TRUNC('week', NOW())` |
-| `new_leads_this_month.value` | `leads` | - | `COUNT(*) WHERE assigned_to = {user_id} AND created_at >= DATE_TRUNC('month', NOW())` |
+| `total_leads.value` | `leads` | - | `COUNT(*) WHERE (assigned_to = {user_id} OR {is_privileged}) AND status != 'cancelled'` |
+| `total_leads.trend_value` | `leads` | - | `COUNT(*) WHERE (assigned_to = {user_id} OR {is_privileged}) AND created_at >= DATE_TRUNC('week', NOW())` |
+| `new_leads_this_month.value` | `leads` | - | `COUNT(*) WHERE (assigned_to = {user_id} OR {is_privileged}) AND created_at >= DATE_TRUNC('month', NOW())` |
 | `new_leads_this_month.trend_percentage` | - | - | Calculation: `(current_month - prev_month) / prev_month * 100` |
-| `surveyed.value` | `leads` | `status` | `COUNT(*) WHERE assigned_to = {user_id} AND status = 'surveyed'` |
-| `surveyed.trend_value` | `leads` | `status`, `created_at` | `COUNT(*) WHERE assigned_to = {user_id} AND status = 'surveyed' AND created_at >= DATE_TRUNC('week', NOW())` |
-| `closed.value` | `leads` | `status` | `COUNT(*) WHERE assigned_to = {user_id} AND status = 'closed'` |
-| `closed.trend_value` | `leads` | `status`, `created_at` | `COUNT(*) WHERE assigned_to = {user_id} AND status = 'closed' AND created_at >= DATE_TRUNC('week', NOW())` |
+| `surveyed.value` | `leads` | `status` | `COUNT(*) WHERE (assigned_to = {user_id} OR {is_privileged}) AND status = 'surveyed'` |
+| `surveyed.trend_value` | `leads` | `status`, `created_at` | `COUNT(*) WHERE (assigned_to = {user_id} OR {is_privileged}) AND status = 'surveyed' AND created_at >= DATE_TRUNC('week', NOW())` |
+| `closed.value` | `leads` | `status` | `COUNT(*) WHERE (assigned_to = {user_id} OR {is_privileged}) AND status = 'closed'` |
+| `closed.trend_value` | `leads` | `status`, `created_at` | `COUNT(*) WHERE (assigned_to = {user_id} OR {is_privileged}) AND status = 'closed' AND created_at >= DATE_TRUNC('week', NOW())` |
 
 **Database Query:**
 
@@ -73,12 +97,12 @@
 -- Total Leads (non-cancelled)
 SELECT COUNT(*) AS total_leads
 FROM leads
-WHERE assigned_to = $1 AND status != 'cancelled';
+WHERE (assigned_to = $1 OR $2::boolean) AND status != 'cancelled';
 
 -- New Leads This Week (for trend_value of total_leads)
 SELECT COUNT(*) AS new_this_week
 FROM leads
-WHERE assigned_to = $1
+WHERE (assigned_to = $1 OR $2::boolean)
   AND created_at >= DATE_TRUNC('week', NOW());
 
 -- New Leads This Month vs Last Month (for value + percentage)
@@ -89,34 +113,34 @@ SELECT
           AND created_at < DATE_TRUNC('month', NOW())
     ) AS last_month
 FROM leads
-WHERE assigned_to = $1;
+WHERE (assigned_to = $1 OR $2::boolean);
 
 -- Surveyed
 SELECT COUNT(*) AS surveyed
 FROM leads
-WHERE assigned_to = $1 AND status = 'surveyed';
+WHERE (assigned_to = $1 OR $2::boolean) AND status = 'surveyed';
 
 -- Surveyed This Week (for trend_value)
 SELECT COUNT(*) AS surveyed_this_week
 FROM leads
-WHERE assigned_to = $1
+WHERE (assigned_to = $1 OR $2::boolean)
   AND status = 'surveyed'
   AND created_at >= DATE_TRUNC('week', NOW());
 
 -- Closed
 SELECT COUNT(*) AS closed
 FROM leads
-WHERE assigned_to = $1 AND status = 'closed';
+WHERE (assigned_to = $1 OR $2::boolean) AND status = 'closed';
 
 -- Closed This Week (for trend_value)
 SELECT COUNT(*) AS closed_this_week
 FROM leads
-WHERE assigned_to = $1
+WHERE (assigned_to = $1 OR $2::boolean)
   AND status = 'closed'
   AND created_at >= DATE_TRUNC('week', NOW());
 ```
 
-> **Note:** Seluruh query difilter oleh `assigned_to = $1` yang diambil dari JWT token, konsisten dengan pattern keamanan di API Design - Properties V2.
+> **Note:** Seluruh query menggunakan RBAC — `$1` = user ID dari JWT, `$2` = boolean `isPrivilegedRole` (`true` untuk Admin/Supervisor → aggregate semua leads, `false` untuk Sales → hanya leads sendiri). Lihat section 1.1 untuk detail.
 > 
 
 ---
@@ -288,17 +312,17 @@ INNER JOIN leads l ON rs.lead_id = l.id
 LEFT JOIN units u ON l.unit_id = u.id
 LEFT JOIN blocks b ON u.block_id = b.id
 LEFT JOIN properties p ON b.property_id = p.id
-WHERE rs.user_id = $1
-  AND rs.remind_at BETWEEN NOW() AND (NOW() + ($2 || ' hours')::INTERVAL)
+WHERE (rs.user_id = $1 OR $2::boolean)   -- $2 = true (Admin/Supervisor) => semua reminders, false (Sales) => milik sendiri
+  AND rs.remind_at BETWEEN NOW() AND (NOW() + INTERVAL '1 hour' * $3)
   AND rs.is_completed = false
 ORDER BY rs.remind_at ASC
-LIMIT $3;
+LIMIT $4;
 
 -- Count total for meta
 SELECT COUNT(*)
 FROM reminder_schedules
-WHERE user_id = $1
-  AND remind_at BETWEEN NOW() AND (NOW() + ($2 || ' hours')::INTERVAL)
+WHERE (user_id = $1 OR $2::boolean)
+  AND remind_at BETWEEN NOW() AND (NOW() + INTERVAL '1 hour' * $3)
   AND is_completed = false;
 ```
 
@@ -548,8 +572,8 @@ RETURNING id;
 
 | Endpoint | Method | Tables | Operations | Security Filter |
 | --- | --- | --- | --- | --- |
-| `/dashboard/overview` | GET | `leads` | SELECT (aggregate) | `assigned_to = user_id` |
-| `/reminders/upcoming` | GET | `reminder_schedules`, `leads`, `units`, `blocks`, `properties` | SELECT with JOIN (4 tables) | `reminder_schedules.user_id = user_id` |
+| `/dashboard/overview` | GET | `leads` | SELECT (aggregate) | RBAC: `assigned_to = user_id` (Sales) / semua leads (Admin/Supervisor) |
+| `/reminders/upcoming` | GET | `reminder_schedules`, `leads`, `units`, `blocks`, `properties` | SELECT with JOIN (4 tables) | RBAC: `reminder_schedules.user_id = user_id` (Sales) / semua reminders (Admin/Supervisor) |
 | `/reminders` | POST | `reminder_schedules`, `leads` | INSERT + validation SELECT | `user_id` dari JWT, validasi `leads.assigned_to` |
 | `/reminders/:id` | PUT | `reminder_schedules` | UPDATE | `user_id = user_id` |
 | `/reminders/:id` | DELETE | `reminder_schedules` | DELETE | `user_id = user_id` |
@@ -574,6 +598,7 @@ RETURNING id;
 | 12 | **SQL — Upcoming Reminders** | Parameter `hours_ahead` digunakan secara dinamis dalam query (bukan hardcode `1 week`) | Koreksi bug: parameter didefinisikan tapi tidak digunakan di SQL |
 | 13 | **Error Code** | `VALIDATION_ERROR` HTTP Status dari `422` → `400` | Konsistensi dengan Properties V2 |
 | 14 | **Document metadata** | Penambahan Document Overview table, API Summary Table, Database Impact Matrix, Changelog | Konsistensi format dengan Properties V2 |
+| 15 | **RBAC** | Menambahkan Data Visibility / Authorization Rules (section 1.1); menerapkan RBAC data-level untuk `GET /dashboard/overview` dan `GET /reminders/upcoming` — Admin/Supervisor aggregate/fetch semua data, Sales hanya data sendiri | Konsistensi dengan API lain (Kanban V2, Leads V2, Pipeline, Analytics) |
 
 ---
 

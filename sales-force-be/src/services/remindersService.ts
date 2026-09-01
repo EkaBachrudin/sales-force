@@ -80,6 +80,7 @@ export interface UpdateReminderDto {
  */
 export const getUpcomingReminders = async (
   userId: string,
+  userRole: string,
   limit: number = 3,
   hoursAhead: number = 24
 ): Promise<UpcomingRemindersResponse> => {
@@ -88,6 +89,9 @@ export const getUpcomingReminders = async (
   if (userCheck.rows.length === 0) {
     throw new AppError('User not found', 404);
   }
+
+  // RBAC: Admin & Supervisor see ALL reminders; Sales only their own
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
 
   // Get reminders with lead and property information
   const remindersQuery = `
@@ -117,14 +121,14 @@ export const getUpcomingReminders = async (
     LEFT JOIN units u ON l.unit_id = u.id
     LEFT JOIN blocks b ON u.block_id = b.id
     LEFT JOIN properties p ON b.property_id = p.id
-    WHERE rs.user_id = $1
-      AND rs.remind_at BETWEEN NOW() AND (NOW() + INTERVAL '1 hour' * $2)
+    WHERE (rs.user_id = $1 OR $2::boolean)
+      AND rs.remind_at BETWEEN NOW() AND (NOW() + INTERVAL '1 hour' * $3)
       AND rs.is_completed = false
     ORDER BY rs.remind_at ASC
-    LIMIT $3
+    LIMIT $4
   `;
 
-  const remindersResult = await pool.query(remindersQuery, [userId, hoursAhead, limit]);
+  const remindersResult = await pool.query(remindersQuery, [userId, isPrivilegedRole, hoursAhead, limit]);
 
   // Format remind_at for display
   const formatRemindAt = (date: Date): string => {
@@ -195,11 +199,11 @@ export const getUpcomingReminders = async (
   const countQuery = `
     SELECT COUNT(*) as total
     FROM reminder_schedules
-    WHERE user_id = $1
-      AND remind_at BETWEEN NOW() AND (NOW() + INTERVAL '1 hour' * $2)
+    WHERE (user_id = $1 OR $2::boolean)
+      AND remind_at BETWEEN NOW() AND (NOW() + INTERVAL '1 hour' * $3)
       AND is_completed = false
   `;
-  const countResult = await pool.query(countQuery, [userId, hoursAhead]);
+  const countResult = await pool.query(countQuery, [userId, isPrivilegedRole, hoursAhead]);
   const total = parseInt(countResult.rows[0].total, 10);
 
   return {
