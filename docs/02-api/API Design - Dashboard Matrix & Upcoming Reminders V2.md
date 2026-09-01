@@ -1,7 +1,5 @@
 # API Design - Dashboard Matrix & Upcoming Reminders V2
 
-# API Design - Dashboard Matrix & Upcoming Reminders V2
-
 ---
 
 ## 1. Document Overview

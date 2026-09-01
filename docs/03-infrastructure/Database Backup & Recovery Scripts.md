@@ -1,7 +1,5 @@
 # Database Backup & Recovery Scripts
 
-# Database Backup & Recovery Scripts
-
 Automated backup and recovery system for PostgreSQL database in production environment.
 
 ---

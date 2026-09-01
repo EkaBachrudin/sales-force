@@ -1,7 +1,5 @@
 # API Design - Leads V2
 
-# API Design - Leads V2
-
 ---
 
 ## 1. Document Overview

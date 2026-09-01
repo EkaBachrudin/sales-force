@@ -1,7 +1,5 @@
 # API Design - Kanban V2
 
-# API Design - Kanban V2
-
 ---
 
 ## 1. Document Overview
