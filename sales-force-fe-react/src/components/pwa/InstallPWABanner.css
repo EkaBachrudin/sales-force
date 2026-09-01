@@ -12,12 +12,6 @@
 .install-pwa-banner__row {
   @apply flex items-center gap-3 pr-6;
 }
-.install-pwa-banner__icon {
-  @apply flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center;
-}
-.install-pwa-banner__icon-svg {
-  @apply w-6 h-6 text-white;
-}
 .install-pwa-banner__content {
   @apply flex-1 min-w-0;
 }

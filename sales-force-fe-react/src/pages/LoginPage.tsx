@@ -57,24 +57,23 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      <div className="login-page__container">
-        {/* PWA Install Banner */}
-        <InstallPWABanner />
+      <div className="login-page__form-side">
+        <div className="login-page__form-inner">
+          <InstallPWABanner />
 
-        {/* Logo/Brand */}
-        <div className="login-page__brand">
-          <div className="login-page__logo">
-            <svg className="login-page__logo-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
+          <div className="login-page__brand">
+            <img
+              src="/sforce-logo.webp"
+              alt="Sales Force"
+              className="login-page__logo-img"
+            />
           </div>
-          <h1 className="login-page__title">Sales Force</h1>
-          <p className="login-page__tagline">Simple CRM. Powerful Results.</p>
-          <p className="login-page__subtitle">Manage customer relationships with ease</p>
-        </div>
 
-        {/* Login Card */}
-        <div className="login-page__card">
+          <h1 className="login-page__heading">Welcome back</h1>
+          <p className="login-page__subtext">
+            Sign in to your Sales Force workspace to manage leads and close deals.
+          </p>
+
           <form onSubmit={handleSubmit} className="login-page__form">
             <Input
               label="Email"
@@ -101,6 +100,7 @@ export default function LoginPage() {
                 if (errors.password) setErrors({ ...errors, password: undefined });
               }}
               error={errors.password}
+              helperText="At least 6 characters"
               leftIcon={<Lock className="login-page__input-icon" />}
               rightAction={
                 <button
@@ -126,6 +126,42 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
+
+      <aside className="login-page__visual-side">
+        <div className="login-page__visual-grid" />
+        <div className="login-page__visual-glow" />
+
+        <div className="login-page__visual-content">
+          <div className="login-page__visual-header">
+            <h2 className="login-page__visual-title">
+              Your sales pipeline, under control.
+            </h2>
+            <p className="login-page__visual-subtitle">
+              The CRM built for real estate sales teams. Track every lead and close
+              faster from anywhere.
+            </p>
+          </div>
+
+          <div className="login-page__visual-screenshot">
+            <div className="login-page__browser-bar">
+              <div className="login-page__browser-dots">
+                <div className="login-page__browser-dot login-page__browser-dot--red" />
+                <div className="login-page__browser-dot login-page__browser-dot--yellow" />
+                <div className="login-page__browser-dot login-page__browser-dot--green" />
+              </div>
+              <div className="login-page__browser-url">
+                salesforce.app
+              </div>
+            </div>
+            <img
+              src="/features/dashboard.png"
+              alt="Sales Force CRM dashboard"
+              className="login-page__screenshot-img"
+            />
+          </div>
+        </div>
+
+      </aside>
     </div>
   );
 }

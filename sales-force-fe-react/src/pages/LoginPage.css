@@ -1,44 +1,165 @@
 @reference "../index.css";
 
 .login-page {
-  @apply min-h-screen flex items-center justify-center bg-linear-to-br from-primary/5 via-white to-primary/5 px-4;
+  @apply min-h-[100dvh] flex lg:grid lg:grid-cols-[1fr_1.1fr] bg-background;
 }
-.login-page__container {
+
+.login-page__form-side {
+  @apply flex items-center justify-center px-4 py-12 w-full lg:max-w-none;
+}
+
+.login-page__form-inner {
   @apply w-full max-w-md;
+  animation: login-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+@keyframes login-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page__form-inner {
+    animation: none;
+  }
+}
+
 .login-page__brand {
-  @apply text-center mb-8;
+  @apply flex items-center gap-3 mb-4;
 }
-.login-page__logo {
-  @apply inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-lg mb-4;
+
+.login-page__logo-img {
+  @apply h-9 w-auto;
 }
-.login-page__logo-svg {
-  @apply w-8 h-8 text-white;
+
+.login-page__heading {
+  @apply text-2xl font-semibold text-text-primary tracking-tight mb-2;
 }
-.login-page__title {
-  @apply text-2xl font-bold text-text-primary;
+
+.login-page__subtext {
+  @apply text-sm text-text-secondary leading-relaxed max-w-sm mb-8;
 }
-.login-page__tagline {
-  @apply text-sm text-text-secondary mt-1;
-}
-.login-page__subtitle {
-  @apply text-xs text-text-secondary mt-2;
-}
-.login-page__card {
-  @apply bg-white rounded-2xl shadow-xl border border-neutral-soft p-8;
-}
+
 .login-page__form {
   @apply space-y-5;
 }
+
 .login-page__input-icon {
   @apply w-5 h-5;
 }
+
 .login-page__password-toggle {
   @apply p-0 bg-transparent border-none cursor-pointer;
 }
+
 .login-page__password-toggle-icon {
   @apply w-5 h-5;
 }
+
 .login-page__submit {
   @apply mt-6;
+}
+
+/* --- Right panel --- */
+
+.login-page__visual-side {
+  @apply relative hidden lg:flex flex-col justify-between overflow-hidden bg-linear-to-br from-[#2358c9] to-[#183fa8] px-14 py-14;
+}
+
+.login-page__visual-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.login-page__visual-glow {
+  position: absolute;
+  top: -20%;
+  right: -15%;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.login-page__visual-content {
+  @apply relative z-10 flex flex-col gap-10;
+  flex: 1;
+}
+
+.login-page__visual-header {
+  @apply space-y-3;
+}
+
+.login-page__visual-title {
+  @apply text-white text-2xl font-semibold tracking-tight leading-snug max-w-sm;
+}
+
+.login-page__visual-subtitle {
+  @apply text-white/70 text-sm leading-relaxed max-w-sm;
+}
+
+.login-page__visual-screenshot {
+  @apply relative rounded-xl overflow-hidden shadow-2xl border border-white/10;
+}
+
+.login-page__browser-bar {
+  @apply flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur-sm border-b border-white/10;
+}
+
+.login-page__browser-dots {
+  @apply flex gap-1.5;
+}
+
+.login-page__browser-dot {
+  @apply w-2.5 h-2.5 rounded-full;
+}
+
+.login-page__browser-dot--red {
+  @apply bg-white/30;
+}
+
+.login-page__browser-dot--yellow {
+  @apply bg-white/20;
+}
+
+.login-page__browser-dot--green {
+  @apply bg-white/20;
+}
+
+.login-page__browser-url {
+  @apply flex-1 mx-4 py-1 px-3 rounded-md bg-white/10 text-white/60 text-xs;
+}
+
+.login-page__screenshot-img {
+  @apply w-full h-auto block;
+  max-height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 1023px) {
+  .login-page__visual-side {
+    @apply hidden;
+  }
+}
+
+@media (max-width: 639px) {
+  .login-page__form-inner {
+    @apply max-w-full;
+  }
 }

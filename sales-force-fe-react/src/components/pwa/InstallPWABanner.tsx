@@ -1,5 +1,5 @@
 
-import { X, Download } from 'lucide-react';
+import { X } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useState, useEffect } from 'react';
 import './InstallPWABanner.css';
@@ -57,10 +57,6 @@ export function InstallPWABanner() {
       </button>
 
       <div className="install-pwa-banner__row">
-        <div className="install-pwa-banner__icon">
-          <Download className="install-pwa-banner__icon-svg" />
-        </div>
-
         <div className="install-pwa-banner__content">
           <h3 className="install-pwa-banner__title">Install Sales Force App</h3>
           <p className="install-pwa-banner__subtitle">

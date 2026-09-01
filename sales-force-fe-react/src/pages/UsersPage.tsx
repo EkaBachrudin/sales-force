@@ -111,7 +111,7 @@ export default function UsersPage() {
   };
 
   const canDelete = (user: User) => {
-    if (currentUser?.role === 'Admin') return true;
+    if (currentUser?.role === 'Admin' && currentUser?.id !== user?.id) return true;
     if (currentUser?.role === 'Supervisor') return user.role === 'Sales';
     return false;
   };
