@@ -83,15 +83,18 @@ const validateStatus = (status: string): status is CrmLeadStatus => {
  * GET /api/v1/pipeline - Get Pipeline Data
  * Retrieves all leads grouped by pipeline stage for kanban board rendering
  */
-export const getPipelineData = async (query: GetPipelineQuery, userId: string): Promise<PipelineResponse> => {
+export const getPipelineData = async (query: GetPipelineQuery, userId: string, userRole: string): Promise<PipelineResponse> => {
   const { page = 1, limit = 20, search } = query;
 
   // Validate limit (max 50)
   const validatedLimit = Math.min(Math.max(1, limit), 50);
   const offset = (page - 1) * validatedLimit;
 
+  // RBAC: Admin & Supervisor see ALL leads; Sales only their own
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
   // Build search filter for name
-  const searchFilter = search ? ` AND l.name ILIKE $3` : '';
+  const searchFilter = search ? ' AND l.name ILIKE $4' : '';
   const searchParams = search ? [`%${search}%`] : [];
 
   // Build stages with leads
@@ -112,9 +115,9 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
     const countQuery = `
       SELECT COUNT(*) as count
       FROM leads l
-      WHERE l.status = $1 AND l.assigned_to = $2${searchFilter}
+      WHERE l.status = $1 AND (l.assigned_to = $2 OR $3::boolean)${searchFilter}
     `;
-    const countResult = await pool.query(countQuery, [stage.id, userId, ...searchParams]);
+    const countResult = await pool.query(countQuery, [stage.id, userId, isPrivilegedRole, ...searchParams]);
     const leadCount = parseInt(countResult.rows[0].count, 10);
     stagesSummary[stage.id] = leadCount;
     totalLeads += leadCount;
@@ -134,11 +137,11 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string): 
       LEFT JOIN units u ON l.unit_id = u.id
       LEFT JOIN blocks b ON u.block_id = b.id
       LEFT JOIN properties p ON b.property_id = p.id
-      WHERE l.status = $1 AND l.assigned_to = $2${searchFilter}
+      WHERE l.status = $1 AND (l.assigned_to = $2 OR $3::boolean)${searchFilter}
       ORDER BY l.updated_at DESC
-      LIMIT $${search ? '4' : '3'} OFFSET $${search ? '5' : '4'}
+      LIMIT $${search ? '5' : '4'} OFFSET $${search ? '6' : '5'}
     `;
-    const leadsResult = await pool.query(leadsQuery, [stage.id, userId, ...searchParams, validatedLimit, offset]);
+    const leadsResult = await pool.query(leadsQuery, [stage.id, userId, isPrivilegedRole, ...searchParams, validatedLimit, offset]);
 
     const leads: PipelineLeadItem[] = leadsResult.rows.map((row) => ({
       id: row.id,
@@ -354,7 +357,10 @@ export const updateLeadStatus = async (
  * GET /api/v1/pipeline/metrics - Get Pipeline Metrics
  * Retrieves summary metrics for pipeline overview
  */
-export const getPipelineMetrics = async (userId: string): Promise<PipelineMetricsResponse> => {
+export const getPipelineMetrics = async (userId: string, userRole: string): Promise<PipelineMetricsResponse> => {
+  // RBAC: Admin & Supervisor see ALL leads; Sales only their own
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
   const metricsQuery = `
     WITH metrics AS (
       SELECT
@@ -365,7 +371,7 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
         COUNT(*) as total_count,
         AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) FILTER (WHERE status = 'closed') as avg_days_to_close
       FROM leads
-      WHERE assigned_to = $1
+      WHERE (assigned_to = $1 OR $2::boolean)
     )
     SELECT
       total_count as total_leads,
@@ -381,7 +387,7 @@ export const getPipelineMetrics = async (userId: string): Promise<PipelineMetric
     FROM metrics
   `;
 
-  const result = await pool.query(metricsQuery, [userId]);
+  const result = await pool.query(metricsQuery, [userId, isPrivilegedRole]);
   const row = result.rows[0];
 
   return {

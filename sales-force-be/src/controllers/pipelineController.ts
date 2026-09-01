@@ -33,8 +33,10 @@ export const getPipelineController = async (req: Request, res: Response): Promis
     return;
   }
 
+  const userRole = req.user!.role;
+
   try {
-    const result = await getPipelineData(query, userId);
+    const result = await getPipelineData(query, userId, userRole);
     res.status(200).json({
       success: true,
       data: result,
@@ -134,8 +136,10 @@ export const getPipelineMetricsController = async (req: Request, res: Response):
     return;
   }
 
+  const userRole = req.user!.role;
+
   try {
-    const result = await getPipelineMetrics(userId);
+    const result = await getPipelineMetrics(userId, userRole);
     res.status(200).json({
       success: true,
       data: result,

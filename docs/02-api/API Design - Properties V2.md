@@ -1324,10 +1324,15 @@ ORDER BY l.created_at DESC
 **Validation Rules**:
 - `lead_id`: Wajib, format UUID valid
 - Lead harus ada di database
-- Unit tidak boleh berstatus `sold`
-- Unit tidak boleh sudah memiliki lead berstatus `booked`
+- Unit tidak boleh berstatus `sold` (hanya berlaku untuk role `Sales`; Admin/Supervisor dibypass)
+- Lead harus dimiliki oleh user (`assigned_to` match) — hanya berlaku untuk role `Sales`; Admin/Supervisor dibypass
+- Unit tidak boleh sudah memiliki lead berstatus `booked` (berlaku untuk semua role)
 - **Business Rule**: Saat sebuah lead masuk status `booked`, semua lead lain di unit tersebut akan di-unassign (unit diklaim eksklusif oleh lead `booked`)
 - Setelah assign, trigger DB akan mengubah status unit berdasarkan status lead
+
+**Authorization Exceptions (RBAC)**:
+
+> Role `Admin` dan `Supervisor` **membypass** validasi ownership lead (`Lead does not belong to you`) dan validasi status unit sold (`Cannot assign lead to sold unit`) — mereka dapat assign lead **APAPUN** ke unit **APAPUN**. Role `Sales` tetap dibatasi: hanya dapat meng-assign lead miliknya sendiri (`assigned_to` match) dan unit tidak boleh berstatus `sold`.
 
 **Success Response** `200`:
 
@@ -1356,12 +1361,12 @@ ORDER BY l.created_at DESC
 **Database Impact — UPDATE**:
 
 ```sql
--- Assign lead to unit
+-- Assign lead to unit (RBAC: Admin/Supervisor bypass ownership check)
 UPDATE leads
 SET unit_id = $1,
     updated_at = NOW()
 WHERE id = $2
-  AND assigned_to = $3
+  AND (assigned_to = $3 OR $4::boolean)   -- $4 = true (Admin/Supervisor) => bypass ownership, false (Sales) => lead sendiri
   AND unit_id IS NULL
 RETURNING *;
 
@@ -1402,10 +1407,14 @@ cancelled      →  available
 
 **Validation Rules**:
 - Unit harus ada di database
-- Lead harus ada dan dimiliki oleh user yang sama dengan pemilik property (assigned_to match)
+- Lead harus ada — role `Sales` dibatasi hanya pada lead milik sendiri (`assigned_to` match); Admin/Supervisor dapat melepas lead apapun
 - Lead harus sedang di-assign ke unit tersebut (`leads.unit_id = id`), jika tidak → error `409 LEAD_NOT_ASSIGNED`
 - Tidak ada pembatasan berdasarkan status lead — lead berstatus apapun (termasuk `booked`/`closed`) tetap dapat di-unassign
 - Setelah unassign, trigger DB akan mengubah status unit berdasarkan lead yang tersisa di unit tersebut
+
+**Authorization Exceptions (RBAC)**:
+
+> Role `Admin` dan `Supervisor` **membypass** validasi ownership lead — mereka dapat melepas lead **APAPUN** dari unit **APAPUN**. Role `Sales` tetap dibatasi: hanya dapat melepas lead milik sendiri (`assigned_to` match).
 
 **Success Response** `200`:
 
@@ -1435,13 +1444,13 @@ cancelled      →  available
 **Database Impact — UPDATE**:
 
 ```sql
--- Unassign lead from unit
+-- Unassign lead from unit (RBAC: Admin/Supervisor bypass ownership check)
 UPDATE leads
 SET unit_id = NULL,
     updated_at = NOW()
 WHERE id = $1
-  AND assigned_to = $2
-  AND unit_id = $3
+  AND (assigned_to = $2 OR $3::boolean)   -- $3 = true (Admin/Supervisor) => bypass ownership, false (Sales) => lead sendiri
+  AND unit_id = $4
 RETURNING *;
 
 -- Unit status akan otomatis berubah via DB trigger

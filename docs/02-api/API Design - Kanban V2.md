@@ -23,7 +23,9 @@ The **Pipeline Kanban Board** is the core feature of the CRM Dashboard that enab
 
 - **Route**: `/dashboard/pipeline`
 - **Authentication**: Required (JWT token via httpOnly cookie)
-- **Authorization**: Sales users can only view their own assigned leads
+- **Authorization**: 
+  - `Admin` / `Supervisor`: dapat melihat **SEMUA leads** di seluruh sistem (semua roles/tim)
+  - `Sales`: hanya dapat melihat leads yang di-assign/dimiliki sendiri (`assigned_to` = current user)
 
 ### 2.2 Key Features
 
@@ -52,6 +54,29 @@ The **Pipeline Kanban Board** is the core feature of the CRM Dashboard that enab
 | `page` | number | No | 1 | Page number for each stage (starts from 1) |
 | `limit` | number | No | 20 | Max leads per stage (max 50) |
 | `search` | string | No | - | Search by lead name (case-insensitive) |
+
+### 3.1.1 Authorization Rules (RBAC)
+
+Data visibility pada endpoint ini ditentukan oleh role user yang sedang login (dibaca dari JWT `req.user.role`):
+
+| Role | Scope | Database Filter |
+| --- | --- | --- |
+| `Admin` | Semua leads di seluruh sistem (semua roles) | Tanpa filter `assigned_to` |
+| `Supervisor` | Semua leads di seluruh sistem (semua roles) | Tanpa filter `assigned_to` |
+| `Sales` | Hanya leads milik sendiri | `l.assigned_to` = current user ID |
+
+**SQL Condition**:
+
+```sql
+WHERE l.status = $1
+  AND (l.assigned_to = $2 OR $3::boolean)   -- $3 = true jika role Admin/Supervisor
+  ...
+```
+
+- `$2` = current user ID (dari JWT `sub`)
+- `$3` = boolean: `true` untuk role `Admin`/`Supervisor` (filter `assigned_to` diabaikan → semua leads), `false` untuk role `Sales` (hanya leads milik user tersebut)
+
+---
 
 **Request Example**:
 
@@ -116,7 +141,7 @@ Cookie: auth_token=<httpOnly_cookie>
 | `stages[].name_en` | - | - | Static labels (English) |
 | `stages[].color` | - | - | Static hex colors |
 | `stages[].order` | - | - | Static order 1-7 |
-| `stages[].lead_count` | `leads` | `COUNT(*)` | COUNT filtered by `status` AND `assigned_to` = current_user (ditambah filter `search` jika ada) |
+| `stages[].lead_count` | `leads` | `COUNT(*)` | COUNT filtered by `status` AND visibility rule RBAC (`assigned_to` = current user, kecuali role Admin/Supervisor yang melihat semua leads) (ditambah filter `search` jika ada) |
 | `stages[].leads[].id` | `leads` | `id` | Direct mapping |
 | `stages[].leads[].name` | `leads` | `name` | Direct mapping |
 | `stages[].leads[].unit_name` | `units` | `name` | LEFT JOIN dari `units` via `unit_id`, return `undefined` jika null |
@@ -143,10 +168,10 @@ LEFT JOIN units u ON l.unit_id = u.id
 LEFT JOIN blocks b ON u.block_id = b.id
 LEFT JOIN properties p ON b.property_id = p.id
 WHERE l.status = $1                         -- 'new', 'contacted', 'surveyed', 'negotiating', 'booked', 'closed', 'cancelled'
-  AND l.assigned_to = $2                    -- current user ID
-  AND ($3::text IS NULL OR l.name ILIKE '%' || $3 || '%')  -- optional search
+  AND (l.assigned_to = $2 OR $3::boolean)  -- $2 = current user ID; $3 = true (Admin/Supervisor) => semua lead, false (Sales) => lead sendiri
+  AND ($4::text IS NULL OR l.name ILIKE '%' || $4 || '%')  -- optional search
 ORDER BY l.updated_at DESC
-LIMIT $4 OFFSET $5;
+LIMIT $5 OFFSET $6;
 ```
 
 ---
@@ -383,18 +408,18 @@ WHERE l.id = $1 AND l.assigned_to = $2;
 
 | Response Field | Database Table | Database Column | Mapping Logic |
 | --- | --- | --- | --- |
-| `total_leads` | `leads` | `COUNT(*)` | COUNT WHERE `assigned_to` = current_user |
-| `this_month` | `leads` | `COUNT(*)` | COUNT WHERE `assigned_to` = current_user AND `created_at` >= start_of_month |
-| `surveyed` | `leads` | `COUNT(*)` | COUNT WHERE `assigned_to` = current_user AND `status` = ‘surveyed’ |
-| `booked` | `leads` | `COUNT(*)` | COUNT WHERE `assigned_to` = current_user AND `status` = ‘booked’ |
-| `closed` | `leads` | `COUNT(*)` | COUNT WHERE `assigned_to` = current_user AND `status` = ‘closed’ |
+| `total_leads` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) |
+| `this_month` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `created_at` >= start_of_month |
+| `surveyed` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `status` = ‘surveyed’ |
+| `booked` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `status` = ‘booked’ |
+| `closed` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `status` = ‘closed’ |
 | `conversion_rate` | `leads` | Calculated | `(closed / total_leads) * 100` |
 | `avg_time_to_close` | `leads` | Calculated | AVG days between `created_at` and `updated_at` for `status` = ‘closed’ |
 
 **Database Query**:
 
 ```sql
--- Main metrics query
+-- Main metrics query (RBAC: Admin/Supervisor see all leads, Sales see only their own)
 WITH metrics AS (
     SELECT
         COUNT(*) FILTER (WHERE status = 'closed') as closed_count,
@@ -404,7 +429,7 @@ WITH metrics AS (
         COUNT(*) as total_count,
         AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) FILTER (WHERE status = 'closed') as avg_days_to_close
     FROM leads
-    WHERE assigned_to = $1
+    WHERE (assigned_to = $1 OR $2::boolean)  -- $2 = true (Admin/Supervisor) => semua leads, false (Sales) => leads sendiri
 )
 SELECT
     total_count as total_leads,

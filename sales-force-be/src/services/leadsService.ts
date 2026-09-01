@@ -80,7 +80,7 @@ const validateNPWP = (npwp?: string): boolean => {
  * @param query - Query parameters for filtering and pagination
  * @param userId - The ID of the user to get leads for
  */
-export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
+export const getLeads = async (query: GetLeadsQuery, userId: string, userRole: string): Promise<{
   leads: CrmLeadListItem[];
   pagination: {
     page: number;
@@ -103,10 +103,13 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
     sort_order = 'desc',
   } = query;
 
-  // Build WHERE conditions - always filter by assigned user
-  const params: any[] = [userId];
-  let paramIndex = 2;
-  const conditions: string[] = [`l.assigned_to = $1`];
+  // RBAC: Admin & Supervisor see ALL leads; Sales only their own
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
+  // Build WHERE conditions
+  const params: any[] = [userId, isPrivilegedRole];
+  let paramIndex = 3;
+  const conditions: string[] = ['(l.assigned_to = $1 OR $2::boolean)'];
 
   // Default date range: 1 year ago to today
   const defaultStartDate = new Date();
@@ -234,8 +237,11 @@ export const getLeads = async (query: GetLeadsQuery, userId: string): Promise<{
  * @param leadId - The ID of the lead to get details for
  * @param userId - The ID of the user requesting the lead details
  */
-export const getLeadDetail = async (leadId: string, userId: string): Promise<LeadDetailResponse> => {
-  // Get lead details - also filter by assigned user
+export const getLeadDetail = async (leadId: string, userId: string, userRole: string): Promise<LeadDetailResponse> => {
+  // RBAC: Admin & Supervisor see ALL leads; Sales only their own
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
+  // Get lead details - also filter by assigned user (with RBAC)
   const leadQuery = `
     SELECT
       l.*,
@@ -254,10 +260,10 @@ export const getLeadDetail = async (leadId: string, userId: string): Promise<Lea
     LEFT JOIN units un ON l.unit_id = un.id
     LEFT JOIN blocks b ON un.block_id = b.id
     LEFT JOIN properties p ON b.property_id = p.id
-    WHERE l.id = $1 AND l.assigned_to = $2
+    WHERE l.id = $1 AND (l.assigned_to = $2 OR $3::boolean)
   `;
 
-  const leadResult = await pool.query(leadQuery, [leadId, userId]);
+  const leadResult = await pool.query(leadQuery, [leadId, userId, isPrivilegedRole]);
 
   if (leadResult.rows.length === 0) {
     throw new AppError('Lead not found', 404);
@@ -1062,7 +1068,7 @@ export const deleteLead = async (leadId: string, userId: string): Promise<void> 
  * @param query - Query parameters for filtering
  * @param userId - The ID of the user exporting leads
  */
-export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise<Buffer> => {
+export const exportLeads = async (query: GetLeadsQuery, userId: string, userRole: string): Promise<Buffer> => {
   const {
     status,
     search,
@@ -1072,10 +1078,13 @@ export const exportLeads = async (query: GetLeadsQuery, userId: string): Promise
     source,
   } = query;
 
-  // Build WHERE conditions - always filter by assigned user
-  const params: any[] = [userId];
-  let paramIndex = 2;
-  const conditions: string[] = [`l.assigned_to = $1`];
+  // RBAC: Admin & Supervisor see ALL leads; Sales only their own
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
+  // Build WHERE conditions
+  const params: any[] = [userId, isPrivilegedRole];
+  let paramIndex = 3;
+  const conditions: string[] = ['(l.assigned_to = $1 OR $2::boolean)'];
 
   // Default date range: 1 year ago to today
   const defaultStartDate = new Date();

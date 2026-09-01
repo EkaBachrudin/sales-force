@@ -171,10 +171,11 @@ export const assignLeadToUnitController = async (req: Request, res: Response): P
     return;
   }
 
+  const userRole = req.user!.role;
   const id = req.params.id as string;
   const dto: AssignLeadToUnitDto = req.body;
 
-  const result = await assignLeadToUnitService(id, dto.lead_id, userId);
+  const result = await assignLeadToUnitService(id, dto.lead_id, userId, userRole);
 
   res.status(200).json({
     success: true,
@@ -199,10 +200,11 @@ export const unassignLeadFromUnitController = async (req: Request, res: Response
     return;
   }
 
+  const userRole = req.user!.role;
   const id = req.params.id as string;
   const leadId = req.params.leadId as string;
 
-  const result = await unassignLeadFromUnitService(id, leadId, userId);
+  const result = await unassignLeadFromUnitService(id, leadId, userId, userRole);
 
   res.status(200).json({
     success: true,

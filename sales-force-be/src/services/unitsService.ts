@@ -390,9 +390,13 @@ export const getUnitDetail = async (unitId: string, _userId: string): Promise<Un
 export const assignLeadToUnit = async (
   unitId: string,
   leadId: string,
-  userId: string
+  userId: string,
+  userRole: string
 ): Promise<{ lead: any; unit: any }> => {
-  // Check if unit exists, belongs to user's property, and is not sold
+  // RBAC: Admin & Supervisor bypass ownership & sold-unit validation
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
+  // Check if unit exists
   const unitQuery = `
     SELECT u.*, b.name AS block_name
     FROM units u
@@ -409,7 +413,8 @@ export const assignLeadToUnit = async (
 
   const unitRow = unitResult.rows[0];
 
-  if (unitRow.status === 'sold') {
+  // Sold-unit check — bypassed for Admin/Supervisor
+  if (!isPrivilegedRole && unitRow.status === 'sold') {
     throw new AppError('Cannot assign lead to sold unit', 409);
   }
 
@@ -419,7 +424,7 @@ export const assignLeadToUnit = async (
     throw new AppError('Unit already has a booked lead', 409);
   }
 
-  // Check if lead exists and belongs to the same user
+  // Check if lead exists
   const leadQuery = `
     SELECT l.*
     FROM leads l
@@ -434,7 +439,8 @@ export const assignLeadToUnit = async (
 
   const leadRow = leadResult.rows[0];
 
-  if (leadRow.assigned_to !== userId) {
+  // Ownership check — bypassed for Admin/Supervisor
+  if (!isPrivilegedRole && leadRow.assigned_to !== userId) {
     throw new AppError('Lead does not belong to you', 403);
   }
 
@@ -448,12 +454,12 @@ export const assignLeadToUnit = async (
     SET unit_id = $1,
         updated_at = NOW()
     WHERE id = $2
-      AND assigned_to = $3
+      AND (assigned_to = $3 OR $4::boolean)
       AND unit_id IS NULL
     RETURNING *
   `;
 
-  const updateLeadResult = await pool.query(updateLeadQuery, [unitId, leadId, userId]);
+  const updateLeadResult = await pool.query(updateLeadQuery, [unitId, leadId, userId, isPrivilegedRole]);
   const updatedLead = updateLeadResult.rows[0];
 
   // Get updated unit (status should have changed via trigger)
@@ -484,9 +490,13 @@ export const assignLeadToUnit = async (
 export const unassignLeadFromUnit = async (
   unitId: string,
   leadId: string,
-  userId: string
+  userId: string,
+  userRole: string
 ): Promise<UnassignLeadResponse> => {
-  // Check if unit exists and belongs to user's property
+  // RBAC: Admin & Supervisor bypass ownership validation
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
+
+  // Check if unit exists
   const unitQuery = `
     SELECT u.id, u.name
     FROM units u
@@ -501,14 +511,14 @@ export const unassignLeadFromUnit = async (
     throw new AppError('Unit not found', 404);
   }
 
-  // Check if lead exists and belongs to the same user
+  // Check if lead exists — ownership filter bypassed for Admin/Supervisor
   const leadQuery = `
     SELECT l.id, l.name, l.status, l.unit_id
     FROM leads l
-    WHERE l.id = $1 AND l.assigned_to = $2
+    WHERE l.id = $1 AND (l.assigned_to = $2 OR $3::boolean)
   `;
 
-  const leadResult = await pool.query(leadQuery, [leadId, userId]);
+  const leadResult = await pool.query(leadQuery, [leadId, userId, isPrivilegedRole]);
 
   if (leadResult.rows.length === 0) {
     throw new AppError('Lead not found', 404);
@@ -526,12 +536,12 @@ export const unassignLeadFromUnit = async (
     SET unit_id = NULL,
         updated_at = NOW()
     WHERE id = $1
-      AND assigned_to = $2
-      AND unit_id = $3
+      AND (assigned_to = $2 OR $3::boolean)
+      AND unit_id = $4
     RETURNING *
   `;
 
-  const updateLeadResult = await pool.query(updateLeadQuery, [leadId, userId, unitId]);
+  const updateLeadResult = await pool.query(updateLeadQuery, [leadId, userId, isPrivilegedRole, unitId]);
   const updatedLead = updateLeadResult.rows[0];
 
   // Get updated unit (status should have changed via trigger)

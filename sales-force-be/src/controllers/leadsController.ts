@@ -47,7 +47,8 @@ export const getLeadsController = async (req: Request, res: Response): Promise<v
     return;
   }
 
-  const result = await getLeads(query, userId);
+  const userRole = req.user!.role;
+  const result = await getLeads(query, userId, userRole);
 
   res.status(200).json({
     success: true,
@@ -70,7 +71,8 @@ export const getLeadDetailController = async (req: Request, res: Response): Prom
     return;
   }
 
-  const result = await getLeadDetail(id as string, userId);
+  const userRole = req.user!.role;
+  const result = await getLeadDetail(id as string, userId, userRole);
 
   res.status(200).json({
     success: true,
@@ -174,7 +176,8 @@ export const exportLeadsController = async (req: Request, res: Response): Promis
     return;
   }
 
-  const buffer = await exportLeads(query, userId);
+  const userRole = req.user!.role;
+  const buffer = await exportLeads(query, userId, userRole);
 
   // Set headers for Excel file download
   const filename = `leads-export-${new Date().toISOString().split('T')[0]}.xlsx`;

@@ -83,6 +83,30 @@
 | `sort_by` | string | No | `created_at` | Sort field: `created_at`, `name`, `status`, `next_follow_up_at` |
 | `sort_order` | string | No | `desc` | Sort order: `asc`, `desc` |
 
+### 3.1.1 Authorization/Visibility Rules (RBAC)
+
+Data visibility pada endpoint ini (list, detail, dan export) ditentukan oleh role user yang sedang login (dibaca dari JWT `req.user.role`):
+
+| Role | Scope | Database Filter |
+| --- | --- | --- |
+| `Admin` | Semua leads di seluruh sistem (semua roles) | Tanpa filter `assigned_to` |
+| `Supervisor` | Semua leads di seluruh sistem (semua roles) | Tanpa filter `assigned_to` |
+| `Sales` | Hanya leads milik sendiri | `l.assigned_to` = current user ID |
+
+**SQL Condition**:
+
+```sql
+WHERE (l.assigned_to = $1 OR $2::boolean)   -- $2 = true jika role Admin/Supervisor
+  ...
+```
+
+- `$1` = current user ID (dari JWT `sub`)
+- `$2` = boolean: `true` untuk role `Admin`/`Supervisor` (filter `assigned_to` diabaikan → semua leads), `false` untuk role `Sales` (hanya leads milik user tersebut)
+
+> **Note**: RBAC ini berlaku untuk ketiga endpoint retrieval: `GET /api/v1/leads`, `GET /api/v1/leads/:id`, dan `GET /api/v1/leads/export`. Write operations (`POST`, `PUT`, `DELETE`) tetap melakukan validasi `assigned_to` ownership.
+
+---
+
 **Request Example**:
 
 ```
@@ -173,22 +197,22 @@ LEFT JOIN users usr ON l.assigned_to = usr.id
 LEFT JOIN units u ON l.unit_id = u.id
 LEFT JOIN blocks b ON u.block_id = b.id
 LEFT JOIN properties p ON b.property_id = p.id
-WHERE l.assigned_to = $1                              -- Wajib: Filter User ID dari JWT
-    AND l.created_at >= $2                            -- Wajib: Start Date (Default: 1 tahun lalu)
-    AND l.created_at <= $3                            -- Wajib: End Date (Default: Hari ini)
-    AND ($4::varchar(50) IS NULL OR l.status = $4)   -- Opsional: single status
+WHERE (l.assigned_to = $1 OR $2::boolean)             -- RBAC: $1 = User ID dari JWT; $2 = true (Admin/Supervisor) => semua leads, false (Sales) => lead sendiri
+    AND l.created_at >= $3                            -- Wajib: Start Date (Default: 1 tahun lalu)
+    AND l.created_at <= $4                            -- Wajib: End Date (Default: Hari ini)
+    AND ($5::varchar(50) IS NULL OR l.status = $5)   -- Opsional: single status
     -- Opsional: multiple statuses (param `statuses`):
     -- AND l.status IN ($n, $n+1, ...)               -- contoh: 'new','contacted','surveyed','negotiating'
-    AND ($5::text IS NULL OR l.name ILIKE '%' || $5 || '%' OR l.phone ILIKE '%' || $5 || '%')  -- Opsional: Jika search diisi
-    AND ($6::uuid IS NULL OR p.id = $6)              -- Opsional: Jika property_id diisi (filter via join chain)
-    AND ($7::text IS NULL OR l.source ILIKE '%' || $7 || '%')  -- Opsional: Jika source diisi
+    AND ($6::text IS NULL OR l.name ILIKE '%' || $6 || '%' OR l.phone ILIKE '%' || $6 || '%')  -- Opsional: Jika search diisi
+    AND ($7::uuid IS NULL OR p.id = $7)              -- Opsional: Jika property_id diisi (filter via join chain)
+    AND ($8::text IS NULL OR l.source ILIKE '%' || $8 || '%')  -- Opsional: Jika source diisi
 ORDER BY
-    CASE WHEN $8 = 'created_at' THEN l.created_at END,
-    CASE WHEN $8 = 'name' THEN l.name END,
-    CASE WHEN $8 = 'status' THEN l.status END,
-    CASE WHEN $8 = 'next_follow_up_at' THEN l.next_follow_up_at END
-    $9 ASCNULLS LAST                                 -- $9 = 'ASC' atau 'DESC'
-LIMIT $10 OFFSET $11
+    CASE WHEN $9 = 'created_at' THEN l.created_at END,
+    CASE WHEN $9 = 'name' THEN l.name END,
+    CASE WHEN $9 = 'status' THEN l.status END,
+    CASE WHEN $9 = 'next_follow_up_at' THEN l.next_follow_up_at END
+    $10 ASCNULLS LAST                                -- $10 = 'ASC' atau 'DESC'
+LIMIT $11 OFFSET $12
 ```
 
 > **Note**: `property_id` filter di-resolve melalui join chain `leads → units → blocks → properties`. Jika `property_id` diberikan, hanya lead yang unit-nya berada di property tersebut yang akan muncul. Jika lead tidak punya unit (`unit_id` IS NULL), lead tersebut **tidak** akan muncul saat filter `property_id` aktif.
@@ -343,7 +367,7 @@ LIMIT $10 OFFSET $11
 ```sql
 -- 1. Main Lead Detail Query
 -- Join chain: leads → users, leads → units → blocks → properties
--- Filter security: assigned_to ($2) dari JWT
+-- Filter security: assigned_to ($2) dari JWT dengan RBAC ($3 = boolean: Admin/Supervisor bypass)
 SELECT
     l.*,
     u.full_name AS assigned_to_name,
@@ -361,7 +385,7 @@ LEFT JOIN users u ON l.assigned_to = u.id
 LEFT JOIN units un ON l.unit_id = un.id
 LEFT JOIN blocks b ON un.block_id = b.id
 LEFT JOIN properties p ON b.property_id = p.id
-WHERE l.id = $1 AND l.assigned_to = $2;
+WHERE l.id = $1 AND (l.assigned_to = $2 OR $3::boolean);  -- $3 = true (Admin/Supervisor) => semua leads, false (Sales) => lead sendiri
 
 -- 2. Activities Query
 SELECT la.*, u.full_name AS user_name
@@ -1024,19 +1048,19 @@ SELECT
 FROM leads l
 LEFT JOIN users u ON l.assigned_to = u.id
 LEFT JOIN properties p ON l.property_id = p.id
-WHERE l.assigned_to = $1                              -- Security: Filter User ID from JWT
-    AND l.created_at >= $2                            -- Start Date (Default: 1 tahun lalu)
-    AND l.created_at <= $3                            -- End Date (Default: Hari ini)
-    AND ($4::varchar(50) IS NULL OR l.status = $4)   -- Optional: Status filter
-    AND ($5::text IS NULL OR l.name ILIKE '%' || $5 || '%' OR l.phone ILIKE '%' || $5 || '%')  -- Optional: Search
-    AND ($6::uuid IS NULL OR p.id = $6)              -- Optional: Property filter
-    AND ($7::text IS NULL OR l.source ILIKE '%' || $7 || '%')  -- Optional: Source filter
+WHERE (l.assigned_to = $1 OR $2::boolean)             -- RBAC: $1 = User ID dari JWT; $2 = true (Admin/Supervisor) => semua leads, false (Sales) => lead sendiri
+    AND l.created_at >= $3                            -- Start Date (Default: 1 tahun lalu)
+    AND l.created_at <= $4                            -- End Date (Default: Hari ini)
+    AND ($5::varchar(50) IS NULL OR l.status = $5)   -- Optional: Status filter
+    AND ($6::text IS NULL OR l.name ILIKE '%' || $6 || '%' OR l.phone ILIKE '%' || $6 || '%')  -- Optional: Search
+    AND ($7::uuid IS NULL OR p.id = $7)              -- Optional: Property filter
+    AND ($8::text IS NULL OR l.source ILIKE '%' || $8 || '%')  -- Optional: Source filter
 ORDER BY l.created_at DESC;
 ```
 
 **Security Considerations**:
 
-- Export is filtered by `assigned_to` (user’s own leads only)
+- Visibility mengikuti RBAC yang sama dengan `GET /api/v1/leads`: Admin/Supervisor export SEMUA leads; Sales hanya leads milik sendiri (`assigned_to` = current user)
 - Same security model as `GET /api/v1/leads` endpoint
 - File download requires valid authentication token
 
