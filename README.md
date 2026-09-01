@@ -19,7 +19,7 @@ See [docs/README.md](docs/README.md) for the full index.
 ```
 sales-force/
 ├── docs/                       # Project documentation
-├── sales-force-be/             # Backend (NestJS)
+├── sales-force-be/             # Backend
 ├── sales-force-fe-react/       # Frontend (React + Vite)
 ├── docker/                     # Nginx configuration & DB init
 ├── scripts/                    # Utility scripts

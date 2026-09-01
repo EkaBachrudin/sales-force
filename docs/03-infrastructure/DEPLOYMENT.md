@@ -19,7 +19,7 @@ sales-force/
 │   │   │   └── default.conf    # Site configuration
 │   │   └── ssl/                # SSL certificates (production)
 │   └── logs/nginx/             # Nginx logs
-├── sales-force-be/              # Backend (NestJS)
+├── sales-force-be/              # Backend (express)
 │   ├── Dockerfile
 │   └── src/
 └── sales-force-fe-react/         # Frontend (React + Vite)

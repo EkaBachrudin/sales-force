@@ -29,7 +29,7 @@ build/
 dist/
 vercel-build/
 
-# Backend (NestJS/Express)
+# Backend (Express)
 dist/
 build/
 *.tsbuildinfo
