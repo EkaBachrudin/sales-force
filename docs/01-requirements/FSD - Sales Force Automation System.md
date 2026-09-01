@@ -2,7 +2,7 @@
 
 # Functional Specification Document (FSD)
 
-## Sales Force Automation System - CRM untuk Sales Properti
+## Sales Force Automation System - CRM for Property Sales
 
 ---
 
@@ -10,17 +10,17 @@
 
 ### 1.1 Purpose
 
-Dokumen ini mendefinisikan spesifikasi fungsional teknis untuk pengembangan **Sistem CRM Sales Force** yang terdiri dari:
+This document defines the technical functional specifications for the development of the **Sales Force CRM System**, which consists of:
 
-1. **Landing Page Lead Generation** - Simulasi KPR & capture calon pembeli
-2. **Dashboard Pipeline Management** - Kanban board untuk manajemen lead
-3. **Integrasi WhatsApp Automation** - Otomasi follow-up via WhatsApp
+1. **Landing Page Lead Generation** - Mortgage simulation & prospect capture
+2. **Dashboard Pipeline Management** - Kanban board for lead management
+3. **WhatsApp Automation Integration** - Automated follow-ups via WhatsApp
 
 ### 1.2 Scope
 
-- **Modul Public:** Landing page simulasi KPR
-- **Modul Private:** Dashboard CRM untuk sales
-- **Modul Integration:** WhatsApp Business API
+- **Public Module:** Mortgage simulation landing page
+- **Private Module:** CRM dashboard for sales agents
+- **Integration Module:** WhatsApp Business API
 
 ### 1.3 References
 
@@ -35,10 +35,10 @@ Dokumen ini mendefinisikan spesifikasi fungsional teknis untuk pengembangan **Si
 
 | Layer | Technology | Description |
 | --- | --- | --- |
-| **Frontend** | Next.js 14+ (App Router) | React framework dengan SSR/SSG |
-| **UI Library** | React, Tailwind CSS, shadcn/ui | Component library modern |
+| **Frontend** | Next.js 14+ (App Router) | React framework with SSR/SSG |
+| **UI Library** | React, Tailwind CSS, shadcn/ui | Modern component library |
 | **Backend API** | Express TS | REST API |
-| **Database** | PostgreSQL 15+ | Relational database dengan JSONB support |
+| **Database** | PostgreSQL 15+ | Relational database with JSONB support |
 | **ORM** | - | - |
 | **Authentication** | JWT + HTTP-only cookies | Secure session management |
 | **WhatsApp API** | Twilio / WhatsApp Business API | Messaging integration |
@@ -986,7 +986,7 @@ find /var/backups/sales-force/ -name "db_*.sql.gz" -mtime +30 -delete
 
 | Term | Definition |
 | --- | --- |
-| KPR | Kredit Kepemilikan Rumah (Mortgage) |
+| KPR | Mortgage (Kredit Kepemilikan Rumah) |
 | DP | Down Payment (Uang Muka) |
 | Lead | Potential customer |
 | Pipeline | Sales stages visualization |

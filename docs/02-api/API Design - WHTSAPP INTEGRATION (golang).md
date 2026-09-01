@@ -13,19 +13,19 @@
 
 ### Overview
 
-Fitur untuk menghubungkan WhatsApp Web ke aplikasi menggunakan QR code scanning. Mendukung multi-tenant dengan session isolation per tenant.
+Feature for connecting WhatsApp Web to the application using QR code scanning. Supports multi-tenant architecture with session isolation per tenant.
 
 ### Tools & Libraries
 
 | Component | Tool/Library | Purpose |
 | --- | --- | --- |
-| **WhatsApp Library** | [go.mau.fi/whatsmeow](https://github.com/tulir/whatsmeow) | WhatsApp Web API untuk Go |
-| **Session Storage** | SQLite (sqlstore) | Menyimpan session data per tenant |
-| **WebSocket Server** | [github.com/coder/websocket](https://github.com/coder/websocket) | Real-time QR & status updates |
-| **QR Code Generator** | [github.com/skip2/go-qrcode](https://github.com/skip2/go-qrcode) | Generate QR image PNG |
-| **HTTP Framework** | Gin | REST API handler |
+| **WhatsApp Library** | [go.mau.fi/whatsmeow](https://github.com/tulir/whatsmeow) | WhatsApp Web API for Go |
+| **Session Storage** | SQLite (sqlstore) | Stores session data per tenant |
+| **WebSocket Server** | [github.com/coder/websocket](https://github.com/coder/websocket) | Real-time QR and status updates |
+| **QR Code Generator** | [github.com/skip2/go-qrcode](https://github.com/skip2/go-qrcode) | Generates QR image in PNG format |
+| **HTTP Framework** | Gin | REST API request handler |
 | **Main Database** | PostgreSQL + GORM | Device metadata storage |
-| **Frontend** | React + WebSocket API | UI & real-time connection |
+| **Frontend** | React + WebSocket API | UI and real-time connection |
 
 ---
 
@@ -258,18 +258,18 @@ disconnected`
 
 ### Overview
 
-Fitur untuk mengirim broadcast message ke multiple contacts dengan dukungan scheduling dan template personalization.
+Feature for sending broadcast messages to multiple contacts with support for scheduling and template personalization.
 
 ### Tools & Libraries
 
 | Component | Tool/Library | Purpose |
 | --- | --- | --- |
-| **HTTP Framework** | Gin | REST API handler |
-| **Database** | PostgreSQL + GORM | Campaign & message storage |
+| **HTTP Framework** | Gin | REST API request handler |
+| **Database** | PostgreSQL + GORM | Campaign and message storage |
 | **Scheduler** | Go time.Ticker | In-process background scheduler |
 | **WhatsApp** | whatsmeow | Message sending |
 | **WebSocket** | github.com/coder/websocket | Real-time progress updates |
-| **Frontend** | React | Campaign UI & monitoring |
+| **Frontend** | React | Campaign UI and monitoring |
 
 ---
 
@@ -519,25 +519,25 @@ Fitur untuk mengirim broadcast message ke multiple contacts dengan dukungan sche
 | Variable | Description | Example |
 | --- | --- | --- |
 | `{{name}}` | Contact name | "John Doe" |
-| `{{prefix}}` | Contact prefix (title) | "Pak", "Bu", "Mas" |
+| `{{prefix}}` | Contact prefix (title) | "Mr.", "Mrs.", "Ms." |
 
 **Example Template:**
 
 `Hello {{prefix}} {{name}},
-Promo spesial Ramadhan untuk Anda! Dapatkan diskon 50% untuk semua produk.
+Special Ramadan promo for you! Get 50% discount on all products.
 
-Klik: https://example.com/promo
+Click: https://example.com/promo
 
-Terima kasih!`
+Thank you!`
 
 **After replacement:**
 
-`Hello Pak Budi,
-Promo spesial Ramadhan untuk Anda! Dapatkan diskon 50% untuk semua produk.
+`Hello Mr. Budi,
+Special Ramadan promo for you! Get 50% discount on all products.
 
-Klik: https://example.com/promo
+Click: https://example.com/promo
 
-Terima kasih!`
+Thank you!`
 
 ---
 

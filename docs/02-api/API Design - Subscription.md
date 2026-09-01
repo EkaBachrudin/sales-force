@@ -418,17 +418,17 @@ Period dates are automatically calculated based on subscription type:
 
 ---
 
-## Perubahan yang Dilakukan
+## Changes Made
 
-| Bagian | Sebelum | Sesudah |
+| Area | Before | After |
 | --- | --- | --- |
 | Default `limit` | 10 | 50 |
-| Default `sort_order` | - (tidak ada) | `desc` |
-| Default `sort_by` | - (tidak ada) | `created_at` |
+| Default `sort_order` | - (none) | `desc` |
+| Default `sort_by` | - (none) | `created_at` |
 | Response structure List | `data.data` | `data.subscriptions` |
-| Response Detail | Tanpa `user_name`, `user_email` | Dengan `user_name`, `user_email` |
-| Response Create/Update | Menggunakan `...` | Response lengkap |
-| Data Models | 2 model terpisah | 1 model (`SubscriptionListItem`) |
-| Period calculation | Tidak didokumentasikan | Ditambahkan section khusus |
-| Validasi errors | 4 error | 9 error (lengkap) |
-| Auto-calculated fields | Tidak disebutkan | Jelas di dokumentasi |
+| Response Detail | Without `user_name`, `user_email` | With `user_name`, `user_email` |
+| Response Create/Update | Uses `...` | Complete response |
+| Data Models | 2 separate models | 1 model (`SubscriptionListItem`) |
+| Period calculation | Undocumented | Added dedicated section |
+| Validation errors | 4 errors | 9 errors (comprehensive) |
+| Auto-calculated fields | Not mentioned | Clearly documented |

@@ -1,28 +1,28 @@
 # Sales Force Automation System
 
-CRM untuk sales properti.
+CRM for property sales.
 
-## Dokumentasi
+## Documentation
 
-Seluruh dokumentasi proyek berada di [`docs/`](docs/README.md) dan dikelompokkan berdasarkan kategori:
+All project documentation is located in [`docs/`](docs/README.md) and organized by category:
 
-| Kategori | Path | Isi |
+| Category | Path | Contents |
 | --- | --- | --- |
-| Spesifikasi & Desain Sistem | [`docs/01-requirements/`](docs/01-requirements/) | BRD, FSD, ERD |
-| API Design | [`docs/02-api/`](docs/02-api/) | Desain API tiap modul |
-| Infrastruktur & Operasional | [`docs/03-infrastructure/`](docs/03-infrastructure/) | CI/CD, backup database, deployment |
+| System Specifications & Design | [`docs/01-requirements/`](docs/01-requirements/) | BRD, FSD, ERD |
+| API Design | [`docs/02-api/`](docs/02-api/) | API design for each module |
+| Infrastructure & Operations | [`docs/03-infrastructure/`](docs/03-infrastructure/) | CI/CD, database backup, deployment |
 
-Lihat [docs/README.md](docs/README.md) untuk index lengkap.
+See [docs/README.md](docs/README.md) for the full index.
 
-## Struktur Repo
+## Repository Structure
 
 ```
 sales-force/
-├── docs/                       # Dokumentasi proyek
+├── docs/                       # Project documentation
 ├── sales-force-be/             # Backend (NestJS)
 ├── sales-force-fe-react/       # Frontend (React + Vite)
-├── docker/                     # Konfigurasi nginx & init DB
-├── scripts/                    # Script utilitas
-├── docker-compose*.yml         # Konfigurasi Docker Compose
+├── docker/                     # Nginx configuration & DB init
+├── scripts/                    # Utility scripts
+├── docker-compose*.yml         # Docker Compose configuration
 └── Makefile                    # Command shortcuts
 ```

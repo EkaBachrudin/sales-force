@@ -24,8 +24,8 @@ The **Pipeline Kanban Board** is the core feature of the CRM Dashboard that enab
 - **Route**: `/dashboard/pipeline`
 - **Authentication**: Required (JWT token via httpOnly cookie)
 - **Authorization**: 
-  - `Admin` / `Supervisor`: dapat melihat **SEMUA leads** di seluruh sistem (semua roles/tim)
-  - `Sales`: hanya dapat melihat leads yang di-assign/dimiliki sendiri (`assigned_to` = current user)
+  - `Admin` / `Supervisor`: can view **ALL leads** across the entire system (all roles/teams)
+  - `Sales`: can only view leads assigned to themselves (`assigned_to` = current user)
 
 ### 2.2 Key Features
 
@@ -57,24 +57,24 @@ The **Pipeline Kanban Board** is the core feature of the CRM Dashboard that enab
 
 ### 3.1.1 Authorization Rules (RBAC)
 
-Data visibility pada endpoint ini ditentukan oleh role user yang sedang login (dibaca dari JWT `req.user.role`):
+Data visibility on this endpoint is determined by the logged-in user's role (read from JWT `req.user.role`):
 
 | Role | Scope | Database Filter |
 | --- | --- | --- |
-| `Admin` | Semua leads di seluruh sistem (semua roles) | Tanpa filter `assigned_to` |
-| `Supervisor` | Semua leads di seluruh sistem (semua roles) | Tanpa filter `assigned_to` |
-| `Sales` | Hanya leads milik sendiri | `l.assigned_to` = current user ID |
+| `Admin` | All leads across the system (all roles) | No `assigned_to` filter |
+| `Supervisor` | All leads across the system (all roles) | No `assigned_to` filter |
+| `Sales` | Only own leads | `l.assigned_to` = current user ID |
 
 **SQL Condition**:
 
 ```sql
 WHERE l.status = $1
-  AND (l.assigned_to = $2 OR $3::boolean)   -- $3 = true jika role Admin/Supervisor
+  AND (l.assigned_to = $2 OR $3::boolean)   -- $3 = true if role Admin/Supervisor
   ...
 ```
 
-- `$2` = current user ID (dari JWT `sub`)
-- `$3` = boolean: `true` untuk role `Admin`/`Supervisor` (filter `assigned_to` diabaikan → semua leads), `false` untuk role `Sales` (hanya leads milik user tersebut)
+- `$2` = current user ID (from JWT `sub`)
+- `$3` = boolean: `true` for `Admin`/`Supervisor` roles (`assigned_to` filter ignored → all leads), `false` for `Sales` role (only the user's own leads)
 
 ---
 
@@ -141,13 +141,13 @@ Cookie: auth_token=<httpOnly_cookie>
 | `stages[].name_en` | - | - | Static labels (English) |
 | `stages[].color` | - | - | Static hex colors |
 | `stages[].order` | - | - | Static order 1-7 |
-| `stages[].lead_count` | `leads` | `COUNT(*)` | COUNT filtered by `status` AND visibility rule RBAC (`assigned_to` = current user, kecuali role Admin/Supervisor yang melihat semua leads) (ditambah filter `search` jika ada) |
+| `stages[].lead_count` | `leads` | `COUNT(*)` | COUNT filtered by `status` AND RBAC visibility rule (`assigned_to` = current user, except for Admin/Supervisor roles which see all leads) (plus `search` filter if provided) |
 | `stages[].leads[].id` | `leads` | `id` | Direct mapping |
 | `stages[].leads[].name` | `leads` | `name` | Direct mapping |
-| `stages[].leads[].unit_name` | `units` | `name` | LEFT JOIN dari `units` via `unit_id`, return `undefined` jika null |
-| `stages[].leads[].block_name` | `blocks` | `name` | LEFT JOIN dari `blocks` via `units.block_id`, return `undefined` jika null |
-| `stages[].leads[].property_name` | `properties` | `name` | LEFT JOIN dari `properties` via `blocks.property_id`, return `undefined` jika null |
-| `stages[].leads[].next_follow_up_at` | `leads` | `next_follow_up_at` | Direct mapping, return `undefined` jika null |
+| `stages[].leads[].unit_name` | `units` | `name` | LEFT JOIN from `units` via `unit_id`, returns `undefined` if null |
+| `stages[].leads[].block_name` | `blocks` | `name` | LEFT JOIN from `blocks` via `units.block_id`, returns `undefined` if null |
+| `stages[].leads[].property_name` | `properties` | `name` | LEFT JOIN from `properties` via `blocks.property_id`, returns `undefined` if null |
+| `stages[].leads[].next_follow_up_at` | `leads` | `next_follow_up_at` | Direct mapping, returns `undefined` if null |
 | `stages[].leads[].created_at` | `leads` | `created_at` | Direct mapping |
 | `stages[].leads[].updated_at` | `leads` | `updated_at` | Direct mapping |
 
@@ -168,7 +168,7 @@ LEFT JOIN units u ON l.unit_id = u.id
 LEFT JOIN blocks b ON u.block_id = b.id
 LEFT JOIN properties p ON b.property_id = p.id
 WHERE l.status = $1                         -- 'new', 'contacted', 'surveyed', 'negotiating', 'booked', 'closed', 'cancelled'
-  AND (l.assigned_to = $2 OR $3::boolean)  -- $2 = current user ID; $3 = true (Admin/Supervisor) => semua lead, false (Sales) => lead sendiri
+  AND (l.assigned_to = $2 OR $3::boolean)  -- $2 = current user ID; $3 = true (Admin/Supervisor) => all leads, false (Sales) => own leads only
   AND ($4::text IS NULL OR l.name ILIKE '%' || $4 || '%')  -- optional search
 ORDER BY l.updated_at DESC
 LIMIT $5 OFFSET $6;
@@ -206,10 +206,10 @@ LIMIT $5 OFFSET $6;
 - Required when moving to “cancelled” stage
 
 **Validation Rules**:
-- `status`: Wajib, harus salah satu dari 7 nilai enum yang valid
-- `reason`: Wajib hanya jika `status` = `cancelled`. Untuk status lain, field ini opsional dan akan diabaikan
-- Lead harus ada dan `assigned_to` = current user
-- Jika lead memiliki `unit_id`, perubahan status akan memicu DB trigger yang mengubah status unit secara otomatis (lihat [Unit Status Auto-Update Reference](about:blank#42-unit-status-auto-update-via-db-trigger))
+- `status`: Required, must be one of the 7 valid enum values
+- `reason`: Required only when `status` = `cancelled`. For other statuses, this field is optional and will be ignored
+- The lead must exist and `assigned_to` must equal the current user
+- If the lead has a `unit_id`, the status change will trigger a DB trigger that automatically updates the unit status (see [Unit Status Auto-Update Reference](about:blank#42-unit-status-auto-update-via-db-trigger))
 
 **Database Impact - UPDATE Operations**:
 
@@ -237,8 +237,8 @@ RETURNING *;
 ```sql
 -- The reason field is stored in lead_activities.notes
 -- This is handled at application layer validation
--- $5 berisi reason jika status='cancelled', atau NULL untuk status lain
--- Untuk status non-cancelled, notes diisi: 'Status changed from {old_status} to {new_status}'
+-- $5 contains the reason if status='cancelled', or NULL for other statuses
+-- For non-cancelled statuses, notes are set to: 'Status changed from {old_status} to {new_status}'
 ```
 
 1. **Unit status auto-update**: Handled by database trigger — no additional application-level query needed.
@@ -301,7 +301,7 @@ RETURNING *;
 }
 ```
 
-**Response Structure - Lead tanpa unit (unit_id = NULL)**:
+**Response Structure - Lead without unit (unit_id = NULL)**:
 
 ```json
 {
@@ -348,8 +348,8 @@ RETURNING *;
 | --- | --- | --- | --- |
 | `unit.id` | `units` | `id` | Direct via `leads.unit_id` |
 | `unit.name` | `units` | `name` | Direct |
-| `unit.land_area` | `units` | `land_area` | Direct, `null` jika tidak ada |
-| `unit.status` | `units` | `status` | Direct — status setelah trigger berjalan |
+| `unit.land_area` | `units` | `land_area` | Direct, `null` if not available |
+| `unit.status` | `units` | `status` | Direct — status after trigger execution |
 | `unit.block.id` | `blocks` | `id` | JOIN via `units.block_id` |
 | `unit.block.name` | `blocks` | `name` | Direct |
 | `unit.property.id` | `properties` | `id` | JOIN via `blocks.property_id` |
@@ -408,11 +408,11 @@ WHERE l.id = $1 AND l.assigned_to = $2;
 
 | Response Field | Database Table | Database Column | Mapping Logic |
 | --- | --- | --- | --- |
-| `total_leads` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) |
-| `this_month` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `created_at` >= start_of_month |
-| `surveyed` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `status` = ‘surveyed’ |
-| `booked` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `status` = ‘booked’ |
-| `closed` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` atau semua leads (Admin/Supervisor) AND `status` = ‘closed’ |
+| `total_leads` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` or all leads (Admin/Supervisor) |
+| `this_month` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` or all leads (Admin/Supervisor) AND `created_at` >= start_of_month |
+| `surveyed` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` or all leads (Admin/Supervisor) AND `status` = ‘surveyed’ |
+| `booked` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` or all leads (Admin/Supervisor) AND `status` = ‘booked’ |
+| `closed` | `leads` | `COUNT(*)` | COUNT WHERE RBAC: `assigned_to = current_user` or all leads (Admin/Supervisor) AND `status` = ‘closed’ |
 | `conversion_rate` | `leads` | Calculated | `(closed / total_leads) * 100` |
 | `avg_time_to_close` | `leads` | Calculated | AVG days between `created_at` and `updated_at` for `status` = ‘closed’ |
 
@@ -429,7 +429,7 @@ WITH metrics AS (
         COUNT(*) as total_count,
         AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400) FILTER (WHERE status = 'closed') as avg_days_to_close
     FROM leads
-    WHERE (assigned_to = $1 OR $2::boolean)  -- $2 = true (Admin/Supervisor) => semua leads, false (Sales) => leads sendiri
+    WHERE (assigned_to = $1 OR $2::boolean)  -- $2 = true (Admin/Supervisor) => all leads, false (Sales) => own leads
 )
 SELECT
     total_count as total_leads,
@@ -445,7 +445,7 @@ SELECT
 FROM metrics;
 ```
 
-> **Note**: `EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400` digunakan menggantikan `EXTRACT(DAY FROM ...)` karena `EXTRACT(DAY)` hanya mengambil komponen hari dari interval (contoh: interval ‘35 days’ menghasilkan `5`, bukan `35`), sedangkan `EPOCH` menghasilkan total detik yang dibagi 86400 untuk mendapatkan total hari yang akurat.
+> **Note**: `EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400` is used instead of `EXTRACT(DAY FROM ...)` because `EXTRACT(DAY)` only extracts the day component from an interval (e.g., an interval of ‘35 days’ returns `5`, not `35`), whereas `EPOCH` returns the total seconds, which is divided by 86400 to get the accurate total days.
 > 
 
 ---
@@ -477,26 +477,26 @@ FROM metrics;
 
 ### 4.3 Unit Status Auto-Update (via DB Trigger)
 
-Setiap kali status lead berubah, database trigger otomatis mengubah status unit yang terkait:
+Whenever a lead status changes, the database trigger automatically updates the associated unit status:
 
-| Lead Status | Unit Status | Alasan |
+| Lead Status | Unit Status | Reason |
 | --- | --- | --- |
-| `new` | `reserved` | Minat awal, tandai unit |
-| `contacted` | `reserved` | Komunikasi awal |
-| `surveyed` | `reserved` | Sudah lihat lokasi |
-| `negotiating` | `reserved` | Masih negosiasi, belum bayar |
-| `booked` | `booked` | Sudah bayar booking fee |
-| `closed` | `sold` | Akad selesai |
-| `cancelled` | `available` | Kembali tersedia |
+| `new` | `reserved` | Initial interest, mark unit |
+| `contacted` | `reserved` | Initial communication |
+| `surveyed` | `reserved` | Location visited |
+| `negotiating` | `reserved` | Still negotiating, not yet paid |
+| `booked` | `booked` | Booking fee paid |
+| `closed` | `sold` | Contract completed |
+| `cancelled` | `available` | Back to available |
 
-> **Note untuk Frontend**: Setelah drag & drop, unit status di response `lead.unit.status` sudah mencerminkan nilai terbaru (setelah trigger berjalan). Gunakan nilai ini untuk update state jika frontend juga menampilkan status unit.
+> **Note for Frontend**: After drag & drop, the unit status in the `lead.unit.status` response already reflects the updated value (after the trigger has executed). Use this value to update state if the frontend also displays the unit status.
 > 
 
 ---
 
 ## 5. Error Response Format
 
-Mengikuti standar error response yang sama dengan [API Design - Properties V2](https://www.notion.so/API-Design-Properties-V2-2e4b2c42720c8194b8b1c3ab372365fe):
+Follows the same error response standard as [API Design - Properties V2](https://www.notion.so/API-Design-Properties-V2-2e4b2c42720c8194b8b1c3ab372365fe):
 
 ```json
 {
@@ -513,16 +513,16 @@ Mengikuti standar error response yang sama dengan [API Design - Properties V2](h
 
 | Code | HTTP Status | Description | Trigger |
 | --- | --- | --- | --- |
-| `VALIDATION_ERROR` | 400 | Request validation gagal | `status` bukan enum valid, `reason` kosong saat status=`cancelled` |
-| `UNAUTHORIZED` | 401 | Tidak ada token valid | Semua endpoint |
-| `FORBIDDEN` | 403 | Lead bukan milik user (assigned_to ≠ current user) | PUT status, GET pipeline |
-| `NOT_FOUND` | 404 | Lead tidak ditemukan | PUT status |
-| `INVALID_STATUS_TRANSITION` | 422 | Transisi status tidak valid (jika di masa depan dibatasi) | PUT status |
+| `VALIDATION_ERROR` | 400 | Request validation failed | `status` is not a valid enum value, or `reason` is empty when status=`cancelled` |
+| `UNAUTHORIZED` | 401 | No valid token | All endpoints |
+| `FORBIDDEN` | 403 | Lead does not belong to user (assigned_to ≠ current user) | PUT status, GET pipeline |
+| `NOT_FOUND` | 404 | Lead not found | PUT status |
+| `INVALID_STATUS_TRANSITION` | 422 | Invalid status transition (if restricted in the future) | PUT status |
 
 **Error Response Examples**:
 
 ```json
-// Reason wajib saat cancel
+// Reason required when cancelling
 {
   "success": false,
   "error": {

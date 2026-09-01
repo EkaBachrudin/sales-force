@@ -6,13 +6,13 @@
 
 ### 1.1 Get Dashboard Overview Metrics
 
-**Desain API:**
+**API Design:**
 
 - **Endpoint:** `/api/v1/dashboard/overview`
 - **Method:** `GET`
-- **Fungsi Utama:** Mengambil 4 metrik utama dashboard untuk user yang sedang login
+- **Primary Function:** Retrieves 4 key dashboard metrics for the currently logged-in user
 
-**Contoh Response & Data Mapping:**
+**Example Response & Data Mapping:**
 
 ```json
 {
@@ -44,7 +44,7 @@
 }
 ```
 
-**Mapping Asal Data:**
+**Data Source Mapping:**
 
 | Field | Source | Query Logic |
 | --- | --- | --- |
@@ -91,11 +91,11 @@ WHERE assigned_to = $1 AND status = 'closed';
 
 ### 2.1 Get Upcoming Reminders
 
-**Desain API:**
+**API Design:**
 
 - **Endpoint:** `/api/v1/reminders/upcoming`
 - **Method:** `GET`
-- **Fungsi Utama:** Mengambil daftar reminder yang akan datang untuk user yang sedang login
+- **Primary Function:** Retrieves a list of upcoming reminders for the currently logged-in user
 
 **Query Parameters:**
 
@@ -104,7 +104,7 @@ WHERE assigned_to = $1 AND status = 'closed';
 | `limit` | integer | No | 3 | Max items returned |
 | `hours_ahead` | integer | No | 24 | Filter reminders within X hours from now |
 
-**Contoh Response & Data Mapping:**
+**Example Response & Data Mapping:**
 
 ```json
 {
@@ -178,7 +178,7 @@ WHERE assigned_to = $1 AND status = 'closed';
 }
 ```
 
-**Mapping Asal Data:**
+**Data Source Mapping:**
 
 | Field | Source | Query Logic |
 | --- | --- | --- |
@@ -193,8 +193,8 @@ WHERE assigned_to = $1 AND status = 'closed';
 | [`lead.email`](http://lead.email) | [`leads.email`](http://leads.email) | Email dari JOIN |
 | [`lead.property.id`](http://lead.property.id) | [`properties.id`](http://properties.id) | PK properti dari JOIN |
 | [`lead.property.name`](http://lead.property.name) | [`properties.name`](http://properties.name) | Nama properti dari JOIN |
-| [`lead.property.property](http://lead.property.property)_type` | [`properties.property](http://properties.property)_type` | Tipe properti dari JOIN |
-| [`lead.property](http://lead.property).price` | `properties.price` | Harga properti dari JOIN |
+| [`lead.property.property`](http://lead.property.property)_type` | [`properties.property`](http://properties.property)_type` | Tipe properti dari JOIN |
+| [`lead.property`](http://lead.property).price` | `properties.price` | Harga properti dari JOIN |
 
 **Database Operations (GET):**
 
@@ -234,11 +234,11 @@ WHERE user_id = $1
 
 ### 3.1 Create New Reminder
 
-**Desain API:**
+**API Design:**
 
 - **Endpoint:** `/api/v1/reminders`
 - **Method:** `POST`
-- **Fungsi Utama:** Membuat reminder baru untuk follow-up lead
+- **Primary Function:** Creates a new reminder for lead follow-up
 
 **Request Payload (Request Body):**
 
@@ -299,9 +299,9 @@ INSERT INTO reminder_schedules (
 
 **Validation Logic:**
 
-1. Cek apakah `lead_id` ada dan `assigned_to` = user yang sedang login
-2. Cek apakah `remind_at` > NOW()
-3. Cek apakah tidak ada reminder duplikat untuk lead yang sama pada waktu yang sama
+1. Check if `lead_id` exists and `assigned_to` matches the currently logged-in user
+2. Check if `remind_at` is in the future
+3. Check that no duplicate reminder exists for the same lead at the same time
 
 ---
 
@@ -309,11 +309,11 @@ INSERT INTO reminder_schedules (
 
 ### 4.1 Complete/Update Reminder
 
-**Desain API:**
+**API Design:**
 
 - **Endpoint:** `/api/v1/reminders/{reminder_id}`
 - **Method:** `PUT`
-- **Fungsi Utama:** Update status reminder atau edit jadwal reminder
+- **Primary Function:** Updates a reminder's status or edits the reminder schedule
 
 **Request Payload (Request Body):**
 
@@ -372,9 +372,9 @@ RETURNING *;
 
 **Validation Logic:**
 
-1. Cek apakah reminder dengan ID tersebut ada dan milik user yang sedang login
-2. Jika update `remind_at`, pastikan waktu baru > NOW()
-3. Cek apakah reminder belum dihapus (soft delete tidak ada, tapi pastikan data exist)
+1. Check if the reminder with the given ID exists and belongs to the currently logged-in user
+2. If updating `remind_at`, ensure the new time is in the future
+3. Check that the reminder has not been deleted (no soft delete, but verify the record exists)
 
 ---
 
@@ -382,11 +382,11 @@ RETURNING *;
 
 ### 5.1 Delete Reminder
 
-**Desain API:**
+**API Design:**
 
 - **Endpoint:** `/api/v1/reminders/{reminder_id}`
 - **Method:** `DELETE`
-- **Fungsi Utama:** Hapus reminder yang tidak diperlukan
+- **Primary Function:** Deletes a reminder that is no longer needed
 
 **Request Payload:** None (params in URL)
 

@@ -21,8 +21,8 @@ All endpoints require:
 - **Authentication**: Bearer Token (JWT)
 - **Authorization**: Supervisor or Admin Role (`supervisorOrAdmin` middleware)
 
-> **Role-based visibility:** Role `Admin` dapat melihat seluruh akun user, termasuk akun Admin lain.
-> Role `Supervisor` dapat melihat semua akun **kecuali** akun ber-role `Admin`.
+> **Role-based visibility:** The `Admin` role can view all user accounts, including other Admin accounts.
+> The `Supervisor` role can view all accounts **except** accounts with the `Admin` role.
 
 ---
 
@@ -49,9 +49,9 @@ GET /api/v1/users
 | `sort_by` | string | No | Sort field: `created_at`, `full_name`, `email` (default: `created_at`) |
 | `sort_order` | string | No | Sort order: `asc`, `desc` (default: `desc`) |
 
-> **Visibility:** Saat dipanggil oleh role `Supervisor`, akun ber-role `Admin` **tidak** disertakan dalam respons.
-> `pagination.total` dan `pages` ikut menghitung tanpa akun Admin. Filter `role_id` maupun `role` yang menargetkan role `Admin` tetap mengembalikan kosong untuk Supervisor.
-> Role `Admin` tetap dapat melihat seluruh user termasuk Admin lain.
+> **Visibility:** When called by the `Supervisor` role, accounts with the `Admin` role are **not** included in the response.
+> `pagination.total` and `pages` are calculated without Admin accounts. Filters `role_id` and `role` targeting the `Admin` role will return empty results for Supervisors.
+> The `Admin` role can view all users, including other Admins.
 
 **Response (200 OK):**
 
@@ -98,8 +98,8 @@ GET /api/v1/users/:id
 | --- | --- | --- | --- |
 | `id` | string | Yes | User UUID |
 
-> **Visibility:** Saat dipanggil oleh role `Supervisor`, mengakses detail user ber-role `Admin` akan mengembalikan
-> `404 User not found`. Role `Admin` dapat mengakses detail seluruh user.
+> **Visibility:** When called by the `Supervisor` role, accessing details of an `Admin` user will return
+> `404 User not found`. The `Admin` role can access details of all users.
 
 **Response (200 OK):**
 
@@ -156,7 +156,7 @@ POST /api/v1/users
 
 > **Note:** If both `role` and `role_id` are provided, `role` takes precedence. The system will first try to find by role name, then by role ID.
 > 
-> **Role restrictions (Supervisor):** Saat dipanggil oleh role `Supervisor`, **tidak dapat** membuat akun ber-role `Admin` maupun `Supervisor`. Mencoba membuat user dengan role tersebut akan mengembalikan `403 Forbidden`. Role `Admin` tidak memiliki batasan ini.
+> **Role restrictions (Supervisor):** When called by the `Supervisor` role, you **cannot** create accounts with the `Admin` or `Supervisor` role. Attempting to create a user with either role will return `403 Forbidden`. The `Admin` role does not have this restriction.
 
 **Response (201 Created):**
 
@@ -222,13 +222,13 @@ PUT /api/v1/users/:id
 
 > **Note:** At least one field must be provided. To remove a role, set `role` to empty string `""` or `role_id` to `null`.
 > 
-> **Role restrictions (Supervisor):** Saat dipanggil oleh role `Supervisor`:
-> - **Tidak dapat** mengedit akun ber-role `Admin` → `403 You cannot edit Admin accounts`.
-> - **Tidak dapat** mengedit akun Supervisor lain (self-edit tetap diizinkan untuk field non-role) → `403 You cannot edit other supervisors`.
-> - **Tidak dapat** mengubah role target menjadi `Admin` → `403 You cannot assign the Admin role`.
-> - **Self-edit:** dapat mengedit akun sendiri, namun **tidak dapat** mengubah/menghapus role-nya sendiri → `403 You cannot change your own role`.
+> **Role restrictions (Supervisor):** When called by the `Supervisor` role:
+> - You **cannot** edit accounts with the `Admin` role → `403 You cannot edit Admin accounts`.
+> - You **cannot** edit other Supervisors' accounts (self-edit is allowed for non-role fields) → `403 You cannot edit other supervisors`.
+> - You **cannot** change a target user's role to `Admin` → `403 You cannot assign the Admin role`.
+> - **Self-edit:** You can edit your own account, but you **cannot** change or remove your own role → `403 You cannot change your own role`.
 >
-> Role `Admin` tidak memiliki batasan ini.
+> The `Admin` role does not have these restrictions.
 
 **Response (200 OK):**
 
@@ -271,8 +271,8 @@ DELETE /api/v1/users/:id
 > **Note:** Related records will be deleted automatically via CASCADE.
 > 
 > **Role restrictions:**
-> - **Supervisor:** Tidak dapat menghapus akun ber-role `Admin` → `403 You cannot delete Admin accounts`. Tidak dapat menghapus akun ber-role `Supervisor` (termasuk akun sendiri) → `403 You cannot delete supervisor accounts`. Hanya dapat menghapus akun ber-role `Sales` atau tanpa role.
-> - **Admin:** Hanya dapat menghapus akun ber-role `Sales` atau tanpa role. Tidak dapat menghapus akun ber-role `Admin` maupun `Supervisor` → `403 You can only delete users with the Sales role`.
+> - **Supervisor:** Cannot delete accounts with the `Admin` role → `403 You cannot delete Admin accounts`. Cannot delete accounts with the `Supervisor` role (including your own account) → `403 You cannot delete supervisor accounts`. Can only delete accounts with the `Sales` role or accounts without a role.
+> - **Admin:** Can only delete accounts with the `Sales` role or accounts without a role. Cannot delete accounts with the `Admin` or `Supervisor` role → `403 You can only delete users with the Sales role`.
 
 **Response (200 OK):**
 
