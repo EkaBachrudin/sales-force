@@ -1,7 +1,5 @@
 # ERD - Dashboard Management
 
-# ERD - Dashboard Management
-
 ---
 
 ## 1. Overview
