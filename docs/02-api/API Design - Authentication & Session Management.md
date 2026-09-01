@@ -4,14 +4,14 @@
 
 ## 1. Overview
 
-Dokumen ini berisi desain lengkap untuk sistem autentikasi dan manajemen sesi pada **Sales Force Automation System**, dengan implementasi **HTTP-only Cookies** untuk keamanan token dan mekanisme **Single Device Login** per akun.
+This document provides a complete design for the authentication and session management system in the **Sales Force Automation System**, implementing **HTTP-only Cookies** for token security and a **Single Device Login** mechanism per account.
 
 ### Key Features
 
-- ✅ HTTP-only Cookies untuk session management
-- ✅ Refresh Token rotation untuk keamanan
-- ✅ Single Device Login (1 akun = 1 perangkat aktif)
-- ✅ Password encryption dengan Argon2/bcrypt
+- ✅ HTTP-only Cookies for session management
+- ✅ Refresh Token rotation for security
+- ✅ Single Device Login (1 account = 1 active device)
+- ✅ Password encryption with Argon2/bcrypt
 - ✅ CSRF protection
 - ✅ Session revocation capability
 
@@ -19,13 +19,13 @@ Dokumen ini berisi desain lengkap untuk sistem autentikasi dan manajemen sesi pa
 
 ## 2. Database Schema Analysis
 
-Berdasarkan ERD yang ada, berikut adalah tabel yang relevan untuk autentikasi:
+Based on the existing ERD, the following tables are relevant to authentication:
 
 ### 2.1 Existing `users` Table
 
 | Column | Type | Usage in Auth |
 | --- | --- | --- |
-| `id` | UUID | User identifier dalam JWT payload |
+| `id` | UUID | User identifier in JWT payload |
 | `full_name` | VARCHAR |  |
 | `phone` | VARCHAR |  |
 | `email` | VARCHAR(255) | Login identifier |
@@ -36,7 +36,7 @@ Berdasarkan ERD yang ada, berikut adalah tabel yang relevan untuk autentikasi:
 
 ### 2.2 New Tables Required
 
-Untuk mendukung HTTP-only cookies dan single device login, perlu ditambahkan 2 tabel baru:
+To support HTTP-only cookies and single device login, 2 new tables need to be added:
 
 #### `user_sessions` Table
 
@@ -329,17 +329,17 @@ X-CSRF-Token: <CSRF_TOKEN>
 | Attribute | Value |
 | --- | --- |
 | **Endpoint** | `POST /api/v1/auth/register` |
-| **Description** | Registrartion new account |
-| **Request** | **JSON Body:
-  •** `email` (String, Required)
-  • `password` (String, Required)
-  • `full_name` (String, Required)
-  • `phone` (String, Optional) |
+| **Description** | Register new account |
+| **Request** | **JSON Body:**
+  - `email` (String, Required)
+  - `password` (String, Required)
+  - `full_name` (String, Required)
+  - `phone` (String, Optional) |
 | **Response** | JSON |
 
 #### Request Body
 
-```
+```json
 {
   "email": "user@example.com",
   "password": "rahasiaPassword123",
@@ -363,7 +363,7 @@ X-CSRF-Token: <CSRF_TOKEN>
 
 ### 4.1 Password Hashing
 
-**Algorithm:** Argon2id (recommended) atau bcrypt
+**Algorithm:** Argon2id (recommended) or bcrypt
 
 **Configuration:**
 
@@ -465,16 +465,16 @@ res.cookie('csrf_token', csrfToken, {
 
 ### 4.4 CSRF Protection Strategy
 
-Karena menggunakan **SameSite=Strict**, CSRF risk sangat minimized. Namun untuk defense-in-depth:
+Since **SameSite=Strict** is used, CSRF risk is highly minimized. However, for defense-in-depth:
 
 1. **CSRF Token Pattern** (Double Submit Cookie):
     - Server generates random CSRF token
-    - Token disimpan di cookie (readable by JS)
-    - Frontend harus mengirim token di header: `X-CSRF-Token`
-    - Server validasi cookie vs header
+    - Token is stored in a cookie (readable by JS)
+    - Frontend must send the token in the header: `X-CSRF-Token`
+    - Server validates cookie vs header
 2. **State-Changing Methods Only**:
-    - CSRF validation hanya untuk POST, PUT, DELETE, PATCH
-    - GET requests tidak memerlukan CSRF token
+    - CSRF validation applies only to POST, PUT, DELETE, PATCH
+    - GET requests do not require a CSRF token
 3. **Implementation Example:**
 
 ```jsx
@@ -504,10 +504,10 @@ const validateCSRF = (req, res, next) => {
 
 ### 5.1 Strategy
 
-Gunakan **Database Constraint** untuk enforce single device login:
+A **Database Constraint** is used to enforce single device login:
 
 ```sql
--- Exclusion constraint pada tabel user_sessions
+-- Exclusion constraint on user_sessions table
 CONSTRAINT single_active_session_per_user 
     EXCLUDE (USING gist(user_id WITH =)) 
     WHERE (is_active = true)
@@ -654,18 +654,18 @@ sequenceDiagram
 
 ### 7.1 Handling HTTP-only Cookies
 
-**Important:** Frontend TIDAK perlu mengelola access_token dan refresh_token secara manual karena disimpan di HTTP-only cookies.
+**Important:** The frontend does NOT need to manage access_token and refresh_token manually since they are stored in HTTP-only cookies.
 
-**Yang perlu dilakukan Frontend:**
+**What the frontend needs to do:**
 
 ```tsx
-// 1. Axios interceptor untuk CSRF token
+// 1. Axios interceptor for CSRF token
 const api = axios.create({
   baseURL: process.env.API_URL,
-  withCredentials: true // Penting untuk mengirim cookies
+  withCredentials: true // Important for sending cookies
 });
 
-// Request interceptor: Tambah CSRF token dari cookie
+// Request interceptor: Add CSRF token from cookie
 api.interceptors.request.use((config) => {
   const csrfToken = getCookie('csrf_token');
   if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())) {
@@ -698,7 +698,7 @@ api.interceptors.response.use(
   }
 );
 
-// Helper function untuk membaca cookie
+// Helper function to read cookie
 function getCookie(name: string): string {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -753,10 +753,10 @@ export function LoginForm() {
 
 ### ✅ Implemented
 
-- [x]  HTTP-only cookies untuk access token
-- [x]  HTTP-only cookies untuk refresh token
+- [x]  HTTP-only cookies for access token
+- [x]  HTTP-only cookies for refresh token
 - [x]  Secure flag (HTTPS only)
-- [x]  SameSite=Strict untuk CSRF protection
+- [x]  SameSite=Strict for CSRF protection
 - [x]  Argon2id password hashing
 - [x]  JWT signature verification
 - [x]  Token expiration (15 min access, 7 days refresh)
@@ -786,9 +786,9 @@ export function LoginForm() {
     ```
     
 4. **Monitoring & Alerts**:
-    - Alert untuk multiple failed logins
-    - Alert untuk login from unusual location
-    - Alert untuk session revocation
+    - Alert for multiple failed logins
+    - Alert for login from unusual location
+    - Alert for session revocation
 5. **Password Policy**:
     - Minimum 12 characters
     - Must include uppercase, lowercase, number, special char
@@ -800,14 +800,14 @@ export function LoginForm() {
 
 | Code | Message | Description |
 | --- | --- | --- |
-| `AUTH_001` | Invalid email or password | Credentials tidak cocok |
-| `AUTH_002` | Account inactive | Account di-disable |
-| `AUTH_003` | Invalid or expired token | Token tidak valid/expired |
-| `AUTH_004` | Session revoked | Session di-revoke oleh admin |
-| `AUTH_005` | Session already exists on another device | User login di perangkat lain |
+| `AUTH_001` | Invalid email or password | Credentials do not match |
+| `AUTH_002` | Account inactive | Account is disabled |
+| `AUTH_003` | Invalid or expired token | Token is invalid or expired |
+| `AUTH_004` | Session revoked | Session was revoked by admin |
+| `AUTH_005` | Session already exists on another device | User is logged in on another device |
 | `AUTH_006` | Invalid CSRF token | CSRF token mismatch |
 | `AUTH_007` | Too many login attempts | Rate limit exceeded |
-| `AUTH_008` | Account locked | Account terkunci karena failed attempts |
+| `AUTH_008` | Account locked | Account is locked due to failed attempts |
 
 ---
 

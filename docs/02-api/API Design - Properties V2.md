@@ -17,32 +17,32 @@
 ### 2.1 Properties List View
 
 - **Route**: `/properties`
-- **Purpose**: Menampilkan daftar semua properti milik user yang login
-- **Features**: List properti dengan pagination, search, filter kota
+- **Purpose**: Displays a list of all properties belonging to the logged-in user
+- **Features**: Property list with pagination, search, city filter
 
 ### 2.2 Property Detail View
 
 - **Route**: `/properties/:id`
-- **Purpose**: Menampilkan detail properti beserta blocks di dalamnya
-- **Features**: Form edit properti + daftar blocks di bawahnya
+- **Purpose**: Displays property details along with its blocks
+- **Features**: Property edit form + list of blocks below
 
 ### 2.3 Block Detail View (Units List)
 
 - **Route**: `/properties/:id/blocks/:blockId`
-- **Purpose**: Menampilkan daftar units di dalam sebuah block
-- **Features**: List units dengan status ketersediaan
+- **Purpose**: Displays a list of units within a block
+- **Features**: Unit list with availability status
 
 ### 2.4 Siteplan View
 
 - **Route**: `/properties/:id/siteplan`
-- **Purpose**: Menampilkan gambar siteplan interaktif dengan overlay unit
-- **Features**: Gambar siteplan SVG + daftar units (land_area, status) untuk mapping di frontend
+- **Purpose**: Displays an interactive siteplan image with unit overlays
+- **Features**: SVG siteplan image + unit list (land_area, status) for frontend mapping
 
 ### 2.5 Unit Detail View
 
 - **Route**: `/units/:id`
-- **Purpose**: Menampilkan detail unit dan lead yang di-assign
-- **Features**: Detail unit + informasi lead terkait
+- **Purpose**: Displays unit details and assigned leads
+- **Features**: Unit details + related lead information
 
 ---
 
@@ -50,7 +50,7 @@
 
 ### 3.1 GET /api/v1/properties — Get Properties List
 
-**Purpose**: Menampilkan semua properti yang tersedia untuk user yang terautentikasi dengan subscription aktif
+**Purpose**: Displays all properties available to the authenticated user with an active subscription
 
 **Method**: `GET`
 
@@ -58,10 +58,10 @@
 
 | Parameter | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `page` | integer | No | `1` | Halaman ke berapa |
-| `limit` | integer | No | `10` | Jumlah item per halaman (max 50) |
-| `search` | string | No | - | Cari berdasarkan nama properti |
-| `city` | string | No | - | Filter berdasarkan kota |
+| `page` | integer | No | `1` | Page number |
+| `limit` | integer | No | `10` | Number of items per page (max 50) |
+| `search` | string | No | - | Search by property name |
+| `city` | string | No | - | Filter by city |
 
 **Request Example**:
 
@@ -111,7 +111,7 @@ GET /api/v1/properties?page=1&limit=10&search=Grand&city=Jakarta
 | `land_area` | `properties` | `land_area` | Direct (numeric) |
 | `address` | `properties` | `address` | Direct |
 | `description` | `properties` | `description` | Direct |
-| `siteplan_assets` | `properties` | `siteplan_assets` | Direct — path relatif file SVG yang di-upload |
+| `siteplan_assets` | `properties` | `siteplan_assets` | Direct — relative path of the uploaded SVG file |
 | `is_active` | `properties` | `is_active` | Direct |
 | `total_blocks` | `blocks` | - | `COUNT(blocks.id)` WHERE `property_id` = property.id |
 | `total_units` | `units` (via blocks) | - | `COUNT(units.id)` JOIN blocks WHERE `property_id` = property.id |
@@ -152,13 +152,13 @@ LIMIT $1 OFFSET $2
 ```
 
 **Security Notes**:
-- User harus memiliki active subscription untuk mengakses endpoint
+- Users must have an active subscription to access this endpoint
 
 ---
 
 ### 3.2 POST /api/v1/properties — Add New Property
 
-**Purpose**: Menambahkan properti baru
+**Purpose**: Adds a new property
 
 **Method**: `POST`
 
@@ -170,10 +170,10 @@ LIMIT $1 OFFSET $2
 | --- | --- | --- | --- | --- |
 | `name` | string (form field) | Yes | `name` | Max 255 chars, NOT NULL |
 | `city` | string (form field) | Yes | `city` | Max 100 chars, NOT NULL |
-| `land_area` | string (form field) | No | `land_area` | Numeric(10,2), >= 0, dalam m² |
+| `land_area` | string (form field) | No | `land_area` | Numeric(10,2), >= 0, in m² |
 | `address` | string (form field) | No | `address` | Text |
 | `description` | string (form field) | No | `description` | Text |
-| `siteplan_file` | file (form file) | No | `siteplan_assets` | Hanya SVG (`image/svg+xml`), maks 5MB |
+| `siteplan_file` | file (form file) | No | `siteplan_assets` | SVG only (`image/svg+xml`), max 5MB |
 
 **Request Example**:
 
@@ -210,18 +210,18 @@ Content-Type: image/svg+xml
 ```
 
 **Validation Rules**:
-- `name`: Wajib, maks 255 karakter
-- `city`: Wajib, maks 100 karakter
-- `land_area`: Opsional, jika dikirim harus angka >= 0
-- `address`: Opsional
-- `description`: Opsional
-- `siteplan_file`: Opsional, namun jika dikirim:
-- Hanya menerima tipe MIME `image/svg+xml`
-- Ukuran maksimum **5MB** (5.242.880 bytes)
-- File akan di-rename menjadi format: `{UUID}-{timestamp}.svg`
-- Disimpan di path: `public/uploads/siteplans/`
-- Nilai yang disimpan ke database: `/uploads/siteplans/{UUID}-{timestamp}.svg`
-- `assigned_to`: Auto-populated dari JWT token
+- `name`: Required, max 255 characters
+- `city`: Required, max 100 characters
+- `land_area`: Optional, if provided must be a number >= 0
+- `address`: Optional
+- `description`: Optional
+- `siteplan_file`: Optional, but if provided:
+- Only accepts MIME type `image/svg+xml`
+- Maximum size **5MB** (5,242,880 bytes)
+- File will be renamed to format: `{UUID}-{timestamp}.svg`
+- Stored at path: `public/uploads/siteplans/`
+- Value saved to database: `/uploads/siteplans/{UUID}-{timestamp}.svg`
+- `assigned_to`: Auto-populated from JWT token
 - `is_active`: Default `true`
 
 **Success Response** `201`:
@@ -246,7 +246,7 @@ Content-Type: image/svg+xml
 }
 ```
 
-**Success Response** `201` (tanpa upload siteplan):
+**Success Response** `201` (without siteplan upload):
 
 ```json
 {
@@ -279,20 +279,20 @@ INSERT INTO properties (
 ) RETURNING *
 ```
 
-> **Note**: `$6` akan berisi path relatif file (misal: `/uploads/siteplans/550e8400-e29b-41d4-a716-446655440000-1699999999.svg`) jika file di-upload, atau `NULL` jika tidak ada file.
+> **Note**: `$6` will contain the relative file path (e.g., `/uploads/siteplans/550e8400-e29b-41d4-a716-446655440000-1699999999.svg`) if a file is uploaded, or `NULL` if no file is provided.
 > 
 
 **Security Notes**:
-- **RBAC Restriction**: Endpoint hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
-- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
-- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
-- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck`/file upload — user yang tidak diizinkan tidak memicu parsing file
+- **RBAC Restriction**: Endpoint can only be accessed by users with the **Admin** or **Supervisor** role
+- Users with other roles (e.g., **Sales**) will be rejected with **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- Authentication is still required (401 if token is invalid/missing) and an active subscription is required, same as other endpoints
+- Role is checked from the JWT token after `authenticate`, before `subscriptionCheck`/file upload — unauthorized users will not trigger file parsing
 
 ---
 
 ### 3.3 GET /api/v1/properties/:id — Get Property Detail (with Blocks)
 
-**Purpose**: Mendapatkan detail properti beserta daftar blocks di dalamnya (digunakan saat edit)
+**Purpose**: Retrieves property details along with the list of blocks within it (used during editing)
 
 **Method**: `GET`
 
@@ -382,7 +382,7 @@ ORDER BY b.name ASC
 
 ### 3.4 PUT /api/v1/properties/:id — Edit Property
 
-**Purpose**: Mengubah data properti (value sama dengan add new property)
+**Purpose**: Updates property data (fields are the same as add new property)
 
 **Method**: `PUT`
 
@@ -398,7 +398,7 @@ ORDER BY b.name ASC
 
 | Parameter | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `delete_siteplan` | boolean | No | `false` | Set true untuk menghapus siteplan yang sudah ada |
+| `delete_siteplan` | boolean | No | `false` | Set to true to delete an existing siteplan |
 
 **Request Body (Form Fields)**:
 
@@ -406,10 +406,10 @@ ORDER BY b.name ASC
 | --- | --- | --- | --- | --- |
 | `name` | string (form field) | No | `name` | Max 255 chars |
 | `city` | string (form field) | No | `city` | Max 100 chars |
-| `land_area` | string (form field) | No | `land_area` | Numeric(10,2), >= 0, dalam m² |
+| `land_area` | string (form field) | No | `land_area` | Numeric(10,2), >= 0, in m² |
 | `address` | string (form field) | No | `address` | Text |
 | `description` | string (form field) | No | `description` | Text |
-| `siteplan_file` | file (form file) | No | `siteplan_assets` | Hanya SVG (`image/svg+xml`), maks 5MB |
+| `siteplan_file` | file (form file) | No | `siteplan_assets` | SVG only (`image/svg+xml`), max 5MB |
 
 **Request Example**:
 
@@ -446,24 +446,24 @@ Content-Type: image/svg+xml
 ```
 
 **Validation Rules**:
-- Semua field opsional (partial update)
-- Jika `name` dikirim, maks 255 karakter
-- Jika `city` dikirim, maks 100 karakter
-- Jika `land_area` dikirim, harus angka >= 0
-- Minimal 1 field (form field atau file atau query param) harus dikirim
+- All fields are optional (partial update)
+- If `name` is provided, max 255 characters
+- If `city` is provided, max 100 characters
+- If `land_area` is provided, must be a number >= 0
+- At least 1 field (form field, file, or query param) must be provided
 - **Query Parameter Rules**:
-- Jika `delete_siteplan = true` dan `siteplan_file` dikirim → return error 400 `VALIDATION_ERROR`
-- Jika `delete_siteplan = true` dan tidak ada siteplan lama → abaikan (graceful no-op)
-- Jika `siteplan_file` dikirim:
-- Hanya menerima tipe MIME `image/svg+xml`
-- Ukuran maksimum **5MB** (5.242.880 bytes)
-- File akan di-rename menjadi format: `{UUID}-{timestamp}.svg`
-- Disimpan di path: `public/uploads/siteplans/`
-- **File lama akan dihapus** dari disk sebelum menyimpan file baru
-- Jika tidak ada file lama (NULL), tidak ada penghapusan
-- Jika `siteplan_file` **tidak** dikirim dan `delete_siteplan = false`, `siteplan_assets` di database **tetap dipertahankan** (tidak di-set NULL)
-- Jika `delete_siteplan = true` dan tidak ada `siteplan_file` dikirim, siteplan yang sudah ada akan dihapus dari disk dan `siteplan_assets` di database akan di-set ke NULL
-- **Ownership rules**: Admin & Supervisor dapat mengedit properti apa pun termasuk yang bukan miliknya. Role lain hanya dapat mengedit properti miliknya sendiri (ownership check via `assigned_to` di service layer)
+- If `delete_siteplan = true` and `siteplan_file` is provided → return error 400 `VALIDATION_ERROR`
+- If `delete_siteplan = true` and no existing siteplan → ignore (graceful no-op)
+- If `siteplan_file` is provided:
+- Only accepts MIME type `image/svg+xml`
+- Maximum size **5MB** (5,242,880 bytes)
+- File will be renamed to format: `{UUID}-{timestamp}.svg`
+- Stored at path: `public/uploads/siteplans/`
+- **Old file will be deleted** from disk before saving the new file
+- If no old file exists (NULL), deletion is skipped
+- If `siteplan_file` is **not** provided and `delete_siteplan = false`, `siteplan_assets` in the database **remains unchanged** (not set to NULL)
+- If `delete_siteplan = true` and no `siteplan_file` is provided, the existing siteplan will be deleted from disk and `siteplan_assets` in the database will be set to NULL
+- **Ownership rules**: Admin & Supervisor can edit any property including those they don't own. Other roles can only edit their own properties (ownership check via `assigned_to` in the service layer)
 
 **Success Response** `200`:
 
@@ -487,7 +487,7 @@ Content-Type: image/svg+xml
 }
 ```
 
-**Success Response** `200` (update tanpa upload siteplan baru):
+**Success Response** `200` (update without uploading a new siteplan):
 
 ```json
 {
@@ -524,29 +524,29 @@ WHERE id = $7
 RETURNING *
 ```
 
-> **Note**: `$6` akan berisi:
-- Path file baru jika `siteplan_file` di-upload
-- `NULL` jika `delete_siteplan = true`
-- `siteplan_assets` nilai lama jika tidak ada perubahan siteplan
+> **Note**: `$6` will contain:
+- New file path if `siteplan_file` is uploaded
+- `NULL` if `delete_siteplan = true`
+- Previous `siteplan_assets` value if no siteplan change is made
 >
-Penghapusan file lama dari disk dilakukan di service layer **sebelum** query UPDATE dijalankan.
+Deletion of the old file from disk is performed in the service layer **before** the UPDATE query is executed.
 >
-> **Ownership validation** dilakukan di service layer via SELECT sebelum UPDATE dijalankan. Role **Admin** dan **Supervisor** melewati ownership check (`assigned_to`), sehingga dapat mengedit properti milik user lain. Role lain hanya dapat mengedit properti miliknya sendiri.
+> **Ownership validation** is performed in the service layer via SELECT before the UPDATE query is executed. **Admin** and **Supervisor** roles bypass the ownership check (`assigned_to`), so they can edit properties belonging to other users. Other roles can only edit their own properties.
 
 **File Replacement Flow**:
 
 ```
-PUT /api/v1/properties/:id dengan siteplan_file
+PUT /api/v1/properties/:id with siteplan_file
 │
-├─ 1. Ambil data properti lama dari DB (untuk mendapat path file lama)
+├─ 1. Fetch old property data from DB (to get old file path)
 │
-├─ 2. Jika siteplan_assets lama tidak NULL:
-│     └─ Hapus file lama dari disk (public/uploads/siteplans/...)
-│        └─ Handle error: jika file tidak ditemukan di disk, abaikan (tidak throw)
+├─ 2. If old siteplan_assets is not NULL:
+│     └─ Delete old file from disk (public/uploads/siteplans/...)
+│        └─ Error handling: if file not found on disk, ignore (no throw)
 │
-├─ 3. Simpan file baru ke disk (public/uploads/siteplans/{UUID}-{timestamp}.svg)
+├─ 3. Save new file to disk (public/uploads/siteplans/{UUID}-{timestamp}.svg)
 │
-└─ 4. UPDATE database dengan path file baru
+└─ 4. UPDATE database with new file path
 ```
 
 **Siteplan Delete Flow**:
@@ -554,21 +554,21 @@ PUT /api/v1/properties/:id dengan siteplan_file
 ```
 PUT /api/v1/properties/:id?delete_siteplan=true
 │
-├─ 1. Ambil data properti lama dari DB (untuk mendapat path file lama)
+├─ 1. Fetch old property data from DB (to get old file path)
 │
-├─ 2. Jika siteplan_assets lama tidak NULL:
-│     └─ Hapus file lama dari disk (public/uploads/siteplans/...)
-│        └─ Handle error: jika file tidak ditemukan di disk, abaikan (tidak throw)
+├─ 2. If old siteplan_assets is not NULL:
+│     └─ Delete old file from disk (public/uploads/siteplans/...)
+│        └─ Error handling: if file not found on disk, ignore (no throw)
 │
-└─ 3. UPDATE database dengan siteplan_assets = NULL
+└─ 3. UPDATE database with siteplan_assets = NULL
 ```
 
 **Security Notes**:
-- **RBAC Restriction**: Endpoint hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
-- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
-- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
-- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck`/file upload — user yang tidak diizinkan tidak memicu parsing file
-- **Ownership bypass**: Admin & Supervisor dapat mengedit properti milik user lain (ownership check via `assigned_to` dilewati untuk role privileged)
+- **RBAC Restriction**: Endpoint can only be accessed by users with the **Admin** or **Supervisor** role
+- Users with other roles (e.g., **Sales**) will be rejected with **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- Authentication is still required (401 if token is invalid/missing) and an active subscription is required, same as other endpoints
+- Role is checked from the JWT token after `authenticate`, before `subscriptionCheck`/file upload — unauthorized users will not trigger file parsing
+- **Ownership bypass**: Admin & Supervisor can edit properties belonging to other users (ownership check via `assigned_to` is bypassed for privileged roles)
 
 **Error Response — Delete Siteplan Conflict**:
 
@@ -589,7 +589,7 @@ PUT /api/v1/properties/:id?delete_siteplan=true
 
 ### 3.5 DELETE /api/v1/properties/:id — Delete Property
 
-**Purpose**: Menghapus properti beserta seluruh blocks dan units di dalamnya (cascade)
+**Purpose**: Deletes a property along with all its blocks and units (cascade)
 
 **Method**: `DELETE`
 
@@ -611,55 +611,55 @@ PUT /api/v1/properties/:id?delete_siteplan=true
 **Database Impact — DELETE (Cascade)**:
 
 ```sql
--- ON DELETE CASCADE akan menghapus:
--- 1. Semua units di setiap block (leads.unit_id → SET NULL)
--- 2. Semua blocks di property
--- 3. Property itu sendiri
+-- ON DELETE CASCADE will delete:
+-- 1. All units in every block (leads.unit_id → SET NULL)
+-- 2. All blocks in the property
+-- 3. The property itself
 DELETE FROM properties
 WHERE id = $1
   AND assigned_to = $2
 ```
 
 **Business Rules**:
-- Jika ada lead aktif yang terkait unit di property ini, `unit_id` pada lead akan di-set NULL (sesuai ERD: `ON DELETE SET NULL`)
-- Status unit yang terkait lead aktif akan di-handle oleh trigger sebelum penghapusan
-- **File siteplan di disk akan dihapus** setelah query DELETE berhasil. Jika `siteplan_assets` bernilai `NULL` atau file tidak ditemukan di disk, penghapusan dilewati tanpa error
+- If there are active leads associated with units in this property, `unit_id` on the lead will be set to NULL (per ERD: `ON DELETE SET NULL`)
+- Unit status for leads with active associations will be handled by a trigger before deletion
+- **Siteplan files on disk will be deleted** after the DELETE query succeeds. If `siteplan_assets` is `NULL` or the file is not found on disk, deletion is skipped without error
 
 **File Cleanup Flow**:
 
 ```
 DELETE /api/v1/properties/:id
 │
-├─ 1. Ambil data properti dari DB (untuk mendapat path siteplan_assets)
+├─ 1. Fetch property data from DB (to get siteplan_assets path)
 │
 ├─ 2. DELETE FROM properties WHERE id = $1 AND assigned_to = $2
-│     └─ Jika tidak ada row yang terhapus → return NOT_FOUND
+│     └─ If no rows deleted → return NOT_FOUND
 │
-└─ 3. Jika siteplan_assets tidak NULL:
-      └─ Hapus file dari disk (public/uploads/siteplans/...)
-         └─ Handle error: jika file tidak ditemukan, abaikan
+└─ 3. If siteplan_assets is not NULL:
+      └─ Delete file from disk (public/uploads/siteplans/...)
+         └─ Error handling: if file not found, ignore
 ```
 
 **Security Notes**:
-- **RBAC Restriction**: Endpoint hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
-- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
-- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
-- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck` — user yang tidak diizinkan tidak memicu query ke database
+- **RBAC Restriction**: Endpoint can only be accessed by users with the **Admin** or **Supervisor** role
+- Users with other roles (e.g., **Sales**) will be rejected with **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- Authentication is still required (401 if token is invalid/missing) and an active subscription is required, same as other endpoints
+- Role is checked from the JWT token after `authenticate`, before `subscriptionCheck` — unauthorized users will not trigger database queries
 
 ---
 
 ## 4. API Design — Blocks
 
 **Security Notes**:
-- **RBAC Restriction**: Endpoint CRUD blocks (POST, PUT, DELETE) hanya boleh diakses oleh user dengan role **Admin** atau **Supervisor**
-- User dengan role lain (misal **Sales**) akan ditolak dengan **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
-- Tidak ada ownership check — Admin dan Supervisor dapat mengelola block milik property siapapun
-- Tetap mewajibkan authentication (401 jika token tidak valid/tidak ada) dan active subscription seperti endpoint lain
-- Role dicek dari JWT token setelah `authenticate`, sebelum `subscriptionCheck` — user yang tidak diizinkan tidak memicu query ke database
+- **RBAC Restriction**: Block CRUD endpoints (POST, PUT, DELETE) can only be accessed by users with the **Admin** or **Supervisor** role
+- Users with other roles (e.g., **Sales**) will be rejected with **403 Forbidden** (`FORBIDDEN`, message: "Insufficient permissions")
+- No ownership check — Admin and Supervisor can manage blocks belonging to any property
+- Authentication is still required (401 if token is invalid/missing) and an active subscription is required, same as other endpoints
+- Role is checked from the JWT token after `authenticate`, before `subscriptionCheck` — unauthorized users will not trigger database queries
 
 ### 4.1 POST /api/v1/properties/:propertyId/blocks — Add New Block
 
-**Purpose**: Menambahkan block baru ke dalam properti tertentu
+**Purpose**: Adds a new block to a specific property
 
 **Method**: `POST`
 
@@ -681,13 +681,13 @@ DELETE /api/v1/properties/:id
 
 | Field | Type | Required | DB Column | Validation |
 | --- | --- | --- | --- | --- |
-| `name` | string | Yes | `name` | Maks 100 chars, unik per property |
+| `name` | string | Yes | `name` | Max 100 chars, unique per property |
 
 **Validation Rules**:
-- `name`: Wajib, maks 100 karakter
-- `name` harus unik di dalam satu property (unique constraint: `property_id + name`)
-- Property harus exist di database (validasi by ID saja, tanpa ownership check)
-- Hanya Admin atau Supervisor yang diizinkan (RBAC)
+- `name`: Required, max 100 characters
+- `name` must be unique within a single property (unique constraint: `property_id + name`)
+- Property must exist in the database (validated by ID only, no ownership check)
+- Only Admin or Supervisor are authorized (RBAC)
 
 **Success Response** `201`:
 
@@ -721,7 +721,7 @@ INSERT INTO blocks (
 
 ### 4.2 PUT /api/v1/blocks/:id — Edit Block
 
-**Purpose**: Mengubah nama block
+**Purpose**: Updates the block name
 
 **Method**: `PUT`
 
@@ -743,13 +743,13 @@ INSERT INTO blocks (
 
 | Field | Type | Required | DB Column | Validation |
 | --- | --- | --- | --- | --- |
-| `name` | string | Yes | `name` | Maks 100 chars, unik per property |
+| `name` | string | Yes | `name` | Max 100 chars, unique per property |
 
 **Validation Rules**:
-- `name`: Wajib, maks 100 karakter
-- `name` harus unik di dalam property yang sama
-- Block harus exist di database (validasi by ID saja, tanpa ownership check)
-- Hanya Admin atau Supervisor yang diizinkan (RBAC)
+- `name`: Required, max 100 characters
+- `name` must be unique within the same property
+- Block must exist in the database (validated by ID only, no ownership check)
+- Only Admin or Supervisor are authorized (RBAC)
 
 **Success Response** `200`:
 
@@ -783,7 +783,7 @@ RETURNING *
 
 ### 4.3 DELETE /api/v1/blocks/:id — Delete Block
 
-**Purpose**: Menghapus block beserta seluruh units di dalamnya (cascade)
+**Purpose**: Deletes a block along with all its units (cascade)
 
 **Method**: `DELETE`
 
@@ -805,16 +805,16 @@ RETURNING *
 **Database Impact — DELETE (Cascade)**:
 
 ```sql
--- ON DELETE CASCADE akan menghapus:
--- 1. Semua units di block ini (leads.unit_id → SET NULL)
--- 2. Block itu sendiri
+-- ON DELETE CASCADE will delete:
+-- 1. All units in this block (leads.unit_id → SET NULL)
+-- 2. The block itself
 DELETE FROM blocks
 WHERE id = $1
 ```
 
 **Business Rules**:
-- Sama seperti delete property, `unit_id` pada lead terkait akan di-set NULL
-- Unit status akan di-handle oleh trigger
+- Same as delete property — `unit_id` on associated leads will be set to NULL
+- Unit status will be handled by a trigger
 
 ---
 
@@ -822,7 +822,7 @@ WHERE id = $1
 
 ### 5.1 GET /api/v1/blocks/:blockId/units — Get Units (by Block)
 
-**Purpose**: Menampilkan list units di dalam block tertentu
+**Purpose**: Displays the list of units within a specific block
 
 **Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
 
@@ -838,10 +838,10 @@ WHERE id = $1
 
 | Parameter | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `page` | integer | No | `1` | Halaman |
-| `limit` | integer | No | `20` | Jumlah item per halaman (max 100) |
+| `page` | integer | No | `1` | Page number |
+| `limit` | integer | No | `20` | Number of items per page (max 100) |
 | `status` | string | No | - | Filter: `available`, `reserved`, `booked`, `sold` |
-| `search` | string | No | - | Cari berdasarkan nama unit |
+| `search` | string | No | - | Search by unit name |
 
 **Request Example**:
 
@@ -913,7 +913,7 @@ LIMIT $4 OFFSET $5
 
 ### 5.2 POST /api/v1/blocks/:blockId/units — Add New Unit
 
-**Purpose**: Menambahkan unit baru ke dalam block tertentu
+**Purpose**: Adds a new unit to a specific block
 
 **Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
 
@@ -938,15 +938,15 @@ LIMIT $4 OFFSET $5
 
 | Field | Type | Required | DB Column | Validation |
 | --- | --- | --- | --- | --- |
-| `name` | string | Yes | `name` | Maks 100 chars, unik per block |
-| `land_area` | number | No | `land_area` | Numeric(10,2), >= 0, dalam m² |
+| `name` | string | Yes | `name` | Max 100 chars, unique per block |
+| `land_area` | number | No | `land_area` | Numeric(10,2), >= 0, in m² |
 
 **Validation Rules**:
-- `name`: Wajib, maks 100 karakter
-- `name` harus unik di dalam satu block (unique constraint: `block_id + name`)
-- `land_area`: Opsional, jika dikirim harus angka >= 0
-- Block harus ada di database
-- Status default `available` (tidak perlu dikirim)
+- `name`: Required, max 100 characters
+- `name` must be unique within a single block (unique constraint: `block_id + name`)
+- `land_area`: Optional, if provided must be a number >= 0
+- Block must exist in the database
+- Default status is `available` (does not need to be provided)
 
 **Success Response** `201`:
 
@@ -981,7 +981,7 @@ INSERT INTO units (
 
 ### 5.3 PUT /api/v1/units/:id — Edit Unit
 
-**Purpose**: Mengubah data unit (value sama dengan add new unit)
+**Purpose**: Updates unit data (fields are the same as add new unit)
 
 **Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
 
@@ -1002,14 +1002,14 @@ INSERT INTO units (
 }
 ```
 
-**Request Payload Fields**: Sama dengan **POST /api/v1/blocks/:blockId/units** (semua field opsional saat update)
+**Request Payload Fields**: Same as **POST /api/v1/blocks/:blockId/units** (all fields are optional for updates)
 
 **Validation Rules**:
-- Semua field opsional (partial update)
-- Jika `name` dikirim, maks 100 karakter, unik di dalam block yang sama
-- Jika `land_area` dikirim, harus angka >= 0
-- `status` **tidak bisa** diubah melalui endpoint ini (di-handle otomatis via trigger berdasarkan status lead)
-- Minimal 1 field harus dikirim
+- All fields are optional (partial update)
+- If `name` is provided, max 100 characters, unique within the same block
+- If `land_area` is provided, must be a number >= 0
+- `status` **cannot** be changed via this endpoint (handled automatically via trigger based on lead status)
+- At least 1 field must be provided
 
 **Success Response** `200`:
 
@@ -1045,7 +1045,7 @@ RETURNING *
 
 ### 5.4 DELETE /api/v1/units/:id — Delete Unit
 
-**Purpose**: Menghapus unit
+**Purpose**: Deletes a unit
 
 **Access**: Private (requires authentication and active subscription, allowed roles: admin, supervisor)
 
@@ -1069,14 +1069,14 @@ RETURNING *
 **Database Impact — DELETE**:
 
 ```sql
--- ON DELETE SET NULL pada leads.unit_id
+-- ON DELETE SET NULL on leads.unit_id
 DELETE FROM units
 WHERE id = $1
 ```
 
 **Business Rules**:
-- `unit_id` pada lead terkait akan di-set NULL
-- Tidak bisa menghapus unit yang sudah berstatus `sold` (business rule tambahan, jika diperlukan)
+- `unit_id` on associated leads will be set to NULL
+- Units with `sold` status cannot be deleted (additional business rule, if needed)
 
 ---
 
@@ -1084,7 +1084,7 @@ WHERE id = $1
 
 ### 6.1 GET /api/v1/properties/:id/siteplan — Get Property Siteplan
 
-**Purpose**: Mendapatkan gambar siteplan dan seluruh units di property tersebut (untuk mapping/overlay di frontend)
+**Purpose**: Retrieves the siteplan image and all units in the property (for frontend mapping/overlay)
 
 **Method**: `GET`
 
@@ -1135,7 +1135,7 @@ WHERE id = $1
 }
 ```
 
-**Success Response** `200` (tanpa siteplan):
+**Success Response** `200` (without siteplan):
 
 ```json
 {
@@ -1155,7 +1155,7 @@ WHERE id = $1
 
 | Response Field | DB Column | Mapping Logic |
 | --- | --- | --- |
-| `property.siteplan_assets` | `properties.siteplan_assets` | Direct — path relatif file SVG yang di-upload. Frontend dapat mengakses file melalui base URL server + path ini |
+| `property.siteplan_assets` | `properties.siteplan_assets` | Direct — relative path of the uploaded SVG file. Frontend can access the file via server base URL + this path |
 | `units[].id` | `units.id` | Direct |
 | `units[].block_id` | `units.block_id` | Direct |
 | `units[].block_name` | `blocks.name` | JOIN via block_id |
@@ -1188,19 +1188,19 @@ ORDER BY b.name ASC, u.name ASC
 ```
 
 **Notes**:
-- Response ini dirancang agar frontend bisa melakukan mapping/overlay units pada gambar siteplan
-- Setiap unit memiliki `block_name` agar frontend bisa mengelompokkan secara visual
-- Tidak ada pagination karena data units per property biasanya terbatas (puluhan hingga ratusan)
-- Jika `siteplan_assets` bernilai `null`, frontend harus menampilkan state “Belum ada siteplan” dan menampilkan opsi upload
-- File SVG diakses langsung via static serving: `{BASE_URL}/uploads/siteplans/{filename}.svg`
+- This response is designed so the frontend can map/overlay units on the siteplan image
+- Each unit includes `block_name` so the frontend can group them visually
+- No pagination is used since units per property are typically limited (tens to hundreds)
+- If `siteplan_assets` is `null`, the frontend should display a "No siteplan available" state and show the upload option
+- SVG files are served directly via static serving: `{BASE_URL}/uploads/siteplans/{filename}.svg`
 
 ---
 
 ### 6.2 GET /api/v1/units/:id — Get Unit Detail
 
-**Purpose**: Mendapatkan detail unit lengkap beserta leads yang di-assign ke unit tersebut
+**Purpose**: Retrieves complete unit details along with leads assigned to that unit
 
-**Access**: Semua role terautentikasi (Admin, Supervisor, Sales) dapat mengakses unit manapun
+**Access**: All authenticated roles (Admin, Supervisor, Sales) can access any unit
 
 **Method**: `GET`
 
@@ -1252,7 +1252,7 @@ ORDER BY b.name ASC, u.name ASC
 | `name` | `leads.name` | Direct |
 | `phone` | `leads.phone` | Direct |
 | `email` | `leads.email` | Direct |
-| `status` | `leads.status` | Direct — status proses lead |
+| `status` | `leads.status` | Direct — lead process status |
 | `assigned_to` | `leads.assigned_to` | Direct — user UUID |
 | `assigned_to_name` | `users.full_name` | JOIN via assigned_to |
 | `created_at` | `leads.created_at` | Direct |
@@ -1288,16 +1288,16 @@ ORDER BY l.created_at DESC
 ```
 
 **Notes**:
-- `leads` bisa berisi multiple leads; secara bisnis unit boleh memiliki **banyak lead aktif** sekaligus
-- Saat salah satu lead berstatus `booked`, lead lain di unit tersebut otomatis di-unassign (unit diklaim eksklusif oleh lead `booked`)
+- `leads` can contain multiple leads; by design, a unit may have **multiple active leads** simultaneously
+- When one lead reaches `booked` status, other leads on that unit are automatically unassigned (the unit is exclusively claimed by the `booked` lead)
 
 ---
 
 ### 6.3 POST /api/v1/units/:id/leads — Add Lead to Unit
 
-**Purpose**: Assign lead ke unit tertentu
+**Purpose**: Assigns a lead to a specific unit
 
-**Access**: Semua role terautentikasi (Admin, Supervisor, Sales) dapat menjalankan operasi ini pada unit manapun
+**Access**: All authenticated roles (Admin, Supervisor, Sales) can perform this operation on any unit
 
 **Method**: `POST`
 
@@ -1319,20 +1319,20 @@ ORDER BY l.created_at DESC
 
 | Field | Type | Required | DB Column | Validation |
 | --- | --- | --- | --- | --- |
-| `lead_id` | UUID | Yes | `leads.unit_id` | Harus lead yang valid dan belum di-assign ke unit lain aktif |
+| `lead_id` | UUID | Yes | `leads.unit_id` | Must be a valid lead that is not currently assigned to another active unit |
 
 **Validation Rules**:
-- `lead_id`: Wajib, format UUID valid
-- Lead harus ada di database
-- Unit tidak boleh berstatus `sold` (hanya berlaku untuk role `Sales`; Admin/Supervisor dibypass)
-- Lead harus dimiliki oleh user (`assigned_to` match) — hanya berlaku untuk role `Sales`; Admin/Supervisor dibypass
-- Unit tidak boleh sudah memiliki lead berstatus `booked` (berlaku untuk semua role)
-- **Business Rule**: Saat sebuah lead masuk status `booked`, semua lead lain di unit tersebut akan di-unassign (unit diklaim eksklusif oleh lead `booked`)
-- Setelah assign, trigger DB akan mengubah status unit berdasarkan status lead
+- `lead_id`: Required, valid UUID format
+- Lead must exist in the database
+- Unit must not have `sold` status (only applies to the `Sales` role; Admin/Supervisor bypass this)
+- Lead must be owned by the user (`assigned_to` match) — only applies to the `Sales` role; Admin/Supervisor bypass this
+- Unit must not already have a lead with `booked` status (applies to all roles)
+- **Business Rule**: When a lead reaches `booked` status, all other leads on that unit are unassigned (the unit is exclusively claimed by the `booked` lead)
+- After assignment, a DB trigger will update the unit status based on the lead status
 
 **Authorization Exceptions (RBAC)**:
 
-> Role `Admin` dan `Supervisor` **membypass** validasi ownership lead (`Lead does not belong to you`) dan validasi status unit sold (`Cannot assign lead to sold unit`) — mereka dapat assign lead **APAPUN** ke unit **APAPUN**. Role `Sales` tetap dibatasi: hanya dapat meng-assign lead miliknya sendiri (`assigned_to` match) dan unit tidak boleh berstatus `sold`.
+> The `Admin` and `Supervisor` roles **bypass** lead ownership validation (`Lead does not belong to you`) and sold unit status validation (`Cannot assign lead to sold unit`) — they can assign **any** lead to **any** unit. The `Sales` role is restricted: can only assign leads they own (`assigned_to` match) and the unit must not have `sold` status.
 
 **Success Response** `200`:
 
@@ -1366,12 +1366,12 @@ UPDATE leads
 SET unit_id = $1,
     updated_at = NOW()
 WHERE id = $2
-  AND (assigned_to = $3 OR $4::boolean)   -- $4 = true (Admin/Supervisor) => bypass ownership, false (Sales) => lead sendiri
+  AND (assigned_to = $3 OR $4::boolean)   -- $4 = true (Admin/Supervisor) => bypass ownership, false (Sales) => own lead
   AND unit_id IS NULL
 RETURNING *;
 
--- Unit status akan otomatis berubah via DB trigger
--- berdasarkan status lead yang baru di-assign
+-- Unit status will automatically update via DB trigger
+-- based on the status of the newly assigned lead
 ```
 
 **Unit Status Auto-Update Reference** (via DB Trigger):
@@ -1392,9 +1392,9 @@ cancelled      →  available
 
 ### 6.4 DELETE /api/v1/units/:id/leads/:leadId — Remove Lead from Unit
 
-**Purpose**: Unassign (melepas) lead dari unit tertentu
+**Purpose**: Unassigns (removes) a lead from a specific unit
 
-**Access**: Semua role terautentikasi (Admin, Supervisor, Sales) dapat menjalankan operasi ini pada unit manapun
+**Access**: All authenticated roles (Admin, Supervisor, Sales) can perform this operation on any unit
 
 **Method**: `DELETE`
 
@@ -1403,18 +1403,18 @@ cancelled      →  available
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | UUID | Yes | Unit ID |
-| `leadId` | UUID | Yes | Lead ID yang akan di-unassign |
+| `leadId` | UUID | Yes | Lead ID to unassign |
 
 **Validation Rules**:
-- Unit harus ada di database
-- Lead harus ada — role `Sales` dibatasi hanya pada lead milik sendiri (`assigned_to` match); Admin/Supervisor dapat melepas lead apapun
-- Lead harus sedang di-assign ke unit tersebut (`leads.unit_id = id`), jika tidak → error `409 LEAD_NOT_ASSIGNED`
-- Tidak ada pembatasan berdasarkan status lead — lead berstatus apapun (termasuk `booked`/`closed`) tetap dapat di-unassign
-- Setelah unassign, trigger DB akan mengubah status unit berdasarkan lead yang tersisa di unit tersebut
+- Unit must exist in the database
+- Lead must exist — `Sales` role is restricted to their own leads only (`assigned_to` match); Admin/Supervisor can remove any lead
+- Lead must currently be assigned to the unit (`leads.unit_id = id`), otherwise → error `409 LEAD_NOT_ASSIGNED`
+- No status-based restrictions — leads with any status (including `booked`/`closed`) can still be unassigned
+- After unassignment, a DB trigger will update the unit status based on the remaining leads on the unit
 
 **Authorization Exceptions (RBAC)**:
 
-> Role `Admin` dan `Supervisor` **membypass** validasi ownership lead — mereka dapat melepas lead **APAPUN** dari unit **APAPUN**. Role `Sales` tetap dibatasi: hanya dapat melepas lead milik sendiri (`assigned_to` match).
+> The `Admin` and `Supervisor` roles **bypass** lead ownership validation — they can remove **any** lead from **any** unit. The `Sales` role is restricted: can only remove their own leads (`assigned_to` match).
 
 **Success Response** `200`:
 
@@ -1449,12 +1449,12 @@ UPDATE leads
 SET unit_id = NULL,
     updated_at = NOW()
 WHERE id = $1
-  AND (assigned_to = $2 OR $3::boolean)   -- $3 = true (Admin/Supervisor) => bypass ownership, false (Sales) => lead sendiri
+  AND (assigned_to = $2 OR $3::boolean)   -- $3 = true (Admin/Supervisor) => bypass ownership, false (Sales) => own lead
   AND unit_id = $4
 RETURNING *;
 
--- Unit status akan otomatis berubah via DB trigger
--- berdasarkan lead yang masih tersisa di unit tersebut
+-- Unit status will automatically update via DB trigger
+-- based on the remaining leads on the unit
 ```
 
 ---
@@ -1478,17 +1478,17 @@ RETURNING *;
 
 | Code | HTTP Status | Description | Applicable To |
 | --- | --- | --- | --- |
-| `VALIDATION_ERROR` | 400 | Request validation gagal | Semua endpoint |
-| `UNAUTHORIZED` | 401 | Tidak ada token valid | Semua endpoint |
-| `FORBIDDEN` | 403 | Resource bukan milik user / role tidak diizinkan | GET/PUT/DELETE by ID, POST/PUT/DELETE Property & Block (RBAC) |
-| `NOT_FOUND` | 404 | Resource tidak ditemukan | GET/PUT/DELETE by ID |
-| `CONFLICT` | 409 | Nama sudah ada (unique violation) | POST Block, POST Unit |
-| `UNIT_BOOKED` | 409 | Unit sudah ada lead berstatus `booked` | POST Lead to Unit |
-| `UNIT_SOLD` | 409 | Unit sudah terjual, tidak bisa di-assign | POST Lead to Unit |
-| `LEAD_ALREADY_ASSIGNED` | 409 | Lead sudah di-assign ke unit lain | POST Lead to Unit |
-| `LEAD_NOT_ASSIGNED` | 409 | Lead tidak sedang di-assign ke unit ini | DELETE Lead from Unit |
-| `INVALID_FILE_TYPE` | 400 | File bukan bertipe SVG (`image/svg+xml`) | POST/PUT Property (siteplan_file) |
-| `FILE_TOO_LARGE` | 400 | Ukuran file melebihi batas 5MB | POST/PUT Property (siteplan_file) |
+| `VALIDATION_ERROR` | 400 | Request validation failed | All endpoints |
+| `UNAUTHORIZED` | 401 | No valid token provided | All endpoints |
+| `FORBIDDEN` | 403 | Resource not owned by user / role not authorized | GET/PUT/DELETE by ID, POST/PUT/DELETE Property & Block (RBAC) |
+| `NOT_FOUND` | 404 | Resource not found | GET/PUT/DELETE by ID |
+| `CONFLICT` | 409 | Name already exists (unique violation) | POST Block, POST Unit |
+| `UNIT_BOOKED` | 409 | Unit already has a `booked` lead | POST Lead to Unit |
+| `UNIT_SOLD` | 409 | Unit is already sold, cannot be assigned | POST Lead to Unit |
+| `LEAD_ALREADY_ASSIGNED` | 409 | Lead is already assigned to another unit | POST Lead to Unit |
+| `LEAD_NOT_ASSIGNED` | 409 | Lead is not currently assigned to this unit | DELETE Lead from Unit |
+| `INVALID_FILE_TYPE` | 400 | File is not SVG type (`image/svg+xml`) | POST/PUT Property (siteplan_file) |
+| `FILE_TOO_LARGE` | 400 | File size exceeds the 5MB limit | POST/PUT Property (siteplan_file) |
 
 **Error Response Examples — File Upload**:
 
@@ -1525,25 +1525,25 @@ RETURNING *;
 | # | Method | Endpoint | Content-Type | Purpose |
 | --- | --- | --- | --- | --- |
 | **Properties** |  |  |  |  |
-| 1 | `GET` | `/api/v1/properties` | - | List semua properti |
-| 2 | `POST` | `/api/v1/properties` | `multipart/form-data` | Tambah properti baru (opsional upload SVG siteplan) |
-| 3 | `GET` | `/api/v1/properties/:id` | - | Detail properti + blocks |
-| 4 | `PUT` | `/api/v1/properties/:id` | `multipart/form-data` | Edit properti (opsional upload SVG siteplan baru) |
-| 5 | `DELETE` | `/api/v1/properties/:id` | - | Hapus properti + cleanup file siteplan |
+| 1 | `GET` | `/api/v1/properties` | - | List all properties |
+| 2 | `POST` | `/api/v1/properties` | `multipart/form-data` | Add new property (optional SVG siteplan upload) |
+| 3 | `GET` | `/api/v1/properties/:id` | - | Property detail + blocks |
+| 4 | `PUT` | `/api/v1/properties/:id` | `multipart/form-data` | Edit property (optional new SVG siteplan upload) |
+| 5 | `DELETE` | `/api/v1/properties/:id` | - | Delete property + siteplan file cleanup |
 | **Blocks** |  |  |  |  |
-| 6 | `POST` | `/api/v1/properties/:propertyId/blocks` | `application/json` | Tambah block baru |
+| 6 | `POST` | `/api/v1/properties/:propertyId/blocks` | `application/json` | Add new block |
 | 7 | `PUT` | `/api/v1/blocks/:id` | `application/json` | Edit block |
-| 8 | `DELETE` | `/api/v1/blocks/:id` | - | Hapus block |
+| 8 | `DELETE` | `/api/v1/blocks/:id` | - | Delete block |
 | **Units** |  |  |  |  |
-| 9 | `GET` | `/api/v1/blocks/:blockId/units` | - | List units di block |
-| 10 | `POST` | `/api/v1/blocks/:blockId/units` | `application/json` | Tambah unit baru |
+| 9 | `GET` | `/api/v1/blocks/:blockId/units` | - | List units in block |
+| 10 | `POST` | `/api/v1/blocks/:blockId/units` | `application/json` | Add new unit |
 | 11 | `PUT` | `/api/v1/units/:id` | `application/json` | Edit unit |
-| 12 | `DELETE` | `/api/v1/units/:id` | - | Hapus unit |
+| 12 | `DELETE` | `/api/v1/units/:id` | - | Delete unit |
 | **Siteplan** |  |  |  |  |
-| 13 | `GET` | `/api/v1/properties/:id/siteplan` | - | Gambar siteplan + semua units |
-| 14 | `GET` | `/api/v1/units/:id` | - | Detail unit + leads |
-| 15 | `POST` | `/api/v1/units/:id/leads` | `application/json` | Assign lead ke unit |
-| 16 | `DELETE` | `/api/v1/units/:id/leads/:leadId` | - | Unassign lead dari unit |
+| 13 | `GET` | `/api/v1/properties/:id/siteplan` | - | Siteplan image + all units |
+| 14 | `GET` | `/api/v1/units/:id` | - | Unit detail + leads |
+| 15 | `POST` | `/api/v1/units/:id/leads` | `application/json` | Assign lead to unit |
+| 16 | `DELETE` | `/api/v1/units/:id/leads/:leadId` | - | Unassign lead from unit |
 
 ---
 
@@ -1561,12 +1561,12 @@ npm install multer @types/multer
 sales-force-be/
 ├── public/
 │   └── uploads/
-│       └── siteplans/          # SVG files disimpan di sini
+│       └── siteplans/          # SVG files are stored here
 ├── src/
 │   ├── middleware/
 │   │   └── upload.ts           # Multer configuration
 │   ├── routes/
-│   │   └── properties.ts       # Route dengan upload middleware
+│   │   └── properties.ts       # Route with upload middleware
 │   ├── controllers/
 │   │   └── properties.ts       # Handle req.file
 │   └── services/
@@ -1582,7 +1582,7 @@ sales-force-be/
 | **Destination** | `public/uploads/siteplans/` |
 | **Filename Pattern** | `{UUIDv4}-{unix_timestamp_ms}.svg` |
 | **File Filter** | `mimetype === 'image/svg+xml'` |
-| **Size Limit** | `5MB` (5.242.880 bytes) |
+| **Size Limit** | `5MB` (5,242,880 bytes) |
 | **Field Name** | `siteplan_file` |
 
 ### 9.4 Static File Serving
@@ -1602,25 +1602,25 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 ### 9.5 Database Column Update
 
 ```sql
--- Perpanjang kolom untuk mengakomodasi path yang lebih panjang
+-- Extend column to accommodate longer paths
 ALTER TABLE properties
 ALTER COLUMN siteplan_assets TYPE VARCHAR(500);
 ```
 
 | Column | Before | After | Reason |
 | --- | --- | --- | --- |
-| `siteplan_assets` | `VARCHAR(255)` | `VARCHAR(500)` | Path format `{UUID}-{timestamp}.svg` ≈ 70 chars, cukup aman. Namun VARCHAR(500) memberi buffer untuk perubahan struktur folder di masa depan |
+| `siteplan_assets` | `VARCHAR(255)` | `VARCHAR(500)` | Path format `{UUID}-{timestamp}.svg` ≈ 70 chars, which is sufficient. However, VARCHAR(500) provides buffer for future folder structure changes |
 
 ### 9.6 File Lifecycle Summary
 
 | Operation | File Action | DB Action | Error Handling |
 | --- | --- | --- | --- |
-| **POST** (dengan file) | Simpan file baru ke disk | INSERT path ke `siteplan_assets` | Jika DB gagal → hapus file yang sudah tersimpan |
-| **POST** (tanpa file) | Tidak ada aksi file | INSERT `NULL` ke `siteplan_assets` | - |
-| **PUT** (dengan file baru) | Hapus file lama (jika ada), simpan file baru | UPDATE path baru ke `siteplan_assets` | Jika hapus file lama gagal (tidak ditemukan) → abaikan, lanjutkan. Jika simpan file baru gagal → jangan hapus file lama |
-| **PUT** (delete_siteplan=true) | Hapus file lama dari disk (jika ada) | UPDATE `siteplan_assets` = NULL | Jika hapus file gagal (tidak ditemukan) → abaikan, tetap lanjutkan update DB |
-| **PUT** (tanpa file, tanpa delete) | Tidak ada aksi file | `siteplan_assets` tetap (pertahankan nilai lama) | - |
-| **DELETE** property | Hapus file dari disk (jika ada) | DELETE FROM properties (cascade) | Jika hapus file gagal (tidak ditemukan) → abaikan, tetap lanjutkan hapus DB |
+| **POST** (with file) | Save new file to disk | INSERT path to `siteplan_assets` | If DB fails → delete the already saved file |
+| **POST** (without file) | No file action | INSERT `NULL` to `siteplan_assets` | - |
+| **PUT** (with new file) | Delete old file (if exists), save new file | UPDATE new path to `siteplan_assets` | If old file deletion fails (not found) → ignore, continue. If new file save fails → do not delete old file |
+| **PUT** (delete_siteplan=true) | Delete old file from disk (if exists) | UPDATE `siteplan_assets` = NULL | If file deletion fails (not found) → ignore, still continue with DB update |
+| **PUT** (without file, no delete) | No file action | `siteplan_assets` remains unchanged (preserve old value) | - |
+| **DELETE** property | Delete file from disk (if exists) | DELETE FROM properties (cascade) | If file deletion fails (not found) → ignore, still continue with DB deletion |
 
 ---
 

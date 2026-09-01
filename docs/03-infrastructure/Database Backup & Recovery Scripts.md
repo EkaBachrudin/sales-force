@@ -1,7 +1,5 @@
 # Database Backup & Recovery Scripts
 
-# Database Backup & Recovery Scripts
-
 Automated backup and recovery system for PostgreSQL database in production environment.
 
 ---
@@ -59,18 +57,18 @@ Add these lines:
 
 ## Automated Setup (Recommended) ⚡
 
-Cara termudah untuk setup otomatisasi backup di VPS:
+The easiest way to set up automated backups on a VPS:
 
 ```bash
 cd /home/eka/dev/sales-force/scripts
 sudo ./setup-backup-automation.sh
 ```
 
-Ini akan mengkonfigurasi:
+This will configure:
 
 - ✓ Directory backup `/var/backups/postgres`
-- ✓ Log rotation untuk semua log file
-- ✓ Cron job (backup jam 2 pagi setiap hari)
+- ✓ Log rotation for all log files
+- ✓ Cron job (daily backup at 2 AM)
 
 ---
 
@@ -82,7 +80,7 @@ Ini akan mengkonfigurasi:
 # Backup standalone
 ./scripts/backup-db.sh
 
-# Atau gunakan wrapper (backup + sync ke cloud)
+# Or use the wrapper script (backup + sync to cloud)
 ./scripts/auto-backup.sh
 ```
 

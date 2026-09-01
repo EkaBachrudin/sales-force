@@ -1,7 +1,5 @@
 # API Design - Dashboard Matrix & Upcoming Reminders V2
 
-# API Design - Dashboard Matrix & Upcoming Reminders V2
-
 ---
 
 ## 1. Document Overview
@@ -18,25 +16,25 @@
 
 ### 1.1 Data Visibility / Authorization Rules (RBAC)
 
-Data yang dikembalikan oleh endpoint retrieval (`GET /api/v1/dashboard/overview` dan `GET /api/v1/reminders/upcoming`) ditentukan oleh role user yang sedang login (dibaca dari JWT `req.user.role`):
+Data returned by the retrieval endpoints (`GET /api/v1/dashboard/overview` and `GET /api/v1/reminders/upcoming`) is determined by the logged-in user's role (read from JWT `req.user.role`):
 
 | Role | Dashboard Overview (`/dashboard/overview`) | Upcoming Reminders (`/reminders/upcoming`) |
 | --- | --- | --- |
-| `Admin` | Aggregate metrics dari **SEMUA leads** di seluruh sistem | Mengambil **SEMUA upcoming reminders** dari semua user |
-| `Supervisor` | Aggregate metrics dari **SEMUA leads** di seluruh sistem | Mengambil **SEMUA upcoming reminders** dari semua user |
-| `Sales` | Aggregate metrics dari leads milik sendiri saja (`assigned_to` = user) | Mengambil **hanya reminders milik sendiri** (`user_id` = user) |
+| `Admin` | Aggregate metrics from **ALL leads** across the entire system | Fetches **ALL upcoming reminders** from all users |
+| `Supervisor` | Aggregate metrics from **ALL leads** across the entire system | Fetches **ALL upcoming reminders** from all users |
+| `Sales` | Aggregate metrics from own leads only (`assigned_to` = user) | Fetches **own reminders only** (`user_id` = user) |
 
 **SQL Condition:**
 
 ```sql
-WHERE (assigned_to = $1 OR $2::boolean)   -- $1 = user ID (JWT sub); $2 = true (Admin/Supervisor) => semua, false (Sales) => milik sendiri
+WHERE (assigned_to = $1 OR $2::boolean)   -- $1 = user ID (JWT sub); $2 = true (Admin/Supervisor) => all, false (Sales) => own only
   ...
 ```
 
-- `$1` = current user ID (dari JWT `sub`)
-- `$2` = boolean: `true` untuk role `Admin`/`Supervisor` (filter diabaikan → semua data), `false` untuk role `Sales` (hanya data milik user tersebut)
+- `$1` = current user ID (from JWT `sub`)
+- `$2` = boolean: `true` for `Admin`/`Supervisor` roles (filter bypassed → all data), `false` for `Sales` role (own data only)
 
-> **Note**: RBAC ini berlaku untuk kedua retrieval endpoints. Write operations (`POST/PUT/DELETE` reminders) tetap melakukan validasi ownership `user_id` untuk semua role.
+> **Note**: This RBAC applies to both retrieval endpoints. Write operations (`POST/PUT/DELETE` reminders) still enforce `user_id` ownership validation for all roles.
 
 ---
 
@@ -44,9 +42,9 @@ WHERE (assigned_to = $1 OR $2::boolean)   -- $1 = user ID (JWT sub); $2 = true (
 
 ### 2.1 Get Dashboard Overview Metrics
 
-**Endpoint:** `/api/v1/dashboard/overview`**Method:** `GET`**Fungsi Utama:** Mengambil 4 metrik utama dashboard untuk user yang sedang login
+**Endpoint:** `/api/v1/dashboard/overview`**Method:** `GET`**Purpose:** Fetches the 4 key dashboard metrics for the logged-in user
 
-**Contoh Response:**
+**Example Response:**
 
 ```json
 {
@@ -140,7 +138,7 @@ WHERE (assigned_to = $1 OR $2::boolean)
   AND created_at >= DATE_TRUNC('week', NOW());
 ```
 
-> **Note:** Seluruh query menggunakan RBAC — `$1` = user ID dari JWT, `$2` = boolean `isPrivilegedRole` (`true` untuk Admin/Supervisor → aggregate semua leads, `false` untuk Sales → hanya leads sendiri). Lihat section 1.1 untuk detail.
+> **Note:** All queries use RBAC — `$1` = user ID from JWT, `$2` = boolean `isPrivilegedRole` (`true` for Admin/Supervisor → aggregate all leads, `false` for Sales → own leads only). See section 1.1 for details.
 > 
 
 ---
@@ -149,7 +147,7 @@ WHERE (assigned_to = $1 OR $2::boolean)
 
 ### 3.1 Get Upcoming Reminders
 
-**Endpoint:** `/api/v1/reminders/upcoming`**Method:** `GET`**Fungsi Utama:** Mengambil daftar reminder yang akan datang untuk user yang sedang login
+**Endpoint:** `/api/v1/reminders/upcoming`**Method:** `GET`**Purpose:** Fetches the list of upcoming reminders for the logged-in user
 
 **Query Parameters:**
 
@@ -158,7 +156,7 @@ WHERE (assigned_to = $1 OR $2::boolean)
 | `limit` | integer | No | `3` | Max items returned |
 | `hours_ahead` | integer | No | `24` | Filter reminders within X hours from now |
 
-**Contoh Response:**
+**Example Response:**
 
 ```json
 {
@@ -254,7 +252,7 @@ WHERE (assigned_to = $1 OR $2::boolean)
 }
 ```
 
-> **Note:** Pada contoh ketiga, `unit` bernilai `null` karena lead belum di-assign ke unit mana pun (`leads.unit_id` IS NULL). Ini sesuai ERD dimana `unit_id` pada `leads` bersifat NULLABLE.
+> **Note:** In the third example, `unit` is `null` because the lead has not been assigned to any unit (`leads.unit_id` IS NULL). This aligns with the ERD where `unit_id` on `leads` is NULLABLE.
 > 
 
 **Data Mapping:**
@@ -263,25 +261,25 @@ WHERE (assigned_to = $1 OR $2::boolean)
 | --- | --- | --- | --- |
 | `id` | `reminder_schedules` | `id` | Direct |
 | `remind_at` | `reminder_schedules` | `remind_at` | Direct |
-| `remind_at_formatted` | - | - | Format string dari `remind_at` (backend/frontend logic) |
+| `remind_at_formatted` | - | - | Formatted string from `remind_at` (backend/frontend logic) |
 | `message` | `reminder_schedules` | `message` | Direct |
 | `is_completed` | `reminder_schedules` | `is_completed` | Direct |
 | `created_at` | `reminder_schedules` | `created_at` | Direct |
-| `lead.id` | `leads` | `id` | Direct dari JOIN |
-| `lead.name` | `leads` | `name` | Direct dari JOIN |
-| `lead.phone` | `leads` | `phone` | Direct dari JOIN |
-| `lead.email` | `leads` | `email` | Direct dari JOIN (nullable) |
-| `lead.status` | `leads` | `status` | Direct dari JOIN |
-| `lead.property_price` | `leads` | `property_price` | Direct dari JOIN (nullable) |
+| `lead.id` | `leads` | `id` | Direct from JOIN |
+| `lead.name` | `leads` | `name` | Direct from JOIN |
+| `lead.phone` | `leads` | `phone` | Direct from JOIN |
+| `lead.email` | `leads` | `email` | Direct from JOIN (nullable) |
+| `lead.status` | `leads` | `status` | Direct from JOIN |
+| `lead.property_price` | `leads` | `property_price` | Direct from JOIN (nullable) |
 | `lead.unit.id` | `units` | `id` | JOIN via `leads.unit_id = units.id` |
-| `lead.unit.name` | `units` | `name` | Direct dari JOIN |
-| `lead.unit.land_area` | `units` | `land_area` | Direct dari JOIN (nullable) |
-| `lead.unit.status` | `units` | `status` | Direct dari JOIN |
+| `lead.unit.name` | `units` | `name` | Direct from JOIN |
+| `lead.unit.land_area` | `units` | `land_area` | Direct from JOIN (nullable) |
+| `lead.unit.status` | `units` | `status` | Direct from JOIN |
 | `lead.unit.block.id` | `blocks` | `id` | JOIN via `units.block_id = blocks.id` |
-| `lead.unit.block.name` | `blocks` | `name` | Direct dari JOIN |
+| `lead.unit.block.name` | `blocks` | `name` | Direct from JOIN |
 | `lead.unit.block.property.id` | `properties` | `id` | JOIN via `blocks.property_id = properties.id` |
-| `lead.unit.block.property.name` | `properties` | `name` | Direct dari JOIN |
-| `lead.unit.block.property.city` | `properties` | `city` | Direct dari JOIN |
+| `lead.unit.block.property.name` | `properties` | `name` | Direct from JOIN |
+| `lead.unit.block.property.city` | `properties` | `city` | Direct from JOIN |
 
 **Database Query:**
 
@@ -312,7 +310,7 @@ INNER JOIN leads l ON rs.lead_id = l.id
 LEFT JOIN units u ON l.unit_id = u.id
 LEFT JOIN blocks b ON u.block_id = b.id
 LEFT JOIN properties p ON b.property_id = p.id
-WHERE (rs.user_id = $1 OR $2::boolean)   -- $2 = true (Admin/Supervisor) => semua reminders, false (Sales) => milik sendiri
+WHERE (rs.user_id = $1 OR $2::boolean)   -- $2 = true (Admin/Supervisor) => all reminders, false (Sales) => own only
   AND rs.remind_at BETWEEN NOW() AND (NOW() + INTERVAL '1 hour' * $3)
   AND rs.is_completed = false
 ORDER BY rs.remind_at ASC
@@ -326,7 +324,7 @@ WHERE (user_id = $1 OR $2::boolean)
   AND is_completed = false;
 ```
 
-> **Perubahan dari versi sebelumnya:** Query parameter `hours_ahead` sekarang benar-benar digunakan dalam query (sebelumnya di contoh response meta menunjukkan `168` tapi di SQL hardcode `1 week`). Join chain diubah dari `leads → properties` (langsung) menjadi `leads → units → blocks → properties` sesuai ERD. Kolom `price` dan `property_type` dihapus karena tidak ada di tabel `properties` (ERD), diganti dengan `property_price` dari tabel `leads` dan chain `unit → block → property`.
+> **Changes from previous version:** The `hours_ahead` query parameter is now actually used in the query (previously the response meta example showed `168` but SQL hardcoded `1 week`). The join chain was changed from `leads → properties` (direct) to `leads → units → blocks → properties` per the ERD. The `price` and `property_type` columns were removed as they do not exist in the `properties` table (ERD), replaced by `property_price` from the `leads` table and the `unit → block → property` chain.
 > 
 
 ---
@@ -335,13 +333,13 @@ WHERE (user_id = $1 OR $2::boolean)
 
 ### 4.1 Create New Reminder
 
-**Endpoint:** `/api/v1/reminders`**Method:** `POST`**Content-Type:** `application/json`**Fungsi Utama:** Membuat reminder baru untuk follow-up lead
+**Endpoint:** `/api/v1/reminders`**Method:** `POST`**Content-Type:** `application/json`**Purpose:** Creates a new reminder for lead follow-up
 
 **Request Body:**
 
 | Field | Type | Required | DB Column | Validation |
 | --- | --- | --- | --- | --- |
-| `lead_id` | UUID | Yes | `reminder_schedules.lead_id` | Must exist in `leads`, `assigned_to` = user yang login |
+| `lead_id` | UUID | Yes | `reminder_schedules.lead_id` | Must exist in `leads`, `assigned_to` = logged-in user |
 | `remind_at` | ISO 8601 timestamp | Yes | `reminder_schedules.remind_at` | Must be future time |
 | `message` | string | No | `reminder_schedules.message` | Text, nullable |
 
@@ -351,7 +349,7 @@ WHERE (user_id = $1 OR $2::boolean)
 {
     "lead_id": "660e8400-e29b-41d4-a716-446655440000",
     "remind_at": "2026-01-15T10:00:00+07:00",
-    "message": "Follow up setelah site visit"
+    "message": "Follow up after site visit"
 }
 ```
 
@@ -366,7 +364,7 @@ WHERE (user_id = $1 OR $2::boolean)
             "user_id": "440e8400-e29b-41d4-a716-446655440000",
             "lead_id": "660e8400-e29b-41d4-a716-446655440000",
             "remind_at": "2026-01-15T10:00:00+07:00",
-            "message": "Follow up setelah site visit",
+            "message": "Follow up after site visit",
             "is_completed": false,
             "created_at": "2026-01-12T08:00:00+07:00"
         }
@@ -387,23 +385,23 @@ INSERT INTO reminder_schedules (
     created_at
 ) VALUES (
     gen_random_uuid(),
-    $1, -- user_id dari JWT token
-    $2, -- lead_id dari request body
-    $3, -- remind_at dari request body
-    $4, -- message dari request body
+    $1, -- user_id from JWT token
+    $2, -- lead_id from request body
+    $3, -- remind_at from request body
+    $4, -- message from request body
     false,
     NOW()
 ) RETURNING *
 ```
 
-> **Perubahan dari versi sebelumnya:** Menggunakan `gen_random_uuid()` (konsisten dengan Properties V2) menggantikan `uuid_generate_v4()`. Menghapus `updated_at` dari response karena kolom tersebut tidak ada di tabel `reminder_schedules` (ERD). Response di-wrap dalam objek `reminder` (konsisten dengan pattern Properties V2 yang meng-wrap data dalam objek bernama sesuai entitas).
+> **Changes from previous version:** Uses `gen_random_uuid()` (consistent with Properties V2) replacing `uuid_generate_v4()`. Removed `updated_at` from response as the column does not exist in the `reminder_schedules` table (ERD). Response is wrapped in a `reminder` object (consistent with Properties V2 pattern of wrapping data in an entity-named object).
 > 
 
 **Validation Logic:**
 
-1. Cek apakah `lead_id` ada dan `assigned_to` = user yang sedang login
-2. Cek apakah `remind_at` > NOW()
-3. Cek apakah tidak ada reminder duplikat untuk lead yang sama pada waktu yang sama
+1. Check that `lead_id` exists and `assigned_to` = logged-in user
+2. Check that `remind_at` > NOW()
+3. Check that no duplicate reminder exists for the same lead at the same time
 
 ---
 
@@ -411,7 +409,7 @@ INSERT INTO reminder_schedules (
 
 ### 5.1 Complete/Update Reminder
 
-**Endpoint:** `/api/v1/reminders/:id`**Method:** `PUT`**Content-Type:** `application/json`**Fungsi Utama:** Update status reminder atau edit jadwal reminder
+**Endpoint:** `/api/v1/reminders/:id`**Method:** `PUT`**Content-Type:** `application/json`**Purpose:** Updates reminder status or edits the reminder schedule
 
 **Path Parameters:**
 
@@ -440,7 +438,7 @@ INSERT INTO reminder_schedules (
 ```json
 {
     "remind_at": "2026-01-16T14:00:00+07:00",
-    "message": "Reschedule - client meminta waktu yang lebih fleksibel"
+    "message": "Reschedule - client requested a more flexible time"
 }
 ```
 
@@ -455,7 +453,7 @@ INSERT INTO reminder_schedules (
             "user_id": "440e8400-e29b-41d4-a716-446655440000",
             "lead_id": "660e8400-e29b-41d4-a716-446655440000",
             "remind_at": "2026-01-16T14:00:00+07:00",
-            "message": "Reschedule - client meminta waktu yang lebih fleksibel",
+            "message": "Reschedule - client requested a more flexible time",
             "is_completed": false,
             "created_at": "2026-01-12T08:00:00+07:00"
         }
@@ -475,14 +473,14 @@ WHERE id = $4
 RETURNING *
 ```
 
-> **Perubahan dari versi sebelumnya:** Menghapus `updated_at` dari response dan SQL karena kolom tersebut tidak ada di tabel `reminder_schedules` berdasarkan ERD. Response di-wrap dalam objek `reminder`. Menggunakan pattern `COALESCE` untuk partial update (konsisten dengan Properties V2).
+> **Changes from previous version:** Removed `updated_at` from response and SQL as the column does not exist in the `reminder_schedules` table per the ERD. Response is wrapped in a `reminder` object. Uses the `COALESCE` pattern for partial updates (consistent with Properties V2).
 > 
 
 **Validation Logic:**
 
-1. Cek apakah reminder dengan ID tersebut ada dan milik user yang sedang login (`user_id` dari JWT)
-2. Jika update `remind_at`, pastikan waktu baru > NOW()
-3. Minimal 1 field harus dikirim
+1. Check that the reminder with the given ID exists and belongs to the logged-in user (`user_id` from JWT)
+2. If updating `remind_at`, ensure the new time > NOW()
+3. At least 1 field must be provided
 
 ---
 
@@ -490,7 +488,7 @@ RETURNING *
 
 ### 6.1 Delete Reminder
 
-**Endpoint:** `/api/v1/reminders/:id`**Method:** `DELETE`**Fungsi Utama:** Hapus reminder yang tidak diperlukan
+**Endpoint:** `/api/v1/reminders/:id`**Method:** `DELETE`**Purpose:** Deletes an unnecessary reminder
 
 **Path Parameters:**
 
@@ -516,7 +514,7 @@ WHERE id = $1
 RETURNING id;
 ```
 
-> **Perubahan dari versi sebelumnya:** Response diubah dari nested `data` object menjadi flat `message` string (konsisten dengan pattern DELETE di Properties V2). Jika tidak ada row yang terhapus, return `NOT_FOUND`.
+> **Changes from previous version:** Response changed from nested `data` object to flat `message` string (consistent with DELETE pattern in Properties V2). If no rows are deleted, returns `NOT_FOUND`.
 > 
 
 ---
@@ -543,13 +541,13 @@ RETURNING id;
 
 | Code | HTTP Status | Description | Applicable To |
 | --- | --- | --- | --- |
-| `VALIDATION_ERROR` | 400 | Request validation gagal | Semua endpoint |
-| `UNAUTHORIZED` | 401 | Tidak ada token valid | Semua endpoint |
-| `FORBIDDEN` | 403 | Resource bukan milik user | GET/PUT/DELETE by ID |
-| `NOT_FOUND` | 404 | Resource tidak ditemukan | GET/PUT/DELETE by ID |
-| `INTERNAL_ERROR` | 500 | Server error | Semua endpoint |
+| `VALIDATION_ERROR` | 400 | Request validation failed | All endpoints |
+| `UNAUTHORIZED` | 401 | No valid token provided | All endpoints |
+| `FORBIDDEN` | 403 | Resource does not belong to user | GET/PUT/DELETE by ID |
+| `NOT_FOUND` | 404 | Resource not found | GET/PUT/DELETE by ID |
+| `INTERNAL_ERROR` | 500 | Server error | All endpoints |
 
-> **Perubahan dari versi sebelumnya:** HTTP Status untuk `VALIDATION_ERROR` diubah dari `422` menjadi `400` (konsisten dengan Properties V2).
+> **Changes from previous version:** HTTP Status for `VALIDATION_ERROR` changed from `422` to `400` (consistent with Properties V2).
 > 
 
 ---
@@ -559,12 +557,12 @@ RETURNING id;
 | # | Method | Endpoint | Content-Type | Purpose |
 | --- | --- | --- | --- | --- |
 | **Dashboard** |  |  |  |  |
-| 1 | `GET` | `/api/v1/dashboard/overview` | - | 4 metrik utama dashboard |
+| 1 | `GET` | `/api/v1/dashboard/overview` | - | 4 key dashboard metrics |
 | **Reminders** |  |  |  |  |
-| 2 | `GET` | `/api/v1/reminders/upcoming` | - | Daftar reminder yang akan datang |
-| 3 | `POST` | `/api/v1/reminders` | `application/json` | Buat reminder baru |
+| 2 | `GET` | `/api/v1/reminders/upcoming` | - | List of upcoming reminders |
+| 3 | `POST` | `/api/v1/reminders` | `application/json` | Create new reminder |
 | 4 | `PUT` | `/api/v1/reminders/:id` | `application/json` | Update / complete reminder |
-| 5 | `DELETE` | `/api/v1/reminders/:id` | - | Hapus reminder |
+| 5 | `DELETE` | `/api/v1/reminders/:id` | - | Delete reminder |
 
 ---
 
@@ -572,33 +570,33 @@ RETURNING id;
 
 | Endpoint | Method | Tables | Operations | Security Filter |
 | --- | --- | --- | --- | --- |
-| `/dashboard/overview` | GET | `leads` | SELECT (aggregate) | RBAC: `assigned_to = user_id` (Sales) / semua leads (Admin/Supervisor) |
-| `/reminders/upcoming` | GET | `reminder_schedules`, `leads`, `units`, `blocks`, `properties` | SELECT with JOIN (4 tables) | RBAC: `reminder_schedules.user_id = user_id` (Sales) / semua reminders (Admin/Supervisor) |
-| `/reminders` | POST | `reminder_schedules`, `leads` | INSERT + validation SELECT | `user_id` dari JWT, validasi `leads.assigned_to` |
+| `/dashboard/overview` | GET | `leads` | SELECT (aggregate) | RBAC: `assigned_to = user_id` (Sales) / all leads (Admin/Supervisor) |
+| `/reminders/upcoming` | GET | `reminder_schedules`, `leads`, `units`, `blocks`, `properties` | SELECT with JOIN (4 tables) | RBAC: `reminder_schedules.user_id = user_id` (Sales) / all reminders (Admin/Supervisor) |
+| `/reminders` | POST | `reminder_schedules`, `leads` | INSERT + validation SELECT | `user_id` from JWT, validates `leads.assigned_to` |
 | `/reminders/:id` | PUT | `reminder_schedules` | UPDATE | `user_id = user_id` |
 | `/reminders/:id` | DELETE | `reminder_schedules` | DELETE | `user_id = user_id` |
 
 ---
 
-## 10. Changelog — Dari Versi 1.0 ke 2.0
+## 10. Changelog — From Version 1.0 to 2.0
 
-| # | Area | Perubahan | Alasan |
+| # | Area | Change | Reason |
 | --- | --- | --- | --- |
-| 1 | **Response structure — Reminders** | `lead.property` diganti menjadi `lead.unit.block.property` (nested chain) | ERD: leads berelasi ke `units`, bukan langsung ke `properties` |
-| 2 | **Response fields — Reminders** | Menghapus `property_type` dan `price` dari response | ERD: tabel `properties` tidak memiliki kolom `property_type` maupun `price` |
-| 3 | **Response fields — Reminders** | Menambahkan `lead.status` dan `lead.property_price` | ERD: `leads` memiliki kolom `status` dan `property_price` yang relevan untuk ditampilkan |
-| 4 | **Response fields — Reminders** | Menambahkan `lead.unit.land_area`, `lead.unit.status`, `lead.unit.block.name`, `lead.unit.block.property.city` | Memberikan konteks lengkap sesuai hierarki ERD |
-| 5 | **Response fields — Reminders** | `lead.unit` dapat bernilai `null` | ERD: `leads.unit_id` bersifat NULLABLE (lead belum tentu punya unit) |
-| 6 | **Response structure — Create/Update** | Menghapus `updated_at` dari response | ERD: tabel `reminder_schedules` tidak memiliki kolom `updated_at` |
-| 7 | **Response structure — Create/Update** | Data di-wrap dalam objek `reminder` (bukan langsung di `data`) | Konsistensi dengan pattern Properties V2 (`data.property`, `data.block`, `data.unit`) |
-| 8 | **Response structure — Delete** | Dari `{ "data": { "id": "...", "deleted": true } }` menjadi `{ "message": "Reminder deleted successfully" }` | Konsistensi dengan pattern DELETE di Properties V2 |
-| 9 | **SQL — Insert** | `uuid_generate_v4()` → `gen_random_uuid()` | Konsistensi dengan Properties V2 |
-| 10 | **SQL — Update** | Menghapus `SET updated_at = NOW()` | ERD: tabel `reminder_schedules` tidak memiliki kolom `updated_at` |
-| 11 | **SQL — Upcoming Reminders** | Join chain dari `leads → properties` menjadi `leads → units → blocks → properties` | Sesuai relasi ERD |
-| 12 | **SQL — Upcoming Reminders** | Parameter `hours_ahead` digunakan secara dinamis dalam query (bukan hardcode `1 week`) | Koreksi bug: parameter didefinisikan tapi tidak digunakan di SQL |
-| 13 | **Error Code** | `VALIDATION_ERROR` HTTP Status dari `422` → `400` | Konsistensi dengan Properties V2 |
-| 14 | **Document metadata** | Penambahan Document Overview table, API Summary Table, Database Impact Matrix, Changelog | Konsistensi format dengan Properties V2 |
-| 15 | **RBAC** | Menambahkan Data Visibility / Authorization Rules (section 1.1); menerapkan RBAC data-level untuk `GET /dashboard/overview` dan `GET /reminders/upcoming` — Admin/Supervisor aggregate/fetch semua data, Sales hanya data sendiri | Konsistensi dengan API lain (Kanban V2, Leads V2, Pipeline, Analytics) |
+| 1 | **Response structure — Reminders** | `lead.property` changed to `lead.unit.block.property` (nested chain) | ERD: leads relate to `units`, not directly to `properties` |
+| 2 | **Response fields — Reminders** | Removed `property_type` and `price` from response | ERD: `properties` table has neither `property_type` nor `price` columns |
+| 3 | **Response fields — Reminders** | Added `lead.status` and `lead.property_price` | ERD: `leads` has `status` and `property_price` columns relevant for display |
+| 4 | **Response fields — Reminders** | Added `lead.unit.land_area`, `lead.unit.status`, `lead.unit.block.name`, `lead.unit.block.property.city` | Provides full context per ERD hierarchy |
+| 5 | **Response fields — Reminders** | `lead.unit` can be `null` | ERD: `leads.unit_id` is NULLABLE (lead may not have a unit) |
+| 6 | **Response structure — Create/Update** | Removed `updated_at` from response | ERD: `reminder_schedules` table has no `updated_at` column |
+| 7 | **Response structure — Create/Update** | Data wrapped in `reminder` object (not directly in `data`) | Consistent with Properties V2 pattern (`data.property`, `data.block`, `data.unit`) |
+| 8 | **Response structure — Delete** | Changed from `{ "data": { "id": "...", "deleted": true } }` to `{ "message": "Reminder deleted successfully" }` | Consistent with DELETE pattern in Properties V2 |
+| 9 | **SQL — Insert** | `uuid_generate_v4()` → `gen_random_uuid()` | Consistent with Properties V2 |
+| 10 | **SQL — Update** | Removed `SET updated_at = NOW()` | ERD: `reminder_schedules` table has no `updated_at` column |
+| 11 | **SQL — Upcoming Reminders** | Join chain changed from `leads → properties` to `leads → units → blocks → properties` | Per ERD relationships |
+| 12 | **SQL — Upcoming Reminders** | `hours_ahead` parameter used dynamically in query (no longer hardcoded `1 week`) | Bug fix: parameter was defined but not used in SQL |
+| 13 | **Error Code** | `VALIDATION_ERROR` HTTP Status changed from `422` → `400` | Consistent with Properties V2 |
+| 14 | **Document metadata** | Added Document Overview table, API Summary Table, Database Impact Matrix, Changelog | Format consistency with Properties V2 |
+| 15 | **RBAC** | Added Data Visibility / Authorization Rules (section 1.1); implemented data-level RBAC for `GET /dashboard/overview` and `GET /reminders/upcoming` — Admin/Supervisor aggregate/fetch all data, Sales own data only | Consistent with other APIs (Kanban V2, Leads V2, Pipeline, Analytics) |
 
 ---
 

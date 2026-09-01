@@ -2,27 +2,27 @@
 
 ## Overview
 
-API ini digunakan untuk mendapatkan data analytics/metrics untuk dashboard performance sales.
+This API is used to retrieve analytics and metrics data for the sales performance dashboard.
 
 ### Authentication & Authorization
 
-Semua endpoint di bawah ini bersifat **Private**. Setiap request membutuhkan:
+All endpoints below are **Private**. Each request requires:
 
-1. **Authentication:** Header `Authorization: Bearer <token>` (User harus login).
-2. **Authorization:** Hanya user dengan role **`Admin`**, **`Supervisor`**, atau **`Sales`** yang dapat mengakses endpoint ini. Role lain akan menerima error `403 Forbidden`.
-3. **Subscription Check:** User harus memiliki status *active subscription* untuk mengakses endpoint ini. Jika tidak, akan mengembalikan error `401` atau `403` tergantung konfigurasi middleware.
+1. **Authentication:** Header `Authorization: Bearer <token>` (User must be logged in).
+2. **Authorization:** Only users with the **`Admin`**, **`Supervisor`**, or **`Sales`** role can access these endpoints. Other roles will receive a `403 Forbidden` error.
+3. **Subscription Check:** The user must have an *active subscription* status to access these endpoints. Otherwise, a `401` or `403` error is returned depending on the middleware configuration.
 
 ### Role-Based Data Visibility (RBAC)
 
-Data analytics yang dikembalikan dibatasi berdasarkan role user:
+The analytics data returned is restricted based on the user's role:
 
-| Role | Cakupan Data |
+| Role | Data Scope |
 | --- | --- |
-| `Admin` | Melihat statistik **seluruh** lead di sistem (ownership filter dihapus). |
-| `Supervisor` | Melihat statistik **seluruh** lead di sistem (ownership filter dihapus). |
-| `Sales` | Hanya melihat statistik lead yang **ditugaskan kepadanya** (`assigned_to` = user ID). |
+| `Admin` | Views statistics for **all** leads in the system (ownership filter is bypassed). |
+| `Supervisor` | Views statistics for **all** leads in the system (ownership filter is bypassed). |
+| `Sales` | Only views statistics for leads **assigned to them** (`assigned_to` = user ID). |
 
-Implementasi: setiap query menggunakan boolean parameter `is_privileged`. Untuk `Admin`/`Supervisor` bernilai `true` sehingga kondisi `assigned_to` di-bypass; untuk `Sales` bernilai `false` sehingga filter `assigned_to = current_user_id` tetap berlaku.
+Implementation: each query uses a boolean parameter `is_privileged`. For `Admin`/`Supervisor`, it is set to `true`, bypassing the `assigned_to` condition; for `Sales`, it is set to `false`, keeping the `assigned_to = current_user_id` filter in effect.
 
 ---
 
@@ -36,14 +36,14 @@ GET /api/v1/analytics/metrics
 
 ### Description
 
-Mendapatkan metrik konversi dan performance sales secara real-time.
+Retrieves conversion and sales performance metrics in real time.
 
 ### Query Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| period | string | No | Periode waktu: `today`, `week`, `month`, `year` (default: `month`) |
-| compare_with | string | No | Periode pembanding: `previous_period`, `last_year` (default: `previous_period`) |
+| period | string | No | Time period: `today`, `week`, `month`, `year` (default: `month`) |
+| compare_with | string | No | Comparison period: `previous_period`, `last_year` (default: `previous_period`) |
 
 ### Response
 
@@ -153,13 +153,13 @@ GET /api/v1/analytics/funnel
 
 ### Description
 
-Mendapatkan data funnel berdasarkan stage leads. Endpoint ini akan selalu mengembalikan 6 stage utama meskipun count-nya 0.
+Retrieves funnel data based on lead stages. This endpoint always returns the 6 main stages even if their counts are 0.
 
 ### Query Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| period | string | No | Periode waktu: `today`, `week`, `month`, `year` (default: `month`) |
+| period | string | No | Time period: `today`, `week`, `month`, `year` (default: `month`) |
 
 ### Response
 
@@ -221,13 +221,13 @@ GET /api/v1/analytics/trend
 
 ### Description
 
-Mendapatkan data trend closing per bulan untuk beberapa bulan terakhir secara kronologis.
+Retrieves monthly closing trend data for the last several months in chronological order.
 
 ### Query Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| months | integer | No | Jumlah bulan ke belakang (default: 6, max: 12) |
+| months | integer | No | Number of months to look back (default: 6, max: 12) |
 
 ### Response
 
@@ -283,13 +283,13 @@ GET /api/v1/analytics/sources
 
 ### Description
 
-Mendapatkan breakdown lead berdasarkan sumber (source). Jika source kosong/null, akan dikelompokkan menjadi "Other".
+Retrieves lead breakdown by source. If the source is empty or null, it is grouped under "Other".
 
 ### Query Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| period | string | No | Periode waktu: `today`, `week`, `month`, `year` (default: `month`) |
+| period | string | No | Time period: `today`, `week`, `month`, `year` (default: `month`) |
 
 ### Response
 
@@ -310,7 +310,7 @@ Mendapatkan breakdown lead berdasarkan sumber (source). Jika source kosong/null,
 }
 ```
 
-*(Catatan: Warna bersifat dinamis berdasarkan mapping `SOURCE_COLORS` di service, termasuk untuk `landing_page`, `manual`, `visit`, dll).*
+*(Note: Colors are dynamic based on the `SOURCE_COLORS` mapping in the service, including for `landing_page`, `manual`, `visit`, etc.)*
 
 ### Data Sources (Table & Columns)
 
@@ -345,15 +345,15 @@ GET /api/v1/analytics/dashboard
 
 ### Description
 
-Single endpoint untuk mendapatkan semua data analytics sekaligus (metrics, funnel, trend, sources). Endpoint ini menjalankan ke-4 query secara paralel (`Promise.all`).
+A single endpoint that retrieves all analytics data at once (metrics, funnel, trend, sources). This endpoint runs all 4 queries in parallel using `Promise.all`.
 
 ### Query Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| period | string | No | Periode waktu: `today`, `week`, `month`, `year` (default: `month`) |
-| trend_months | integer | No | Jumlah bulan untuk trend (default: 6, max: 12) |
-| data_range_months | integer | No | Jika diberikan, akan **menimpa** logika `period` untuk data Metrics, Funnel, dan Sources. Mengambil data berdasarkan jumlah bulan ke belakang (default: undefined, max: 24) |
+| period | string | No | Time period: `today`, `week`, `month`, `year` (default: `month`) |
+| trend_months | integer | No | Number of months for the trend (default: 6, max: 12) |
+| data_range_months | integer | No | If provided, **overrides** the `period` logic for Metrics, Funnel, and Sources data. Fetches data based on the specified number of months looking back (default: undefined, max: 24) |
 
 ### Response
 
@@ -388,22 +388,22 @@ Single endpoint untuk mendapatkan semua data analytics sekaligus (metrics, funne
 
 ### 400 Bad Request
 
-Terjadi saat parameter query tidak sesuai validasi.
+Returned when query parameters fail validation.
 
 ```json
-// Contoh: Period tidak valid
+// Example: Invalid period
 {
   "success": false,
   "error": "Invalid period parameter. Allowed: today, week, month, year"
 }
 
-// Contoh: Trend months di luar jangkauan
+// Example: Trend months out of range
 {
   "success": false,
   "error": "Months parameter must be between 1 and 12"
 }
 
-// Contoh: Data range months di luar jangkauan
+// Example: Data range months out of range
 {
   "success": false,
   "error": "Data range months parameter must be between 1 and 24"
@@ -412,7 +412,7 @@ Terjadi saat parameter query tidak sesuai validasi.
 
 ### 401 Unauthorized
 
-Terjadi saat token tidak diberikan, tidak valid, atau user tidak memiliki subscription aktif (berdasarkan middleware `authenticate` dan `subscriptionCheck`).
+Returned when the token is missing, invalid, or the user does not have an active subscription (based on the `authenticate` and `subscriptionCheck` middleware).
 
 ```json
 {
@@ -423,7 +423,7 @@ Terjadi saat token tidak diberikan, tidak valid, atau user tidak memiliki subscr
 
 ### 403 Forbidden
 
-Terjadi saat user tidak memiliki role yang diizinkan (`Admin`, `Supervisor`, atau `Sales`).
+Returned when the user does not have an authorized role (`Admin`, `Supervisor`, or `Sales`).
 
 ```json
 {
@@ -434,7 +434,7 @@ Terjadi saat user tidak memiliki role yang diizinkan (`Admin`, `Supervisor`, ata
 
 ### 404 Not Found
 
-Terjadi saat ID User dari token tidak ditemukan di database.
+Returned when the user ID from the token is not found in the database.
 
 ```json
 {
@@ -445,7 +445,7 @@ Terjadi saat ID User dari token tidak ditemukan di database.
 
 ### 500 Internal Server Error
 
-Terjadi saat terjadi error di logic database atau kesalahan server lainnya.
+Returned when a database logic error or other server error occurs.
 
 ```json
 {

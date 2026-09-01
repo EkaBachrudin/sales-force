@@ -111,16 +111,16 @@ GET /api/v1/leads?page=1&limit=50&status=new&search=budi&start_date=2025-01-12&e
 | `leads[].phone` | `leads` | `phone` | Direct mapping. |
 | `leads[].status` | `leads` | `status` | Direct mapping (Enum / String). |
 | `leads[].source` | `leads` | `source` | Direct mapping (Enum / String). |
-| `leads[].property` | — | — | Object wrapper. `null`/`undefined` jika `property_id` kosong. |
-| `leads[].property.id` | `properties` | `id` | Diambil via `LEFT JOIN` menggunakan `l.property_id = p.id`. |
-| `leads[].property.name` | `properties` | `name` | Diambil via `LEFT JOIN` menggunakan `l.property_id = p.id`. |
+| `leads[].property` | — | — | Object wrapper. `null`/`undefined` if `property_id` is empty. |
+| `leads[].property.id` | `properties` | `id` | Retrieved via `LEFT JOIN` using `l.property_id = p.id`. |
+| `leads[].property.name` | `properties` | `name` | Retrieved via `LEFT JOIN` using `l.property_id = p.id`. |
 | `leads[].created_at` | `leads` | `created_at` | Direct mapping (Timestamp ISO). |
 | `leads[].updated_at` | `leads` | `updated_at` | Direct mapping (Timestamp ISO). |
-| **`pagination`** | — | — | *Object untuk kontrol halaman data* |
-| `pagination.page` | — | — | Berasal dari query parameter input (default: `1`). |
-| `pagination.limit` | — | — | Berasal dari query parameter input (default: `50`). |
-| `pagination.total` | — | — | Hasil agregasi dari query `SELECT COUNT(DISTINCT l.id)`. |
-| `pagination.pages` | — | — | Kalkulasi matematika: `Math.ceil(total / limit)`. |
+| **`pagination`** | — | — | *Object for pagination control* |
+| `pagination.page` | — | — | Derived from input query parameter (default: `1`). |
+| `pagination.limit` | — | — | Derived from input query parameter (default: `50`). |
+| `pagination.total` | — | — | Result of aggregating query `SELECT COUNT(DISTINCT l.id)`. |
+| `pagination.pages` | — | — | Mathematical calculation: `Math.ceil(total / limit)`. |
 
 **Database Query**:
 
@@ -152,15 +152,15 @@ SELECT
 FROM leads l
 LEFT JOIN users u ON l.assigned_to = u.id
 LEFT JOIN properties p ON l.property_id = p.id
-WHERE l.assigned_to = $1                              -- Wajib: Filter User ID
-    AND l.created_at >= $2                            -- Wajib: Start Date (Default: 1 tahun lalu)
-    AND l.created_at <= $3                            -- Wajib: End Date (Default: Hari ini)
-    AND l.status = $4                                 -- Opsional: Jika status diisi
-    AND (l.name ILIKE $5 OR l.phone ILIKE $6)         -- Opsional: Jika search diisi (Format: %keyword%)
-    AND l.property_id = $7                            -- Opsional: Jika property_id diisi
-    AND l.source = $8                                 -- Opsional: Jika source diisi
-ORDER BY l.updated_at DESC                            -- Dinamis di kode (Kolom & Order digabung langsung)
-LIMIT $9 OFFSET $10                                   -- Dinamis berdasarkan limit dan offset pagination
+WHERE l.assigned_to = $1                              -- Required: Filter by User ID
+    AND l.created_at >= $2                            -- Required: Start Date (Default: 1 year ago)
+    AND l.created_at <= $3                            -- Required: End Date (Default: Today)
+    AND l.status = $4                                 -- Optional: If status is provided
+    AND (l.name ILIKE $5 OR l.phone ILIKE $6)         -- Optional: If search is provided (Format: %keyword%)
+    AND l.property_id = $7                            -- Optional: If property_id is provided
+    AND l.source = $8                                 -- Optional: If source is provided
+ORDER BY l.updated_at DESC                            -- Dynamically determined in code (Column & Order combined directly)
+LIMIT $9 OFFSET $10                                   -- Dynamically set based on pagination limit and offset
 ```
 
 ---
@@ -287,7 +287,7 @@ LIMIT $9 OFFSET $10                                   -- Dinamis berdasarkan lim
 
 ```sql
 -- 1. Main Lead Detail Query (With Properties and Users JOIN)
--- Menyesuaikan dengan alias kolom dan filter security berdasarkan assigned_to ($2)
+-- Adjusting column aliases and security filter based on assigned_to ($2)
 SELECT
     l.*,
     u.full_name as assigned_to_name,
@@ -303,7 +303,7 @@ LEFT JOIN properties p ON l.property_id = p.id
 WHERE l.id = $1 AND l.assigned_to = $2;
 
 -- 2. Activities Query
--- Mengambil riwayat aktivitas leads beserta nama user yang melakukan aksi
+-- Retrieving lead activity history along with the user who performed the action
 SELECT la.*, u.full_name as user_name
 FROM lead_activities la
 LEFT JOIN users u ON la.user_id = u.id
@@ -311,14 +311,14 @@ WHERE la.lead_id = $1
 ORDER BY la.created_at DESC;
 
 -- 3. WhatsApp Messages Query
--- Mengambil riwayat pesan WA (mencakup kolom message_type dan content sesuai mapping code)
+-- Retrieving WhatsApp message history (including message_type and content columns per code mapping)
 SELECT id, lead_id, message_type, content, sent_at, created_at
 FROM whatsapp_messages
 WHERE lead_id = $1
 ORDER BY sent_at DESC;
 
 -- 4. Reminders Query
--- Mengambil jadwal pengingat yang belum selesai (is_completed = false)
+-- Retrieving incomplete reminder schedules (is_completed = false)
 SELECT id, user_id, lead_id, remind_at, message, is_completed, created_at, updated_at
 FROM reminder_schedules
 WHERE lead_id = $1 AND is_completed = false
@@ -522,33 +522,33 @@ INSERT INTO lead_activities (
 
 | **Field** | **Type** | **Required** | **Database Column** | **Notes** |
 | --- | --- | --- | --- | --- |
-| **name** | string | No | `leads.name` | Opsional untuk pembaruan parsial. |
-| **phone** | string | No | `leads.phone` | Validasi: 10-20 digit angka. |
-| **email** | string | No | `leads.email` | Validasi: format email valid. |
-| **nik** | string | No | `leads.nik` | Validasi: wajib 16 digit. |
-| **npwp** | string | No | `leads.npwp` | Validasi: wajib 15-20 digit. |
-| **source** | string | No | `leads.source` | Contoh: "Facebook Ads", "WhatsApp", dll. |
-| **property_id** | UUID | No | `leads.property_id` | Harus eksis di tabel `properties`. Bisa dikirim `null` untuk mengosongkan nilai. |
-| **budget_range** | object | No | `leads.budget_range` | Format JSONB: `{"min": number, "max": number}`. |
-| **status** | string | No | `leads.status` | Jika berubah dari status lama, otomatis memicu *Activity Log*. |
-| **notes** | string | No | `leads.notes` | Catatan tambahan internal. |
-| **last_followed_up_at** | datetime | No | `leads.last_followed_up_at` | Waktu interaksi terakhir. |
-| **next_follow_up_at** | datetime | No | `leads.next_follow_up_at` | Waktu jadwal follow up berikutnya. |
-| **kpr_simulation** | object | No | - | Objek pembungkus data simulasi KPR. |
+| **name** | string | No | `leads.name` | Optional for partial update. |
+| **phone** | string | No | `leads.phone` | Validation: 10-20 digit numbers. |
+| **email** | string | No | `leads.email` | Validation: valid email format. |
+| **nik** | string | No | `leads.nik` | Validation: must be exactly 16 digits. |
+| **npwp** | string | No | `leads.npwp` | Validation: must be 15-20 digits. |
+| **source** | string | No | `leads.source` | Example: "Facebook Ads", "WhatsApp", etc. |
+| **property_id** | UUID | No | `leads.property_id` | Must exist in the `properties` table. Can send `null` to clear the value. |
+| **budget_range** | object | No | `leads.budget_range` | JSONB format: `{"min": number, "max": number}`. |
+| **status** | string | No | `leads.status` | If changed from old status, automatically triggers *Activity Log*. |
+| **notes** | string | No | `leads.notes` | Internal additional notes. |
+| **last_followed_up_at** | datetime | No | `leads.last_followed_up_at` | Last interaction time. |
+| **next_follow_up_at** | datetime | No | `leads.next_follow_up_at` | Next follow-up schedule time. |
+| **kpr_simulation** | object | No | - | Wrapper object for KPR simulation data. |
 | kpr_simulation.
-property_price | number | No* | `leads.property_price` | *Wajib jika `kpr_simulation` diisi. Nilai harus > 0. |
+property_price | number | No* | `leads.property_price` | *Required if `kpr_simulation` is provided. Value must be > 0. |
 | kpr_simulation.
-down_payment_percentage | number | No* | `leads.down_payment_percentage` | *Wajib jika `kpr_simulation` diisi. Rentang nilai: 1 - 100. |
+down_payment_percentage | number | No* | `leads.down_payment_percentage` | *Required if `kpr_simulation` is provided. Value range: 1 - 100. |
 | kpr_simulation.
-interest_rate | number | No* | `leads.interest_rate` | *Wajib jika `kpr_simulation` diisi. Nilai harus > 0. |
+interest_rate | number | No* | `leads.interest_rate` | *Required if `kpr_simulation` is provided. Value must be > 0. |
 | kpr_simulation.
-loan_term_years | number | No* | `leads.loan_term_years` | *Wajib jika `kpr_simulation` diisi. Pilihan nilai: `5, 10, 15, 20, 25`. |
-| **reminder** | object | No | - | Objek pembungkus data pengingat (*reminder*). |
-| **reminder.id** | UUID | No | `reminder_schedules.id` | Jika diisi / ada nilainya: Update data *reminder* lama.
-Jika kosong/`""`/`null`: Insert data *reminder* baru. |
-| **reminder.remind_at** | datetime | No | `reminder_schedules.remind_at` | Waktu pengingat aktif. |
-| **reminder.message** | string | No | `reminder_schedules.message` | Isi pesan pengingat. |
-| **reminder.is_completed** | boolean | No | `reminder_schedules.is_completed` | Status penyelesaian *reminder*. Default: `false`. |
+loan_term_years | number | No* | `leads.loan_term_years` | *Required if `kpr_simulation` is provided. Allowed values: `5, 10, 15, 20, 25`. |
+| **reminder** | object | No | - | Wrapper object for reminder data. |
+| **reminder.id** | UUID | No | `reminder_schedules.id` | If provided / has a value: Update existing reminder data.
+If empty/`""`/`null`: Insert new reminder data. |
+| **reminder.remind_at** | datetime | No | `reminder_schedules.remind_at` | Reminder trigger time. |
+| **reminder.message** | string | No | `reminder_schedules.message` | Reminder message content. |
+| **reminder.is_completed** | boolean | No | `reminder_schedules.is_completed` | Reminder completion status. Default: `false`. |
 
 *If any kpr_simulation field is provided, all required KPR fields are processed
 
@@ -583,9 +583,9 @@ WHERE id = $1
 RETURNING *;
 ```
 
-1. **Update `reminder_schedules` table** (jika reminder disediakan):
+1. **Update `reminder_schedules` table** (if reminder is provided):
 
-**Jika [reminder.id](http://reminder.id) disediakan (update reminder yang ada)**:
+**If [reminder.id](http://reminder.id) is provided (update existing reminder)**:
 
 ```sql
 UPDATE reminder_schedules SET
@@ -596,7 +596,7 @@ WHERE id = $1
 AND lead_id = $5;
 ```
 
-**Jika [reminder.id](http://reminder.id) null (insert reminder baru)**:
+**If [reminder.id](http://reminder.id) is null (insert new reminder)**:
 
 ```sql
 INSERT INTO reminder_schedules (

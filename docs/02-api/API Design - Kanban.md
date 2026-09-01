@@ -110,11 +110,11 @@ Cookie: auth_token=<httpOnly_cookie>
 | `stages[].name_en` | - | - | Static labels (English) |
 | `stages[].color` | - | - | Static hex colors |
 | `stages[].order` | - | - | Static order 1-6 |
-| `stages[].lead_count` | `leads` | `COUNT(*)` | COUNT filtered by `status` AND `assigned_to` = current_user (ditambah filter `search` jika ada) |
+| `stages[].lead_count` | `leads` | `COUNT(*)` | COUNT filtered by `status` AND `assigned_to` = current_user (+ `search` filter if provided) |
 | `stages[].leads[].id` | `leads` | `id` | Direct mapping |
 | `stages[].leads[].name` | `leads` | `name` | Direct mapping |
-| `stages[].leads[].property_name` | `properties` | `name` | LEFT JOIN dari `properties` via `property_id`, return `undefined` jika null |
-| `stages[].leads[].next_follow_up_at` | `leads` | `next_follow_up_at` | Direct mapping, return `undefined` jika null |
+| `stages[].leads[].property_name` | `properties` | `name` | LEFT JOIN from `properties` via `property_id`, returns `undefined` if null |
+| `stages[].leads[].next_follow_up_at` | `leads` | `next_follow_up_at` | Direct mapping, returns `undefined` if null |
 | `stages[].leads[].created_at` | `leads` | `created_at` | Direct mapping |
 | `stages[].leads[].updated_at` | `leads` | `updated_at` | Direct mapping |
 
@@ -132,9 +132,9 @@ FROM leads l
 LEFT JOIN properties p ON l.property_id = p.id
 WHERE l.status = $1                    -- 'new', 'contacted', 'surveyed', 'negotiating', 'closed', 'cancelled'
   AND l.assigned_to = $2               -- current user ID
-  AND l.name ILIKE $3                  -- optional, hanya jika parameter 'search' diberikan
+  AND l.name ILIKE $3                  -- optional, only when 'search' parameter is provided
 ORDER BY l.updated_at DESC
-LIMIT $4 OFFSET $5;                    -- tanpa search: $3=LIMIT, $4=OFFSET
+LIMIT $4 OFFSET $5;                    -- without search: $3=LIMIT, $4=OFFSET
 ```
 
 ---

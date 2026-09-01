@@ -1,12 +1,10 @@
 # ERD - Dashboard Management
 
-# ERD - Dashboard Management
-
 ---
 
 ## 1. Overview
 
-Dokumen ini berisi **Entity Relationship Diagram (ERD)** lengkap untuk sistem CRM Sales Force Automation menggunakan format Mermaid chart.
+This document contains the complete **Entity Relationship Diagram (ERD)** for the Sales Force Automation CRM system using Mermaid chart format.
 
 ### Database Information
 
@@ -223,17 +221,17 @@ erDiagram
 
 ### 3.1 Roles Table
 
-**Purpose:** Menyimpan data role/hak akses pengguna sistem.
+**Purpose:** Stores role/permission data for system users.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| name | VARCHAR(50) | UNIQUE, NOT NULL | Nama role (Admin, Supervisor, Sales) |
-| description | VARCHAR(255) | NULLABLE | Deskripsi role |
-| permissions | JSONB | DEFAULT ‘{}’ | Daftar permissions role |
-| is_active | BOOLEAN | DEFAULT true | Status aktif role |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu pembuatan |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu terakhir update |
+| name | VARCHAR(50) | UNIQUE, NOT NULL | Role name (Admin, Supervisor, Sales) |
+| description | VARCHAR(255) | NULLABLE | Role description |
+| permissions | JSONB | DEFAULT '{}' | Role permissions list |
+| is_active | BOOLEAN | DEFAULT true | Active status |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
 
 **Default Roles (Seeded):**
 
@@ -245,7 +243,7 @@ erDiagram
 
 **Relationships:**
 
-- One-to-Many dengan **users** (role_id)
+- One-to-Many with **users** (role_id)
 
 **JSONB Structure - permissions:**
 
@@ -259,58 +257,58 @@ erDiagram
 
 ### 3.2 Users (Sales/Agent)
 
-**Purpose:** Menyimpan data sales/agent yang menggunakan sistem.
+**Purpose:** Stores data for sales agents using the system.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| role_id | UUID | FK → roles.id, ON DELETE SET NULL | Reference ke role |
-| full_name | VARCHAR(100) | NOT NULL | Nama lengkap sales |
-| email | VARCHAR(255) | UNIQUE, NOT NULL | Email untuk login |
-| phone | VARCHAR(20) | NULLABLE | Nomor telepon sales |
-| password_hash | VARCHAR(255) | NOT NULL | Password yang di-hash (bcrypt) |
-| is_active | BOOLEAN | DEFAULT true | Status aktif/non-aktif |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu pembuatan akun |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu terakhir update |
+| role_id | UUID | FK → roles.id, ON DELETE SET NULL | Role reference |
+| full_name | VARCHAR(100) | NOT NULL | Sales agent full name |
+| email | VARCHAR(255) | UNIQUE, NOT NULL | Login email |
+| phone | VARCHAR(20) | NULLABLE | Sales agent phone number |
+| password_hash | VARCHAR(255) | NOT NULL | Hashed password (bcrypt) |
+| is_active | BOOLEAN | DEFAULT true | Active/inactive status |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Account creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
 
 **Constraints:**
 
-- Email harus unique untuk setiap user
-- Email harus format valid: `^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$`
-- Password disimpan dalam bentuk hash
-- Soft delete menggunakan `is_active`
-- User yang sudah ada otomatis di-assign ke role ‘Sales’ saat migration
+- Email must be unique for each user
+- Email must be in valid format: `^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$`
+- Passwords are stored as hashes
+- Soft delete using `is_active`
+- Existing users are automatically assigned to 'Sales' role during migration
 
 **Relationships:**
 
-- Many-to-One dengan **roles** (role_id)
-- One-to-Many dengan **properties** (assigned_to)
-- One-to-Many dengan **leads** (assigned_to)
-- One-to-Many dengan **lead_activities** (user_id)
-- One-to-Many dengan **whatsapp_messages** (user_id)
-- One-to-Many dengan **reminder_schedules** (user_id)
-- One-to-Many dengan **user_sessions** (user_id)
-- One-to-Many dengan **revoked_tokens** (user_id)
-- One-to-Many dengan **subscriptions** (user_id)
+- Many-to-One with **roles** (role_id)
+- One-to-Many with **properties** (assigned_to)
+- One-to-Many with **leads** (assigned_to)
+- One-to-Many with **lead_activities** (user_id)
+- One-to-Many with **whatsapp_messages** (user_id)
+- One-to-Many with **reminder_schedules** (user_id)
+- One-to-Many with **user_sessions** (user_id)
+- One-to-Many with **revoked_tokens** (user_id)
+- One-to-Many with **subscriptions** (user_id)
 
 ---
 
 ### 3.3 User Sessions Table
 
-**Purpose:** Menyimpan sesi aktif user untuk implementasi refresh token rotation dan session activity tracking.
+**Purpose:** Stores active user sessions for refresh token rotation and session activity tracking.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | Reference ke user |
-| refresh_token_hash | VARCHAR(255) | UNIQUE, NOT NULL | Hash dari refresh token |
-| device_info | JSONB | NULLABLE | Info device (type, OS, browser) |
-| ip_address | INET | NULLABLE | IP address saat login |
+| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | User reference |
+| refresh_token_hash | VARCHAR(255) | UNIQUE, NOT NULL | Refresh token hash |
+| device_info | JSONB | NULLABLE | Device info (type, OS, browser) |
+| ip_address | INET | NULLABLE | Login IP address |
 | user_agent | TEXT | NULLABLE | User agent string |
-| is_active | BOOLEAN | DEFAULT true | Status session aktif/non-aktif |
-| expires_at | TIMESTAMPTZ | NOT NULL | Expiry time refresh token (7 hari) |
-| last_activity_at | TIMESTAMPTZ | DEFAULT NOW() | Tracking activity terakhir |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu session dibuat |
+| is_active | BOOLEAN | DEFAULT true | Session active/inactive status |
+| expires_at | TIMESTAMPTZ | NOT NULL | Refresh token expiry (7 days) |
+| last_activity_at | TIMESTAMPTZ | DEFAULT NOW() | Last activity tracking |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Session creation timestamp |
 
 **JSONB Structure - device_info:**
 
@@ -323,159 +321,159 @@ erDiagram
 ```
 
 **Note:**
-- Single device login dihandle pada application layer dengan menonaktifkan session lama saat login baru
-- Session cleanup dilakukan secara periodik untuk menghapus session yang sudah expired
+- Single device login is handled at the application layer by deactivating previous sessions on new login
+- Session cleanup runs periodically to remove expired sessions
 
 ---
 
 ### 3.4 Revoked Tokens Table
 
-**Purpose:** Blacklist JWT yang di-revoke sebelum expiry (untuk keamanan).
+**Purpose:** Blacklist for JWT tokens revoked before expiry (for security).
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| jti | VARCHAR(255) | UNIQUE, NOT NULL | JWT ID dari token yang di-revoke |
-| user_id | UUID | FK → users.id, ON DELETE CASCADE | Reference ke user |
-| revoked_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu token di-revoke |
-| expires_at | TIMESTAMPTZ | NOT NULL | Expiry time original JWT |
+| jti | VARCHAR(255) | UNIQUE, NOT NULL | JWT ID of revoked token |
+| user_id | UUID | FK → users.id, ON DELETE CASCADE | User reference |
+| revoked_at | TIMESTAMPTZ | DEFAULT NOW() | Token revocation timestamp |
+| expires_at | TIMESTAMPTZ | NOT NULL | Original JWT expiry time |
 
 **Note:**
-- `user_id` nullable untuk mendukung revoked token dari user yang sudah dihapus
-- Token yang sudah melewati `expires_at` bisa dihapus via cleanup job
+- `user_id` is nullable to support revoked tokens from deleted users
+- Tokens past `expires_at` can be removed via cleanup job
 
 ---
 
-### 3.5 Properties (Katalog Properti/Cluster)
+### 3.5 Properties (Property/Cluster Catalog)
 
-**Purpose:** Menyimpan data induk properti atau cluster perumahan. Setiap properti wajib di-assign ke sales tertentu. Detail spesifik rumah ada di level `units`.
+**Purpose:** Stores master property or cluster data. Each property must be assigned to a specific sales agent. Specific unit details are at the `units` level.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| assigned_to | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | Sales yang menangani properti ini |
-| name | VARCHAR(255) | NOT NULL | Nama properti/cluster (contoh: Grand Permata Residence) |
-| city | VARCHAR(100) | NOT NULL | Kota lokasi properti |
-| land_area | NUMERIC(10,2) | NULLABLE | Total luas tanah keseluruhan (m²) |
-| address | TEXT | NULLABLE | Alamat lengkap properti |
-| description | TEXT | NULLABLE | Deskripsi umum properti |
-| siteplan_assets | VARCHAR(500) | NULLABLE | URL atau path file gambar siteplan |
-| is_active | BOOLEAN | DEFAULT true | Status aktif properti |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu pembuatan |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu terakhir update |
+| assigned_to | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | Sales agent assigned to property |
+| name | VARCHAR(255) | NOT NULL | Property/cluster name (e.g., Grand Permata Residence) |
+| city | VARCHAR(100) | NOT NULL | Property location city |
+| land_area | NUMERIC(10,2) | NULLABLE | Total land area (m²) |
+| address | TEXT | NULLABLE | Full property address |
+| description | TEXT | NULLABLE | General property description |
+| siteplan_assets | VARCHAR(500) | NULLABLE | Siteplan image URL or file path |
+| is_active | BOOLEAN | DEFAULT true | Active property status |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
 
 **Relationships:**
 
-- Many-to-One dengan **users** (assigned_to)
-- One-to-Many dengan **blocks** (property_id)
+- Many-to-One with **users** (assigned_to)
+- One-to-Many with **blocks** (property_id)
 
 ---
 
-### 3.6 Blocks (Blok/Cluster di dalam Properti)
+### 3.6 Blocks (Block/Cluster within Property)
 
-**Purpose:** Menyimpan data pengelompokan unit di dalam sebuah properti (contoh: Block A, Block B).
+**Purpose:** Stores unit grouping data within a property (e.g., Block A, Block B).
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| property_id | UUID | FK → properties.id, NOT NULL, ON DELETE CASCADE | Property induk |
-| name | VARCHAR(100) | NOT NULL | Nama block (contoh: Block Anggrek, Block A) |
-| is_active | BOOLEAN | DEFAULT true | Status aktif block |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu pembuatan |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu terakhir update |
+| property_id | UUID | FK → properties.id, NOT NULL, ON DELETE CASCADE | Parent property |
+| name | VARCHAR(100) | NOT NULL | Block name (e.g., Block Anggrek, Block A) |
+| is_active | BOOLEAN | DEFAULT true | Active block status |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
 
 **Constraints:**
 
-- Unique constraint: `(property_id, name)` - nama block harus unik di dalam satu properti.
+- Unique constraint: `(property_id, name)` - block name must be unique within a property.
 
 **Relationships:**
 
-- Many-to-One dengan **properties** (property_id)
-- One-to-Many dengan **units** (block_id)
+- Many-to-One with **properties** (property_id)
+- One-to-Many with **units** (block_id)
 
 ---
 
-### 3.7 Units (Unit Rumah Spesifik)
+### 3.7 Units (Specific Property Units)
 
-**Purpose:** Menyimpan data unit spesifik yang dijual. Status unit dikontrol otomatis oleh trigger berdasarkan status lead yang terkait.
+**Purpose:** Stores specific units for sale. Unit status is automatically controlled by triggers based on associated lead status.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| block_id | UUID | FK → blocks.id, NOT NULL, ON DELETE CASCADE | Block induk |
-| name | VARCHAR(100) | NOT NULL | Nama unit (contoh: A-1, A-2) |
-| land_area | NUMERIC(10,2) | NULLABLE | Luas tanah unit spesifik (m²) |
-| status | VARCHAR(20) | DEFAULT ‘available’ | Status ketersediaan unit |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu pembuatan |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu terakhir update |
+| block_id | UUID | FK → blocks.id, NOT NULL, ON DELETE CASCADE | Parent block |
+| name | VARCHAR(100) | NOT NULL | Unit name (e.g., A-1, A-2) |
+| land_area | NUMERIC(10,2) | NULLABLE | Specific unit land area (m²) |
+| status | VARCHAR(20) | DEFAULT 'available' | Unit availability status |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
 
 **Unit Status Values:**
 
-| Value | Description | Pemicu Otomatis dari Lead |
+| Value | Description | Automatic Trigger from Lead |
 | --- | --- | --- |
-| `available` | Unit tersedia untuk dijual | Lead di-cancel / tidak ada lead aktif |
-| `reserved` | Unit sedang diproses / dinegosiasi | Lead status: *new, contacted, surveyed, negotiating* |
-| `booked` | Unit sudah dibayar booking fee | Lead status: *booked* |
-| `sold` | Unit sudah terjual akad | Lead status: *closed* |
+| `available` | Unit available for sale | Lead cancelled / no active lead |
+| `reserved` | Unit under processing/negotiation | Lead status: *new, contacted, surveyed, negotiating* |
+| `booked` | Unit paid booking fee | Lead status: *booked* |
+| `sold` | Unit sold (contract signed) | Lead status: *closed* |
 
 **Constraints:**
 
-- Unique constraint: `(block_id, name)` - nama unit harus unik di dalam satu block.
+- Unique constraint: `(block_id, name)` - unit name must be unique within a block.
 - CHECK constraint: `status IN ('available', 'reserved', 'booked', 'sold')`
 
 **Relationships:**
 
-- Many-to-One dengan **blocks** (block_id)
-- One-to-Many dengan **leads** (unit_id)
+- Many-to-One with **blocks** (block_id)
+- One-to-Many with **leads** (unit_id)
 
 **Unit to Lead status:**
 
 ```jsx
-Lead Status          │  Unit Status   │  Alasan
+Lead Status          │  Unit Status   │  Reason
 ─────────────────────┼────────────────┼──────────────────────────────────
-NEW                  │  RESERVED      │  Minat awal, tandai unit
-CONTACTED            │  RESERVED      │  Komunikasi awal
-SURVEYED             │  RESERVED      │  Sudah lihat lokasi
-NEGOTIATING          │  RESERVED      │  Masih negosiasi, belum bayar
-BOOKED               │  BOOKED        │  Sudah bayar booking fee
-CLOSED               │  SOLD          │  Akad selesai
-CANCELLED            │  AVAILABLE*    │  Kembali tersedia
+NEW                  │  RESERVED      │  Initial interest, mark unit
+CONTACTED            │  RESERVED      │  Initial communication
+SURVEYED             │  RESERVED      │  Site visit completed
+NEGOTIATING          │  RESERVED      │  Still negotiating, no payment yet
+BOOKED               │  BOOKED        │  Booking fee paid
+CLOSED               │  SOLD          │  Contract completed
+CANCELLED            │  AVAILABLE*    │  Available again
 ```
 
 ---
 
 ### 3.8 Leads (Prospects/Customers)
 
-**Purpose:** Menyimpan data calon pembeli (leads). Leads sekarang berelasi langsung dengan `units`, bukan `properties`.
+**Purpose:** Stores prospect/customer data. Leads now relate directly to `units`, not `properties`.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| assigned_to | UUID | FK → users.id, ON DELETE SET NULL | Sales yang bertanggung jawab |
-| unit_id | UUID | FK → units.id, ON DELETE SET NULL | Unit spesifik yang diminati |
-| name | VARCHAR(100) | NOT NULL | Nama calon pembeli |
-| nik | VARCHAR(16) | CHECK: 16 digit angka | Nomor NIK |
-| npwp | VARCHAR(20) | CHECK: 15-20 digit angka | Nomor NPWP |
-| phone | VARCHAR(20) | NOT NULL, CHECK: 10-20 digit angka | Nomor WhatsApp/HP |
-| email | VARCHAR(255) | NULLABLE | Email calon pembeli |
-| source | VARCHAR(50) | DEFAULT ‘Visit’ | Sumber lead |
-| budget_range | JSONB | NULLABLE | Range budget {min, max} |
-| property_price | NUMERIC(15,2) | NULLABLE | Harga properti |
-| down_payment | NUMERIC(15,2) | NULLABLE | Jumlah DP dalam rupiah |
-| down_payment_percentage | NUMERIC(5,2) | CHECK: 1-100% | Persentase DP |
-| interest_rate | NUMERIC(5,2) | DEFAULT 5.5, CHECK: > 0 | Suku bunga KPR |
-| loan_term_years | INTEGER | DEFAULT 15, CHECK: 5,10,15,20,25 | Tenor pinjaman (tahun) |
-| estimated_monthly_payment | NUMERIC(15,2) | NULLABLE | Estimasi cicilan per bulan |
-| status | VARCHAR(50) | only: `new`, `contacted`, `surveyed`, `negotiating`, `booked`, `closed`, `cancelled` | Status proses lead |
-| notes | TEXT | NULLABLE | Catatan tambahan |
-| last_followed_up_at | TIMESTAMPTZ | NULLABLE | Waktu terakhir follow-up |
-| next_follow_up_at | TIMESTAMPTZ | NULLABLE | Jadwal follow-up berikutnya |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu lead dibuat |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu terakhir update |
+| assigned_to | UUID | FK → users.id, ON DELETE SET NULL | Responsible sales agent |
+| unit_id | UUID | FK → units.id, ON DELETE SET NULL | Interested specific unit |
+| name | VARCHAR(100) | NOT NULL | Prospect name |
+| nik | VARCHAR(16) | CHECK: 16 digit numbers | NIK number |
+| npwp | VARCHAR(20) | CHECK: 15-20 digit numbers | NPWP number |
+| phone | VARCHAR(20) | NOT NULL, CHECK: 10-20 digit numbers | WhatsApp/phone number |
+| email | VARCHAR(255) | NULLABLE | Prospect email |
+| source | VARCHAR(50) | DEFAULT 'Visit' | Lead source |
+| budget_range | JSONB | NULLABLE | Budget range {min, max} |
+| property_price | NUMERIC(15,2) | NULLABLE | Property price |
+| down_payment | NUMERIC(15,2) | NULLABLE | Down payment amount in rupiah |
+| down_payment_percentage | NUMERIC(5,2) | CHECK: 1-100% | Down payment percentage |
+| interest_rate | NUMERIC(5,2) | DEFAULT 5.5, CHECK: > 0 | Mortgage interest rate |
+| loan_term_years | INTEGER | DEFAULT 15, CHECK: 5,10,15,20,25 | Loan term (years) |
+| estimated_monthly_payment | NUMERIC(15,2) | NULLABLE | Estimated monthly payment |
+| status | VARCHAR(50) | only: `new`, `contacted`, `surveyed`, `negotiating`, `booked`, `closed`, `cancelled` | Lead process status |
+| notes | TEXT | NULLABLE | Additional notes |
+| last_followed_up_at | TIMESTAMPTZ | NULLABLE | Last follow-up timestamp |
+| next_follow_up_at | TIMESTAMPTZ | NULLABLE | Next follow-up schedule |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Lead creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
 
 **Constraints Detail:**
 
-- `status` hanya boleh: `new`, `contacted`, `surveyed`, `negotiating`, `booked`, `closed`, `cancelled`
+- `status` must be one of: `new`, `contacted`, `surveyed`, `negotiating`, `booked`, `closed`, `cancelled`
 
 **Status Flow:**
 
@@ -486,11 +484,11 @@ new → contacted → surveyed → negotiating → booked → closed
 
 **Relationships:**
 
-- Many-to-One dengan **users** (assigned_to)
-- Many-to-One dengan **units** (unit_id)
-- One-to-Many dengan **lead_activities** (lead_id)
-- One-to-Many dengan **whatsapp_messages** (lead_id)
-- One-to-Many dengan **reminder_schedules** (lead_id)
+- Many-to-One with **users** (assigned_to)
+- Many-to-One with **units** (unit_id)
+- One-to-Many with **lead_activities** (lead_id)
+- One-to-Many with **whatsapp_messages** (lead_id)
+- One-to-Many with **reminder_schedules** (lead_id)
 
 **JSONB Structure - budget_range:**
 
@@ -505,128 +503,128 @@ new → contacted → surveyed → negotiating → booked → closed
 
 ### 3.9 Lead Activities Table
 
-**Purpose:** Audit trail & history untuk semua aktivitas yang terjadi pada lead.
+**Purpose:** Audit trail & history for all activities related to leads.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| lead_id | UUID | FK → leads.id, NOT NULL, ON DELETE CASCADE | Reference ke lead |
-| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | User yang melakukan aktivitas |
-| activity_type | VARCHAR(50) | NOT NULL, CHECK: status_change, note_added, call, whatsapp | Tipe aktivitas |
-| old_status | VARCHAR(50) | CHECK: new, contacted, surveyed, negotiating, closed, cancelled | Status sebelumnya |
-| new_status | VARCHAR(50) | CHECK: new, contacted, surveyed, negotiating, closed, cancelled | Status setelahnya |
-| notes | TEXT | NULLABLE | Catatan aktivitas |
-| metadata | JSONB | NULLABLE | Data tambahan |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu aktivitas dibuat |
+| lead_id | UUID | FK → leads.id, NOT NULL, ON DELETE CASCADE | Lead reference |
+| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | User who performed activity |
+| activity_type | VARCHAR(50) | NOT NULL, CHECK: status_change, note_added, call, whatsapp | Activity type |
+| old_status | VARCHAR(50) | CHECK: new, contacted, surveyed, negotiating, closed, cancelled | Previous status |
+| new_status | VARCHAR(50) | CHECK: new, contacted, surveyed, negotiating, closed, cancelled | New status |
+| notes | TEXT | NULLABLE | Activity notes |
+| metadata | JSONB | NULLABLE | Additional data |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Activity creation timestamp |
 
 **Activity Type Values:**
 
 | Value | Description |
 | --- | --- |
-| status_change | Perubahan status lead |
-| note_added | Penambahan catatan |
-| call | Panggilan telepon |
-| whatsapp | Aktivitas WhatsApp |
+| status_change | Lead status change |
+| note_added | Note added |
+| call | Phone call |
+| whatsapp | WhatsApp activity |
 
 **Relationships:**
 
-- Many-to-One dengan **leads** (lead_id)
-- Many-to-One dengan **users** (user_id)
+- Many-to-One with **leads** (lead_id)
+- Many-to-One with **users** (user_id)
 
 ---
 
 ### 3.10 WhatsApp Messages Table
 
-**Purpose:** Menyimpan log pesan WhatsApp untuk komunikasi dengan leads.
+**Purpose:** Stores WhatsApp message logs for lead communication.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| lead_id | UUID | FK → leads.id, NOT NULL, ON DELETE CASCADE | Reference ke lead |
-| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | User yang mengirim/menerima |
-| direction | VARCHAR(20) | NOT NULL, CHECK: incoming, outgoing | Arah pesan |
-| message_text | TEXT | NOT NULL | Isi pesan |
-| message_id | VARCHAR(255) | NULLABLE | ID pesan dari WhatsApp API |
-| status | VARCHAR(50) | DEFAULT ‘sent’, CHECK: sent, delivered, read, failed | Status pengiriman |
-| sent_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu pesan dikirim |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu record dibuat |
+| lead_id | UUID | FK → leads.id, NOT NULL, ON DELETE CASCADE | Lead reference |
+| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | Sending/receiving user |
+| direction | VARCHAR(20) | NOT NULL, CHECK: incoming, outgoing | Message direction |
+| message_text | TEXT | NOT NULL | Message content |
+| message_id | VARCHAR(255) | NULLABLE | Message ID from WhatsApp API |
+| status | VARCHAR(50) | DEFAULT 'sent', CHECK: sent, delivered, read, failed | Delivery status |
+| sent_at | TIMESTAMPTZ | DEFAULT NOW() | Message send timestamp |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Record creation timestamp |
 
 **Direction Values:**
 
 | Value | Description |
 | --- | --- |
-| incoming | Pesan dari lead |
-| outgoing | Pesan dari sales |
+| incoming | Message from lead |
+| outgoing | Message from sales agent |
 
 **Status Values:**
 
 | Value | Description |
 | --- | --- |
-| sent | Pesan terkirim ke server |
-| delivered | Pesan diterima di perangkat |
-| read | Pesan sudah dibaca |
-| failed | Gagal mengirim |
+| sent | Message sent to server |
+| delivered | Message received on device |
+| read | Message read |
+| failed | Send failed |
 
 **Relationships:**
 
-- Many-to-One dengan **leads** (lead_id)
-- Many-to-One dengan **users** (user_id)
+- Many-to-One with **leads** (lead_id)
+- Many-to-One with **users** (user_id)
 
 ---
 
 ### 3.11 Reminder Schedules Table
 
-**Purpose:** Menyimpan jadwal follow-up reminder untuk sales.
+**Purpose:** Stores follow-up reminder schedules for sales agents.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | Sales yang memiliki reminder |
-| lead_id | UUID | FK → leads.id, NOT NULL, ON DELETE CASCADE | Lead yang akan di-follow up |
-| remind_at | TIMESTAMPTZ | NOT NULL | Waktu reminder |
-| message | TEXT | NULLABLE | Pesan/konteks reminder |
-| is_completed | BOOLEAN | DEFAULT false | Status selesai |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu reminder dibuat |
+| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | Sales agent with reminder |
+| lead_id | UUID | FK → leads.id, NOT NULL, ON DELETE CASCADE | Lead to follow up |
+| remind_at | TIMESTAMPTZ | NOT NULL | Reminder timestamp |
+| message | TEXT | NULLABLE | Reminder message/context |
+| is_completed | BOOLEAN | DEFAULT false | Completion status |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Reminder creation timestamp |
 
 **Relationships:**
 
-- Many-to-One dengan **users** (user_id)
-- Many-to-One dengan **leads** (lead_id)
+- Many-to-One with **users** (user_id)
+- Many-to-One with **leads** (lead_id)
 
 ---
 
 ### 3.12 Subscriptions Table
 
-**Purpose:** Menyimpan data subscription user untuk akses sistem.
+**Purpose:** Stores user subscription data for system access.
 
 | Column | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | UUID | PRIMARY KEY | Unique identifier |
-| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | Reference ke user |
-| subscription_type | VARCHAR(50) | NOT NULL, CHECK: monthly, quarterly, annual | Tipe subscription |
-| amount | NUMERIC(15,2) | NOT NULL, CHECK: >= 0 | Jumlah pembayaran |
-| period_start | TIMESTAMPTZ | NULLABLE | Mulai periode subscription |
-| period_end | TIMESTAMPTZ | NULLABLE | Akhir periode subscription |
-| due_date | TIMESTAMPTZ | NOT NULL | Tanggal jatuh tempo |
-| status | VARCHAR(50) | DEFAULT ‘pending’, CHECK: pending, active, overdue, cancelled | Status subscription |
-| notes | TEXT | NULLABLE | Catatan subscription |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu pembuatan |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Waktu terakhir update |
+| user_id | UUID | FK → users.id, NOT NULL, ON DELETE CASCADE | User reference |
+| subscription_type | VARCHAR(50) | NOT NULL, CHECK: monthly, quarterly, annual | Subscription type |
+| amount | NUMERIC(15,2) | NOT NULL, CHECK: >= 0 | Payment amount |
+| period_start | TIMESTAMPTZ | NULLABLE | Subscription period start |
+| period_end | TIMESTAMPTZ | NULLABLE | Subscription period end |
+| due_date | TIMESTAMPTZ | NOT NULL | Due date |
+| status | VARCHAR(50) | DEFAULT 'pending', CHECK: pending, active, overdue, cancelled | Subscription status |
+| notes | TEXT | NULLABLE | Subscription notes |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
 
 **Constraints:**
 
-- `subscription_type` hanya boleh: `monthly`, `quarterly`, `annual`
-- `status` hanya boleh: `pending`, `active`, `overdue`, `cancelled`
-- `amount` harus >= 0
-- Jika `period_start` dan `period_end` keduanya terisi, maka `period_end` harus > `period_start`
+- `subscription_type` must be one of: `monthly`, `quarterly`, `annual`
+- `status` must be one of: `pending`, `active`, `overdue`, `cancelled`
+- `amount` must be >= 0
+- If both `period_start` and `period_end` are provided, `period_end` must be > `period_start`
 
 **Subscription Types & Periods:**
 
 | subscription_type | Period | Description |
 | --- | --- | --- |
-| monthly | 1 bulan | Pembayaran per bulan |
-| quarterly | 3 bulan | Pembayaran per 3 bulan |
-| annual | 12 bulan | Pembayaran per tahun |
+| monthly | 1 month | Monthly payment |
+| quarterly | 3 months | Quarterly payment |
+| annual | 12 months | Annual payment |
 
 **Status Flow:**
 
@@ -640,14 +638,14 @@ pending → active → (renewal) → pending
 
 **Business Rules:**
 
-- Satu user bisa memiliki multiple subscription records (history)
-- `period_start` dan `period_end` nullable untuk mendukung fleksibilitas saat pembuatan awal
-- Jika `due_date` < NOW() dan status masih ‘pending’, otomatis jadi ‘overdue’ (via background job)
-- User dengan status ‘overdue’ tidak bisa mengakses fitur tertentu
+- A user can have multiple subscription records (history)
+- `period_start` and `period_end` are nullable to support flexibility during initial creation
+- If `due_date` < NOW() and status is still 'pending', automatically becomes 'overdue' (via background job)
+- Users with 'overdue' status cannot access certain features
 
 **Relationships:**
 
-- Many-to-One dengan **users** (user_id)
+- Many-to-One with **users** (user_id)
 
 ---
 
@@ -718,11 +716,11 @@ ON DELETE: SET NULL
 
 **Business Rule:**
 
-- Lead langsung memilih **unit spesifik** (bukan properti umum).
-- Satu unit boleh memiliki **banyak lead aktif** sekaligus.
-- Saat salah satu lead berstatus `booked`, lead lain di unit tersebut akan di-unassign (unit diklaim eksklusif oleh lead `booked`); unit tidak bisa di-assign lead baru selama masih ada lead `booked`.
-- Jika unit dihapus, `unit_id` di lead menjadi NULL.
-- Perubahan status lead akan **mengubah status unit secara otomatis** via Database Trigger.
+- Lead directly selects a **specific unit** (not a general property).
+- One unit can have **multiple active leads** simultaneously.
+- When one lead reaches `booked` status, other leads on that unit are unassigned (unit exclusively claimed by `booked` lead); no new leads can be assigned while a `booked` lead exists.
+- If a unit is deleted, `unit_id` on leads becomes NULL.
+- Lead status changes **automatically update unit status** via Database Trigger.
 
 ### 4.5 Users ↔︎ Leads (One-to-Many)
 
@@ -746,8 +744,8 @@ ON DELETE: SET NULL
 
 | Extension | Purpose |
 | --- | --- |
-| uuid-ossp | Generate UUID v4 untuk primary keys |
-| btree_gist | Support untuk GiST index (digunakan jika ingin implementasi EXCLUDE constraint di masa depan) |
+| uuid-ossp | Generate UUID v4 for primary keys |
+| btree_gist | Support for GiST index (used if EXCLUDE constraint implementation is needed in the future) |
 
 ---
 
