@@ -1,7 +1,7 @@
 @reference "../../index.css";
 
 .sidebar {
-  @apply fixed top-0 h-screen bg-white border-r border-border transition-all duration-300 z-40 lg:z-20 lg:translate-x-0 w-64 lg:w-64;
+  @apply fixed top-0 h-screen flex flex-col bg-white border-r border-border transition-all duration-300 z-40 lg:z-20 lg:translate-x-0 w-64 lg:w-64 overflow-hidden;
 }
 .sidebar--collapsed {
   @apply lg:w-20;
@@ -11,23 +11,29 @@
 }
 
 .sidebar__logo {
-  @apply h-20 flex items-center justify-center px-4;
+  @apply h-20 shrink-0 flex items-center justify-between px-4;
+}
+.sidebar__logo--collapsed {
+  @apply lg:flex-col lg:justify-center lg:gap-2;
+}
+.sidebar__logo--collapsed .sidebar__logo-img {
+  @apply lg:h-10;
 }
 .sidebar__logo-link {
-  @apply flex items-center gap-2 mt-3;
+  @apply flex items-center gap-2;
 }
 .sidebar__logo-img {
   @apply h-14;
 }
 .sidebar__close {
-  @apply lg:hidden p-1.5 rounded-lg hover:bg-neutral-soft transition-colors;
+  @apply lg:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-neutral-soft transition-colors;
 }
 .sidebar__close-icon {
   @apply w-5 h-5 text-text-secondary;
 }
 
 .sidebar__nav {
-  @apply py-4 pr-4 pl-6 space-y-1;
+  @apply flex-1 min-h-0 overflow-y-auto py-4 pr-4 pl-6 space-y-1;
 }
 .sidebar__nav--collapsed {
   @apply p-4 space-y-1;
@@ -52,14 +58,14 @@
   @apply w-5 h-5 flex-shrink-0;
 }
 .sidebar__link-label {
-  @apply font-medium;
+  @apply font-medium whitespace-nowrap;
 }
 .sidebar__link-badge {
   @apply ml-auto bg-danger text-white text-xs font-medium px-2 py-0.5 rounded-full;
 }
 
 .sidebar__mobile-user {
-  @apply lg:hidden absolute bottom-16 left-0 right-0 px-4;
+  @apply lg:hidden shrink-0 px-4 pb-4;
 }
 .sidebar__mobile-user-inner {
   @apply border-t border-border pt-4;
@@ -96,7 +102,7 @@
 }
 
 .sidebar__toggle {
-  @apply hidden lg:flex absolute bottom-4 right-4 w-8 h-8 items-center justify-center rounded-lg bg-neutral-soft hover:bg-border transition-colors;
+  @apply hidden lg:flex w-8 h-8 items-center justify-center rounded-lg bg-neutral-soft hover:bg-border transition-colors;
 }
 .sidebar__toggle-icon {
   @apply w-4 h-4 text-text-secondary;

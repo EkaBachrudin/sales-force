@@ -19,16 +19,20 @@
   @apply text-text-primary;
 }
 .analytics-page__filter {
-  @apply flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-xl border border-border mb-6;
+  @apply flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-xl border border-border mb-6;
 }
 .analytics-page__filter-main {
-  @apply flex items-center gap-3 flex-wrap;
+  @apply flex flex-col sm:flex-row items-start sm:items-center gap-3 min-w-0 w-full sm:w-auto;
 }
 .analytics-page__filter-label {
   @apply text-sm font-medium text-text-primary;
 }
 .analytics-page__filter-segmented {
-  @apply inline-flex items-center gap-1 p-1 rounded-lg bg-neutral-soft;
+  @apply inline-flex items-center gap-1 p-1 rounded-lg bg-neutral-soft w-full sm:w-auto max-w-full overflow-x-auto;
+  scrollbar-width: none;
+}
+.analytics-page__filter-segmented::-webkit-scrollbar {
+  display: none;
 }
 .analytics-page__range-button {
   @apply px-3.5 py-1.5 rounded-md text-sm font-medium transition-all duration-150;

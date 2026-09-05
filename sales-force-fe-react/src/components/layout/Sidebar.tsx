@@ -87,21 +87,23 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
       )}
     >
       {/* Logo Section */}
-      <div className="sidebar__logo">
-        {!collapsed && (
-          <Link to="/" className="sidebar__logo-link">
-            <img src="/sforce-logo.webp" alt="Sales CRM Pro" className="sidebar__logo-img" />
-          </Link>
-        )}
-        {collapsed && (
-          <Link to="/" className="sidebar__logo-link">
-            <img src="/sforce-icon.webp" alt="Sales CRM Pro" className="sidebar__logo-img" />
-          </Link>
-        )}
+      <div className={cn('sidebar__logo', collapsed && 'sidebar__logo--collapsed')}>
+        <Link to="/" className="sidebar__logo-link">
+          <img src={collapsed && !mobileOpen ? '/sforce-icon.webp' : '/sforce-logo.webp'} alt="Sales CRM Pro" className="sidebar__logo-img" />
+        </Link>
 
         {/* Mobile Close Button */}
         <button onClick={onCloseMobile} className="sidebar__close">
           <X className="sidebar__close-icon" />
+        </button>
+
+        {/* Collapse Toggle - Desktop only */}
+        <button onClick={onToggle} className="sidebar__toggle">
+          {collapsed ? (
+            <ChevronRight className="sidebar__toggle-icon" />
+          ) : (
+            <ChevronLeft className="sidebar__toggle-icon" />
+          )}
         </button>
       </div>
 
@@ -182,14 +184,6 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
         </div>
       )}
 
-      {/* Collapse Toggle - Desktop only */}
-      <button onClick={onToggle} className="sidebar__toggle">
-        {collapsed ? (
-          <ChevronRight className="sidebar__toggle-icon" />
-        ) : (
-          <ChevronLeft className="sidebar__toggle-icon" />
-        )}
-      </button>
     </aside>
   );
 }
