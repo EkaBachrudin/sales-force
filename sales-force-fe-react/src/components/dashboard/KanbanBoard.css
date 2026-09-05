@@ -4,13 +4,13 @@
   @apply w-full;
 }
 .kanban-board__header {
-  @apply flex items-center justify-between mb-4;
+  @apply flex items-center justify-between gap-4 mb-4;
 }
 .kanban-board__title {
-  @apply text-lg font-semibold text-text-primary;
+  @apply text-lg font-semibold text-text-primary flex-shrink-0;
 }
 .kanban-board__header-actions {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-3 flex-1 justify-end;
 }
 .kanban-board__board-button {
   @apply px-3 py-1.5 text-sm text-text-secondary hover:text-text-primary border border-border rounded-lg hover:bg-background transition-colors;

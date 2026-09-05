@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { KanbanBoard, type Lead, type PipelineStage } from '@/components/dashboard/KanbanBoard';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { usePipeline, usePipelineMutations } from '@/hooks/usePipeline';
 import type { PipelineLeadItem } from '@/lib/types';
@@ -127,33 +127,34 @@ export default function PipelinePage() {
   return (
     <>
       <DashboardLayout title="Pipeline" subtitle="Manage your leads through the sales pipeline">
-        {/* Search Bar */}
-        <div className="pipeline-page__search">
-          <div className="pipeline-page__search-inner">
-            <Search className="pipeline-page__search-icon" />
-            <input
-              type="text"
-              placeholder="Search leads by name..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pipeline-page__search-input"
-            />
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="pipeline-page__clear"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-
         <KanbanBoard
           leads={leads}
           onLeadClick={handleLeadClick}
           onStageChange={handleStageChange}
           isUpdating={isUpdatingStatus}
+          headerActions={
+            <div className="pipeline-page__search">
+              <div className="pipeline-page__search-inner">
+                <Search className="pipeline-page__search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search leads by name..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pipeline-page__search-input"
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch('')}
+                    className="pipeline-page__clear"
+                    aria-label="Clear search"
+                  >
+                    <X className="pipeline-page__clear-icon" />
+                  </button>
+                )}
+              </div>
+            </div>
+          }
         />
 
         {/* Pagination Controls */}

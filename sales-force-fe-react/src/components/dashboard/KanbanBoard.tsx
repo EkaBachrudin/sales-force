@@ -54,6 +54,7 @@ export interface KanbanBoardProps {
   onStageChange?: (leadId: string, newStage: PipelineStage) => void;
   className?: string;
   isUpdating?: boolean;
+  headerActions?: React.ReactNode;
 }
 
 // Touch state interface
@@ -68,7 +69,7 @@ interface TouchState {
   clone: HTMLElement | null;
 }
 
-export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUpdating }: KanbanBoardProps) {
+export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUpdating, headerActions }: KanbanBoardProps) {
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [draggedOverStage, setDraggedOverStage] = useState<PipelineStage | null>(null);
   const draggedLeadRef = useRef<Lead | null>(null);
@@ -488,6 +489,7 @@ export function KanbanBoard({ leads, onLeadClick, onStageChange, className, isUp
       <div className="kanban-board__header">
         <h2 className="kanban-board__title">Pipeline</h2>
         <div className="kanban-board__header-actions">
+          {headerActions}
           <button className="kanban-board__board-button">Board</button>
         </div>
       </div>

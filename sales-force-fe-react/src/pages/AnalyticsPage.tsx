@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { RotateCcw } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ConversionMetricCard } from '@/components/analytics/ConversionMetricCard';
 import { FunnelChart } from '@/components/analytics/FunnelChart';
@@ -86,22 +87,32 @@ export default function AnalyticsPage() {
     <DashboardLayout title="Analytics" subtitle="Track your sales performance and metrics">
       {/* Filter - Data Range Selection */}
       <div className="analytics-page__filter">
-        <span className="analytics-page__filter-label">Filter Data:</span>
-        <div className="analytics-page__filter-buttons">
-          {DATA_RANGE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setDataRangeMonths(option.value)}
-              className={`analytics-page__range-button ${
-                dataRangeMonths === option.value
-                  ? 'analytics-page__range-button--active'
-                  : ''
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="analytics-page__filter-main">
+          <span className="analytics-page__filter-label">Filter Data</span>
+          <div className="analytics-page__filter-segmented">
+            {DATA_RANGE_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setDataRangeMonths(option.value)}
+                className={`analytics-page__range-button ${
+                  dataRangeMonths === option.value
+                    ? 'analytics-page__range-button--active'
+                    : ''
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
+        <button
+          onClick={() => setDataRangeMonths(6)}
+          className="analytics-page__reset"
+          aria-label="Clear filter"
+        >
+          <RotateCcw className="analytics-page__reset-icon" />
+          <span>Clear</span>
+        </button>
       </div>
 
       {/* Conversion Metrics */}
