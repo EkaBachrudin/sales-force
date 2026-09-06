@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -69,7 +70,7 @@ export function EditBlockModal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <>
       <div className="edit-block-modal__backdrop" onClick={onClose} />
       <div className="edit-block-modal__overlay">
@@ -106,6 +107,7 @@ export function EditBlockModal({
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }

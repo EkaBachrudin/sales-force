@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
@@ -22,7 +23,7 @@ export function DeleteBlockModal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <>
       <div className="delete-block-modal__backdrop" onClick={onClose} />
       <div className="delete-block-modal__overlay">
@@ -56,6 +57,7 @@ export function DeleteBlockModal({
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }

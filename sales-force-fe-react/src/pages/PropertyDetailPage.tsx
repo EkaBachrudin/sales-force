@@ -16,7 +16,7 @@ import { EditUnitModal } from '@/components/properties/EditUnitModal';
 import type { BlockListItem, UnitListItem } from '@/lib/types';
 import { usePropertyDetail, usePropertyUpdate } from '@/hooks/usePropertyDetail';
 import { useBlockMutations } from '@/hooks/useBlocks';
-import { useUnits, useUnitMutations } from '@/hooks/useUnits';
+import { useUnitMutations } from '@/hooks/useUnits';
 import './PropertyDetailPage.css';
 
 export default function PropertyDetailPage() {
@@ -188,6 +188,10 @@ export default function PropertyDetailPage() {
     setIsManageUnitsModalOpen(true);
   };
 
+  const handleActiveBlockChange = (block: BlockListItem) => {
+    setSelectedBlock(block);
+  };
+
   const handleDeleteUnit = async (unitId: string) => {
     if (!selectedBlock) return;
 
@@ -270,7 +274,6 @@ export default function PropertyDetailPage() {
 
   const handleDeleteBlockFromModal = () => {
     if (selectedBlock) {
-      setIsManageUnitsModalOpen(false);
       handleDeleteBlock(selectedBlock);
     }
   };
@@ -558,9 +561,11 @@ export default function PropertyDetailPage() {
           onDeleteBlock={handleDeleteBlockFromModal}
           onDeleteUnit={handleDeleteUnit}
           onManageUnit={handleManageUnitDetail}
+          onEditBlock={handleEditBlock}
           propertyName={property.name}
-          blockName={selectedBlock.name}
+          blocks={blocks}
           blockId={selectedBlock.id}
+          onActiveBlockChange={handleActiveBlockChange}
           onUnitsLoaded={handleUnitsLoaded}
         />
       )}
@@ -587,10 +592,13 @@ function ManageUnitsModalWrapper({
   onAddUnit,
   onDeleteBlock,
   onDeleteUnit,
+  onDeleteUnits,
   onManageUnit,
+  onEditBlock,
   propertyName,
-  blockName,
   blockId,
+  blocks,
+  onActiveBlockChange,
   onUnitsLoaded,
 }: {
   isOpen: boolean;
@@ -598,32 +606,30 @@ function ManageUnitsModalWrapper({
   onAddUnit: (blockId: string) => void;
   onDeleteBlock: () => void;
   onDeleteUnit: (unitId: string) => void;
+  onDeleteUnits?: (unitIds: string[]) => void;
   onManageUnit: (unitId: string) => void;
+  onEditBlock?: (block: BlockListItem) => void;
   propertyName: string;
-  blockName: string;
   blockId: string;
+  blocks: BlockListItem[];
+  onActiveBlockChange: (block: BlockListItem) => void;
   onUnitsLoaded: (units: UnitListItem[]) => void;
 }) {
-  const { data, isLoading } = useUnits(isOpen ? blockId : '');
-
-  useEffect(() => {
-    if (data?.data?.units) {
-      onUnitsLoaded(data.data.units);
-    }
-  }, [data, onUnitsLoaded]);
-
   return (
     <ManageUnitsModal
       isOpen={isOpen}
       onClose={onClose}
-      onAddUnit={() => onAddUnit(blockId)}
+      onAddUnit={onAddUnit}
       onDeleteBlock={onDeleteBlock}
       onDeleteUnit={onDeleteUnit}
+      onDeleteUnits={onDeleteUnits}
       onManageUnit={onManageUnit}
-      isLoading={isLoading}
-      units={data?.data?.units || []}
+      onEditBlock={onEditBlock}
+      onActiveBlockChange={onActiveBlockChange}
+      onUnitsLoaded={onUnitsLoaded}
+      blocks={blocks}
+      initialBlockId={blockId}
       propertyName={propertyName}
-      blockName={blockName}
     />
   );
 }

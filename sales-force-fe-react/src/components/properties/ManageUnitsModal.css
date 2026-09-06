@@ -1,80 +1,288 @@
 @reference "../../index.css";
 
-.manage-units-modal__backdrop {
-  @apply fixed inset-0 bg-black/50 z-40 transition-opacity duration-300;
+/* ============================================================
+   Manage Units Modal — BEM
+   Block: manage-units
+   ============================================================ */
+
+/* ---- Layout: backdrop, overlay, panel ---- */
+.manage-units__backdrop {
+  @apply fixed inset-0 bg-black/50 z-40 transition-opacity;
 }
-.manage-units-modal__overlay {
+.manage-units__overlay {
   @apply fixed inset-0 z-50 flex items-center justify-center p-4;
 }
-.manage-units-modal__panel {
-  @apply bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col;
+.manage-units__panel {
+  @apply bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90svh] flex flex-col overflow-hidden;
 }
-.manage-units-modal__header {
-  @apply p-6 border-b border-border;
+
+/* ---- Empty state (no blocks) ---- */
+.manage-units__empty {
+  @apply bg-white rounded-2xl shadow-xl w-full max-w-md p-6 text-center;
 }
-.manage-units-modal__header-row {
-  @apply flex items-start justify-between;
+.manage-units__empty-text {
+  @apply text-text-secondary;
 }
-.manage-units-modal__title {
+.manage-units__empty-close {
+  @apply mt-4 text-sm text-primary hover:underline;
+}
+
+/* ---- Header ---- */
+.manage-units__header {
+  @apply p-4 sm:p-6 border-b border-border flex items-center sm:items-start justify-between gap-3 flex-shrink-0;
+}
+.manage-units__header-info {
+  @apply flex-1 text-left;
+}
+.manage-units__title {
   @apply text-xl font-semibold text-text-primary;
 }
-.manage-units-modal__property {
-  @apply text-sm font-medium text-text-secondary mt-1;
+.manage-units__subtitle {
+  @apply text-sm text-text-secondary mt-1;
 }
-.manage-units-modal__add-icon {
+.manage-units__add-btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors;
+}
+.manage-units__add-btn-icon {
   @apply w-4 h-4;
 }
-.manage-units-modal__content {
-  @apply overflow-y-auto flex-1 p-6;
+
+/* ---- Block tabs ---- */
+.manage-units__tabs-row {
+  @apply px-6 pt-4 flex items-center gap-2 flex-shrink-0;
 }
-.manage-units-modal__block {
-  @apply mb-4;
+.manage-units__tabs {
+  @apply flex-1 min-w-0 flex items-center gap-1 overflow-x-auto;
 }
-.manage-units-modal__block-name {
-  @apply text-xl font-medium text-text-primary;
+.manage-units__tab {
+  @apply px-4 py-2 text-sm font-medium rounded-t-sm transition-colors whitespace-nowrap text-text-secondary hover:text-text-primary hover:bg-neutral-soft;
 }
-.manage-units-modal__loading {
-  @apply flex items-center justify-center py-12;
+.manage-units__tab--active {
+  @apply bg-primary-light text-primary border-b-2 border-primary;
 }
-.manage-units-modal__loading-text {
+
+/* ---- Block actions (desktop) ---- */
+.manage-units__block-actions {
+  @apply hidden sm:flex items-center gap-2 ml-auto flex-shrink-0;
+}
+.manage-units__block-action {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors;
+}
+.manage-units__block-action--edit {
+  @apply text-primary border border-primary/30 hover:bg-primary-light cursor-pointer;
+}
+.manage-units__block-action--delete {
+  @apply text-white bg-danger hover:bg-danger/90 cursor-pointer;
+}
+.manage-units__block-action-icon {
+  @apply w-3.5 h-3.5;
+}
+
+/* ---- Block actions (mobile dropdown) ---- */
+.manage-units__menu {
+  @apply sm:hidden relative ml-auto flex-shrink-0;
+}
+.manage-units__menu-btn {
+  @apply p-2 text-text-secondary hover:text-text-primary hover:bg-neutral-soft rounded-lg transition-colors;
+}
+.manage-units__menu-icon {
+  @apply w-5 h-5;
+}
+.manage-units__menu-dropdown {
+  @apply absolute right-0 top-full mt-1 bg-white border border-border rounded-lg shadow-lg z-10 min-w-[160px] py-1;
+}
+.manage-units__menu-item {
+  @apply w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-neutral-soft transition-colors flex items-center gap-2;
+}
+.manage-units__menu-item--danger {
+  @apply text-danger;
+}
+.manage-units__menu-item-icon {
+  @apply w-4 h-4;
+}
+.manage-units__menu-item-icon--primary {
+  @apply text-primary;
+}
+
+/* ---- Search & filter controls ---- */
+.manage-units__controls {
+  @apply px-4 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-b border-border flex-shrink-0;
+}
+.manage-units__search {
+  @apply relative flex-1;
+}
+.manage-units__search-icon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none;
+}
+.manage-units__search-input {
+  @apply w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors;
+}
+.manage-units__filter {
+  @apply px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors bg-white min-w-[160px];
+}
+.manage-units__bulk-btn {
+  @apply inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-danger rounded-lg hover:bg-danger/90 transition-colors whitespace-nowrap;
+}
+.manage-units__bulk-btn-icon {
+  @apply w-4 h-4;
+}
+
+/* ---- Content area & states ---- */
+.manage-units__content {
+  @apply flex-1 overflow-y-auto p-4 sm:p-6 min-h-[180px] sm:min-h-[340px];
+}
+.manage-units__state {
+  @apply flex flex-col items-center justify-center py-16;
+}
+.manage-units__state-title {
+  @apply text-base font-medium text-text-primary mb-1;
+}
+.manage-units__state-text {
   @apply text-sm text-text-secondary;
 }
-.manage-units-modal__empty {
-  @apply flex flex-col items-center justify-center py-12;
+
+/* ---- Desktop table ---- */
+.manage-units__table {
+  @apply hidden md:table w-full;
 }
-.manage-units-modal__empty-title {
-  @apply text-base font-medium text-text-primary mb-2;
+.manage-units__table-head {
+  @apply border-b border-border;
 }
-.manage-units-modal__empty-text {
+.manage-units__table-th {
+  @apply py-3 px-4 text-left text-xs font-medium text-text-secondary uppercase tracking-wider;
+}
+.manage-units__table-th--right {
+  @apply text-right;
+}
+.manage-units__table-th--checkbox {
+  @apply w-12;
+}
+.manage-units__table-tr {
+  @apply border-b border-border last:border-b-0 hover:bg-neutral-soft transition-colors;
+}
+.manage-units__table-td {
+  @apply py-3 px-4;
+}
+.manage-units__table-td--name {
+  @apply font-medium text-text-primary;
+}
+.manage-units__table-td--area {
+  @apply text-text-secondary;
+}
+.manage-units__table-td--right {
+  @apply text-right;
+}
+.manage-units__checkbox {
+  @apply rounded border-border;
+}
+.manage-units__checkbox--card {
+  @apply mt-0.5;
+}
+
+/* ---- Row action buttons ---- */
+.manage-units__row-actions {
+  @apply flex items-center gap-1;
+}
+.manage-units__row-actions--right {
+  @apply justify-end;
+}
+.manage-units__row-action {
+  @apply p-1.5 rounded-lg transition-colors;
+}
+.manage-units__row-action--edit {
+  @apply text-primary hover:bg-primary-light;
+}
+.manage-units__row-action--delete {
+  @apply text-danger hover:bg-danger/10;
+}
+.manage-units__row-action-icon {
+  @apply w-4 h-4;
+}
+
+/* ---- Mobile cards ---- */
+.manage-units__cards {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden;
+}
+.manage-units__card {
+  @apply bg-white border border-border rounded-xl p-4;
+}
+.manage-units__card-top {
+  @apply flex items-start justify-between mb-3;
+}
+.manage-units__card-area {
   @apply text-sm text-text-secondary;
 }
-.manage-units-modal__list {
-  @apply space-y-3;
+.manage-units__card-name {
+  @apply text-lg font-semibold text-text-primary mb-3;
 }
-.manage-units-modal__unit {
-  @apply w-full bg-white border border-border rounded-lg p-4 hover:border-border transition-colors;
-}
-.manage-units-modal__unit-row {
+.manage-units__card-bottom {
   @apply flex items-center justify-between;
 }
-.manage-units-modal__unit-info {
-  @apply flex-1;
+
+/* ---- Status badges ---- */
+.manage-units__badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border;
 }
-.manage-units-modal__unit-name {
-  @apply text-base font-semibold text-text-primary mb-2;
+.manage-units__badge--available {
+  @apply bg-status-available/10 text-status-available border-status-available/20;
 }
-.manage-units-modal__unit-meta {
-  @apply flex items-center gap-4 text-sm text-text-secondary;
+.manage-units__badge--sold {
+  @apply bg-status-sold/10 text-status-sold border-status-sold/20;
 }
-.manage-units-modal__unit-actions {
-  @apply flex items-center gap-2 ml-4;
+.manage-units__badge--reserved {
+  @apply bg-status-reserved/10 text-status-reserved border-status-reserved/20;
 }
-.manage-units-modal__unit-action-icon {
+.manage-units__badge--booked {
+  @apply bg-status-booked/10 text-status-booked border-status-booked/20;
+}
+.manage-units__badge--default {
+  @apply bg-neutral-soft text-text-secondary border-border;
+}
+.manage-units__badge-icon {
+  @apply w-3.5 h-3.5;
+}
+
+/* ---- Footer ---- */
+.manage-units__footer {
+  @apply border-t border-border p-4 sm:p-6 space-y-4 flex-shrink-0;
+}
+.manage-units__pagination {
+  @apply flex flex-col sm:flex-row items-center justify-between gap-1 lg:gap-4;
+}
+.manage-units__pagination-info {
+  @apply text-sm text-text-secondary;
+}
+.manage-units__pagination-btns {
+  @apply flex items-center gap-1;
+}
+.manage-units__page-btn {
+  @apply inline-flex items-center justify-center text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+.manage-units__page-btn--nav {
+  @apply gap-1 px-3 py-1.5 text-text-secondary border border-border rounded-lg hover:bg-neutral-soft;
+}
+.manage-units__page-btn--number {
+  @apply w-8 h-8 font-medium rounded-lg text-text-secondary hover:bg-neutral-soft;
+}
+.manage-units__page-btn--active {
+  @apply bg-primary text-white hover:bg-primary-hover;
+}
+.manage-units__page-icon {
   @apply w-4 h-4;
 }
-.manage-units-modal__footer {
-  @apply flex items-center justify-between p-6 border-t border-border;
+.manage-units__close-row {
+  @apply flex justify-end;
 }
-.manage-units-modal__delete-icon {
+.manage-units__close-btn {
+  @apply inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-secondary bg-white border border-border rounded-lg hover:bg-neutral-soft transition-colors;
+}
+.manage-units__close-icon {
   @apply w-4 h-4;
+}
+
+/* ---- Safety net: short viewport height — guarantee footer visibility ---- */
+@media (max-height: 700px) {
+  .manage-units__content {
+    min-height: 0;
+  }
 }
