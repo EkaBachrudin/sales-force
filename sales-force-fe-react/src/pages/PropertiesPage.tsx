@@ -48,6 +48,19 @@ function PropertyModal({ isOpen, onClose, onSubmit, property, isLoading }: Prope
     }
   }, [property, isOpen]);
 
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 

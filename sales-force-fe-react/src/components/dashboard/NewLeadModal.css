@@ -83,7 +83,7 @@
   @apply rounded-xl overflow-hidden;
 }
 .new-lead-modal__toggle {
-  @apply w-full flex items-center justify-between hover:bg-background transition-colors mb-3;
+  @apply w-full flex items-center justify-between hover:bg-background transition-colors mb-3 h-10;
 }
 .new-lead-modal__toggle-title {
   @apply text-sm font-semibold text-text-primary flex items-center gap-2 flex-wrap;

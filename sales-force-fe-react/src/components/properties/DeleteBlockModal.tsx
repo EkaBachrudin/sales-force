@@ -1,5 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import './DeleteBlockModal.css';
 
 interface DeleteBlockModalProps {
@@ -17,6 +18,8 @@ export function DeleteBlockModal({
   isLoading = false,
   blockName = '',
 }: DeleteBlockModalProps) {
+  useLockBodyScroll(isOpen);
+
   if (!isOpen) return null;
 
   return (

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox';
 import type { User, CreateUserDto, UpdateUserDto } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import './UserModal.css';
 
 const roleOptions: ComboboxOption[] = [
@@ -85,6 +86,8 @@ export function UserModal({
       setShowPassword(false);
     }
   }, [isOpen, mode, user]);
+
+  useLockBodyScroll(isOpen);
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

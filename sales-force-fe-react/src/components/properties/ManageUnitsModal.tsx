@@ -1,6 +1,7 @@
 import { Building2, Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import type { UnitListItem } from '@/lib/types';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import './ManageUnitsModal.css';
 
 interface ManageUnitsModalProps {
@@ -28,6 +29,8 @@ export function ManageUnitsModal({
   propertyName = '',
   blockName = '',
 }: ManageUnitsModalProps) {
+  useLockBodyScroll(isOpen);
+
   if (!isOpen) return null;
 
   return (

@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import type { UnitListItem } from '@/lib/types';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import './EditUnitModal.css';
 
 interface EditUnitModalProps {
@@ -31,6 +32,8 @@ export function EditUnitModal({
       setErrors({});
     }
   }, [isOpen, unit]);
+
+  useLockBodyScroll(isOpen);
 
   const handleInputChange = (value: string) => {
     setUnitName(value);
