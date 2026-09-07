@@ -177,7 +177,8 @@ export const getPipelineData = async (query: GetPipelineQuery, userId: string, u
 export const updateLeadStatus = async (
   leadId: string,
   dto: UpdateLeadStatusDto,
-  userId: string
+  userId: string,
+  userRole: string
 ): Promise<UpdateLeadStatusResponse> => {
   // Validate status
   if (!validateStatus(dto.status)) {
@@ -195,6 +196,8 @@ export const updateLeadStatus = async (
     );
   }
 
+  // RBAC: Admin & Supervisor can modify ALL leads; Sales only their own
+  const isPrivilegedRole = userRole === 'Admin' || userRole === 'Supervisor';
 
   const client = await pool.connect();
   try {
@@ -210,8 +213,8 @@ export const updateLeadStatus = async (
       throw new AppError('Lead not found', 404);
     }
 
-    // Check if lead is assigned to this user
-    if (leadCheck.rows[0].assigned_to !== userId) {
+    // Check ownership — bypassed for Admin/Supervisor
+    if (!isPrivilegedRole && leadCheck.rows[0].assigned_to !== userId) {
       throw new AppError('You do not have permission to modify this lead', 403);
     }
 
@@ -224,10 +227,10 @@ export const updateLeadStatus = async (
       SET
         status = $2,
         updated_at = NOW()
-      WHERE id = $1
+      WHERE id = $1 AND (assigned_to = $3 OR $4::boolean)
       RETURNING *
     `;
-    const updateResult = await client.query(updateQuery, [leadId, dto.status]);
+    const updateResult = await client.query(updateQuery, [leadId, dto.status, userId, isPrivilegedRole]);
     const updatedLead = updateResult.rows[0];
 
     // Insert activity log

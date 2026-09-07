@@ -180,6 +180,16 @@ LIMIT $5 OFFSET $6;
 
 **Method**: `PUT`
 
+**Permissions / Authorization Rules**:
+
+| Role | Access |
+| --- | --- |
+| `Admin` | Full access — can modify status of **all leads** (bypass strict owner check) |
+| `Supervisor` | Full access — can modify status of **all leads** (bypass strict owner check) |
+| `Sales` | Limited — can modify status **only of leads assigned to them** (`leads.assigned_to` = current user) |
+
+> **Note**: The authorization check is enforced in two layers for the UPDATE query (defense against TOCTOU race): an application-layer ownership check (bypassed for Admin/Supervisor) plus a database-level guard `AND (assigned_to = $3 OR $4::boolean)` on the `UPDATE` statement.
+
 **Path Parameters**:
 
 | Parameter | Type | Required | Description |
@@ -206,7 +216,8 @@ LIMIT $5 OFFSET $6;
 **Validation Rules**:
 - `status`: Required, must be one of the 7 valid enum values
 - `reason`: Required only when `status` = `cancelled`. For other statuses, this field is optional and will be ignored
-- The lead must exist and `assigned_to` must equal the current user
+- The lead must exist
+- Ownership is enforced via RBAC: Sales can only update leads where `assigned_to` = current user; Admin/Supervisor bypass this check
 - If the lead has a `unit_id`, the status change will trigger a DB trigger that automatically updates the unit status (see [Unit Status Auto-Update Reference](about:blank#42-unit-status-auto-update-via-db-trigger))
 
 **Database Impact - UPDATE Operations**:
@@ -218,7 +229,7 @@ UPDATE leads
 SET
     status = $2,
     updated_at = NOW()
-WHERE id = $1 AND assigned_to = $3
+WHERE id = $1 AND (assigned_to = $3 OR $4::boolean)
 RETURNING *;
 ```
 
@@ -513,7 +524,7 @@ Follows the same error response standard as [API Design - Properties V2](https:/
 | --- | --- | --- | --- |
 | `VALIDATION_ERROR` | 400 | Request validation failed | `status` is not a valid enum value, or `reason` is empty when status=`cancelled` |
 | `UNAUTHORIZED` | 401 | No valid token | All endpoints |
-| `FORBIDDEN` | 403 | Lead does not belong to user (assigned_to ≠ current user) | PUT status, GET pipeline |
+| `FORBIDDEN` | 403 | Non-privileged user (Sales) attempts to modify a lead where `assigned_to` ≠ current user | PUT status |
 | `NOT_FOUND` | 404 | Lead not found | PUT status |
 | `INVALID_STATUS_TRANSITION` | 422 | Invalid status transition (if restricted in the future) | PUT status |
 
@@ -560,7 +571,7 @@ Follows the same error response standard as [API Design - Properties V2](https:/
 ```
 
 ```json
-// Lead belongs to another user
+// Sales user attempts to modify a lead assigned to another user
 {
   "success": false,
   "error": {

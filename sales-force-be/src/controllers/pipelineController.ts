@@ -86,8 +86,10 @@ export const updateLeadStatusController = async (req: Request, res: Response): P
     return;
   }
 
+  const userRole = req.user!.role;
+
   try {
-    const result = await updateLeadStatus(id as string, dto, userId);
+    const result = await updateLeadStatus(id as string, dto, userId, userRole);
     res.status(200).json({
       success: true,
       message: 'Lead status updated successfully',
