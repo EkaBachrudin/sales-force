@@ -49,7 +49,7 @@
 
 /* ---- Block tabs ---- */
 .manage-units__tabs-row {
-  @apply px-6 pt-4 flex items-center gap-2 flex-shrink-0;
+  @apply px-6 pt-4 items-center gap-2 flex-shrink-0 hidden lg:flex;
 }
 .manage-units__tabs {
   @apply flex-1 min-w-0 flex items-center gap-1 overflow-x-auto;
@@ -129,7 +129,7 @@
 
 /* ---- Content area & states ---- */
 .manage-units__content {
-  @apply flex-1 overflow-y-auto p-4 sm:p-6 min-h-[180px] sm:min-h-[340px];
+  @apply flex-1 overflow-y-auto p-4 sm:p-6 min-h-[180px] sm:min-h-[430px];
 }
 .manage-units__state {
   @apply flex flex-col items-center justify-center py-16;

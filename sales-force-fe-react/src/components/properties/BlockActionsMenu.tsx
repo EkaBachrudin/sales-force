@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -16,19 +16,46 @@ export function BlockActionsMenu({ onEdit, onDelete, ariaLabel = 'Block actions'
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const updatePosition = () => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setPosition({
-      top: rect.bottom + 4,
-      right: Math.max(8, window.innerWidth - rect.right),
-    });
+  const handleToggle = () => {
+    if (!isOpen) {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        setPosition({
+          top: rect.bottom + 4,
+          right: Math.max(8, window.innerWidth - rect.right),
+        });
+      }
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
   };
 
-  const handleToggle = () => {
-    if (!isOpen) updatePosition();
-    setIsOpen((prev) => !prev);
-  };
+  useLayoutEffect(() => {
+    if (!isOpen || !dropdownRef.current) return;
+
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const dropdownHeight = dropdownRef.current.offsetHeight;
+    const gap = 4;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    let top: number;
+    if (spaceBelow >= dropdownHeight + gap) {
+      top = rect.bottom + gap;
+    } else if (spaceAbove >= dropdownHeight + gap) {
+      top = rect.top - dropdownHeight - gap;
+    } else {
+      top = Math.max(gap, window.innerHeight - dropdownHeight - gap);
+    }
+
+    setPosition({
+      top,
+      right: Math.max(8, window.innerWidth - rect.right),
+    });
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
