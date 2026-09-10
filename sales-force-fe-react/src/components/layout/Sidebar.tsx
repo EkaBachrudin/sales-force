@@ -114,9 +114,8 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
           const isActive = pathname === item.route || (item.route !== '/' && pathname.startsWith(item.route + '/'));
 
           return (
-            <>
+            <React.Fragment key={item.route}>
               <Link
-                key={item.route}
                 to={item.route}
                 onClick={handleLinkClick}
                 className={cn(
@@ -144,7 +143,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
                   </>
                 )}
               </Link>
-            </>
+            </React.Fragment>
           );
         })}
       </nav>
