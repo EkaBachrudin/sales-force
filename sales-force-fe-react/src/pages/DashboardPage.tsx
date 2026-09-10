@@ -15,8 +15,12 @@ const transformReminder = (apiReminder: ReminderItem): Reminder => ({
   leadId: apiReminder.lead.id,
   leadName: apiReminder.lead.name,
   leadPhone: apiReminder.lead.phone,
-  property: apiReminder.lead.property
-    ? `${apiReminder.lead.property.name}, ${apiReminder.lead.property.property_type}`
+  property: apiReminder.lead.unit?.block.property.name
+    ? `${apiReminder.lead.unit.block.property.name}${
+        apiReminder.lead.property_price
+          ? ` - Rp ${apiReminder.lead.property_price.toLocaleString('id-ID')}`
+          : ''
+      }`
     : 'No property',
   scheduledFor: apiReminder.remind_at,
   type: 'follow-up',
