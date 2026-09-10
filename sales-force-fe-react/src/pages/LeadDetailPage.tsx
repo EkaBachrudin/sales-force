@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
-import { Phone, MessageCircle, Mail, Calculator, Bell, ArrowLeft, Building2, MapPin, UserMinus } from 'lucide-react';
+import { Phone, MessageCircle, Mail, Calculator, Bell, ArrowLeft, Building2, MapPin, UserMinus, CalendarClock, History } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -193,6 +193,36 @@ export default function LeadDetailPage() {
 
   const formatCurrencyInput = (value: number) => {
     return new Intl.NumberFormat('id-ID').format(value);
+  };
+
+  const formatDateTime = (value?: string | null): string | null => {
+    if (!value) return null;
+    return new Date(value).toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const isSameDay = (date: Date, compare: Date) => {
+    return (
+      date.getFullYear() === compare.getFullYear() &&
+      date.getMonth() === compare.getMonth() &&
+      date.getDate() === compare.getDate()
+    );
+  };
+
+  const getFollowupLabel = (value?: string | null): string | null => {
+    if (!value) return null;
+    const date = new Date(value);
+    const now = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (isSameDay(date, now)) return `Today ${date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+    if (isSameDay(date, tomorrow)) return `Tomorrow ${date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+    return formatDateTime(value);
   };
 
   const formatPhoneNumber = (value: string) => {
@@ -561,6 +591,48 @@ export default function LeadDetailPage() {
                 )}
               </div>
             )}
+          </div>
+
+          {/* Follow-up Schedule */}
+          <div className="lead-detail-page__card">
+            <h3 className="lead-detail-page__section-title">
+              <span className="lead-detail-page__section-accent lead-detail-page__section-accent--primary"></span>
+              Follow-up Schedule
+            </h3>
+            <div className="lead-detail-page__section-body">
+              <div className="lead-detail-page__followup-grid">
+                <div className="lead-detail-page__followup-item lead-detail-page__followup-item--next">
+                  <div className="lead-detail-page__followup-icon lead-detail-page__followup-icon--next">
+                    <CalendarClock className="lead-detail-page__followup-icon-svg lead-detail-page__followup-icon-svg--next" />
+                  </div>
+                  <div className="lead-detail-page__followup-info">
+                    <label className="lead-detail-page__field-label">Next Follow-up</label>
+                    {getFollowupLabel(lead.next_follow_up_at) ? (
+                      <span className="lead-detail-page__followup-pill">
+                        {getFollowupLabel(lead.next_follow_up_at)}
+                      </span>
+                    ) : (
+                      <p className="lead-detail-page__followup-empty">No upcoming follow-up scheduled</p>
+                    )}
+                  </div>
+                </div>
+                <div className="lead-detail-page__followup-item lead-detail-page__followup-item--last">
+                  <div className="lead-detail-page__followup-icon lead-detail-page__followup-icon--last">
+                    <History className="lead-detail-page__followup-icon-svg lead-detail-page__followup-icon-svg--last" />
+                  </div>
+                  <div className="lead-detail-page__followup-info">
+                    <label className="lead-detail-page__field-label">Last Followed-up</label>
+                    {formatDateTime(lead.last_followed_up_at) ? (
+                      <p className="lead-detail-page__followup-value">
+                        {formatDateTime(lead.last_followed_up_at)}
+                      </p>
+                    ) : (
+                      <p className="lead-detail-page__followup-empty">Never</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Reminder */}

@@ -189,6 +189,42 @@
 .lead-detail-page__datetime {
   @apply w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
 }
+.lead-detail-page__followup-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+.lead-detail-page__followup-item {
+  @apply flex items-start gap-3 p-4 rounded-lg border border-border bg-background;
+}
+.lead-detail-page__followup-icon {
+  @apply w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0;
+}
+.lead-detail-page__followup-icon--next {
+  @apply bg-primary/10;
+}
+.lead-detail-page__followup-icon--last {
+  @apply bg-neutral-soft;
+}
+.lead-detail-page__followup-icon-svg {
+  @apply w-4 h-4;
+}
+.lead-detail-page__followup-icon-svg--next {
+  @apply text-primary;
+}
+.lead-detail-page__followup-icon-svg--last {
+  @apply text-text-secondary;
+}
+.lead-detail-page__followup-info {
+  @apply min-w-0;
+}
+.lead-detail-page__followup-pill {
+  @apply inline-flex px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium;
+}
+.lead-detail-page__followup-value {
+  @apply text-sm font-medium text-text-primary;
+}
+.lead-detail-page__followup-empty {
+  @apply text-sm text-text-secondary;
+}
 .lead-detail-page__quick-actions {
   @apply grid grid-cols-1 md:grid-cols-3 gap-3 pl-3;
 }
