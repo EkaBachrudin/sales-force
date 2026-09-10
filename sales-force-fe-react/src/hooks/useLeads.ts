@@ -115,6 +115,7 @@ export function useLeadMutations(options?: {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['pipeline'] });
+      queryClient.invalidateQueries({ queryKey: ['unitDetail'] });
       options?.onUpdateSuccess?.();
     },
     onError: (err: any) => {
